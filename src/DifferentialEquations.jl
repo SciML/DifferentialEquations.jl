@@ -27,7 +27,7 @@ include("general/problemTools.jl")
 include("fem/femSolvers.jl")
 
 #Types
-export HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh
+export PdeProblem, HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh
 
 #Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,

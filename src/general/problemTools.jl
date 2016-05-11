@@ -1,12 +1,14 @@
 """
 HeatProblem
 
-Wraps the data that define a 2D linear heat equation problem: 
+Wraps the data that define a 2D linear heat equation problem:
 
+``u_t = Δu + f(x,t)``
 #Constructors
+
 HeatProblem(sol,Du,f): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y], and f.
 
-HeatProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f, 
+HeatProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f,
 Dirichlet boundary function gD, and Neumann boundary function gN.
 """
 type HeatProblem <: PdeProblem
@@ -37,12 +39,14 @@ end
 """
 PoissonProblem
 
-Wraps the data that define a 2D linear Poisson equation problem: 
+Wraps the data that define a 2D linear Poisson equation problem:
 
 #Constructors
-PoissonProblem(f,sol,Du,gN): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y], 
+
+PoissonProblem(f,sol,Du,gN): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
 f, and Neumann boundary data gN.
-PoissonProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f, 
+
+PoissonProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f,
 Dirichlet boundary function gD, and Neumann boundary function gN.
 """
 type PoissonProblem <: PdeProblem
@@ -52,7 +56,7 @@ type PoissonProblem <: PdeProblem
   sol
   "Du: Gradient of the solution to the Poisson problem"
   Du
-  "gD: Dirichlet Boundary Data" 
+  "gD: Dirichlet Boundary Data"
   gD
   "gN: Neumann Boundary Data"
   gN
