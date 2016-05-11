@@ -1,3 +1,8 @@
+"""
+FEMSolution
+
+A wrapper type which holds the data for the solution to a finite element problem.
+"""
 type FEMSolution
   femMesh::FEMmesh
   u
