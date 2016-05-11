@@ -1,4 +1,4 @@
-# DiffEq
+# DifferentialEquations.jl
 
 [![Join the chat at https://gitter.im/ChrisRackauckas/DiffEq.jl](https://badges.gitter.im/ChrisRackauckas/DiffEq.jl.svg)](https://gitter.im/ChrisRackauckas/DiffEq.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
