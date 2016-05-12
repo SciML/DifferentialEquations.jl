@@ -7,10 +7,13 @@ Wraps the data that define a 2D linear heat equation problem:
 
 #Constructors
 
-HeatProblem(sol,Du,f): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y], and f.
+HeatProblem(sol,Du,f,isLinear): Defines the Dirichlet problem with solution sol,
+solution gradient Du = [u_x,u_y], f, and a boolean which states whether the
+problem is linear (i.e. linear if f does not depend on u).
 
-HeatProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f,
-Dirichlet boundary function gD, and Neumann boundary function gN.
+HeatProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as a function or vector), f,
+Dirichlet boundary function gD,  Neumann boundary function gN, and a boolean which states whether the
+problem is linear (i.e. linear if f does not depend on u).
 """ ->
 type HeatProblem <: PdeProblem
   "u0: Initial value function or vector"
@@ -27,14 +30,17 @@ type HeatProblem <: PdeProblem
   sol
   "knownSol: Boolean which states whether the solution function is given"
   knownSol
-  function HeatProblem(sol,Du,f)
+  "isLinear: Boolean which states whether the problem is linear or nonlinear"
+  isLinear
+  function HeatProblem(sol,Du,f,isLinear)
+    knownSol = true
     u0(x) = sol(x,0)
     gD = sol
-    return(new(u0,Du,f,gD,nothing,sol,true))
+    return(new(u0,Du,f,gD,nothing,sol,knownSol,isLinear))
   end
-  function HeatProblem(u0,f,gD,gN)
+  function HeatProblem(u0,f,gD,gN,isLinear)
     knownSol = false
-    return(new(u0,nothing,f,gD,gN,nothing,false))
+    return(new(u0,nothing,f,gD,gN,nothing,knownSol,isLinear))
   end
 end
 """
@@ -46,10 +52,10 @@ Wraps the data that define a 2D linear Poisson equation problem:
 
 #Constructors
 
-PoissonProblem(f,sol,Du,gN): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
-f, and Neumann boundary data gN.
+PoissonProblem(f,sol,Du,gN,isLinear): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
+f, and Neumann boundary data gN,
 
-PoissonProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f,
+PoissonProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as a function or vector), f,
 Dirichlet boundary function gD, and Neumann boundary function gN.
 """
 type PoissonProblem <: PdeProblem
@@ -65,11 +71,13 @@ type PoissonProblem <: PdeProblem
   gN
   "knownSol: Boolean which states whether the solution function is given"
   knownSol
-  function PoissonProblem(f,sol,Du,gN)
-    return(new(f,sol,Du,sol,gN,true))
+  "isLinear: Boolean which states whether the problem is linear or nonlinear"
+  isLinear
+  function PoissonProblem(f,sol,Du,gN,isLinear)
+    return(new(f,sol,Du,sol,gN,true,isLinear))
   end
-  function PoissonProblem(f,gD,gN)
-    return(new(f,nothing,nothing,gD,gN,false))
+  function PoissonProblem(f,gD,gN,isLinear)
+    return(new(f,nothing,nothing,gD,gN,false,isLinear))
   end
 end
 
@@ -81,7 +89,8 @@ function heatProblemExample_moving()
     x[:,2]))).*((-20)+(-100).*t.^2+(-49).*x[:,1]+(-50).*x[:,1].^2+(-49).*x[:,2]+(-50).*
     x[:,2].^2+2.*t.*(47+50.*x[:,1]+50.*x[:,2])+exp(25.*(1+(-2).*t).^2).*(22+
     100.*t.^2+49.*x[:,1]+50.*x[:,1].^2+49.*x[:,2]+50.*x[:,2].^2+(-2).*t.*(49+50.*x[:,1]+50.*x[:,2])))
-  return(HeatProblem(sol,Du,f))
+  isLinear = true
+  return(HeatProblem(sol,Du,f,isLinear))
 end
 
 "Example problem with solution: u(x,y,t)=exp(-10((x-.5).^2 + (y-.5).^2 )-t)"
@@ -89,7 +98,8 @@ function heatProblemExample_diffuse()
   sol(x,t) = exp(-10((x[:,1]-.5).^2 + (x[:,2]-.5).^2 )-t)
   f(x,t)   = exp(-t-5*(1-2x[:,1]+2x[:,1].^2 - 2x[:,2] +2x[:,2].^2)).*(-161 + 400*(x[:,1] - x[:,1].^2 + x[:,2] - x[:,2].^2))
   Du(x,t) = -20[sol(x,t).*(x[:,1]-.5) sol(x,t).*(x[:,2]-.5)]
-  return(HeatProblem(sol,Du,f))
+  isLinear = true
+  return(HeatProblem(sol,Du,f,isLinear))
 end
 
 "Example problem which starts with 1 at (0.5,0.5) and solves with f=gD=0"
@@ -97,7 +107,18 @@ function heatProblemExample_pure()
   gD(x,t) = zeros(size(x,1))
   f(x,t)  = zeros(size(x,1))
   u0(x) = float(abs(x[:,1]-.5 .< 1e-6) & abs(x[:,2]-.5 .< 1e-6)) #Only mass at middle of (0,1)^2
-  return(HeatProblem(u0,f,gD,nothing))
+  isLinear = true
+  return(HeatProblem(u0,f,gD,isLinear))
+end
+
+"Example problem which starts with 0 and solves with f(u)=1-.1u"
+function heatProblemExample_birthdeath()
+  gD(x,t) = zeros(size(x,1))
+  f(u,x,t)  = ones(size(x,1)) - .5u
+  u0(x) = zeros(size(x,1))
+  gN(x,t) = 0
+  isLinear = false
+  return(HeatProblem(u0,f,gD,gN,isLinear))
 end
 
 "Example problem with solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
@@ -106,5 +127,32 @@ function poissonProblemExample_wave()
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
   gN(x) = 0
-  return(PoissonProblem(f,sol,Du,gN))
+  isLinear = true
+  return(PoissonProblem(f,sol,Du,gN,isLinear))
 end
+
+function poissonProblemExample_birthdeath()
+  gD(x) = 0
+  f(u,x)  = ones(size(x,1)) - .5u
+  gN(x) = 0
+  isLinear = false
+  return(PoissonProblem(f,gD,gN,isLinear))
+end
+
+#=
+function poissonProblemExample_nonlinearPBE()
+  f(u,x) = -sinh(u)*(h^2)
+  ubar(s) = log((1+cos(s))/(1-cos(s)))
+  function sol(x)
+    N = size(x)[1]
+    res = Array{Float64}(N,N) #Assumes square
+    a = [1.,2.]/sqrt(5)
+    for i = 1:N, j = 1:N #Assumes square
+      z = 0.1 + x[i,1]*a[1] + x[j,2]*a[2]
+      res[i,j] = ubar(z)
+    end
+    return(res)
+  end
+  Du(x) =
+end
+=#

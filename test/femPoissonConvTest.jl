@@ -1,19 +1,23 @@
 ######
 ##FEM Poisson Δx Convergence Tests
 ######
-using DiffEq
+using DifferentialEquations,LaTeXStrings
 
 N = 4
 topΔx = 7
-pdeProb = poissonProblemExample_wave()
+pdeProb = poissonProblemExample_wave() 
 
 solutions = cell(N)
-for i = 1:N
+for i = 1:N #Loop through Δx's, solve Poisson, and save to solutions
   Δx = 1//2^(topΔx-i)
   femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
   res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem)
   solutions[i] = res
 end
 
+#Construct ConvergenceSimulation Object
 simres = ConvergenceSimulation(solutions)
-convplot_fullΔx(simres,titleStr="Poisson Δx Convergence")
+
+#Plot Result
+dxstring = L"\Delta x"
+convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence")

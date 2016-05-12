@@ -3,32 +3,32 @@ FEMSolution
 
 A type which holds the data for the solution to a finite element problem.
 """
-type FEMSolution
+type FEMSolution <: PdeSolution
   femMesh::FEMmesh
   u::Array{Float64}
   trueKnown::Bool
-  uTrue::AbstractArray
-  l2Err::Float64
-  h1Err::Float64
-  maxErr::Float64
-  nodeErr2::Float64
+  uTrue::AbstractArrayOrVoid
+  l2Err::NumberOrVoid
+  h1Err::NumberOrVoid
+  maxErr::NumberOrVoid
+  nodeErr2::NumberOrVoid
   appxTrue::Bool
-  uFull::AbstractArray
-  tFull::AbstractArray
+  uFull::AbstractArrayOrVoid
+  tFull::AbstractArrayOrVoid
   fullSave::Bool
   function FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,uFull,tFull;fullSave=true)
     l2Err = getL2error(femMesh,sol,u)
     h1Err = getH1error(femMesh,Du,u)
     maxErr = maximum(abs(u-uTrue))
     nodeErr2 = norm(u-uTrue,2)
-    return(new(femMesh,u,true,uTrue,l2Err,h1Err,maxErr,nodeErr2,uFull,tFull,true))
+    return(new(femMesh,u,true,uTrue,l2Err,h1Err,maxErr,nodeErr2,false,uFull,tFull,true))
   end
   FEMSolution(femMesh,u,uTrue,sol,Du) = FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,nothing,nothing,fullSave=false)
   function FEMSolution(femMesh::FEMmesh,u::AbstractArray)
-    return(FEMSolution(femMesh,u,nothing))
+    return(FEMSolution(femMesh,u,nothing,nothing,fullSave=true))
   end
-  function FEMSolution(femMesh::FEMmesh,u::AbstractArray,uFull,tFull)
-    return(new(femMesh,u,false,nothing,nothing,nothing,nothing,nothing,uFull,tFull))
+  function FEMSolution(femMesh::FEMmesh,u::AbstractArray,uFull,tFull;fullSave=true)
+    return(new(femMesh,u,false,nothing,nothing,nothing,nothing,nothing,false,uFull,tFull,fullSave))
   end
 end
 
@@ -38,7 +38,7 @@ ConvergenceSimulation
 A type which holds the data from a convergence simulation.
 """
 type ConvergenceSimulation
-  solutions
+  solutions::Array{PdeSolution}
   h1Errors
   l2Errors
   maxErrors
@@ -52,7 +52,7 @@ type ConvergenceSimulation
   ConvEst_l2
   ConvEst_max
   ConvEst_node2
-  function ConvergenceSimulation(solutions::Array{FEMSolution})
+  function ConvergenceSimulation(solutions::Array{PdeSolution})
     N = length(solutions)
     Δts = Vector{Float64}(N)
     Δxs = Vector{Float64}(N)
@@ -96,8 +96,8 @@ type ConvergenceSimulation
         return(new(solutions,nothing,nothing,nothing,nothing,N,Δts,Δxs,μs,νs))
       end
     end
-
   end
+  ConvergenceSimulation(solutions::AbstractArray) = ConvergenceSimulation(convert(Array{PdeSolution},solutions)) # To allow robustness with cell
 end
 
 """
@@ -134,7 +134,7 @@ Useful to add a quasi-true solution when none is known by
 computing once at a very small time/space step and taking
 that solution as the "true" solution
 """
-function appxTrue!(res::FEMSolution,res2::FEMSolution)
+function appxTrue!(res::PdeSolution,res2::PdeSolution)
   res.uTrue = res2.u
   res.maxErr = maximum(abs(res.u-res.uTrue))
   res.nodeErr2 = norm(res.u-res.uTrue,2)

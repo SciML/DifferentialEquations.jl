@@ -1,7 +1,7 @@
 ######
 ##FEM Heat Δt Convergence Tests
 ######
-using DiffEq
+using DifferentialEquations
 
 T = 1
 Δx = 1//2^(6)
@@ -43,3 +43,4 @@ for i = 1:N
 end
 simres3 = ConvergenceSimulation(solutions)
 convplot_fullΔt(simres3,titleStr="Crank-Nicholson Convergence Plots",savefile="crankdtconv.svg")
+#Note: Stabilizes in H1 due to high Δx-error, reduce Δx and it converges further.
