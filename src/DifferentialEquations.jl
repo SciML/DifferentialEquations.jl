@@ -16,24 +16,29 @@ using Atom
 using IterativeSolvers
 import Base: length
 
-"PdeProblem: A high level type which defines PDE problems via its internal functions"
+"PdeProblem: Defines PDE problems via its internal functions"
 abstract PdeProblem
+"PdeSolution: Wrapper for the objects obtained from a PdeSolver"
+abstract PdeSolution
+
+AbstractArrayOrVoid = Union{AbstractArray,Void}
+NumberOrVoid = Union{Number,Void}
 
 include("fem/meshTools.jl")
 include("fem/assemblyTools.jl")
 include("fem/boundaryTools.jl")
 include("fem/errorTools.jl")
-include("general/pdeTools.jl")
+include("general/solutionTools.jl")
 include("general/plotTools.jl")
 include("general/problemTools.jl")
 include("fem/femSolvers.jl")
 
 #Types
-export PdeProblem, HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh
+export PdeProblem, PdeSolution, HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh
 
 #Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
-        poissonProblemExample_wave
+        poissonProblemExample_wave, heatProblemExample_birthdeath, poissonProblemExample_birthdeath
 
 #Plot Functions
 export  solplot_animation, solplot_appxvstrue, solplot_appx, showmesh, convplot,
@@ -46,6 +51,6 @@ export conv_ests, appxTrue!, accumarray
 #FEM Functions
 export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,
         gradu, gradbasis, fem_solvepoisson, fem_solveheat, quadfbasis, fem_squaremesh, CFLμ, CFLν,
-        meshgrid, notime_squaremesh, parabolic_squaremesh
+        meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 end # module

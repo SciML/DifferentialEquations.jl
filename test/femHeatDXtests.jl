@@ -1,9 +1,10 @@
 ######
 ##FEM Heat Δx Convergence Tests
 ######
+using DifferentialEquations
 
 T = 1
-Δt = 1//2^(14)
+Δt = 1//2^(14) #Small Δt for Euler stability, but takes long
 N = 4
 topΔx = 7
 pdeProb = heatProblemExample_moving()
@@ -17,8 +18,6 @@ for i = 1:N
   solutions[i] = res
 end
 simres = ConvergenceSimulation(solutions)
-
-#solplot_appxvstrue(solutions[1],savefile="plot.svg")
 
 alg = "ImplicitEuler"
 solutions = cell(N)
@@ -39,6 +38,7 @@ for i = 1:N
   solutions[i] = res
 end
 simres3 = ConvergenceSimulation(solutions)
+
 
 convplot_fullΔx(simres,titleStr="")
 convplot_fullΔx(simres2,titleStr="")

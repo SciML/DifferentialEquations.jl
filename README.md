@@ -8,6 +8,18 @@ This package is for efficient and parallel implementations of research-level alg
 
 Currently, finite element solvers for the Poisson and Heat Equations are supplied. Mesh generation tools currently only work for squares, though the solvers will work on general meshes if they are provided. The mesh layout follows the format of [iFEM](http://www.math.uci.edu/~chenlong/programming.html) and many subroutines in the finite element solver are based off of iFEM algorithms.
 
+# Using the package
+
+To install the package, use `Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")` inside the Julia REPL. To load the package, use the command `using DifferentialEquations`. To understand the package in more detail, check out the examples in [test\](test\).
+
+# Current Supported Equations
+* PDE Solvers
+  * Finite Element Solvers
+    * Linear Poisson Equation
+    * Semi-linear Poisson Equation
+    * Linear Heat Equation
+    * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
+
 # Roadmap
 * SODE Solvers
   * Euler-Maruyama
@@ -21,9 +33,6 @@ Currently, finite element solvers for the Poisson and Heat Equations are supplie
     * Wave Equation
     * Transport Equation
     * Stokes Equation
-  * Finite element solvers:
-    * Semi-linear Heat Equation (Reaction-Diffusion Equation) (currently linear only supported)
-    * Semi-linear Poisson Equation
 * SPDE Solvers
   * Euler-Maruyama
   * IIF-Maruyama
