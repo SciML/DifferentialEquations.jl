@@ -217,7 +217,7 @@ function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver="Direc
   if pdeProb.knownSol
     return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,sol=pdeProb.sol,Du=pdeProb.Du,gN=pdeProb.gN,autodiff=autodiff,σ=pdeProb.σ,stochastic=pdeProb.stochastic,noiseType=pdeProb.noiseType))
   else
-    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,gN=pdeProb.gN,autodiff=autodiff,σ=PoissonProblem.σ,stochastic=PoissonProblem.stochastic,noiseType=PoissonProblem.noiseType))
+    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,gN=pdeProb.gN,autodiff=autodiff,σ=pdeProb.σ,stochastic=pdeProb.stochastic,noiseType=pdeProb.noiseType))
   end
 end
 
