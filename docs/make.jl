@@ -1,3 +1,3 @@
 using Documenter, DifferentialEquations
 
-makedocs()
+makedocs(modules=[DifferentialEquations])

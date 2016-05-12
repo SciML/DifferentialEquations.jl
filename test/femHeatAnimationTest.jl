@@ -5,7 +5,7 @@
 #Generates an animation for a solution of the heat equation
 #Uses Plots.jl, requires matplotlib >=1.5
 #Will work on Windows, but will give blurry output
-using DiffEq
+using DifferentialEquations
 T = 2
 Δx = 1//2^(5)
 Δt = 1//2^(12)

@@ -12,12 +12,12 @@ type FEMmesh
   Dirichlet
   Neumann
   Robin
-  N
-  NT
+  N::Int
+  NT::Int
   Δx
   Δt
-  T
-  numIters
+  T::Int
+  numIters::Int
   μ
   ν
   evolutionEq
@@ -53,9 +53,25 @@ type FEMmesh
   FEMmesh(node,elem,Δx,bdType)=FEMmesh(node,elem,Δx,0,0,bdType)
 end
 
+"""
+CFLμ(Δt,Δx)
+
+Computes the CFL-condition μ= Δt/(Δx*Δx)
+"""
 CFLμ(Δt,Δx)=Δt/(Δx*Δx)
+
+"""
+CFLν(Δt,Δx)
+
+Computes the CFL-condition ν= Δt/Δx
+"""
 CFLν(Δt,Δx)=Δt/Δx
 
+"""
+fem_squaremesh(square,h)
+
+Returns the grid in the iFEM form of the two arrays (node,elem)
+"""
 function fem_squaremesh(square,h)
   x0 = square[1]; x1= square[2];
   y0 = square[3]; y1= square[4];
@@ -72,8 +88,20 @@ function fem_squaremesh(square,h)
   return(node,elem)
 end
 
+"""
+meshgrid(vx)
+
+Computes an (x,y)-grid from the vectors (vx,vx).
+For more information, see the MATLAB documentation.
+"""
 meshgrid(v::AbstractVector) = meshgrid(v, v)
 
+"""
+meshgrid(vx,vy)
+
+Computes an (x,y)-grid from the vectors (vx,vy).
+For more information, see the MATLAB documentation.
+"""
 function meshgrid{T}(vx::AbstractVector{T}, vy::AbstractVector{T})
     m, n = length(vy), length(vx)
     vx = reshape(vx, 1, n)
@@ -81,6 +109,12 @@ function meshgrid{T}(vx::AbstractVector{T}, vy::AbstractVector{T})
     (repmat(vx, m, 1), repmat(vy, 1, n))
 end
 
+"""
+meshgrid(vx,vy,vz)
+
+Computes an (x,y,z)-grid from the vectors (vx,vy,vz).
+For more information, see the MATLAB documentation.
+"""
 function meshgrid{T}(vx::AbstractVector{T}, vy::AbstractVector{T},
                      vz::AbstractVector{T})
     m, n, o = length(vy), length(vx), length(vz)
@@ -93,11 +127,34 @@ function meshgrid{T}(vx::AbstractVector{T}, vy::AbstractVector{T},
     (vx[om, :, oo], vy[:, on, oo], vz[om, on, :])
 end
 
+"""
+notime_squaremesh(square,Δx,bdType)
+
+Computes the (node,elem) square mesh for the square
+with the chosen Δx and boundary settings.
+
+###Example
+`square=[0 1 0 1] #Unit Square`
+`Δx=.25`
+`notime_squaremesh(square,Δx,"Dirichlet")`
+"""
 function notime_squaremesh(square,Δx,bdType)
   node,elem = fem_squaremesh(square,Δx)
   return(FEMmesh(node,elem,Δx,bdType))
 end
 
+"""
+parabolic_squaremesh(square,Δx,Δt,T,bdType)
+
+Computes the (node,elem) x [0,T] parabolic square mesh
+for the square with the chosen Δx and boundary settings
+and with the constant time intervals Δt.
+
+###Example
+`square=[0 1 0 1] #Unit Square`
+`Δx=.25; Δt=.25;T=2`
+`parabolic_squaremesh(square,Δx,Δt,T,"Dirichlet")`
+"""
 function parabolic_squaremesh(square,Δx,Δt,T,bdType)
   node,elem = fem_squaremesh(square,Δx)
   return(FEMmesh(node,elem,Δx,Δt,T,bdType))

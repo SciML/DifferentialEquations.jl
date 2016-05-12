@@ -49,7 +49,7 @@ end
 #Note
 #rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st order
 
-function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Function;fquadorder=3,alg = "Euler",solver="CG",sol = [],Du = [],animate = false,animateSteps = 100)
+function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Function;fquadorder=3,alg = "Euler",solver="CG",sol = [],Du = [],fullSave = false,saveSteps = 100)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -66,7 +66,7 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
 
   #Set Initial
   u = u0
-
+  t = 0
   #Setup f quadrature
   #=
   #For quadfbasis2
@@ -80,10 +80,10 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
 
   #Setup animation
 
-  if animate
-    animateFrames = Array{Float64}(length(u),round(Int64,femMesh.numIters/animateSteps))
-    aniI = 1
-    animateFrames[:,aniI] = u
+  if fullSave
+    uFull = Array{Float64}(length(u),round(Int64,femMesh.numIters/saveSteps))
+    saveIdx = 1
+    uFull[:,aniI] = u
   end
 
   #Setup for Calculations
@@ -120,6 +120,7 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
 
   #Heat Equation Loop
   @progress for i=1:femMesh.numIters
+    t = t+Δt
     if implicitMethod
       if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
         u[freeNode] = lhs\rhs(u,i)
@@ -132,14 +133,15 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
       u[freeNode] = rhs(u,i)
     end
     u[bdNode] = gD(node,i*Δt)[bdNode]
-    if animate && i%animateSteps==0
-      aniI+=1
-      animateFrames[:,aniI] = u
+    if fullSave && i%saveSteps==0
+      saveIdx+=1
+      uFull[:,saveIdx] = u
+      tFull[saveIdx] = t
     end
   end
   if typeof(sol)==Function #True Solution exists
-    if animate
-      return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,animateFrames))
+    if fullSave
+      return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,uFull,tFull))
     else
       return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du))
     end
@@ -148,13 +150,13 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
   end
 end
 
-fem_solveheat(femMesh::FEMmesh,u0::Function,gD::Function,f::Function;alg = "Euler",solver="CG",sol = [],Du = [],animate = false,animateSteps = 100) = fem_solveheat(femMesh::FEMmesh,u0(femMesh.node),gD::Function,f::Function;alg = alg,solver=solver,sol = sol,Du = Du,animate=animate,animateSteps=animateSteps)
+fem_solveheat(femMesh::FEMmesh,u0::Function,gD::Function,f::Function;alg = "Euler",solver="CG",sol = [],Du = [],fullSave = false,saveSteps = 100) = fem_solveheat(femMesh::FEMmesh,u0(femMesh.node),gD::Function,f::Function;alg = alg,solver=solver,sol = sol,Du = Du,animate=animate,animateSteps=animateSteps)
 
-function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg = "Euler",solver="CG",animate = false,animateSteps = 100)
+function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg = "Euler",solver="CG",fullSave = false,saveSteps = 100)
   if pdeProb.knownSol
-   return(fem_solveheat(femMesh,pdeProb.u0,pdeProb.sol,pdeProb.f,alg = alg,solver=solver,sol = pdeProb.sol,Du = pdeProb.Du,animate=animate,animateSteps=animateSteps))
+   return(fem_solveheat(femMesh,pdeProb.u0,pdeProb.sol,pdeProb.f,alg = alg,solver=solver,sol = pdeProb.sol,Du = pdeProb.Du,fullSave=fullSave,saveSteps=saveSteps))
   else #No Known Solution
-   return(fem_solveheat(femMesh::FEMmesh,pdeProb.u0,pdeProb.gD,pdeProb.f,alg = alg,solver=solver,animate=animate,animateSteps=animateSteps))
+   return(fem_solveheat(femMesh::FEMmesh,pdeProb.u0,pdeProb.gD,pdeProb.f,alg = alg,solver=solver,fullSave=fullSave,saveSteps=saveSteps))
   end
 end
 

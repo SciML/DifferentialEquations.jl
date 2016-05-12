@@ -1,16 +1,17 @@
-"""
-HeatProblem
+@doc """
+`HeatProblem`
 
 Wraps the data that define a 2D linear heat equation problem:
 
 ``u_t = Δu + f(x,t)``
+
 #Constructors
 
 HeatProblem(sol,Du,f): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y], and f.
 
 HeatProblem(u0,f,gD,gN): Defines the problem with initial value u0 (as a function or vector), f,
 Dirichlet boundary function gD, and Neumann boundary function gN.
-"""
+""" ->
 type HeatProblem <: PdeProblem
   "u0: Initial value function or vector"
   u0
@@ -41,6 +42,8 @@ PoissonProblem
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
+Δu = f(x,t)
+
 #Constructors
 
 PoissonProblem(f,sol,Du,gN): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
@@ -70,7 +73,7 @@ type PoissonProblem <: PdeProblem
   end
 end
 
-"Example problem with solution: u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))"
+@doc "Example problem with solution: u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))" ->
 function heatProblemExample_moving()
   sol(x,t) = 0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))
   Du(x,t) = -50[sol(x,t).*(0.5-t+x[:,1]) sol(x,t).*(0.5-t+x[:,2])]

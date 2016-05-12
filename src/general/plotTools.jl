@@ -1,11 +1,11 @@
-function solplot_animation(node,animateFrames;zlim=(0,1),vmax=1,cbar=true)
+function solplot_animation(node,uFull;zlim=(0,1),vmax=1,cbar=true)
   Plots.pyplot(reuse=true)
-  @gif for i=1:size(animateFrames,2)
-      surface(node[:,1],node[:,2],animateFrames[:,i],zlim=zlim,vmax=vmax,cbar=cbar)
+  @gif for i=1:size(uFull,2)
+      surface(node[:,1],node[:,2],uFull[:,i],zlim=zlim,vmax=vmax,cbar=cbar)
   end
 end
 
-solplot_animation(res::FEMSolution;zlim=(0,1),vmax=1,cbar=true) = solplot_animation(res.femMesh.node,res.animateFrames,zlim=zlim,vmax=vmax,cbar=cbar)
+solplot_animation(res::FEMSolution;zlim=(0,1),vmax=1,cbar=true) = solplot_animation(res.femMesh.node,res.uFull,zlim=zlim,vmax=vmax,cbar=cbar)
 
 function solplot_appxvstrue(node,u,uTrue;savefile="")
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
