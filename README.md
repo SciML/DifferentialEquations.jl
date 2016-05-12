@@ -10,7 +10,7 @@ Currently, finite element solvers for the Poisson and Heat Equations are supplie
 
 # Using the package
 
-To install the package, use `Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")` inside the Julia REPL. To load the package, use the command `using DifferentialEquations`. To understand the package in more detail, check out the examples in [test\](test\).
+To install the package, use `Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")` inside the Julia REPL. To load the package, use the command `using DifferentialEquations`. To understand the package in more detail, check out the examples in [test/](test/).
 
 # Current Supported Equations
 * PDE Solvers

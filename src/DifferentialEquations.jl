@@ -10,10 +10,7 @@ and finite element methods, including functions for mesh generation and plotting
 module DifferentialEquations
 
 import PyPlot
-using LaTeXStrings
-using Plots
-using Atom
-using IterativeSolvers
+using LaTeXStrings, Plots, Atom, IterativeSolvers, NLsolve
 import Base: length
 
 "PdeProblem: Defines PDE problems via its internal functions"
