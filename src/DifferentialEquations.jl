@@ -28,6 +28,7 @@ include("fem/errorTools.jl")
 include("general/solutionTools.jl")
 include("general/plotTools.jl")
 include("general/problemTools.jl")
+include("examples/exampleProblems.jl")
 include("fem/femSolvers.jl")
 
 #Types
