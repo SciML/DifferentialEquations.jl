@@ -73,10 +73,13 @@ type PoissonProblem <: PdeProblem
   knownSol
   "isLinear: Boolean which states whether the problem is linear or nonlinear"
   isLinear
-  function PoissonProblem(f,sol,Du,gN,isLinear)
-    return(new(f,sol,Du,sol,gN,true,isLinear))
+  σ
+  stochastic
+  noiseType
+  function PoissonProblem(f,sol,Du,gN,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
+    return(new(f,sol,Du,sol,gN,true,isLinear,σ,stochastic,noiseType))
   end
-  function PoissonProblem(f,gD,gN,isLinear)
-    return(new(f,nothing,nothing,gD,gN,false,isLinear))
+  function PoissonProblem(f,gD,gN,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
+    return(new(f,nothing,nothing,gD,gN,false,isLinear,σ,stochastic,noiseType))
   end
 end

@@ -1,5 +1,5 @@
 
-function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bool;fquadorder=3,solver="Direct",sol = [],Du = [],gN::Function = (x)->0,autodiff=true)
+function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bool;fquadorder=3,solver="Direct",sol = [],Du = [],gN::Function = (x)->0,autodiff=true,stochastic=false,σ=(x)->0,noiseType="White")
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -23,14 +23,21 @@ function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bo
   u = zeros(N)
   u[bdNode] = gD(node[bdNode,:])
 
+  #Stochastic Part
+  if stochastic
+    dW = getNoise(N,node,elem,noiseType=noiseType)
+    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear).*dW
+  else #Not Stochastic
+    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)
+  end
   #Solve
   if isLinear
     if solver == "Direct"
-      u[freeNode]=A[freeNode,freeNode]\quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode]
+      u[freeNode]=A[freeNode,freeNode]\rhs(u)[freeNode]
     elseif solver == "CG"
-      u[freeNode],ch=cg!(u[freeNode],A[freeNode,freeNode],quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode])
+      u[freeNode],ch=cg!(u[freeNode],A[freeNode,freeNode],rhs(u)[freeNode])
     elseif solver == "GMRES"
-      u[freeNode],ch=gmres!(u[freeNode],A[freeNode,freeNode],quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode])
+      u[freeNode],ch=gmres!(u[freeNode],A[freeNode,freeNode],rhs(u)[freeNode])
     end
     #Adjust result
     if isempty(Dirichlet) #isPureNeumann
@@ -41,7 +48,7 @@ function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bo
   else #Nonlinear
     output = u
     function rhs!(u,resid)
-      resid[freeNode]=A[freeNode,freeNode]*u[freeNode]-quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode]
+      resid[freeNode]=A[freeNode,freeNode]*u[freeNode]-rhs(u)[freeNode]
     end
     nlres = nlsolve(rhs!,u,autodiff=autodiff)
     u = nlres.zero
@@ -208,9 +215,9 @@ end
 
 function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver="Direct",fquadorder=3,autodiff=true)
   if pdeProb.knownSol
-    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,sol=pdeProb.sol,Du=pdeProb.Du,gN=pdeProb.gN,autodiff=autodiff))
+    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,sol=pdeProb.sol,Du=pdeProb.Du,gN=pdeProb.gN,autodiff=autodiff,σ=pdeProb.σ,stochastic=pdeProb.stochastic,noiseType=pdeProb.noiseType))
   else
-    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,gN=pdeProb.gN,autodiff=autodiff))
+    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,gN=pdeProb.gN,autodiff=autodiff,σ=PoissonProblem.σ,stochastic=PoissonProblem.stochastic,noiseType=PoissonProblem.noiseType))
   end
 end
 
