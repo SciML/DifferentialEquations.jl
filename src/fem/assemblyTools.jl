@@ -1,3 +1,17 @@
+"""
+assemblematrix(node,elem;lumpflag=false,K=[])
+
+Assembles the stiffness matrix A as an approximation to Δ
+on the finite element mesh (node,elem). Also generates the
+mass matrix M. If lumpflag=true, then the mass matrix is lumped
+resulting in a diagonal mass matrix. Specify a diffusion constant
+along the nodes via K.
+
+### Returns
+A = Stiffness Matrix
+M = Mass Matrix
+area = A vector of the calculated areas for each element.
+"""
 function assemblematrix(node,elem;lumpflag=false,K=[])
   ## ASSEMBLEMATRIX matrix for diffusion and reaction
 
@@ -41,8 +55,27 @@ function assemblematrix(node,elem;lumpflag=false,K=[])
   return(A,M,area)
 end
 
-assemblematrix(FEMmesh;lumpflag=false,K=[]) = assemblematrix(FEMmesh.node,FEMmesh.elem,lumpflag=lumpflag,K=K)
+"""
+assemblematrix(FEMmesh::FEMmesh;lumpflag=false,K=[])
 
+Assembles the stiffness matrix A as an approximation to Δ
+on the finite element mesh (node,elem). Also generates the
+mass matrix M. If lumpflag=true, then the mass matrix is lumped
+resulting in a diagonal mass matrix. Specify a diffusion constant
+along the nodes via K.
+
+### Returns
+A = Stiffness Matrix
+M = Mass Matrix
+area = A vector of the calculated areas for each element.
+"""
+assemblematrix(FEMmesh::FEMmesh;lumpflag=false,K=[]) = assemblematrix(FEMmesh.node,FEMmesh.elem,lumpflag=lumpflag,K=K)
+
+"""
+accumarray(subs, val, sz=(maximum(subs),))
+
+See MATLAB's documentation for more details.
+"""
 function accumarray(subs, val, sz=(maximum(subs),))
     A = zeros(eltype(val), sz...)
     for i = 1:length(val)

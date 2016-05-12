@@ -1,3 +1,22 @@
+"""
+findboundary(elem,bdFlag=[])
+
+findboundary(femMesh::FEMmesh,bdFlag=[])
+
+Finds elements which are on the boundary of the domain. If bdFlag is given,
+then those indices are added as nodes for a Dirichlet boundary condition (useful
+for creating cracks and other cutouts of domains).
+
+### Returns
+bdNode = Vector of indices for bdNode. Using node[:,bdNode] returns boundary nodes.
+
+bdEdge = Vector of indices for boundary edges.
+
+isBdNode = Vector of booleans size N which donotes which are on the boundary
+
+isBdElem = Vector of booleans size NT which denotes which are on the boundary
+
+"""
 function findboundary(elem::AbstractArray;bdFlag=[])
   N = maximum(elem)
   nv = size(elem,2)
@@ -27,6 +46,14 @@ end
 
 findboundary(femMesh::FEMmesh,bdFlag=[]) = findboundary(elem,bdFlag=bdFlag)
 
+"""
+setboundary(node::AbstractArray,elem::AbstractArray,bdType)
+
+setboundary(femMesh::FEMmesh,bdType)
+
+Takes in the femMesh and creates an array bdFlag which denotes the boundary types.
+1 stands for Dirichlet, 2 for Neumann, 3 for Robin. 
+"""
 function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
   ## Find boundary edges
   nv = size(elem,2)
@@ -48,12 +75,7 @@ function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
     bdEdgeidx[i] = find(all(totalEdge .== bdEdge[i,:], 2))[1] #Find the edge in totalEdge and save index
   end
 
-  #=
-  i,j = ind2sub(size(edgeMatrix),find(x->x==1,edgeMatrix))
-  bdEdge = [i';j']'
-  =#
   bdFlag = zeros(Int8,Neall)
-
   ## Set up boundary edges
   #nVarargin = size(varargin,2)
   #if (nVarargin==1)

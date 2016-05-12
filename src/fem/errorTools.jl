@@ -1,3 +1,12 @@
+"""
+getL2error(node,elem,uexact,uh,quadOrder=[])
+
+getL2error(femMesh::FEMmesh,sol,u)
+
+Estimates the L2 error between uexact and uh on the mesh (node,elem). It
+reads the mesh to estimate the element type and uses this to choose a
+quadrature order unless specified.
+"""
 function getL2error(node,elem,uexact,uh,quadOrder=[])
 ## GETL2ERROR L2 norm of the approximation error.
 
@@ -127,6 +136,11 @@ err = sqrt(sum(err))
 return(err)
 end
 
+"""
+quadpts(order)
+
+Returns the quadrature points and weights for and order ### quadrature in 2D.
+"""
 function quadpts(order)
 ## QUADPTS quadrature points in 2-D.
   if order>9
@@ -242,6 +256,16 @@ function quadpts(order)
   return(lambda,weight)
 end
 
+"""
+function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
+
+getH1error(femMesh::FEMmesh,Du,u)
+
+Estimates the H1 error between uexact and uh on the mesh (node,elem). It
+reads the mesh to estimate the element type and uses this to choose a
+quadrature order unless specified. If K is specified then it is the
+diffusion coefficient matrix.
+"""
 function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
 
   Nu = size(uh,1);    N = size(node,1);   NT = size(elem,1);
@@ -359,6 +383,11 @@ function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
   return(err)
 end
 
+"""
+gradu(node,elem,u,Dlambda=[])
+
+Estimates the gradient of u on the mesh (node,elem)
+"""
 function gradu(node,elem,u,Dlambda=[])
   ## GRADU gradient of a finite element function.
   if isempty(Dlambda)
@@ -372,6 +401,11 @@ function gradu(node,elem,u,Dlambda=[])
   return(Du,area,Dlambda)
 end
 
+"""
+gradbasis(node,elem)
+
+Returns the gradient of the barycentric basis elements.
+"""
 function gradbasis(node,elem)
   ## GRADBASIS gradient of barycentric basis.
   NT = size(elem,1)

@@ -1,11 +1,12 @@
 __precompile__()
-"""
-DifferentialEquations
+
+@doc """
+###DifferentialEquations
 
 Developed by Chris Rackauckas for the solution of various differential equations, including stochastic differential equations (SDEs),
 partial differential equations (PDEs), and stochastic partial differential equations (SPDEs). Included are tools for finite difference
 and finite element methods, including functions for mesh generation and plotting.
-"""
+""" ->
 module DifferentialEquations
 
 import PyPlot
@@ -14,6 +15,7 @@ using Plots
 using Atom
 using IterativeSolvers
 import Base: length
+
 "PdeProblem: A high level type which defines PDE problems via its internal functions"
 abstract PdeProblem
 
