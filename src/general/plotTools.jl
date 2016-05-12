@@ -9,7 +9,8 @@ end
 
 solplot_animation(res::FEMSolution;zlim=(0,1),vmax=1,cbar=true) = solplot_animation(res.femMesh.node,res.uFull,zlim=zlim,vmax=vmax,cbar=cbar)
 
-function solplot_appxvstrue(node,u,uTrue;savefile="")
+
+function solplot_appxvstrue(node,u,uTrue;savefile="",title="PDE Solution")
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
   PyPlot.subplot(211,projection="3d")
   PyPlot.plot_trisurf(node[:,1],node[:,2],u,cmap=PyPlot.get_cmap("winter"))
@@ -21,36 +22,43 @@ function solplot_appxvstrue(node,u,uTrue;savefile="")
   if savefile!=""
     PyPlot.savefig(savefile)
   end
-end
-
-solplot_appxvstrue(res::FEMSolution;savefile="") = solplot_appxvstrue(res.femMesh.node,res.u,res.uTrue,savefile=savefile)
-
-function solplot(res::FEMSolution;savefile="")
-  if res.trueKnown
-    solplot_appxvstrue(res,savefile=savefile)
-  else
-    solplot_appx(res,savefile=savefile)
-  end
-end
-
-function solplot_appx(node,u;savefile="")
-  fig = PyPlot.figure("pyplot_appx",figsize=(10,10))
-  PyPlot.plot_trisurf(node[:,1],node[:,2],u,cmap=PyPlot.get_cmap("winter"))
-  PyPlot.title("Approximated Solution")
+  #=
+  Plots.subplot([node[:,1] node[:,2] u node[:,1] node[:,2] uTrue],n=2,title=title,t=[:surface :surface])
+  surface(node[:,1],node[:,2],u,cmap=PyPlot.get_cmap("winter"),title="Approximated Solution")
+  surface(node[:,1],node[:,2],uTrue,cmap=PyPlot.get_cmap("winter"),title="True Solution")
   if savefile!=""
-    PyPlot.savefig(savefile)
+    Plots.savefig(savefile)
+  end
+  =#
+end
+
+solplot_appxvstrue(res::FEMSolution;savefile="",title="PDE Solution") = solplot_appxvstrue(res.femMesh.node,res.u,res.uTrue,savefile=savefile,title=title)
+
+function solplot(res::FEMSolution;savefile="",title="PDE Solution")
+  if res.trueKnown
+    solplot_appxvstrue(res,savefile=savefile,title=title)
+  else
+    solplot_appx(res,savefile=savefile,title=title)
   end
 end
 
-solplot_appx(res::FEMSolution;savefile="") = solplot_appx(res.femMesh.node,res.u,savefile=savefile)
+function solplot_appx(node,u;savefile="",title="Approximated Solution")
+  Plots.surface(node[:,1],node[:,2],u,cmap=PyPlot.get_cmap("winter"),title=title)
+  if savefile!=""
+    Plots.savefig(savefile)
+  end
+end
+
+solplot_appx(res::FEMSolution;savefile="",title="Approximated Solution") = solplot_appx(res.femMesh.node,res.u,savefile=savefile,title=title)
 
 function showmesh(node,elem)
   dim = size(node,2)
   nv = size(elem,2)
   if (dim==2) && (nv==3) # planar triangulation
-    h = plot_trisurf(node[:,1],node[:,2],zeros(size(node,1)),cmap=get_cmap("ocean"))
+    h = surface(node[:,1],node[:,2],zeros(size(node,1)),cmap=PyPlot.get_cmap("ocean"))
   end
 
+  #Not supported yet
   if (dim==2) && (nv==4) # planar quadrilateration
     C = 0.5*zeros(length(node[:,1]),length(node[:,2]))
     D = zeros(length(node[:,1]))
@@ -73,9 +81,16 @@ function convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$Err
   PyPlot.title(titleStr)
   PyPlot.xlabel(measureStr)
   PyPlot.ylabel(ErrStr)
+  #=
+  Plots.plot(measure,err)
+  Plots.title!(titleStr)
+  Plots.xaxis!(measureStr,:log10)
+  Plots.yaxis!(ErrStr,:log10)
+  =#
 end
 
 function convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+  #Plots.subplot(,layout=[2,2,3],t=[:line :hist :scatter :step :bar],nbins=10,leg=false)
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
   PyPlot.subplot(221)
   convplot_h1vsΔt(simres)
