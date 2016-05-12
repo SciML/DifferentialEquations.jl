@@ -45,7 +45,7 @@ res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
 fem_solvepoisson takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This reurns a FEMSolution object which holds data about the solution, such as the solution values (u), the true solution (uTrue), error estimates, etc. To plot the solution, we use the command
 
 ```
-solplot(res,savefile="introductionExample.svg")
+solplot(res,savefile="introductionExample.png")
 ```
 
 This gives us the following plot:
@@ -78,4 +78,4 @@ This gives us the following plot:
   * IIF-Maruyama
   * IIF-Milstein
 
-[introductionExampleSolution]: /src/examples/introductionExample.svg "Introduction Example Solution"
+[introductionExampleSolution]: /src/examples/introductionExample.png "Introduction Example Solution"
