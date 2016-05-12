@@ -48,6 +48,18 @@ function poissonProblemExample_wave()
   return(PoissonProblem(f,sol,Du,gN,isLinear))
 end
 
+"Example problem with solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
+function poissonProblemExample_noisyWave()
+  f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
+  sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
+  Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
+  gN(x) = 0
+  isLinear = true
+  stochastic = true
+  σ(x) = 5 #Additive noise
+  return(PoissonProblem(f,sol,Du,gN,isLinear,σ=σ,stochastic=stochastic))
+end
+
 function poissonProblemExample_birthdeath()
   gD(x) = 0
   f(u,x)  = ones(size(x,1)) - .5u
