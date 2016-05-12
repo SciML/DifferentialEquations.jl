@@ -1,5 +1,5 @@
 
-function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bool;fquadorder=3,solver="Direct",sol = [],Du = [],gN::Function = (x)->0)
+function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bool;fquadorder=3,solver="Direct",sol = [],Du = [],gN::Function = (x)->0,autodiff=true)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -24,19 +24,29 @@ function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bo
   u[bdNode] = gD(node[bdNode,:])
 
   #Solve
-  if solver == "Direct"
-    u[freeNode]=A[freeNode,freeNode]\quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode]
-  elseif solver == "CG"
-    u[freeNode],ch=cg!(u[freeNode],A[freeNode,freeNode],quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode])
-  elseif solver == "GMRES"
-    u[freeNode],ch=gmres!(u[freeNode],A[freeNode,freeNode],quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode])
+  if isLinear
+    if solver == "Direct"
+      u[freeNode]=A[freeNode,freeNode]\quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode]
+    elseif solver == "CG"
+      u[freeNode],ch=cg!(u[freeNode],A[freeNode,freeNode],quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode])
+    elseif solver == "GMRES"
+      u[freeNode],ch=gmres!(u[freeNode],A[freeNode,freeNode],quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode])
+    end
+    #Adjust result
+    if isempty(Dirichlet) #isPureNeumann
+      patchArea = accumarray(vec(elem),[area;area;area]/3, [N 1])
+      uc = sum(u.*patchArea)/sum(area)
+      u = u - uc   # Impose integral of u = 0
+    end
+  else #Nonlinear
+    output = u
+    function rhs!(u,resid)
+      resid[freeNode]=A[freeNode,freeNode]*u[freeNode]-quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)[freeNode]
+    end
+    nlres = nlsolve(rhs!,u,autodiff=autodiff)
+    u = nlres.zero
   end
-  #Adjust result
-  if isempty(Dirichlet) #isPureNeumann
-    patchArea = accumarray(vec(elem),[area;area;area]/3, [N 1])
-    uc = sum(u.*patchArea)/sum(area)
-    u = u - uc   # Impose integral of u = 0
-  end
+
   #Return
   if typeof(sol)==Function # True solution exists
     return(FEMSolution(femMesh,u,sol(node),sol,Du))
@@ -49,7 +59,7 @@ end
 #Note
 #rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st order
 
-function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Function,isLinear::Bool;fquadorder=3,alg = "Euler",solver="LU",sol = [],Du = [],fullSave = false,saveSteps = 100,gN::Function = (x,t)->0)
+function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Function,isLinear::Bool;fquadorder=3,alg = "Euler",solver="LU",sol = [],Du = [],fullSave = false,saveSteps = 100,gN::Function = (x,t)->0,autodiff=false)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -90,19 +100,19 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
   Minv = sparse(inv(M)) #sparse(Minv) needed until update
   if isLinear
     if alg == "Euler"
-      implicitMethod = false
+      methodType = "Explicit"
       if femMesh.μ>=0.5
         warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
       end
       D = eye(N) - Δt*Minv*A
       rhs(u,i) = D[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
     elseif alg == "ImplicitEuler"
-      implicitMethod = true
+      methodType = "Implicit"
       D = eye(N) + Δt*Minv*A
       lhs = D[freeNode,freeNode]
       rhs(u,i) = u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
     elseif alg == "CrankNicholson"
-      implicitMethod = true
+      methodType = "Implicit"
       Dm = eye(N) - Δt*Minv*A/2
       Dp = eye(N) + Δt*Minv*A/2
       lhs = Dp[freeNode,freeNode]
@@ -110,16 +120,32 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
     end
   else #Nonlinear Algorithms
     if alg == "Euler"
-      implicitMethod = false
+      methodType = "Explicit"
       if femMesh.μ>=0.5
         warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
       end
       D = eye(N) - Δt*Minv*A
       rhs(u,i) = D[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+    elseif alg == "SemiImplicitEuler"
+      methodType = "Implicit"
+      D = eye(N) + Δt*Minv*A
+      lhs = D[freeNode,freeNode]
+      rhs(u,i) = u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+    elseif alg == "SemiImplicitCrankNicholson"
+      methodType = "Implicit"
+      Dm = eye(N) - Δt*Minv*A/2
+      Dp = eye(N) + Δt*Minv*A/2
+      lhs = Dp[freeNode,freeNode]
+      rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+    elseif alg == "ImplicitEuler"
+      methodType = "NonlinearSolve"
+      function rhs!(u,output,uOld,i)
+        output[freeNode] = u[freeNode] - uOld[freeNode] - Δt*Minv*A[freeNode,freeNode]*u[freeNode] - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+      end
     end
   end
 
-  if implicitMethod
+  if methodType == "Implicit"
     if solver == "Cholesky"
       lhs = cholfact(lhs) # Requires positive definite, may be violated
     elseif solver == "LU"
@@ -131,10 +157,13 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
     end
   end
 
+  if methodType == "NonlinearSolve"
+    output = u
+  end
   #Heat Equation Loop
   @progress for i=1:femMesh.numIters
     t = t+Δt
-    if implicitMethod
+    if methodType == "Implicit"
       if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
         u[freeNode] = lhs\rhs(u,i)
       elseif solver == "CG"
@@ -142,8 +171,12 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
       elseif solver == "GMRES"
         u[freeNode],ch = gmres!(u[freeNode],lhs,rhs(u,i))
       end
-    else #explicitMethod
+    elseif methodType == "Explicit"
       u[freeNode] = rhs(u,i)
+    elseif methodType == "NonlinearSolve"
+      uOld = u
+      nlres = nlsolve((u,output)->rhs!(u,output,uOld,i),u,autodiff=autodiff)
+      u = nlres.zero
     end
     u[bdNode] = gD(node,i*Δt)[bdNode]
     if fullSave && i%saveSteps==0
@@ -163,21 +196,21 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
   end
 end
 
-fem_solveheat(femMesh::FEMmesh,u0::Function,gD::Function,f::Function,isLinear::Bool;alg = "Euler",solver="LU",sol = [],Du = [],fullSave = false,saveSteps = 100,gN = (x,t)->0) = fem_solveheat(femMesh::FEMmesh,u0(femMesh.node),gD::Function,f::Function,isLinear::Bool;alg = alg,solver=solver,sol = sol,Du = Du,fullSave=fullSave,saveSteps=saveSteps,gN=gN)
+fem_solveheat(femMesh::FEMmesh,u0::Function,gD::Function,f::Function,isLinear::Bool;alg = "Euler",solver="LU",sol = [],Du = [],fullSave = false,saveSteps = 100,gN = (x,t)->0,autodiff=false) = fem_solveheat(femMesh::FEMmesh,u0(femMesh.node),gD::Function,f::Function,isLinear::Bool;alg = alg,solver=solver,sol = sol,Du = Du,fullSave=fullSave,saveSteps=saveSteps,gN=gN,autodiff=autodiff)
 
-function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg = "Euler",solver="LU",fullSave = false,saveSteps = 100)
+function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg = "Euler",solver="LU",fullSave = false,saveSteps = 100,autodiff=false)
   if pdeProb.knownSol
-   return(fem_solveheat(femMesh,pdeProb.u0,pdeProb.sol,pdeProb.f,pdeProb.isLinear::Bool,alg = alg,solver=solver,sol = pdeProb.sol,Du = pdeProb.Du,fullSave=fullSave,saveSteps=saveSteps,gN=pdeProb.gN))
+   return(fem_solveheat(femMesh,pdeProb.u0,pdeProb.sol,pdeProb.f,pdeProb.isLinear::Bool,alg = alg,solver=solver,sol = pdeProb.sol,Du = pdeProb.Du,fullSave=fullSave,saveSteps=saveSteps,gN=pdeProb.gN,autodiff=autodiff))
   else #No Known Solution
-   return(fem_solveheat(femMesh::FEMmesh,pdeProb.u0,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,alg = alg,solver=solver,fullSave=fullSave,saveSteps=saveSteps,gN=pdeProb.gN))
+   return(fem_solveheat(femMesh::FEMmesh,pdeProb.u0,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,alg = alg,solver=solver,fullSave=fullSave,saveSteps=saveSteps,gN=pdeProb.gN,autodiff=autodiff))
   end
 end
 
-function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver="Direct",fquadorder=3)
+function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver="Direct",fquadorder=3,autodiff=true)
   if pdeProb.knownSol
-    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,sol=pdeProb.sol,Du=pdeProb.Du,gN=pdeProb.gN))
+    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,sol=pdeProb.sol,Du=pdeProb.Du,gN=pdeProb.gN,autodiff=autodiff))
   else
-    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,gN=pdeProb.gN))
+    return(fem_solvepoisson(femMesh::FEMmesh,pdeProb.gD,pdeProb.f,pdeProb.isLinear::Bool,fquadorder=fquadorder,solver=solver,gN=pdeProb.gN,autodiff=autodiff))
   end
 end
 

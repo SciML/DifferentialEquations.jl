@@ -1,3 +1,5 @@
+#plot(z, zlim = (should_override ? zlim_override : default(:zlim)))
+
 function solplot_animation(node,uFull;zlim=(0,1),vmax=1,cbar=true)
   Plots.pyplot(reuse=true)
   @gif for i=1:size(uFull,2)
