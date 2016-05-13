@@ -20,6 +20,7 @@ abstract PdeSolution
 
 AbstractArrayOrVoid = Union{AbstractArray,Void}
 NumberOrVoid = Union{Number,Void}
+FunctionOrVoid = Union{Function,Void}
 
 include("fem/meshTools.jl")
 include("fem/assemblyTools.jl")
@@ -38,7 +39,7 @@ export PdeProblem, PdeSolution, HeatProblem, PoissonProblem, FEMSolution, Conver
 #Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
         poissonProblemExample_wave, poissonProblemExample_noisyWave, heatProblemExample_birthdeath,
-        poissonProblemExample_birthdeath
+        poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath
 
 #Plot Functions
 export  solplot_animation, solplot_appxvstrue, solplot_appx, showmesh, convplot,

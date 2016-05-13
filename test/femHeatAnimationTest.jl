@@ -12,5 +12,5 @@ T = 2
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 pdeProb = heatProblemExample_moving()
 
-res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",animate=true)
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
 solplot_animation(res::FEMSolution;zlim=(0,.1),vmax=.1,cbar=false)

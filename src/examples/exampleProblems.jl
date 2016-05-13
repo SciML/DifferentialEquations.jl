@@ -38,6 +38,35 @@ function heatProblemExample_birthdeath()
   return(HeatProblem(u0,f,gD,gN,isLinear))
 end
 
+"Example problem which starts with 0 and solves with f(u)=1-.1u"
+function heatProblemExample_stochasticbirthdeath()
+  gD(x,t) = zeros(size(x,1))
+  f(u,x,t)  = ones(size(x,1)) - .5u
+  u0(x) = zeros(size(x,1))
+  gN(x,t) = 0
+  isLinear = false
+  stochastic = true
+  σ(u,x,t) = 100u.^2
+  return(HeatProblem(u0,f,gD,gN,isLinear,σ=σ,stochastic=stochastic))
+end
+
+#=
+@doc "Example problem with deterministic solution: u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))" ->
+function heatProblemExample_stochasticMoving()
+  sol(x,t) = 0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))
+  Du(x,t) = -50[sol(x,t).*(0.5-t+x[:,1]) sol(x,t).*(0.5-t+x[:,2])]
+  f(u,x,t) = (-5).*exp((-25).*((3/2)+6.*t.^2+x[:,1]+x[:,1].^2+x[:,2]+x[:,2].^2+(-2).*t.*(3+x[:,1]+
+    x[:,2]))).*((-20)+(-100).*t.^2+(-49).*x[:,1]+(-50).*x[:,1].^2+(-49).*x[:,2]+(-50).*
+    x[:,2].^2+2.*t.*(47+50.*x[:,1]+50.*x[:,2])+exp(25.*(1+(-2).*t).^2).*(22+
+    100.*t.^2+49.*x[:,1]+50.*x[:,1].^2+49.*x[:,2]+50.*x[:,2].^2+(-2).*t.*(49+50.*x[:,1]+50.*x[:,2])))
+  isLinear = false
+  stochastic = true
+  σ(u,x,t) = 1000u.*x[:,1].*(1-x[:,1]).*x[:,2].*(1-x[:,2])
+  return(HeatProblem(sol,Du,f,isLinear,σ=σ,stochastic=stochastic))
+end
+# Bad example, too stiff on f to see noise...
+=#
+
 "Example problem with solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
 function poissonProblemExample_wave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
