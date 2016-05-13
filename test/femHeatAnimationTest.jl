@@ -14,6 +14,6 @@ pdeProb = heatProblemExample_moving()
 
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
 if !isdefined(:testState) #Don't plot during test
-  println("in here!")
+  println("Generating Animation")
   solplot_animation(res::FEMSolution;zlim=(0,.1),vmax=.1,cbar=false) #Make animation, excluded from test
 end
