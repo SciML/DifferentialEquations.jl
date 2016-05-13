@@ -1,0 +1,7 @@
+div.wy-menu-vertical ul.current li.toctree-l3 a {
+  font-weight: bold;
+}
+
+a.documenter-source {
+  float: right;
+}

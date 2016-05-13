@@ -16,7 +16,7 @@ type FEMmesh
   NT::Int
   Δx
   Δt
-  T::Int
+  T::Number
   numIters::Int
   μ
   ν

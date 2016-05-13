@@ -4,12 +4,12 @@
 using DifferentialEquations
 
 T = 1
-Δx = 1//2^(6)
+Δx = 1//2^(5) #Run at 2^-6 for better plot, at 2^-5 for test times
 N = 4
 topΔt = 8
 pdeProb = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 
-#=
+
 alg = "Euler" #Unstable due to μ
 solutions = cell(N)
 for i = 1:N
@@ -19,8 +19,7 @@ for i = 1:N
   solutions[i] = res
 end
 simres = ConvergenceSimulation(solutions)
-convplot_fullΔt(simres,titleStr="Euler Convergence Plots",savefile="eulerdtconv.svg")
-=#
+#convplot_fullΔt(simres,titleStr="Euler Convergence Plots",savefile="eulerdtconv.svg")
 
 alg = "ImplicitEuler"
 solutions = cell(N)

@@ -6,6 +6,8 @@ os:
 julia:
   - release
   - nightly
+  - 0.4
+  - 0.4.5
 notifications:
   email: false
 # uncomment the following lines to override the default test script
