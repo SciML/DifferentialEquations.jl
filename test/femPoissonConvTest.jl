@@ -5,7 +5,7 @@ using DifferentialEquations,LaTeXStrings
 
 N = 4
 topΔx = 7
-pdeProb = poissonProblemExample_wave() 
+pdeProb = poissonProblemExample_wave()
 
 solutions = cell(N)
 for i = 1:N #Loop through Δx's, solve Poisson, and save to solutions
@@ -20,4 +20,4 @@ simres = ConvergenceSimulation(solutions)
 
 #Plot Result
 dxstring = L"\Delta x"
-convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence")
+convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence",savefile="plot.png")

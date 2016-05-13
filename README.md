@@ -6,7 +6,7 @@ This is a package for solving numerically solving differential equations in Juli
 
 This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism.
 
-Currently, finite element solvers for the Poisson and Heat Equations are supplied. Mesh generation tools currently only work for squares, though the solvers will work on general meshes if they are provided. The mesh layout follows the format of [iFEM](http://www.math.uci.edu/~chenlong/programming.html) and many subroutines in the finite element solver are based off of iFEM algorithms.
+Currently, finite element solvers for the (Stochastic) Poisson and Heat Equations are supplied. These functions take in a problem specification (with an option for adding stochasticity) and generate solutions to the PDEs. Mesh generation tools currently only work for squares, though the solvers will work on general meshes if they are provided. The mesh layout follows the format of [iFEM](http://www.math.uci.edu/~chenlong/programming.html) and many subroutines in the finite element solver are based off of iFEM algorithms.
 
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
 
@@ -65,6 +65,28 @@ This gives us the following plot:
 
 ![Introduction Example Solution][introductionExampleSolution]
 
+### Stochastic Partial Differential Equation Solvers
+
+We can solve the save stochastic PDE Δu=f+gdW with additive space-time white noise by specifying the problem as:
+
+```julia
+"Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
+function poissonProblemExample_noisyWave()
+  f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
+  sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
+  Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
+  gN(x) = 0
+  isLinear = true
+  stochastic = true
+  σ(x) = 5 #Additive noise
+  return(PoissonProblem(f,sol,Du,gN,isLinear,σ=σ,stochastic=stochastic))
+end
+```
+
+and using the same solving commands. This gives the following output:
+
+![Introduction Stochastic Solution][introductionStochasticSolution]
+
 # Current Supported Equations
 * PDE Solvers
   * Finite Element Solvers
@@ -91,4 +113,5 @@ This gives us the following plot:
   * IIF-Maruyama
   * IIF-Milstein
 
-[introductionExampleSolution]: /src/examples/introductionExample.png "Introduction Example Solution"
+[introductionExampleSolution]: /src/examples/introductionExample.png "Introduction Example Solution" =250x
+[introductionStochasticExample]: /src/examples/introductionStochasticExample.png "Introduction Example Solution to the Stochastic Equation" =250x
