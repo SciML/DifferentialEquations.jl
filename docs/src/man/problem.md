@@ -1,5 +1,6 @@
 # Defining a Problem
 
+
 (x,t) vs (x,y,t)
 isLinear
 stochastic

@@ -1,3 +1,6 @@
+"""
+estimaterecovery(node,elem,u)
+"""
 function estimaterecovery(node,elem,u)
   #Computes the Δ error estimate η
   Dlambda,area = gradbasis(node,elem)
@@ -8,7 +11,9 @@ function estimaterecovery(node,elem,u)
   η = area.*sum(abs(DDu),2)
   return(η,Du)
 end
-
+"""
+recovery(node,elem,Du,area)
+"""
 function recovery(node,elem,Du,area)
   #Promotes a piecewise constant function to piecewise linear
   N = size(node,1)
@@ -23,6 +28,9 @@ function recovery(node,elem,Du,area)
   return(RDu)
 end
 
+"""
+mark(elem,eta,theta;method="L2")
+"""
 function mark(elem,eta,theta;method="L2")
   NT = size(elem,1); isMark = false(NT,1)
   if method == "Max"
@@ -39,6 +47,9 @@ function mark(elem,eta,theta;method="L2")
   return(markedElem)
 end
 
+"""
+bisect(node,elem;markedElem= (1:size(elem,1))',bdFlag)
+"""
 function [node,elem,bdFlag,HB,tree] = bisect(node,elem;markedElem= (1:size(elem,1))',bdFlag)
   # BISECT bisect a 2-D triangulation.
 

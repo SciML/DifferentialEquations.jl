@@ -5,8 +5,8 @@ using DifferentialEquations
 
 #Define a parabolic problem
 T = 1
-Δx = 1//2^(4)
-Δt = 1//2^(9)
+Δx = 1//2^(3)
+Δt = 1//2^(7)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 pdeProb = heatProblemExample_birthdeath()
 

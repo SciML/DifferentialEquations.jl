@@ -87,6 +87,9 @@ end
 
 showmesh(femMesh) = showmesh(femMesh.node,femMesh.elem)
 
+"""
+convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$ErrStr vs $measureStr Convergence Plot")
+"""
 function convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$ErrStr vs $measureStr Convergence Plot")
   PyPlot.loglog(measure,err)
   PyPlot.title(titleStr)
@@ -100,6 +103,9 @@ function convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$Err
   =#
 end
 
+"""
+convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+"""
 function convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
   PyPlot.subplot(221)
@@ -127,6 +133,9 @@ function convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergenc
   =#
 end
 
+"""
+convplot_fullΔx(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+"""
 function convplot_fullΔx(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
   PyPlot.subplot(221)
@@ -144,18 +153,42 @@ function convplot_fullΔx(simres::ConvergenceSimulation;titleStr="All Convergenc
   return(fig)
 end
 
+"""
+convplot_h1vsΔt(simres::ConvergenceSimulation)
+"""
 convplot_h1vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.h1Errors;ErrStr="H1 Error",measureStr=L"$\Delta t$")
 
+"""
+convplot_l2vsΔt(simres::ConvergenceSimulation)
+"""
 convplot_l2vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.l2Errors;ErrStr="L2 Error",measureStr=L"$\Delta t$")
 
+"""
+convplot_node2vsΔt(simres::ConvergenceSimulation)
+"""
 convplot_node2vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.node2Errors;ErrStr="Nodal L2 Error",measureStr=L"$\Delta t$")
 
+"""
+convplot_maxvsΔt(simres::ConvergenceSimulation)
+"""
 convplot_maxvsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.maxErrors;ErrStr="Nodal Max Error",measureStr=L"$\Delta t$")
 
+"""
+convplot_h1vsΔx(simres::ConvergenceSimulation)
+"""
 convplot_h1vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.h1Errors;ErrStr="H1 Error",measureStr=L"$\Delta x$")
 
+"""
+convplot_l2vsΔx(simres::ConvergenceSimulation)
+"""
 convplot_l2vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.l2Errors;ErrStr="L2 Error",measureStr=L"$\Delta x$")
 
+"""
+convplot_node2vsΔx(simres::ConvergenceSimulation)
+"""
 convplot_node2vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.node2Errors;ErrStr="Nodal L2 Error",measureStr=L"$\Delta x$")
 
+"""
+convplot_maxvsΔx(simres::ConvergenceSimulation)
+"""
 convplot_maxvsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.maxErrors;ErrStr="Nodal Max Error",measureStr=L"$\Delta x$")
