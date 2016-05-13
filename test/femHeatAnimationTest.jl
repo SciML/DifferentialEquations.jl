@@ -7,8 +7,8 @@
 #Will work on Windows, but will give blurry output
 using DifferentialEquations
 T = 2
-Δx = 1//2^(5)
-Δt = 1//2^(12)
+Δx = 1//2^(3)
+Δt = 1//2^(7)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 pdeProb = heatProblemExample_moving()
 
