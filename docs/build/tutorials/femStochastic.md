@@ -15,7 +15,7 @@ The following examples show how to change the tutorial problems into stochastic 
 ## Finite Element Stochastic Poisson Equation
 
 
-We can solve the same PDE as in  stochastic PDE, -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
+We can solve the same PDE as in the Poisson Tutorial execept as the stochastic PDE,  -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
 
 
 ```julia
@@ -41,10 +41,10 @@ and using the same solving commands as shown in [femStochasticPoissonSolo.jl](/s
 
 <a id='Finite-Element-Stochastic-Heat-Equation-1'></a>
 
-### Finite Element Stochastic Heat Equation
+## Finite Element Stochastic Heat Equation
 
 
-The last equation we will solve in this introductory example will be a nonlinear stochastic heat equation u_t=Δu+f+gdW with forcing function `f(u)=.5-u`, noise function `g(u)=100u^2` and initial condition `u0=0`. We would expect this system to rise towards the deterministic steady state `u=2` (but stay in mean a bit below it due to 1st order "Milstein" effects), gaining more noise as it increases. This is specified as follows:
+This will solve a nonlinear stochastic heat equation u_t=Δu+f+gdW with forcing function `f(u)=.5-u`, noise function `g(u)=100u^2` and initial condition `u0=0`. We would expect this system to rise towards the deterministic steady state `u=2` (but stay in mean a bit below it due to 1st order "Milstein" effects), gaining more noise as it increases. This is specified as follows:
 
 
 ```julia

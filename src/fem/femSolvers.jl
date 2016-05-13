@@ -1,4 +1,6 @@
-
+"""
+fem_solvepoisson
+"""
 function fem_solvepoisson(femMesh::FEMmesh,gD::Function,f::Function,isLinear::Bool;fquadorder=3,solver="Direct",sol = [],Du = [],gN::Function = (x)->0,autodiff=true,stochastic=false,σ=(x)->0,noiseType="White")
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
@@ -65,7 +67,9 @@ end
 ## Evolution Equation Solvers
 #Note
 #rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st order
-
+"""
+fem_solveheat
+"""
 function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Function,isLinear::Bool;fquadorder=3,alg = "Euler",solver="LU",sol = [],Du = [],fullSave = false,saveSteps = 100,gN::FunctionOrVoid = (x,t)->0,autodiff=false,stochastic=false,σ=(x)->0,noiseType="White")
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
@@ -250,6 +254,10 @@ function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver="Direc
   end
 end
 
+"""
+quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquadorder=2)
+
+"""
 function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquadorder=2)
   if isLinear
     bt1 = area.*(f(mid[:,:,2])+f(mid[:,:,3]))/6
@@ -289,58 +297,4 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,is
     b = b + accumarray(vec(Neumann), vec(ge),[N,1])
   end
   return(b)
-end
-
-function quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
-  #for Crank-Nicholson
-  #rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis2((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),A,node,elem,lambda,phi,weight,N,NT,area,bdNode))[freeNode]
-  #Slightly slower, easier to extend to higher order quadrature
-  nQuad = size(lambda,1)
-  bt = zeros(NT,3)
-  for p = 1:nQuad
-      pxy = lambda[p,1]*node[elem[:,1],:] +
-        lambda[p,2]*node[elem[:,2],:] +
-        lambda[p,3]*node[elem[:,3],:]
-      fp = f(pxy)
-      for i = 1:3
-          bt[:,i] = bt[:,i] + weight[p]*phi[p,i]*fp
-      end
-  end
-  bt = bt.*repmat(area,1,3)
-  b = vec(accumarray(vec(elem),vec(bt),[N 1]))
-  if(!isempty(Dirichlet))
-    uz = zeros(N)
-    uz[bdNode] = gD(node[bdNode,:])
-    b = b-A*uz
-    if(!isempty(Neumann))
-      Nve = node[Neumann[:,1],:] - node[Neumann[:,2],:]
-      edgeLength = sqrt(sum(Nve.^2,2))
-      mid = (node[Neumann[:,1],:] + node[Neumann[:,2],:])/2
-      b = b + accumarray(int([vec(Neumann),ones(2*size(Neumann,1),1)]), repmat(edgeLength.*g_N(mid)/2,2,1),[N,1])
-    end
-  else #Pure Neumann
-    b = b-mean(b) #Compatibility condition: sum(b)=0
-    b[1] = 0 #Fix 1 point
-  end
-  return(b)
-end
-
-function CG2(u,A,b;tol=1e-6)
-  tol = tol*norm(b)
-  k = 1
-  r = b - A*u
-  p = r
-  r2 = dot(r,r)
-  while sqrt(r2) >= tol && k<length(b)
-    Ap = A*p
-    alpha = r2/dot(p,Ap)
-    u = u + alpha*p
-    r = r - alpha*Ap
-    r2old = r2
-    r2 = dot(r,r)
-    beta = r2/r2old
-    p = r + beta*p
-    k = k + 1
-  end
-  return u,k
 end
