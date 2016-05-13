@@ -63,6 +63,7 @@ solplot(res,savefile="introductionExample.png")
 
 This gives us the following plot:
 
+<img src="/src/examples/introductionExample.png" width="48">
 ![Introduction Example Solution](introductionExampleSolution =250x)
 
 ### Stochastic Partial Differential Equation Solvers
