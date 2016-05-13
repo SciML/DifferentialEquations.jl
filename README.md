@@ -63,7 +63,7 @@ solplot(res,savefile="introductionExample.png")
 
 This gives us the following plot:
 
-![Introduction Example Solution][introductionExampleSolution =250x]
+![Introduction Example Solution](introductionExampleSolution =250x)
 
 ### Stochastic Partial Differential Equation Solvers
 
@@ -85,7 +85,7 @@ end
 
 and using the same solving commands. This gives the following output:
 
-![Introduction Stochastic Solution][introductionStochasticSolution =250x]
+![Introduction Stochastic Solution](introductionStochasticSolution =250x)
 
 # Current Supported Equations
 * PDE Solvers
