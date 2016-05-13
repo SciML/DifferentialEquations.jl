@@ -64,7 +64,7 @@ solplot(res,savefile="introductionExample.png")
 This gives us the following plot:
 
 <div style="text-align:center">
-<img src="/src/examples/introductionExample.png" width="450">
+<img src="/src/examples/introductionExample.png" width="450" />
 </div>
 
 ### Stochastic Partial Differential Equation Solvers
@@ -88,7 +88,7 @@ end
 and using the same solving commands. This gives the following output:
 
 <div style="text-align:center">
-<img src="/src/examples/introductionStochasticExample.png" width="450">
+<img src="/src/examples/introductionStochasticExample.png" width="450" />
 </div>
 
 # Current Supported Equations
