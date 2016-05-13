@@ -3,7 +3,7 @@
 ######
 using DifferentialEquations
 
-Δx = 1//2^(6)
+Δx = 1//2^(3)
 femMesh = notime_squaremesh([0 1 0 1],Δx,"Neumann")
 pdeProb = poissonProblemExample_birthdeath()
 
