@@ -55,14 +55,14 @@ function bisect(node,elem;markedElem=1:size(elem,1),bdFlag=[])
 
   # Set up
   HB = []; tree = []
-  #isempty(markedElem) ? return(node,elem,bdFlag,HB,tree)
-  #markedElem == "all" ? markedElem = 1:size(elem,1)
-  #isa(markedElem,Array{Bool}) ? markedElem = convert(Int64,markedElem)
+  if isempty(markedElem) return(node,elem,bdFlag,HB,tree) end
+  if markedElem == "all" markedElem = 1:size(elem,1) end
+  if isa(markedElem,Array{Bool}) markedElem = convert(Int64,markedElem) end
 
   # Construct auxiliary data structure
-  T = auxstructure(elem);
+  T = auxstructure(elem)
   neighbor = T.neighbor; elem2edge = T.elem2edge; edge = T.edge
-  clear T;
+  #clear T;
   #[neighbor,elem2edge,edge] = auxstructurec(int32(elem));
   N = size(node,1); NT = size(elem,1); NE = size(edge,1)
 
