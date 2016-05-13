@@ -1,7 +1,7 @@
 #plot(z, zlim = (should_override ? zlim_override : default(:zlim)))
 
 function solplot_animation(node,uFull;zlim=(0,1),vmax=1,cbar=true)
-  Plots.pyplot(reuse=true)
+  Plots.pyplot(reuse=true,size=(750,750))
   @gif for i=1:size(uFull,2)
       surface(node[:,1],node[:,2],uFull[:,i],zlim=zlim,vmax=vmax,cbar=cbar)
   end
