@@ -148,5 +148,5 @@ solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
   * IIF-Maruyama
   * IIF-Milstein
 
-[codecov-img]: https://codecov.io/gh/MichaelHatherly/Documenter.jl/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/MichaelHatherly/Documenter.jl
+[codecov-img]: https://codecov.io/gh/ChrisRackauckas/DifferentialEquations.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/ChrisRackauckas/DifferentialEquations.jl
