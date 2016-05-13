@@ -13,4 +13,4 @@ femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 pdeProb = heatProblemExample_moving()
 
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
-solplot_animation(res::FEMSolution;zlim=(0,.1),vmax=.1,cbar=false)
+#solplot_animation(res::FEMSolution;zlim=(0,.1),vmax=.1,cbar=false) #Make animation, excluded from test

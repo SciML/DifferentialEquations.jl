@@ -6,8 +6,8 @@ This package is for efficient and parallel implementations of research-level alg
 
 ## Functions
 
+```
 {docs}
 DifferentialEquations
-
-{docs}
 findboundary(elem,bdFlag=[])
+```
