@@ -10,6 +10,9 @@ markdown_extensions:
   - tables
   - fenced_code
 
+extra_css:
+  - assets/Documenter.css
+  
 extra_javascript:
   - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
   - assets/mathjaxhelper.js
@@ -24,6 +27,7 @@ pages:
   - Stochastic Finite Element Examples: tutorials/femStochastic.md
 - Manual:
   - Overview of DifferentialEquations.jl Usage: man/overview.md
+  - Common Terms: man/commonTerms.md
   - Defining a Problem: man/problem.md
   - Mesh Generation: man/mesh.md
   - Information on Solvers: man/solvers.md

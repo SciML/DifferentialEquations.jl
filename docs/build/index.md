@@ -63,6 +63,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
 ## Manual
 
 - [Overview of DifferentialEquations.jl Usage](man/overview.md#Overview-of-DifferentialEquations.jl-Usage-1)
+- [Common Terms](man/commonTerms.md#Common-Terms-1)
 - [Defining a Problem](man/problem.md#Defining-a-Problem-1)
     - [Poisson Equation Problem](man/problem.md#Poisson-Equation-Problem-1)
     - [Heat Equation Problem](man/problem.md#Heat-Equation-Problem-1)

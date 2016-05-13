@@ -60,6 +60,7 @@ Depth = 2
 {contents}
 Pages = [
     "man/overview.md"
+    "man/commonTerms.md"
     "man/problem.md"
     "man/mesh.md"
     "man/solvers.md"
