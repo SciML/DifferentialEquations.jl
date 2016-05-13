@@ -34,7 +34,7 @@ using DifferentialEquations
 To understand the package in more detail, check out the following tutorials. Example
 codes for the latest features can be found in [test/](test/). Note that for many of
 the examples in the test folder, you may wish to run them at lower Δx or Δt.
-These values were taken to be large in order make unit tests run faster!Due to the fast
+These values were taken to be large in order make unit tests run faster! Due to the fast
 development speed of the package, it is recommended you checkout the main branch:
 ```
 Pkg.checkout("DifferentialEquations")
@@ -49,8 +49,8 @@ The following tutorials will introduce you to the functionality of DifferentialE
 ```
 {contents}
 Pages = [
-    "tutorials/femPoisson.md"
-    "tutorials/femHeat.md"
+    "tutorials/femPoisson.md",
+    "tutorials/femHeat.md",
     "tutorials/femStochastic.md"
     ]
 Depth = 2
@@ -61,14 +61,14 @@ Depth = 2
 ```
 {contents}
 Pages = [
-    "man/overview.md"
-    "man/commonTerms.md"
-    "man/problem.md"
-    "man/mesh.md"
-    "man/solvers.md"
-    "man/solution.md"
-    "man/plot.md"
-    "man/convergence.md"
+    "man/overview.md",
+    "man/commonTerms.md",
+    "man/problem.md",
+    "man/mesh.md",
+    "man/solvers.md",
+    "man/solution.md",
+    "man/plot.md",
+    "man/convergence.md",
 ]
 Depth = 2
 ```
@@ -78,7 +78,7 @@ Depth = 2
 ```
 {contents}
 Pages = [
-  "internals/femTools.md"
+  "internals/femTools.md",
   "internals/extras.md"
 ]
 Depth = 2
