@@ -14,8 +14,8 @@ script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("DiffEq"); Pkg.test("DiffEq"; coverage=true)'
   - julia -e 'Pkg.init(); Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")'
-  - julia -e 'Pkg.test("DifferentialEquations")'
+  - julia -e 'Pkg.test("DifferentialEquations",coverage=true)'
 after_success:
   - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))''
-  - bash <(curl -s https://codecov.io/bash)
+  - julia -e 'Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
