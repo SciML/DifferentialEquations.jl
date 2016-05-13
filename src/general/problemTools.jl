@@ -1,5 +1,5 @@
 @doc """
-`HeatProblem`
+HeatProblem
 
 Wraps the data that define a 2D linear heat equation problem:
 
