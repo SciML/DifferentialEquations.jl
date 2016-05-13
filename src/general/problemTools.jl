@@ -32,15 +32,18 @@ type HeatProblem <: PdeProblem
   knownSol
   "isLinear: Boolean which states whether the problem is linear or nonlinear"
   isLinear
-  function HeatProblem(sol,Du,f,isLinear)
+  σ
+  stochastic
+  noiseType
+  function HeatProblem(sol,Du,f,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
     knownSol = true
     u0(x) = sol(x,0)
     gD = sol
-    return(new(u0,Du,f,gD,nothing,sol,knownSol,isLinear))
+    return(new(u0,Du,f,gD,nothing,sol,knownSol,isLinear,σ,stochastic,noiseType))
   end
-  function HeatProblem(u0,f,gD,gN,isLinear)
+  function HeatProblem(u0,f,gD,gN,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
     knownSol = false
-    return(new(u0,nothing,f,gD,gN,nothing,knownSol,isLinear))
+    return(new(u0,nothing,f,gD,gN,nothing,knownSol,isLinear,σ,stochastic,noiseType))
   end
 end
 """

@@ -1,10 +1,10 @@
 # DifferentialEquations.jl
 
-[![Join the chat at https://gitter.im/ChrisRackauckas/DiffEq.jl](https://badges.gitter.im/ChrisRackauckas/DiffEq.jl.svg)](https://gitter.im/ChrisRackauckas/DiffEq.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/ChrisRackauckas/DifferentialEquations.jl](https://badges.gitter.im/ChrisRackauckas/DifferentialEquations.jl.svg)](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. For ordinary differential equation solvers, see [ODE.jl](https://github.com/JuliaLang/ODE.jl)
 
-This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism.
+This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes.
 
 Currently, finite element solvers for the (Stochastic) Poisson and Heat Equations are supplied. These functions take in a problem specification (with an option for adding stochasticity) and generate solutions to the PDEs. Mesh generation tools currently only work for squares, though the solvers will work on general meshes if they are provided. The mesh layout follows the format of [iFEM](http://www.math.uci.edu/~chenlong/programming.html) and many subroutines in the finite element solver are based off of iFEM algorithms.
 
@@ -65,9 +65,9 @@ This gives us the following plot:
 
 <img src="/src/examples/introductionExample.png" width="750" align="middle"  />
 
-### Stochastic Partial Differential Equation Solvers
+### Finite Element Stochastic Poisson Equation
 
-We can solve the same PDE as a stochastic PDE, Δu=f+gdW, with additive space-time white noise by specifying the problem as:
+We can solve the same PDE as a stochastic PDE, -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
 
 ```julia
 "Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
@@ -83,11 +83,45 @@ function poissonProblemExample_noisyWave()
 end
 ```
 
-and using the same solving commands. This gives the following output:
+and using the same solving commands as shown in [femStochasticPoissonSolo.jl](/src/femStochasticPoissonSolo.jl). This gives the following plot:
 
 <img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
-# Current Supported Equations
+### Finite Element Stochastic Heat Equation
+
+The last equation we will solve in this introductory example will be a nonlinear stochastic heat equation u_t=Δu+f+gdW with forcing function `f(u)=.5-u`, noise function `g(u)=100u^2` and
+initial condition `u0=0`. We would expect this system to rise towards the deterministic steady state `u=2` (but stay in mean a bit below it due to 1st order "Milstein" effects), gaining more noise as it increases. This is specified as follows:
+
+```julia
+"Example problem which starts with 0 and solves with f(u)=1-.1u"
+function heatProblemExample_stochasticbirthdeath()
+  gD(x,t) = zeros(size(x,1))
+  f(u,x,t)  = ones(size(x,1)) - .5u
+  u0(x) = zeros(size(x,1))
+  gN(x,t) = 0
+  isLinear = false
+  stochastic = true
+  σ(u,x,t) = 100u.^2
+  return(HeatProblem(u0,f,gD,gN,isLinear,σ=σ,stochastic=stochastic))
+end
+```
+
+As shown in [femStochasticHeatAnimationTest.jl](/src/femStochasticHeatAnimationTest.jl), we use the following code create an animation of the solution:
+
+```julia
+T = 5
+Δx = 1//2^(4)
+Δt = 1//2^(12)
+femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
+pdeProb = heatProblemExample_stochasticbirthdeath()
+
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
+solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
+```
+
+<img src="/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
+
+# Supported Equations
 * (Stochastic) PDE Solvers
   * Finite Element Solvers
     * Linear Poisson Equation
