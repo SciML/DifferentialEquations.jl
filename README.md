@@ -1,6 +1,7 @@
 # DifferentialEquations.jl
 
-[![Join the chat at https://gitter.im/ChrisRackauckas/DifferentialEquations.jl](https://badges.gitter.im/ChrisRackauckas/DifferentialEquations.jl.svg)](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/ChrisRackauckas/DifferentialEquations.jl](https://badges.gitter.im/ChrisRackauckas/DifferentialEquations.jl.svg)](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/ChrisRackauckas/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/ChrisRackauckas/DifferentialEquations.jl) [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)
 
 This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. For ordinary differential equation solvers, see [ODE.jl](https://github.com/JuliaLang/ODE.jl)
 
