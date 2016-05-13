@@ -1,3 +1,24 @@
+"""
+```julia
+#This one won't add @time
+@optional_something XXX rand(1000)
+
+# This will
+@optional_something Plots rand(1000)
+```
+"""
+macro optional_something(pkg, expr)
+    try
+        Pkg.installed(string(pkg)) == nothing && return expr
+        esc(quote
+            @time $expr
+        end)
+    catch
+        expr
+    end
+end
+
+
 
 ## Unused other versions of Functions
 
