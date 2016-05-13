@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-using DiffEq
+using DifferentialEquations
 using Base.Test
 
 # Run tests
