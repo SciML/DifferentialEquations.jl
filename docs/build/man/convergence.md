@@ -52,3 +52,73 @@ Returns the mean of the convergence estimates
 
 ## Plot Functions
 
+<a id='DifferentialEquations.convplot_fullΔt' href='#DifferentialEquations.convplot_fullΔt'>#</a>
+**`DifferentialEquations.convplot_fullΔt`** &mdash; *Function*.
+
+
+
+convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+
+<a id='DifferentialEquations.convplot_fullΔx' href='#DifferentialEquations.convplot_fullΔx'>#</a>
+**`DifferentialEquations.convplot_fullΔx`** &mdash; *Function*.
+
+
+
+convplot_fullΔx(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+
+<a id='DifferentialEquations.convplot_node2vsΔt' href='#DifferentialEquations.convplot_node2vsΔt'>#</a>
+**`DifferentialEquations.convplot_node2vsΔt`** &mdash; *Function*.
+
+
+
+convplot_node2vsΔt(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_maxvsΔx' href='#DifferentialEquations.convplot_maxvsΔx'>#</a>
+**`DifferentialEquations.convplot_maxvsΔx`** &mdash; *Function*.
+
+
+
+convplot_maxvsΔx(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_l2vsΔt' href='#DifferentialEquations.convplot_l2vsΔt'>#</a>
+**`DifferentialEquations.convplot_l2vsΔt`** &mdash; *Function*.
+
+
+
+convplot_l2vsΔt(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_h1vsΔt' href='#DifferentialEquations.convplot_h1vsΔt'>#</a>
+**`DifferentialEquations.convplot_h1vsΔt`** &mdash; *Function*.
+
+
+
+convplot_h1vsΔt(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_l2vsΔx' href='#DifferentialEquations.convplot_l2vsΔx'>#</a>
+**`DifferentialEquations.convplot_l2vsΔx`** &mdash; *Function*.
+
+
+
+convplot_l2vsΔx(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_h1vsΔx' href='#DifferentialEquations.convplot_h1vsΔx'>#</a>
+**`DifferentialEquations.convplot_h1vsΔx`** &mdash; *Function*.
+
+
+
+convplot_h1vsΔx(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_node2vsΔx' href='#DifferentialEquations.convplot_node2vsΔx'>#</a>
+**`DifferentialEquations.convplot_node2vsΔx`** &mdash; *Function*.
+
+
+
+convplot_node2vsΔx(simres::ConvergenceSimulation)
+
+<a id='DifferentialEquations.convplot_maxvsΔt' href='#DifferentialEquations.convplot_maxvsΔt'>#</a>
+**`DifferentialEquations.convplot_maxvsΔt`** &mdash; *Function*.
+
+
+
+convplot_maxvsΔt(simres::ConvergenceSimulation)
+

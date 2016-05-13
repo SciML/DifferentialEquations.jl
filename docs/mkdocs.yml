@@ -1,0 +1,35 @@
+site_name:           DifferentialEquations.jl
+repo_url:            https://github.com/ChrisRackauckas/DifferentialEquations.jl
+site_description:    Julia package for solving differential equations
+site_author:         Chris Rackauckas
+theme:               readthedocs
+
+markdown_extensions:
+  - codehilite
+  - extra
+  - tables
+  - fenced_code
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - assets/mathjaxhelper.js
+
+docs_dir: 'build'
+
+pages:
+- Introduction: index.md
+- Tutorial:
+  - Poisson Equation Finite Element Method Example: tutorials/femPoisson.md
+  - Heat Equation Finite Element Method Example: tutorials/femHeat.md
+  - Stochastic Finite Element Examples: tutorials/femStochastic.md
+- Manual:
+  - Overview of DifferentialEquations.jl Usage: man/overview.md
+  - Defining a Problem: man/problem.md
+  - Mesh Generation: man/mesh.md
+  - Information on Solvers: man/solvers.md
+  - The Solution Type: man/solution.md
+  - Plot Functions: man/plot.md
+  - Convergence Simuations: man/convergence.md
+- Internal Documentation:
+  - Internal Finite Element Tools: internals/femTools.md
+  - Extra Functions: internals/extras.md

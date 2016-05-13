@@ -21,5 +21,14 @@ DifferentialEquations.conv_ests
 
 ```
 {docs}
-
+DifferentialEquations.convplot_fullΔt
+DifferentialEquations.convplot_fullΔx
+DifferentialEquations.convplot_node2vsΔt
+DifferentialEquations.convplot_maxvsΔx
+DifferentialEquations.convplot_l2vsΔt
+DifferentialEquations.convplot_h1vsΔt
+DifferentialEquations.convplot_l2vsΔx
+DifferentialEquations.convplot_h1vsΔx
+DifferentialEquations.convplot_node2vsΔx
+DifferentialEquations.convplot_maxvsΔt
 ```

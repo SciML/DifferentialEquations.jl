@@ -5,7 +5,6 @@ os:
   - osx
 julia:
   - release
-  - nightly
   - 0.4
   - 0.4.5
 notifications:
@@ -16,3 +15,6 @@ script:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("DiffEq"); Pkg.test("DiffEq"; coverage=true)'
   - julia -e 'Pkg.init(); Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")'
   - julia -e 'Pkg.test("DifferentialEquations")'
+after_success:
+  - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
+  - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))''
