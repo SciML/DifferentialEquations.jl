@@ -19,7 +19,9 @@ for i = 1:N
   solutions[i] = res
 end
 simres = ConvergenceSimulation(solutions)
-#convplot_fullΔt(simres,titleStr="Euler Convergence Plots",savefile="eulerdtconv.svg")
+if !isdefined(:testState) #Don't plot during test
+  convplot_fullΔt(simres,titleStr="Euler Convergence Plots",savefile="eulerdtconv.svg")
+end
 
 alg = "ImplicitEuler"
 solutions = cell(N)
@@ -30,7 +32,9 @@ for i = 1:N
   solutions[i] = res
 end
 simres2 = ConvergenceSimulation(solutions)
-convplot_fullΔt(simres2,titleStr="Implicit Euler Convergence Plots",savefile="impeulerdtconv.svg")
+if !isdefined(:testState) #Don't plot during test
+  convplot_fullΔt(simres2,titleStr="Implicit Euler Convergence Plots",savefile="impeulerdtconv.svg")
+end
 
 alg = "CrankNicholson" #Bound by spatial discretization error at low Δt, decrease Δx for full convergence
 solutions = cell(N)
@@ -41,5 +45,7 @@ for i = 1:N
   solutions[i] = res
 end
 simres3 = ConvergenceSimulation(solutions)
-convplot_fullΔt(simres3,titleStr="Crank-Nicholson Convergence Plots",savefile="crankdtconv.svg")
+if !isdefined(:testState) #Don't plot during test
+  convplot_fullΔt(simres3,titleStr="Crank-Nicholson Convergence Plots",savefile="crankdtconv.svg")
+end
 #Note: Stabilizes in H1 due to high Δx-error, reduce Δx and it converges further.

@@ -14,6 +14,23 @@ problem is linear (i.e. linear if f does not depend on u).
 HeatProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as a function or vector), f,
 Dirichlet boundary function gD,  Neumann boundary function gN, and a boolean which states whether the
 problem is linear (i.e. linear if f does not depend on u).
+
+Note: If isLinear is true, then all functions must only be functions of (x,t). If
+isLinear is false, then f=f(u,x,t) and σ=σ(u,x,t) (if specified), while the other
+functions are only functions of (x,t).
+
+#Keyword Arguments
+
+The constructors take the following keyword arguments:
+
+σ = The function which multiplies the noise dW. By default σ is 0.
+
+stochastic = A boolean which specifies if the problem is stochastic. By default
+stochastic is false.
+
+noiseType = A string which specifies the type of noise to be generated. By default
+noiseType is "White" for Gaussian Spacetime White Noise.
+
 """ ->
 type HeatProblem <: PdeProblem
   "u0: Initial value function or vector"
@@ -60,6 +77,21 @@ f, and Neumann boundary data gN,
 
 PoissonProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as a function or vector), f,
 Dirichlet boundary function gD, and Neumann boundary function gN.
+
+Note: If isLinear is true, then all functions must only be functions of (x). If
+isLinear is false, then f=f(u,x) and σ=σ(u,x) (if specified), while the other
+functions are only functions of (x).
+
+#Keyword Arguments
+
+σ = The function which multiplies the noise dW. By default σ is 0.
+
+stochastic = A boolean which specifies if the problem is stochastic. By default
+stochastic is false.
+
+noiseType = A string which specifies the type of noise to be generated. By default
+noiseType is "White" for Gaussian Spacetime White Noise.
+
 """
 type PoissonProblem <: PdeProblem
   "f: Forcing function in the Poisson problem"

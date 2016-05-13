@@ -48,7 +48,8 @@ for i = 1:N
 end
 simres3 = ConvergenceSimulation(solutions)
 
-
-convplot_fullΔx(simres,titleStr="")
-convplot_fullΔx(simres2,titleStr="")
-convplot_fullΔx(simres3,titleStr="Dx Convergence Plots",savefile="dxconv.svg")
+if !isdefined(:testState) #Don't plot during test
+  convplot_fullΔx(simres,titleStr="")
+  convplot_fullΔx(simres2,titleStr="")
+  convplot_fullΔx(simres3,titleStr="Dx Convergence Plots",savefile="dxconv.svg")
+end

@@ -20,4 +20,6 @@ simres = ConvergenceSimulation(solutions)
 
 #Plot Result
 dxstring = L"\Delta x"
-convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence",savefile="plot.png")
+if !isdefined(:testState) #Don't plot during test
+  convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence",savefile="plot.png")
+end

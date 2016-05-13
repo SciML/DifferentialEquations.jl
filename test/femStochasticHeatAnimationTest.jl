@@ -13,4 +13,6 @@ femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 pdeProb = heatProblemExample_stochasticbirthdeath()
 
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
-#solplot_animation(res::FEMSolution;zlim=(0,3),vmax=.1,cbar=false) #Make animation, excluded from test
+if !isdefined(:testState) #Don't plot during test
+  solplot_animation(res::FEMSolution;zlim=(0,3),vmax=.1,cbar=false) #Make animation
+end
