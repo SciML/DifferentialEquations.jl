@@ -118,7 +118,6 @@ log2(error[i+1]/error[i])
 Returns the mean of the convergence estimates
 """
 function conv_ests(error::Vector{Float64})
-  ## Calculate pairwise rate of convergence estimates
   S = Vector{Float64}(length(error)-1)
   for i=1:length(error)-1
     S[i] = log2(error[i+1]/error[i])
