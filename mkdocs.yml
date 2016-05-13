@@ -1,8 +1,0 @@
-site_name:           DifferentialEquations.jl
-repo_url:            https://github.com/ChrisRackauckas/DifferentialEquations.jl
-site_description:    Julia package for solving differential equations
-site_author:         Chris Rackauckas
-theme:               readthedocs
-markdown_extensions: [tables, fenced_code]
-pages:
-- Introduction: src/index.md
