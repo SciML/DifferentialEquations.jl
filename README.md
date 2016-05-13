@@ -63,7 +63,7 @@ solplot(res,savefile="introductionExample.png")
 
 This gives us the following plot:
 
-![Introduction Example Solution][introductionExampleSolution]
+![Introduction Example Solution][introductionExampleSolution =250x]
 
 ### Stochastic Partial Differential Equation Solvers
 
@@ -85,7 +85,7 @@ end
 
 and using the same solving commands. This gives the following output:
 
-![Introduction Stochastic Solution][introductionStochasticSolution]
+![Introduction Stochastic Solution][introductionStochasticSolution =250x]
 
 # Current Supported Equations
 * PDE Solvers
@@ -113,5 +113,5 @@ and using the same solving commands. This gives the following output:
   * IIF-Maruyama
   * IIF-Milstein
 
-[introductionExampleSolution]: /src/examples/introductionExample.png "Introduction Example Solution" =250x
-[introductionStochasticExample]: /src/examples/introductionStochasticExample.png "Introduction Example Solution to the Stochastic Equation" =250x
+[introductionExampleSolution]: /src/examples/introductionExample.png "Introduction Example Solution"
+[introductionStochasticExample]: /src/examples/introductionStochasticExample.png "Introduction Example Solution to the Stochastic Equation"
