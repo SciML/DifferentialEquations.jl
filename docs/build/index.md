@@ -80,6 +80,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [Convergence Simulations](man/convergence.md#Convergence-Simulations-1)
     - [The ConvergenceSimulation Type](man/convergence.md#The-ConvergenceSimulation-Type-1)
     - [Related Functions](man/convergence.md#Related-Functions-1)
+    - [Plot Functions](man/convergence.md#Plot-Functions-1)
 
 <a id='Internal-Documentation-1'></a>
 

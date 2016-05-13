@@ -4,6 +4,9 @@
 # Convergence Simulations
 
 
+The convergence simulation
+
+
 <a id='The-ConvergenceSimulation-Type-1'></a>
 
 ## The ConvergenceSimulation Type
@@ -43,4 +46,9 @@ Computes the pairwise convergence estimate for a convergence test done by halvin
 log2(error[i+1]/error[i])
 
 Returns the mean of the convergence estimates
+
+
+<a id='Plot-Functions-1'></a>
+
+## Plot Functions
 

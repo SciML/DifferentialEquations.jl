@@ -41,6 +41,7 @@ include("general/solutionTools.jl")
 include("general/plotTools.jl")
 include("general/problemTools.jl")
 include("general/stochasticTools.jl")
+include("general/miscTools.jl")
 include("examples/exampleProblems.jl")
 include("fem/femSolvers.jl")
 
@@ -66,4 +67,6 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
         gradu, gradbasis, fem_solvepoisson, fem_solveheat, quadfbasis, fem_squaremesh, CFLμ, CFLν,
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
+#Misc Tools
+export quadfbasis2, CG2
 end # module

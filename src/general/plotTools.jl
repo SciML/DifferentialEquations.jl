@@ -1,5 +1,11 @@
 #plot(z, zlim = (should_override ? zlim_override : default(:zlim)))
+"""
+solplot_animation(node,uFull)
 
+solplot_animation(res::FEMSolution)
+
+
+"""
 function solplot_animation(node,uFull;zlim=(0,1),vmax=1,cbar=true)
   Plots.pyplot(reuse=true,size=(750,750))
   @gif for i=1:size(uFull,2)
@@ -9,7 +15,13 @@ end
 
 solplot_animation(res::FEMSolution;zlim=(0,1),vmax=1,cbar=true) = solplot_animation(res.femMesh.node,res.uFull,zlim=zlim,vmax=vmax,cbar=cbar)
 
+"""
+solplot_appxvstrue(node,u,uTrue)
 
+solplot_appxvstrue(res::FEMSolution)
+
+
+"""
 function solplot_appxvstrue(node,u,uTrue;savefile="",title="PDE Solution",appxTitle="Approximated Solution",trueTitle="True Solution",cmap=PyPlot.get_cmap("winter"))
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
   PyPlot.subplot(211,projection="3d")
@@ -38,6 +50,9 @@ solplot_appxvstrue(res::FEMSolution;savefile="",title="PDE Solution",
       res.u,res.uTrue,savefile=savefile,title=title,appxTitle=appxTitle,
       trueTitle=trueTitle,cmap=cmap)
 
+"""
+solplot(res::FEMSolution)
+"""
 function solplot(res::FEMSolution;savefile="",title="PDE Solution",
         appxTitle="Approximated Solution",trueTitle="True Solution",
         cmap=PyPlot.get_cmap("winter"))
@@ -50,6 +65,11 @@ function solplot(res::FEMSolution;savefile="",title="PDE Solution",
   end
 end
 
+"""
+solplot_appx(node,u)
+
+solplot_appx(res::FEMSolution)
+"""
 function solplot_appx(node,u;savefile="",title="Approximated Solution",appxTitle="Approximated Solution",
   cmap=PyPlot.get_cmap("winter"))
   Plots.surface(node[:,1],node[:,2],u,cmap=PyPlot.get_cmap("winter"),title=title)
@@ -62,7 +82,12 @@ solplot_appx(res::FEMSolution;savefile="",title="Approximated Solution",appxTitl
   cmap=PyPlot.get_cmap("winter")) = solplot_appx(res.femMesh.node,res.u,savefile=savefile,
   title=title,appxTitle=appxTitle,cmap=cmap)
 
-function showmesh(node,elem,cmap=PyPlot.get_cmap("ocean"))
+"""
+showmesh(node,elem)
+
+showmesh(femMesh)
+"""
+function showmesh(node,elem;cmap=PyPlot.get_cmap("ocean"))
   dim = size(node,2)
   nv = size(elem,2)
   if (dim==2) && (nv==3) # planar triangulation
@@ -85,10 +110,10 @@ function showmesh(node,elem,cmap=PyPlot.get_cmap("ocean"))
   end
 end
 
-showmesh(femMesh) = showmesh(femMesh.node,femMesh.elem)
+showmesh(femMesh::FEMmesh) = showmesh(femMesh.node,femMesh.elem)
 
 """
-convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$ErrStr vs $measureStr Convergence Plot")
+convplot(measure,err)
 """
 function convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$ErrStr vs $measureStr Convergence Plot")
   PyPlot.loglog(measure,err)
