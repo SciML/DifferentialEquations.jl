@@ -14,3 +14,5 @@ notifications:
 #script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("DiffEq"); Pkg.test("DiffEq"; coverage=true)'
+- julia -e 'Pkg.init(); Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")'
+- julia -e 'Pkg.test("DifferentialEquations")'
