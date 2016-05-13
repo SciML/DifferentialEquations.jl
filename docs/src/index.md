@@ -76,6 +76,7 @@ Depth = 2
 {contents}
 Pages = [
   "internals/femTools.md"
+  "internals/extras.md"
 ]
 Depth = 2
 ```

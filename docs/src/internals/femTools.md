@@ -11,12 +11,7 @@ DifferentialEquations
 
 ```
 {docs}
-DifferentialEquations.findboundary
 DifferentialEquations.meshgrid
-DifferentialEquations.setboundary
-DifferentialEquations.fem_squaremesh
-DifferentialEquations.notime_squaremesh
-DifferentialEquations.parabolic_squaremesh
 DifferentialEquations.CFLν
 DifferentialEquations.CFLμ
 ```
@@ -26,6 +21,7 @@ DifferentialEquations.CFLμ
 ```
 {docs}
 DifferentialEquations.gradbasis
+DifferentialEquations.quadfbasis
 DifferentialEquations.quadpts
 DifferentialEquations.accumarray
 DifferentialEquations.assemblematrix

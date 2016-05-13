@@ -56,6 +56,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [Heat Equation Finite Element Method Example](tutorials/femHeat.md#Heat-Equation-Finite-Element-Method-Example-1)
 - [Stochastic Finite Element Examples](tutorials/femStochastic.md#Stochastic-Finite-Element-Examples-1)
     - [Finite Element Stochastic Poisson Equation](tutorials/femStochastic.md#Finite-Element-Stochastic-Poisson-Equation-1)
+    - [Finite Element Stochastic Heat Equation](tutorials/femStochastic.md#Finite-Element-Stochastic-Heat-Equation-1)
 
 <a id='Manual-1'></a>
 
@@ -68,6 +69,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
     - [Example Problems](man/problem.md#Example-Problems-1)
     - [Related Functions](man/problem.md#Related-Functions-1)
 - [Information on Solvers](man/solvers.md#Information-on-Solvers-1)
+    - [Finite Element Method Solvers](man/solvers.md#Finite-Element-Method-Solvers-1)
 - [The Solution Type](man/solution.md#The-Solution-Type-1)
     - [Related Functions](man/solution.md#Related-Functions-1)
 - [Plot Functions](man/plot.md#Plot-Functions-1)
@@ -82,3 +84,4 @@ The following tutorials will introduce you to the functionality of DifferentialE
     - [Mesh Tools](internals/femTools.md#Mesh-Tools-1)
     - [Solver Tools](internals/femTools.md#Solver-Tools-1)
     - [Error Tools](internals/femTools.md#Error-Tools-1)
+- [Extra Functions](internals/extras.md#Extra-Functions-1)
