@@ -1,10 +1,10 @@
 
 ## Unused other versions of Functions
 
-'''
+"""
 quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
 Slightly slower than quadfbasis, easier to extend to higher order quadrature
-'''
+"""
 function quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
   nQuad = size(lambda,1)
   bt = zeros(NT,3)
@@ -36,9 +36,9 @@ function quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
   return(b)
 end
 
-'''
+"""
 CG2(u,A,b;tol=1e-6)
-'''
+"""
 function CG2(u,A,b;tol=1e-6)
   tol = tol*norm(b)
   k = 1
