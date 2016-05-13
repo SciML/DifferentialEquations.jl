@@ -68,12 +68,18 @@ The following tutorials will introduce you to the functionality of DifferentialE
     - [Heat Equation Problem](man/problem.md#Heat-Equation-Problem-1)
     - [Example Problems](man/problem.md#Example-Problems-1)
     - [Related Functions](man/problem.md#Related-Functions-1)
+- [Mesh Generation](man/mesh.md#Mesh-Generation-1)
+    - [Mesh Specification](man/mesh.md#Mesh-Specification-1)
+    - [Mesh Type](man/mesh.md#Mesh-Type-1)
+    - [Mesh Generation Functions](man/mesh.md#Mesh-Generation-Functions-1)
 - [Information on Solvers](man/solvers.md#Information-on-Solvers-1)
     - [Finite Element Method Solvers](man/solvers.md#Finite-Element-Method-Solvers-1)
 - [The Solution Type](man/solution.md#The-Solution-Type-1)
     - [Related Functions](man/solution.md#Related-Functions-1)
 - [Plot Functions](man/plot.md#Plot-Functions-1)
 - [Convergence Simulations](man/convergence.md#Convergence-Simulations-1)
+    - [The ConvergenceSimulation Type](man/convergence.md#The-ConvergenceSimulation-Type-1)
+    - [Related Functions](man/convergence.md#Related-Functions-1)
 
 <a id='Internal-Documentation-1'></a>
 

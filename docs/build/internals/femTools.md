@@ -24,27 +24,6 @@ This package is for efficient and parallel implementations of research-level alg
 
 ## Mesh Tools
 
-<a id='DifferentialEquations.findboundary' href='#DifferentialEquations.findboundary'>#</a>
-**`DifferentialEquations.findboundary`** &mdash; *Function*.
-
-
-
-findboundary(elem,bdFlag=[])
-
-findboundary(femMesh::FEMmesh,bdFlag=[])
-
-Finds elements which are on the boundary of the domain. If bdFlag is given, then those indices are added as nodes for a Dirichlet boundary condition (useful for creating cracks and other cutouts of domains).
-
-### Returns
-
-bdNode = Vector of indices for bdNode. Using node[:,bdNode] returns boundary nodes.
-
-bdEdge = Vector of indices for boundary edges.
-
-isBdNode = Vector of booleans size N which donotes which are on the boundary
-
-isBdElem = Vector of booleans size NT which denotes which are on the boundary
-
 <a id='DifferentialEquations.meshgrid' href='#DifferentialEquations.meshgrid'>#</a>
 **`DifferentialEquations.meshgrid`** &mdash; *Function*.
 
@@ -61,48 +40,6 @@ Computes an (x,y)-grid from the vectors (vx,vy). For more information, see the M
 meshgrid(vx)
 
 Computes an (x,y)-grid from the vectors (vx,vx). For more information, see the MATLAB documentation.
-
-<a id='DifferentialEquations.setboundary' href='#DifferentialEquations.setboundary'>#</a>
-**`DifferentialEquations.setboundary`** &mdash; *Function*.
-
-
-
-setboundary(node::AbstractArray,elem::AbstractArray,bdType)
-
-setboundary(femMesh::FEMmesh,bdType)
-
-Takes in the femMesh and creates an array bdFlag which denotes the boundary types. 1 stands for Dirichlet, 2 for Neumann, 3 for Robin. 
-
-<a id='DifferentialEquations.fem_squaremesh' href='#DifferentialEquations.fem_squaremesh'>#</a>
-**`DifferentialEquations.fem_squaremesh`** &mdash; *Function*.
-
-
-
-fem_squaremesh(square,h)
-
-Returns the grid in the iFEM form of the two arrays (node,elem)
-
-<a id='DifferentialEquations.notime_squaremesh' href='#DifferentialEquations.notime_squaremesh'>#</a>
-**`DifferentialEquations.notime_squaremesh`** &mdash; *Function*.
-
-
-
-notime_squaremesh(square,Δx,bdType)
-
-Computes the (node,elem) square mesh for the square with the chosen Δx and boundary settings.
-
-###Example `square=[0 1 0 1] #Unit Square` `Δx=.25` `notime_squaremesh(square,Δx,"Dirichlet")`
-
-<a id='DifferentialEquations.parabolic_squaremesh' href='#DifferentialEquations.parabolic_squaremesh'>#</a>
-**`DifferentialEquations.parabolic_squaremesh`** &mdash; *Function*.
-
-
-
-parabolic_squaremesh(square,Δx,Δt,T,bdType)
-
-Computes the (node,elem) x [0,T] parabolic square mesh for the square with the chosen Δx and boundary settings and with the constant time intervals Δt.
-
-###Example `square=[0 1 0 1] #Unit Square` `Δx=.25; Δt=.25;T=2` `parabolic_squaremesh(square,Δx,Δt,T,"Dirichlet")`
 
 <a id='DifferentialEquations.CFLν' href='#DifferentialEquations.CFLν'>#</a>
 **`DifferentialEquations.CFLν`** &mdash; *Function*.
@@ -135,6 +72,13 @@ Computes the CFL-condition μ= Δt/(Δx*Δx)
 gradbasis(node,elem)
 
 Returns the gradient of the barycentric basis elements.
+
+<a id='DifferentialEquations.quadfbasis' href='#DifferentialEquations.quadfbasis'>#</a>
+**`DifferentialEquations.quadfbasis`** &mdash; *Function*.
+
+
+
+quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquadorder=2)
 
 <a id='DifferentialEquations.quadpts' href='#DifferentialEquations.quadpts'>#</a>
 **`DifferentialEquations.quadpts`** &mdash; *Function*.

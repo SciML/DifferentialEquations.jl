@@ -3,6 +3,11 @@
 
 # Convergence Simulations
 
+
+<a id='The-ConvergenceSimulation-Type-1'></a>
+
+## The ConvergenceSimulation Type
+
 <a id='DifferentialEquations.ConvergenceSimulation' href='#DifferentialEquations.ConvergenceSimulation'>#</a>
 **`DifferentialEquations.ConvergenceSimulation`** &mdash; *Type*.
 
@@ -11,6 +16,11 @@
 ConvergenceSimulation
 
 A type which holds the data from a convergence simulation.
+
+
+<a id='Related-Functions-1'></a>
+
+## Related Functions
 
 <a id='Base.length-Tuple{DifferentialEquations.ConvergenceSimulation}' href='#Base.length-Tuple{DifferentialEquations.ConvergenceSimulation}'>#</a>
 **`Base.length`** &mdash; *Method*.

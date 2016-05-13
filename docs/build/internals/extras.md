@@ -3,9 +3,3 @@
 
 # Extra Functions
 
-
-""" {docs}
-
-
-"""
-

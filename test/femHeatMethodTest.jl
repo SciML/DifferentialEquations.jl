@@ -5,8 +5,8 @@ using DifferentialEquations
 
 #Define a parabolic problem
 T = 1
-Δx = 1//2^(4)
-Δt = 1//2^(9)
+Δx = 1//2^(3)
+Δt = 1//2^(7)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 pdeProb = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 
@@ -55,8 +55,8 @@ end
 
 #Define a different parabolic problem
 T = 1//8
-Δx = 1//2^(4)
-Δt = 1//2^(9)
+Δx = 1//2^(3)
+Δt = 1//2^(7)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 pdeProb = heatProblemExample_pure()
 
@@ -70,7 +70,7 @@ end
 #Choose a finer mesh, solve with Euler, and add this result to the previous as
 #an approximately true solution.
 T = 1//8
-Δt = 1//2^(12)
+Δt = 1//2^(7)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 res2 = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler")
 appxTrue!(res,res2)
