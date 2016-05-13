@@ -4,12 +4,18 @@
 # Stochastic Finite Element Examples
 
 
+For most problem types, we can additionally specify them as a stochastic problem by giving the appropriate optional arguments to the constructor. These arguments are a function σ which is the function multiplied to the Brownian increments dW, and stochstic, a boolean which we put as true for when the equation is stochastic. Another keyword that is optional is noiseType which specifies the type of noise (the "color" of the noise). By default this is Gaussian (Space-time) White Noise.
+
+
+The following examples show how to change the tutorial problems into stochastic problems.
+
+
 <a id='Finite-Element-Stochastic-Poisson-Equation-1'></a>
 
-### Finite Element Stochastic Poisson Equation
+## Finite Element Stochastic Poisson Equation
 
 
-We can solve the same PDE as a stochastic PDE, -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
+We can solve the same PDE as in  stochastic PDE, -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
 
 
 ```julia

@@ -1,4 +1,4 @@
 using Documenter, DifferentialEquations
 
-makedocs(modules=[DifferentialEquations]
+makedocs(modules=[DifferentialEquations],
         doctest=true)

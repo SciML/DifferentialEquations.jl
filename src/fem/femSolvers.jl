@@ -185,7 +185,7 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
     output = u
   end
   #Heat Equation Loop
-  for i=1:femMesh.numIters
+  @progress for i=1:femMesh.numIters
     t = t+Δt
     if methodType == "Implicit"
       if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
