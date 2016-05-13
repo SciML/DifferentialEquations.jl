@@ -1,12 +1,12 @@
 #!/usr/bin/env julia
-using DifferentialEquations
-using Base.Test
-
-
 #Automates Matplotlib installation for travis.ci
 ENV["PYTHON"]=""
 Pkg.build("PyCall")
 using PyPlot
+
+#Start Test Script
+using DifferentialEquations
+using Base.Test
 
 # Run tests
 @time include("femHeatAnimationTest.jl") #2 minutes
