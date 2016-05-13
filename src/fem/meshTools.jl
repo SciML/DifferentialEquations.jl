@@ -138,9 +138,11 @@ Computes the (node,elem) square mesh for the square
 with the chosen Δx and boundary settings.
 
 ###Example
-`square=[0 1 0 1] #Unit Square`
-`Δx=.25`
-`notime_squaremesh(square,Δx,"Dirichlet")`
+```juila
+square=[0 1 0 1] #Unit Square
+Δx=.25
+notime_squaremesh(square,Δx,"Dirichlet")
+```
 """
 function notime_squaremesh(square,Δx,bdType)
   node,elem = fem_squaremesh(square,Δx)
@@ -155,9 +157,11 @@ for the square with the chosen Δx and boundary settings
 and with the constant time intervals Δt.
 
 ###Example
-`square=[0 1 0 1] #Unit Square`
-`Δx=.25; Δt=.25;T=2`
-`parabolic_squaremesh(square,Δx,Δt,T,"Dirichlet")`
+```juila
+square=[0 1 0 1] #Unit Square
+Δx=.25; Δt=.25;T=2
+parabolic_squaremesh(square,Δx,Δt,T,"Dirichlet")
+```
 """
 function parabolic_squaremesh(square,Δx,Δt,T,bdType)
   node,elem = fem_squaremesh(square,Δx)

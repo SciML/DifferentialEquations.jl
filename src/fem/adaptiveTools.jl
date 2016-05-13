@@ -48,7 +48,7 @@ function mark(elem,eta,theta;method="L2")
 end
 
 """
-bisect(node,elem;markedElem= (1:size(elem,1))',bdFlag)
+bisect(node,elem;markedElem= 1:size(elem,1),bdFlag)
 """
 function bisect(node,elem;markedElem=1:size(elem,1),bdFlag=[])
   # BISECT bisect a 2-D triangulation.
