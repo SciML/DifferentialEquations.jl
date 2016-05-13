@@ -50,7 +50,7 @@ end
 """
 bisect(node,elem;markedElem= (1:size(elem,1))',bdFlag)
 """
-function [node,elem,bdFlag,HB,tree] = bisect(node,elem;markedElem= (1:size(elem,1))',bdFlag)
+function bisect(node,elem;markedElem=(1:size(elem,1))',bdFlag=[])
   # BISECT bisect a 2-D triangulation.
 
   # Set up
