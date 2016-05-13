@@ -17,6 +17,7 @@ if !isdefined(:testState) #Don't plot during test
   solplot_appxvstrue(res,savefile="plot.svg")
 end
 
+Δt = 1//2^(5) #Make faster for tests
 println("Direct")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",solver="Direct")
 if !isdefined(:testState) #Don't plot during test

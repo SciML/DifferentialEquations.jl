@@ -3,8 +3,8 @@
 ######
 using DifferentialEquations,LaTeXStrings
 
-N = 4
-topΔx = 7
+N = 2 # 2 for testing, use 4 for good graph
+topΔx = 4 # 4 for testing, use 7 for good graph
 pdeProb = poissonProblemExample_wave()
 
 solutions = cell(N)
