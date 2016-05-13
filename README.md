@@ -63,7 +63,7 @@ solplot(res,savefile="introductionExample.png")
 
 This gives us the following plot:
 
-<img align="center" src="/src/examples/introductionExample.png" width="450" />
+<img src="/src/examples/introductionExample.png" width="750" align="middle"  />
 
 ### Stochastic Partial Differential Equation Solvers
 
@@ -78,17 +78,17 @@ function poissonProblemExample_noisyWave()
   gN(x) = 0
   isLinear = true
   stochastic = true
-  σ(x) = 5 #Additive noise
+  σ(x) = 5 #Additive noise, a big amount!
   return(PoissonProblem(f,sol,Du,gN,isLinear,σ=σ,stochastic=stochastic))
 end
 ```
 
 and using the same solving commands. This gives the following output:
 
-<img align="center" src="/src/examples/introductionStochasticExample.png" width="450" />
+<img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
 # Current Supported Equations
-* PDE Solvers
+* (Stochastic) PDE Solvers
   * Finite Element Solvers
     * Linear Poisson Equation
     * Semi-linear Poisson Equation
@@ -101,7 +101,7 @@ and using the same solving commands. This gives the following output:
   * Milstein
   * Rossler-SRK
   * Adaptive-SRK
-* PDE Solvers
+* (Stochastic) PDE Solvers
   * Finite difference solvers:
     * Semi-linear Heat Equation (Reaction-Diffusion Equation)
     * Semi-linear Poisson Equation
