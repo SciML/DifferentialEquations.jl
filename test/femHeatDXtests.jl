@@ -4,9 +4,18 @@
 using DifferentialEquations
 
 T = 1
+#Travis CI Test Setting
+#Not good plots, but quick for unit tests
+Δt = 1//2^(10) #Small Δt for Euler stability, but takes long
+N = 3
+topΔx = 5
+#=
+# Convergence Test Configuration
+# Use this setup to get good plots
 Δt = 1//2^(14) #Small Δt for Euler stability, but takes long
 N = 4
 topΔx = 7
+=#
 pdeProb = heatProblemExample_moving()
 
 alg = "Euler"

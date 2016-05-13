@@ -44,7 +44,8 @@ export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExampl
 #Plot Functions
 export  solplot_animation, solplot_appxvstrue, solplot_appx, showmesh, convplot,
         convplot_fullΔt, convplot_fullΔx, convplot_fullΔx, convplot_l2vsΔt, convplot_node2vsΔt,
-        convplot_maxvsΔt, convplot_h1vsΔx, convplot_l2vsΔx, convplot_node2vsΔx, convplot_maxvsΔx
+        convplot_maxvsΔt, convplot_h1vsΔx, convplot_l2vsΔx, convplot_node2vsΔx, convplot_maxvsΔx,
+        solplot
 
 #General Functions
 export conv_ests, appxTrue!, accumarray

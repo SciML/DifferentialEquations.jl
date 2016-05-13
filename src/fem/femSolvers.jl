@@ -132,7 +132,7 @@ function fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Functi
       Dm = eye(N) - Δt*Minv*A/2
       Dp = eye(N) + Δt*Minv*A/2
       lhs = Dp[freeNode,freeNode]
-      rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+      rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
     end
   else #Nonlinear Algorithms
     if alg == "Euler"

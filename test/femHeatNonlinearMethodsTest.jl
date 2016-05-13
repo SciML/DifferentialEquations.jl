@@ -6,7 +6,7 @@ using DifferentialEquations
 #Define a parabolic problem
 T = 1
 Δx = 1//2^(4)
-Δt = 1//2^(8)
+Δt = 1//2^(9)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 pdeProb = heatProblemExample_birthdeath()
 
@@ -26,6 +26,9 @@ println("Semi-implicit Crank Nicholson")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="SemiImplicitCrankNicholson")
 Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)
 
+Δx = 1//2^(2)
+Δt = 1//2^(4)
+femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 println("Implicit Euler")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",autodiff=true)
 Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)

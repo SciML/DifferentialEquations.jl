@@ -24,8 +24,9 @@ function heatProblemExample_pure()
   gD(x,t) = zeros(size(x,1))
   f(x,t)  = zeros(size(x,1))
   u0(x) = float(abs(x[:,1]-.5 .< 1e-6) & abs(x[:,2]-.5 .< 1e-6)) #Only mass at middle of (0,1)^2
+  gN(x,t) = 0
   isLinear = true
-  return(HeatProblem(u0,f,gD,isLinear))
+  return(HeatProblem(u0,f,gD,gN,isLinear))
 end
 
 "Example problem which starts with 0 and solves with f(u)=1-.1u"
