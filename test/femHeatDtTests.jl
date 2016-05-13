@@ -4,7 +4,7 @@
 using DifferentialEquations
 
 T = 1
-Δx = 1//2^(5) #Run at 2^-6 for better plot, at 2^-5 for test times
+Δx = 1//2^(3) #Run at 2^-6 for better plot, at 2^-5 for test times
 N = 4
 topΔt = 8
 pdeProb = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
