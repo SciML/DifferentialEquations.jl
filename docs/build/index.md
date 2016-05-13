@@ -55,6 +55,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [Poisson Equation Finite Element Method Example](tutorials/femPoisson.md#Poisson-Equation-Finite-Element-Method-Example-1)
 - [Heat Equation Finite Element Method Example](tutorials/femHeat.md#Heat-Equation-Finite-Element-Method-Example-1)
 - [Stochastic Finite Element Examples](tutorials/femStochastic.md#Stochastic-Finite-Element-Examples-1)
+    - [Finite Element Stochastic Poisson Equation](tutorials/femStochastic.md#Finite-Element-Stochastic-Poisson-Equation-1)
 
 <a id='Manual-1'></a>
 
