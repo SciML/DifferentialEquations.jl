@@ -8,6 +8,7 @@ using PyPlot
 using DifferentialEquations
 using Base.Test
 
+testState = true
 # Run tests
 println("Heat Animation Test")
 @time include("femHeatAnimationTest.jl") #2 minutes

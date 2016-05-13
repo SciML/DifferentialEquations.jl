@@ -13,31 +13,45 @@ pdeProb = heatProblemExample_moving() #also try heatProblemExample_pure() or hea
 #Solve it with a bunch of different algorithms, plot solution
 println("Euler")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler")
-solplot_appxvstrue(res,savefile="plot.svg")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 println("Direct")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",solver="Direct")
-solplot_appxvstrue(res,savefile="plot.svg")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 println("LU")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",solver="LU")
-solplot_appxvstrue(res,savefile="plot.svg")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 println("CG")
-res2 = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler")
-solplot_appxvstrue(res2,savefile="plot.svg")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 println("Direct")
-res3 = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="Direct")
-solplot_appxvstrue(res3,savefile="plot.svg")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="Direct")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 println("Cholesky")
-res3 = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="Cholesky")
-solplot_appxvstrue(res3,savefile="plot.svg")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="Cholesky")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 println("CG")
-res4 = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson")
-solplot_appxvstrue(res4,savefile="plot.svg")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 #Define a different parabolic problem
 T = 1//8
@@ -49,7 +63,9 @@ pdeProb = heatProblemExample_pure()
 #Solve with Euler Method
 println("Euler")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler")
-solplot(res,savefile="plot.svg")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.svg")
+end
 
 #Choose a finer mesh, solve with Euler, and add this result to the previous as
 #an approximately true solution.

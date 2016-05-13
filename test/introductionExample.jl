@@ -8,4 +8,6 @@ femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
 pdeProb = poissonProblemExample_wave()
 
 res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
-solplot_appxvstrue(res,savefile="plot.png")
+if !isdefined(:testState) #Don't plot during test
+  solplot_appxvstrue(res,savefile="plot.png")
+end
