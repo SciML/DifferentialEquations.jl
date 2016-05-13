@@ -65,7 +65,7 @@ Pages = [
     "man/solvers.md"
     "man/solution.md"
     "man/plot.md"
-
+    "man/convergence.md"
 ]
 Depth = 2
 ```
