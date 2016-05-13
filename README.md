@@ -67,7 +67,7 @@ This gives us the following plot:
 
 ### Stochastic Partial Differential Equation Solvers
 
-We can solve the save stochastic PDE Δu=f+gdW with additive space-time white noise by specifying the problem as:
+We can solve the same PDE as a stochastic PDE, Δu=f+gdW, with additive space-time white noise by specifying the problem as:
 
 ```julia
 "Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
