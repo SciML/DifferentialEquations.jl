@@ -25,6 +25,8 @@ using DifferentialEquations
 ```
 
 To understand the package in more detail, check out the examples codes in [test/](test/).
+Note that for many of the examples in the test folder, you may wish to run them at
+lower Δx or Δt. These values were taken to be large in order make unit tests run faster!
 
 ## Poisson Equation Finite Element Method Example
 

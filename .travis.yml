@@ -18,3 +18,4 @@ script:
 after_success:
   - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))''
+  - bash <(curl -s https://codecov.io/bash)
