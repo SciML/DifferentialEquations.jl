@@ -73,15 +73,15 @@ function bisect(node,elem;markedElem=1:size(elem,1),bdFlag=[])
       refineNeighbor = neighbor(markedElem,1)
       markedElem = refineNeighbor(~isCutEdge(elem2edge(refineNeighbor,1)))
   end
-  edge2newNode = zeros(NE,1,'uint32')
+  edge2newNode = zeros(Int64,NE,1)
   edge2newNode(isCutEdge) = N+1:N+sum(isCutEdge)
-  HB = zeros(sum(isCutEdge),3,'uint32')
+  HB = zeros(Int64,sum(isCutEdge),3)
   HB[:,1] = edge2newNode(isCutEdge)
   HB[:,[2 3]] = edge(isCutEdge,[1 2])
   node[HB[:,1],:] = [node[HB[:,2],:] + node[HB[:,3],:]]/2;
 
   # Refine marked elements
-  Nb = 0; tree = zeros(3*NT,3,'uint32')
+  Nb = 0; tree = zeros(Int64,3*NT,3)
   for k = 1:2
       t = find(edge2newNode(elem2edge(:,1))>0)
       newNT = length(t)
