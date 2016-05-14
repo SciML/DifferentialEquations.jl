@@ -12,4 +12,4 @@ res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
 solplot_appxvstrue(res,trueTitle="True Deterministic Solution",appxTitle="Stochastic Solution")
 
 #This condition should be true with really high probability
-var(res.u) < 2e-4
+var(res.u) < 8e-4
