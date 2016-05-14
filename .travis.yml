@@ -19,4 +19,4 @@ script:
 after_success:
   - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))'
-  - julia -e 'Pkg.add("DifferentialEquations"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'

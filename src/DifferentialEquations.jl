@@ -68,5 +68,5 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 #Misc Tools
-export quadfbasis2, CG2, checkIfLoaded
+export quadfbasis2, CG2, checkIfLoaded, @conditionalProgress
 end # module
