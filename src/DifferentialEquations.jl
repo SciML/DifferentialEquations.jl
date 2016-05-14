@@ -23,6 +23,7 @@ module DifferentialEquations
 import PyPlot
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters
 import Base: length
+import Atom: progress
 
 "PdeProblem: Defines PDE problems via its internal functions"
 abstract PdeProblem
@@ -68,5 +69,5 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 #Misc Tools
-export quadfbasis2, CG2, @conditionalProgress
+export quadfbasis2, CG2, @conditionalProgress, checkIfLoaded
 end # module
