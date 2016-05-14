@@ -21,7 +21,7 @@ this package also provides a good sandbox for developing novel numerical schemes
 module DifferentialEquations
 
 import PyPlot
-using LaTeXStrings, Plots, Atom, IterativeSolvers, NLsolve, Parameters
+using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters
 import Base: length
 
 "PdeProblem: Defines PDE problems via its internal functions"
