@@ -1,11 +1,11 @@
-@doc_str"""
+doc"""
 HeatProblem
 
 Wraps the data that define a 2D linear heat equation problem:
 
-$$u_t = Δu + f(x,t)$$
+`` $$ u_t = Δu + f(x,t) $$ ``
 
-#Constructors
+###Constructors
 
 HeatProblem(sol,Du,f,isLinear): Defines the Dirichlet problem with solution sol,
 solution gradient Du = [u_x,u_y], f, and a boolean which states whether the
@@ -19,7 +19,7 @@ Note: If isLinear is true, then all functions must only be functions of (x,t). I
 isLinear is false, then f=f(u,x,t) and σ=σ(u,x,t) (if specified), while the other
 functions are only functions of (x,t).
 
-#Keyword Arguments
+###Keyword Arguments
 
 The constructors take the following keyword arguments:
 
@@ -31,7 +31,7 @@ stochastic is false.
 noiseType = A string which specifies the type of noise to be generated. By default
 noiseType is "White" for Gaussian Spacetime White Noise.
 
-""" ->
+"""
 type HeatProblem <: PdeProblem
   "u0: Initial value function or vector"
   u0
@@ -77,14 +77,15 @@ type HeatProblem <: PdeProblem
     return(new(u0,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,σ,stochastic,noiseType))
   end
 end
-@doc_str"""
+
+doc"""
 PoissonProblem
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
-``$$#Δu = f(x,t)$$``
+`` $$ Δu = f(x,t) $$ ``
 
-#Constructors
+###Constructors
 
 PoissonProblem(f,sol,Du,gN,isLinear): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
 f, and Neumann boundary data gN,
@@ -96,7 +97,7 @@ Note: If isLinear is true, then all functions must only be functions of (x). If
 isLinear is false, then f=f(u,x) and σ=σ(u,x) (if specified), while the other
 functions are only functions of (x).
 
-#Keyword Arguments
+###Keyword Arguments
 
 `σ` = The function which multiplies the noise ``dW``. By default `σ` is 0.
 
