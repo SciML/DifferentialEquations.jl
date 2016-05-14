@@ -5,7 +5,7 @@
 
 This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. For ordinary differential equation solvers, see [ODE.jl](https://github.com/JuliaLang/ODE.jl)
 
-This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes.
+This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end).
 
 Currently, finite element solvers for the (Stochastic) Poisson and Heat Equations are supplied. These functions take in a problem specification (with an option for adding stochasticity) and generate solutions to the PDEs. Mesh generation tools currently only work for squares, though the solvers will work on general meshes if they are provided. The mesh layout follows the format of [iFEM](http://www.math.uci.edu/~chenlong/programming.html) and many subroutines in the finite element solver are based off of iFEM algorithms.
 
@@ -38,9 +38,7 @@ function poissonProblemExample_wave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
-  gN(x) = 0
-  isLinear = true
-  return(PoissonProblem(f,sol,Du,gN,isLinear))
+  return(PoissonProblem(f,sol,Du))
 end
 pdeProb = poissonProblemExample_wave()
 ```
@@ -78,11 +76,8 @@ function poissonProblemExample_noisyWave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
-  gN(x) = 0
-  isLinear = true
-  stochastic = true
   σ(x) = 5 #Additive noise, a big amount!
-  return(PoissonProblem(f,sol,Du,gN,isLinear,σ=σ,stochastic=stochastic))
+  return(PoissonProblem(f,sol,Du,σ=σ,stochastic=stochastic))
 end
 ```
 
@@ -98,14 +93,10 @@ initial condition `u0=0`. We would expect this system to rise towards the determ
 ```julia
 "Example problem which starts with 0 and solves with f(u)=1-.1u"
 function heatProblemExample_stochasticbirthdeath()
-  gD(x,t) = zeros(size(x,1))
   f(u,x,t)  = ones(size(x,1)) - .5u
   u0(x) = zeros(size(x,1))
-  gN(x,t) = 0
-  isLinear = false
-  stochastic = true
   σ(u,x,t) = 100u.^2
-  return(HeatProblem(u0,f,gD,gN,isLinear,σ=σ,stochastic=stochastic))
+  return(HeatProblem(u0,f,σ=σ,stochastic=stochastic))
 end
 ```
 
@@ -119,7 +110,7 @@ femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 pdeProb = heatProblemExample_stochasticbirthdeath()
 
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
-solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
+solplot_animation(res::FEMSolution;zlim=(0,2),cbar=false)
 ```
 
 <img src="/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
