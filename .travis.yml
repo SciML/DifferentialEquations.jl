@@ -11,6 +11,8 @@ allow_failures:
   - julia: nightly
 notifications:
   email: false
+addons:
+  ImageMagick
 script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.init(); Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")'
