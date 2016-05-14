@@ -1,9 +1,9 @@
-@doc """
+@doc_str"""
 HeatProblem
 
 Wraps the data that define a 2D linear heat equation problem:
 
-``u_t = Δu + f(x,t)``
+$$u_t = Δu + f(x,t)$$
 
 #Constructors
 
@@ -77,12 +77,12 @@ type HeatProblem <: PdeProblem
     return(new(u0,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,σ,stochastic,noiseType))
   end
 end
-"""
+@doc_str"""
 PoissonProblem
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
-``Δu = f(x,t)``
+``$$#Δu = f(x,t)$$``
 
 #Constructors
 
