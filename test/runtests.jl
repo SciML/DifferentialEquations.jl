@@ -7,6 +7,7 @@ using Base.Test
 testState = true
 # Run tests
 
+tic()
 println("Finite Element Heat Dt Tests")
 @time @test include("femHeatDtTests.jl")
 println("Finite Element Heat Dx Tests")
@@ -27,3 +28,4 @@ println("Heat Animation Test")
 @time @test include("femHeatAnimationTest.jl")
 println("Stochastic Heat Animation Test")
 @time @test include("femStochasticHeatAnimationTest.jl")
+toc()
