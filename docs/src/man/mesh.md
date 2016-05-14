@@ -7,6 +7,7 @@
 ```
 {docs}
 DifferentialEquations.FEMmesh
+DifferentialEquations.SimpleMesh
 ```
 
 ## Mesh Generation Functions

@@ -22,3 +22,11 @@ fem_solvepoisson
 
 fem_solveheat
 
+`fem_solveheat(femMesh::FEMmesh,u0::AbstractArray,gD::Function,f::Function,isLinear::Bool)`
+
+`fem_solveheat(femMesh::FEMmesh,u0::Function,gD::Function,f::Function,isLinear::Bool)`
+
+`fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem)`
+
+Takes in a definition for the heat equation `u_t = Δu + f` on a finite element mesh with initial condtion u0 and returns the solution.
+

@@ -20,6 +20,13 @@
 
 FEMmesh
 
+<a id='DifferentialEquations.SimpleMesh' href='#DifferentialEquations.SimpleMesh'>#</a>
+**`DifferentialEquations.SimpleMesh`** &mdash; *Type*.
+
+
+
+SimpleMesh
+
 
 <a id='Mesh-Generation-Functions-1'></a>
 
@@ -36,7 +43,7 @@ findboundary(femMesh::FEMmesh,bdFlag=[])
 
 Finds elements which are on the boundary of the domain. If bdFlag is given, then those indices are added as nodes for a Dirichlet boundary condition (useful for creating cracks and other cutouts of domains).
 
-### Returns
+**Returns**
 
 bdNode = Vector of indices for bdNode. Using node[:,bdNode] returns boundary nodes.
 
@@ -75,7 +82,13 @@ notime_squaremesh(square,Δx,bdType)
 
 Computes the (node,elem) square mesh for the square with the chosen Δx and boundary settings.
 
-###Example `square=[0 1 0 1] #Unit Square` `Δx=.25` `notime_squaremesh(square,Δx,"Dirichlet")`
+###Example
+
+```julia
+square=[0 1 0 1] #Unit Square
+Δx=.25
+notime_squaremesh(square,Δx,"Dirichlet")
+```
 
 <a id='DifferentialEquations.parabolic_squaremesh' href='#DifferentialEquations.parabolic_squaremesh'>#</a>
 **`DifferentialEquations.parabolic_squaremesh`** &mdash; *Function*.
@@ -86,5 +99,11 @@ parabolic_squaremesh(square,Δx,Δt,T,bdType)
 
 Computes the (node,elem) x [0,T] parabolic square mesh for the square with the chosen Δx and boundary settings and with the constant time intervals Δt.
 
-###Example `square=[0 1 0 1] #Unit Square` `Δx=.25; Δt=.25;T=2` `parabolic_squaremesh(square,Δx,Δt,T,"Dirichlet")`
+###Example
+
+```julia
+square=[0 1 0 1] #Unit Square
+Δx=.25; Δt=.25;T=2
+parabolic_squaremesh(square,Δx,Δt,T,"Dirichlet")
+```
 
