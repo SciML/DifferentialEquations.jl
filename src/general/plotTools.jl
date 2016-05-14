@@ -6,10 +6,10 @@ solplot_animation(res::FEMSolution)
 
 
 """
-function solplot_animation(node,uFull;zlim=(0,1),vmax=1,cbar=true)
+function solplot_animation(node,uFull;zlim=(0,1),cbar=true)
   Plots.pyplot(reuse=true,size=(750,750))
   @gif for i=1:size(uFull,2)
-      surface(node[:,1],node[:,2],uFull[:,i],zlim=zlim,vmax=vmax,cbar=cbar)
+      surface(node[:,1],node[:,2],uFull[:,i],zlim=zlim,cbar=cbar)
   end
 end
 
