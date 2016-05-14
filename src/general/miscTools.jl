@@ -1,25 +1,3 @@
-"""
-```julia
-#This one won't add @progress
-@conditionalProgress for i=1:1000 print(i) end
-
-# This will
-@conditionalProgress for i=1:1000 print(i) end
-```
-"""
-macro conditionalProgress(expr)
-    try
-        Pkg.installed("Atom") == nothing && isinteractive()
-         return expr
-        esc(quote
-            @progress $expr
-        end)
-    catch
-        expr
-    end
-end
-
-
 ## Unused other versions of Functions
 
 """
@@ -81,15 +59,15 @@ function CG2(u,A,b;tol=1e-6)
 end
 
 """
-children(m::Module)
+`modulechildren(m::Module)`
 
 Returns the modules in m
 """
-children(m::Module) = filter(x->isa(x, Module), map(x->m.(x), names(m, true)))
+modulechildren(m::Module) = filter(x->isa(x, Module), map(x->m.(x), names(m, true)))
 
 """
-checkIfLoaded(pkg::AbstractString)
+`checkIfLoaded(pkg::AbstractString)`
 
 Returns true if module "pkg" is defined in Main, otherwise false.
 """
-checkIfLoaded(pkg::AbstractString)= maximum(map(string,children(Main)).==pkg)
+checkIfLoaded(pkg::AbstractString)= maximum(map(string,modulechildren(Main)).==pkg)

@@ -20,9 +20,9 @@ PoissonProblem
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
-Δu = f(x,t)
+`` $ (generic function with 34 methods) Δu = f(x,t) $ (generic function with 34 methods) ``
 
-#Constructors
+###Constructors
 
 PoissonProblem(f,sol,Du,gN,isLinear): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y], f, and Neumann boundary data gN,
 
@@ -30,11 +30,9 @@ PoissonProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (
 
 Note: If isLinear is true, then all functions must only be functions of (x). If isLinear is false, then f=f(u,x) and σ=σ(u,x) (if specified), while the other functions are only functions of (x).
 
-#Keyword Arguments
+###Keyword Arguments
 
-σ = The function which multiplies the noise dW. By default σ is 0.
-
-stochastic = A boolean which specifies if the problem is stochastic. By default stochastic is false.
+`σ` = The function which multiplies the noise `dW`. By default `σ` is 0.
 
 noiseType = A string which specifies the type of noise to be generated. By default noiseType is "White" for Gaussian Spacetime White Noise.
 
@@ -48,13 +46,13 @@ noiseType = A string which specifies the type of noise to be generated. By defau
 
 
 
-`HeatProblem`
+HeatProblem
 
 Wraps the data that define a 2D linear heat equation problem:
 
-`u_t = Δu + f(x,t)`
+`` $ (generic function with 34 methods) u_t = Δu + f(x,t) $ (generic function with 34 methods) ``
 
-#Constructors
+###Constructors
 
 HeatProblem(sol,Du,f,isLinear): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y], f, and a boolean which states whether the problem is linear (i.e. linear if f does not depend on u).
 
@@ -62,7 +60,7 @@ HeatProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as 
 
 Note: If isLinear is true, then all functions must only be functions of (x,t). If isLinear is false, then f=f(u,x,t) and σ=σ(u,x,t) (if specified), while the other functions are only functions of (x,t).
 
-#Keyword Arguments
+###Keyword Arguments
 
 The constructors take the following keyword arguments:
 
@@ -90,6 +88,13 @@ Example problem with solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)
 
 
 Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)
+
+<a id='DifferentialEquations.poissonProblemExample_birthdeath' href='#DifferentialEquations.poissonProblemExample_birthdeath'>#</a>
+**`DifferentialEquations.poissonProblemExample_birthdeath`** &mdash; *Function*.
+
+
+
+Example problem for nonlinear Poisson equation
 
 <a id='DifferentialEquations.heatProblemExample_diffuse' href='#DifferentialEquations.heatProblemExample_diffuse'>#</a>
 **`DifferentialEquations.heatProblemExample_diffuse`** &mdash; *Function*.

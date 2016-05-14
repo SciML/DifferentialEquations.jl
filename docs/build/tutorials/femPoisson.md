@@ -4,7 +4,7 @@
 # Poisson Equation Finite Element Method Example
 
 
-In this example we will solve the Poisson Equation Δu=f. The code for this example can be found in [tests/introductionExample.jl](tests/introductionExample.jl). For our example, we will take the linear equation where `f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])`. For this equation we know that solution is `u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)` with gradient `Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]`. Thus, we define a PoissonProblem as follows:
+In this example we will solve the Poisson Equation `$Δu=f$`. The code for this example can be found in [tests/introductionExample.jl](tests/introductionExample.jl). For our example, we will take the linear equation where `f(x,y) = sin(2π.*x).*cos(2π.*y)`. For this equation we know that solution is `u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)` with gradient `Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]`. Thus, we define a PoissonProblem as follows:
 
 
 ```julia
@@ -49,5 +49,5 @@ solplot(res,savefile="introductionExample.png")
 This gives us the following plot:
 
 
-<img src="/src/examples/introductionExample.png" width="750" align="middle"  />
+<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/examples/introductionStochasticExample.png" width="750" align="middle"  />
 

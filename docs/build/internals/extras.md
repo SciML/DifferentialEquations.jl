@@ -17,3 +17,21 @@ quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode) Slightly slower
 
 CG2(u,A,b;tol=1e-6)
 
+<a id='DifferentialEquations.modulechildren' href='#DifferentialEquations.modulechildren'>#</a>
+**`DifferentialEquations.modulechildren`** &mdash; *Function*.
+
+
+
+`modulechildren(m::Module)`
+
+Returns the modules in m
+
+<a id='DifferentialEquations.checkIfLoaded' href='#DifferentialEquations.checkIfLoaded'>#</a>
+**`DifferentialEquations.checkIfLoaded`** &mdash; *Function*.
+
+
+
+`checkIfLoaded(pkg::AbstractString)`
+
+Returns true if module "pkg" is defined in Main, otherwise false.
+

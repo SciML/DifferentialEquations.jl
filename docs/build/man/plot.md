@@ -13,16 +13,12 @@
 
 
 
-solplot_appxvstrue(node,u,uTrue)
-
 solplot_appxvstrue(res::FEMSolution)
 
 <a id='DifferentialEquations.solplot_animation' href='#DifferentialEquations.solplot_animation'>#</a>
 **`DifferentialEquations.solplot_animation`** &mdash; *Function*.
 
 
-
-solplot_animation(node,uFull)
 
 solplot_animation(res::FEMSolution)
 
@@ -45,8 +41,6 @@ solplot(res::FEMSolution)
 
 
 
-solplot_appx(node,u)
-
 solplot_appx(res::FEMSolution)
 
 <a id='DifferentialEquations.showmesh' href='#DifferentialEquations.showmesh'>#</a>
@@ -54,7 +48,5 @@ solplot_appx(res::FEMSolution)
 
 
 
-showmesh(node,elem)
-
-showmesh(femMesh)
+showmesh(femMesh::FEMmesh)
 

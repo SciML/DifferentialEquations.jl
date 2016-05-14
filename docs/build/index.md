@@ -100,6 +100,8 @@ The following tutorials will introduce you to the functionality of DifferentialE
 ## Index
 
 - [`DifferentialEquations.CG2`](internals/extras.md#DifferentialEquations.CG2)
+- [`DifferentialEquations.checkIfLoaded`](internals/extras.md#DifferentialEquations.checkIfLoaded)
+- [`DifferentialEquations.modulechildren`](internals/extras.md#DifferentialEquations.modulechildren)
 - [`DifferentialEquations.quadfbasis2`](internals/extras.md#DifferentialEquations.quadfbasis2)
 - [`DifferentialEquations`](internals/femTools.md#DifferentialEquations)
 - [`DifferentialEquations.CFLμ`](internals/femTools.md#DifferentialEquations.CFLμ)
@@ -127,6 +129,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [`DifferentialEquations.convplot_node2vsΔt`](man/convergence.md#DifferentialEquations.convplot_node2vsΔt)
 - [`DifferentialEquations.convplot_node2vsΔx`](man/convergence.md#DifferentialEquations.convplot_node2vsΔx)
 - [`DifferentialEquations.FEMmesh`](man/mesh.md#DifferentialEquations.FEMmesh)
+- [`DifferentialEquations.SimpleMesh`](man/mesh.md#DifferentialEquations.SimpleMesh)
 - [`DifferentialEquations.fem_squaremesh`](man/mesh.md#DifferentialEquations.fem_squaremesh)
 - [`DifferentialEquations.findboundary`](man/mesh.md#DifferentialEquations.findboundary)
 - [`DifferentialEquations.notime_squaremesh`](man/mesh.md#DifferentialEquations.notime_squaremesh)
@@ -146,6 +149,7 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [`DifferentialEquations.heatProblemExample_moving`](man/problem.md#DifferentialEquations.heatProblemExample_moving)
 - [`DifferentialEquations.heatProblemExample_pure`](man/problem.md#DifferentialEquations.heatProblemExample_pure)
 - [`DifferentialEquations.heatProblemExample_stochasticbirthdeath`](man/problem.md#DifferentialEquations.heatProblemExample_stochasticbirthdeath)
+- [`DifferentialEquations.poissonProblemExample_birthdeath`](man/problem.md#DifferentialEquations.poissonProblemExample_birthdeath)
 - [`DifferentialEquations.poissonProblemExample_noisyWave`](man/problem.md#DifferentialEquations.poissonProblemExample_noisyWave)
 - [`DifferentialEquations.poissonProblemExample_wave`](man/problem.md#DifferentialEquations.poissonProblemExample_wave)
 - [`DifferentialEquations.FEMSolution`](man/solution.md#DifferentialEquations.FEMSolution)
