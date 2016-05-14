@@ -1,4 +1,15 @@
 """
+SimpleMesh
+"""
+type SimpleMesh
+  node
+  elem
+  function SimpleMesh(node,elem)
+    return(new(node,elem))
+  end
+end
+
+"""
 FEMmesh
 
 """
