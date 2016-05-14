@@ -23,7 +23,6 @@ module DifferentialEquations
 import PyPlot
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters
 import Base: length
-import Atom: progress
 
 "PdeProblem: Defines PDE problems via its internal functions"
 abstract PdeProblem

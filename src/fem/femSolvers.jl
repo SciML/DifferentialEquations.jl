@@ -263,7 +263,7 @@ function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString
       uFull[:,saveIdx] = u
       tFull[saveIdx] = t
     end
-    atomLoaded ? progress(i/femMesh.numIters) : nothing
+    atomLoaded ? Main.Atom.progress(i/femMesh.numIters) : nothing #Use Atom's progressbar if loaded
   end
   if knownSol #True Solution exists
     if fullSave
