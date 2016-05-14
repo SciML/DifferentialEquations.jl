@@ -10,13 +10,13 @@ T = 1
 N = 2
 topΔx = 3
 
-if !isdefined(:testState) #Don't plot during test
-  # Convergence Test Configuration
-  # Use this setup to get good plots
-  Δt = 1//2^(14) #Small Δt for Euler stability, but takes long
-  N = 4
-  topΔx = 7
-end
+#=
+# Use this setup to get good plots
+Δt = 1//2^(14) #Small Δt for Euler stability, but takes long
+N = 4
+topΔx = 7
+=#
+
 pdeProb = heatProblemExample_moving()
 
 alg = "Euler"
@@ -49,11 +49,9 @@ for i = 1:N
 end
 simres3 = ConvergenceSimulation(solutions)
 
-if !isdefined(:testState) #Don't plot during test
-  convplot_fullΔx(simres,titleStr="")
-  convplot_fullΔx(simres2,titleStr="")
-  convplot_fullΔx(simres3,titleStr="Dx Convergence Plots")
-end
+convplot_fullΔx(simres,titleStr="")
+convplot_fullΔx(simres2,titleStr="")
+convplot_fullΔx(simres3,titleStr="Dx Convergence Plots")
 
 #Returns true if all converge approximately Δx^2
 minimum([simres.ConvEst_l2,simres2.ConvEst_l2,simres3.ConvEst_l2] - 2 .<.1)
