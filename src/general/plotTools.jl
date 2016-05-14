@@ -13,7 +13,7 @@ function solplot_animation(node,uFull;zlim=(0,1),cbar=true)
   end
 end
 
-solplot_animation(res::FEMSolution;zlim=(0,1),vmax=1,cbar=true) = solplot_animation(res.femMesh.node,res.uFull,zlim=zlim,vmax=vmax,cbar=cbar)
+solplot_animation(res::FEMSolution;zlim=(0,1),cbar=true) = solplot_animation(res.femMesh.node,res.uFull,zlim=zlim,cbar=cbar)
 
 """
 solplot_appxvstrue(node,u,uTrue)
