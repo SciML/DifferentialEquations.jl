@@ -1,15 +1,4 @@
 """
-SimpleMesh
-"""
-type SimpleMesh
-  node
-  elem
-  function SimpleMesh(node,elem)
-    return(new(node,elem))
-  end
-end
-
-"""
 FEMmesh
 
 """
@@ -67,6 +56,18 @@ type FEMmesh
   end
   FEMmesh(node,elem,Δx,bdType)=FEMmesh(node,elem,Δx,0,0,bdType)
 end
+
+"""
+SimpleMesh
+"""
+type SimpleMesh
+  node
+  elem
+  function SimpleMesh(node,elem)
+    return(new(node,elem))
+  end
+end
+
 
 """
 CFLμ(Δt,Δx)
