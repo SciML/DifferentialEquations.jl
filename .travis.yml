@@ -7,8 +7,9 @@ julia:
   - nightly
   - release
   - 0.4.5
-allow_failures:
-  - julia: nightly
+matrix:
+  allow_failures:
+    - julia: nightly
 notifications:
   email: false
 script:
