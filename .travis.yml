@@ -4,14 +4,17 @@ os:
   - linux
   - osx
 julia:
+  - nightly
   - release
   - 0.4.5
+allow_failures:
+  - julia: nightly
 notifications:
   email: false
 script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.init(); Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")'
-  - julia -e 'Pkg.test("DifferentialEquations",coverage=true)'
+  - julia -e 'ENV["PYTHON"]=""; Pkg.build("PyCall"); using PyPlot; Pkg.test("DifferentialEquations",coverage=true)'
 after_success:
   - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))'
