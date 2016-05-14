@@ -9,7 +9,8 @@
 """
 macro conditionalProgress(expr)
     try
-        Pkg.installed("Atom") == nothing && return expr
+        Pkg.installed("Atom") == nothing && isinteractive()
+         return expr
         esc(quote
             @progress $expr
         end)
@@ -79,3 +80,6 @@ function CG2(u,A,b;tol=1e-6)
   end
   return u,k
 end
+
+children(m::Module) = filter(x->isa(x, Module), map(x->m.(x), names(m, true)))
+checkIfLoaded(pkg::AbstractString)= maximum(map(string,children(Main)).==pkg)

@@ -4,7 +4,6 @@
 using DifferentialEquations
 using Base.Test
 
-testState = true
 # Run tests
 
 tic()

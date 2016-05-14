@@ -82,6 +82,9 @@ function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
   @unpack pdeProb: f,u0,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType
 
+  #Note if Atom is loaded for progress
+  atomLoaded = checkIfLoaded("Atom")
+
   #Set Initial
   u = u0(node)
   t = 0
@@ -216,8 +219,8 @@ function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString
     output = u
   end
   #Heat Equation Loop
-  @conditionalProgress for i=1:femMesh.numIters
-    t = t+Δt
+  for i=1:femMesh.numIters
+    t += Δt
     if methodType == "Implicit"
       if stochastic
         dW = getNoise(N,node,elem,noiseType=noiseType)
@@ -260,6 +263,7 @@ function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString
       uFull[:,saveIdx] = u
       tFull[saveIdx] = t
     end
+    atomLoaded ? progress(i/femMesh.numIters) : nothing
   end
   if knownSol #True Solution exists
     if fullSave
