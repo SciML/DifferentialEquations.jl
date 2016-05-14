@@ -15,7 +15,7 @@ pdeProb = heatProblemExample_stochasticbirthdeath()
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true,solver="LU")
 
 println("Generating Animation")
-solplot_animation(res::FEMSolution;zlim=(0,3),cbar=false) #Make animation
+@linux solplot_animation(res::FEMSolution;zlim=(0,3),cbar=false) #Make animation
 
 #Variance implies stochastic. Returns true if properly stochastic
 var(res.u) > 1e-8

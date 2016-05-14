@@ -15,7 +15,7 @@ pdeProb = heatProblemExample_moving()
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
 
 println("Generating Animation")
-solplot_animation(res::FEMSolution;zlim=(0,.1),cbar=false)
+@linux solplot_animation(res::FEMSolution;zlim=(0,.1),cbar=false)
 
 ## Should have moved off the frame.
 maximum(res.u) .< 1e-6
