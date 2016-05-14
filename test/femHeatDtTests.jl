@@ -3,10 +3,12 @@
 ######
 using DifferentialEquations
 
+#Convergences estimate has not converged in this range
+#Should decrease Δx/Δt for better estimate
 T = 1
-Δx = 1//2^(3) #Run at 2^-6 for better plot, at 2^-5 for test times
-N = 4
-topΔt = 8
+Δx = 1//2^(5) #Run at 2^-7 for best plot
+N = 2 #Number of different Δt to solve at, 2 for test speed
+topΔt = 5 # 1//2^(topΔt-1) is the max Δt. Small for test speed
 pdeProb = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 
 
@@ -19,9 +21,6 @@ for i = 1:N
   solutions[i] = res
 end
 simres = ConvergenceSimulation(solutions)
-if !isdefined(:testState) #Don't plot during test
-  convplot_fullΔt(simres,titleStr="Euler Convergence Plots",savefile="eulerdtconv.svg")
-end
 
 alg = "ImplicitEuler"
 solutions = cell(N)
@@ -32,20 +31,20 @@ for i = 1:N
   solutions[i] = res
 end
 simres2 = ConvergenceSimulation(solutions)
-if !isdefined(:testState) #Don't plot during test
-  convplot_fullΔt(simres2,titleStr="Implicit Euler Convergence Plots",savefile="impeulerdtconv.svg")
-end
 
 alg = "CrankNicholson" #Bound by spatial discretization error at low Δt, decrease Δx for full convergence
 solutions = cell(N)
 for i = 1:N
   Δt = 1//2^(topΔt-i)
   femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
-  res = fem_solveheat(femMesh::FEMmesh,pdeProb,alg=alg,solver="GMRES") #LU faster, but GMRES more stable
+  res = fem_solveheat(femMesh::FEMmesh,pdeProb,alg=alg,solver="LU") #LU faster, but GMRES more stable
   solutions[i] = res
 end
 simres3 = ConvergenceSimulation(solutions)
-if !isdefined(:testState) #Don't plot during test
-  convplot_fullΔt(simres3,titleStr="Crank-Nicholson Convergence Plots",savefile="crankdtconv.svg")
-end
+
+convplot_fullΔt(simres3,titleStr="Crank-Nicholson Convergence Plots")
 #Note: Stabilizes in H1 due to high Δx-error, reduce Δx and it converges further.
+
+#Returns true if ImplicitEuler converges like Δt and
+#CN convergeces like >Δt^2 (approaches Δt^2 as Δt and Δx is smaller
+minimum([abs(simres2.ConvEst_l2-1)<.3 simres3.ConvEst_l2>2])

@@ -21,7 +21,7 @@ this package also provides a good sandbox for developing novel numerical schemes
 module DifferentialEquations
 
 import PyPlot
-using LaTeXStrings, Plots, Atom, IterativeSolvers, NLsolve
+using LaTeXStrings, Plots, Atom, IterativeSolvers, NLsolve, Parameters
 import Base: length
 
 "PdeProblem: Defines PDE problems via its internal functions"
@@ -68,5 +68,5 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 #Misc Tools
-export quadfbasis2, CG2
+export quadfbasis2, CG2, ifAvailable
 end # module

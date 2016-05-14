@@ -52,5 +52,8 @@ simres3 = ConvergenceSimulation(solutions)
 if !isdefined(:testState) #Don't plot during test
   convplot_fullΔx(simres,titleStr="")
   convplot_fullΔx(simres2,titleStr="")
-  convplot_fullΔx(simres3,titleStr="Dx Convergence Plots",savefile="dxconv.svg")
+  convplot_fullΔx(simres3,titleStr="Dx Convergence Plots")
 end
+
+#Returns true if all converge approximately Δx^2
+minimum([simres.ConvEst_l2,simres2.ConvEst_l2,simres3.ConvEst_l2] - 2 .<.1)

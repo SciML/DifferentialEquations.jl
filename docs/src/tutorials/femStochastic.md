@@ -3,7 +3,7 @@
 For most problem types, we can additionally specify them as a stochastic
 problem by giving the appropriate optional arguments to the constructor. These
 arguments are a function σ which is the function multiplied to the Brownian
-increments dW, and stochstic, a boolean which we put as true for when the equation
+increments ``dW``, and stochastic, a boolean which we put as true for when the equation
 is stochastic. Another keyword that is optional is noiseType which specifies the
 type of noise (the "color" of the noise). By default this is Gaussian (Space-time)
 White Noise.
@@ -12,8 +12,8 @@ The following examples show how to change the tutorial problems into stochastic 
 
 ## Finite Element Stochastic Poisson Equation
 
-We can solve the same PDE as in the Poisson Tutorial execept as the stochastic PDE,
- -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
+We can solve the same PDE as in the Poisson Tutorial except as the stochastic PDE,
+ ``-Δu=f+gdW``, with additive space-time white noise by specifying the problem as:
 
 ```julia
 "Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
@@ -29,8 +29,7 @@ function poissonProblemExample_noisyWave()
 end
 ```
 
-and using the same solving commands as shown in
-[femStochasticPoissonSolo.jl](/src/femStochasticPoissonSolo.jl).
+using the same solving commands as shown in [femStochasticPoissonSolo.jl](/src/femStochasticPoissonSolo.jl).
 This gives the following plot:
 
 <img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />

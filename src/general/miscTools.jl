@@ -1,17 +1,17 @@
 """
 ```julia
-#This one won't add @time
-@optional_something XXX rand(1000)
+#This one won't add @progress
+@conditionalProgress for i=1:1000 print(i) end
 
 # This will
-@optional_something Plots rand(1000)
+@conditionalProgress for i=1:1000 print(i) end
 ```
 """
-macro optional_something(pkg, expr)
+macro conditionalProgress(expr)
     try
-        Pkg.installed(string(pkg)) == nothing && return expr
+        Pkg.installed("Atom") == nothing && return expr
         esc(quote
-            @time $expr
+            @progress $expr
         end)
     catch
         expr
