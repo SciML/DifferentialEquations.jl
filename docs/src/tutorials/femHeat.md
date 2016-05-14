@@ -1,6 +1,6 @@
 # Heat Equation Finite Element Method Example
 
-In this example we will solve the heat equation u_t=Δu+f. To do this, we define
+In this example we will solve the heat equation ``u_t=Δu+f``. To do this, we define
 a HeatProblem which contains the function `f` and the boundary conditions. We
 specify one as follows:
 

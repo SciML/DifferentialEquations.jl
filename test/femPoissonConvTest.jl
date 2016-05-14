@@ -4,7 +4,7 @@
 using DifferentialEquations,LaTeXStrings
 
 N = 2 # 2 for testing, use 4 for good graph
-topΔx = 4 # 4 for testing, use 7 for good graph
+topΔx = 5 # 4 for testing, use 7 for good graph
 pdeProb = poissonProblemExample_wave()
 
 solutions = cell(N)
@@ -20,6 +20,7 @@ simres = ConvergenceSimulation(solutions)
 
 #Plot Result
 dxstring = L"\Delta x"
-if !isdefined(:testState) #Don't plot during test
-  convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence",savefile="plot.png")
-end
+convplot_fullΔx(simres,titleStr="Poisson $dxstring Convergence")
+
+#Returns true if convergence is like Δx^2 in L2
+simres.ConvEst_l2-2 <.1

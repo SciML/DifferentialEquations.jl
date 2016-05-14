@@ -8,12 +8,14 @@
 using DifferentialEquations
 T = 2
 Δx = 1//2^(3)
-Δt = 1//2^(7)
+Δt = 1//2^(9)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 pdeProb = heatProblemExample_moving()
 
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
-if !isdefined(:testState) #Don't plot during test
-  println("Generating Animation")
-  solplot_animation(res::FEMSolution;zlim=(0,.1),vmax=.1,cbar=false) #Make animation, excluded from test
-end
+
+println("Generating Animation")
+solplot_animation(res::FEMSolution;zlim=(0,.1),vmax=.1,cbar=false)
+
+## Should have moved off the frame.
+maximum(res.u) .< 1e-6

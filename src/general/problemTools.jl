@@ -52,15 +52,29 @@ type HeatProblem <: PdeProblem
   σ
   stochastic
   noiseType
-  function HeatProblem(sol,Du,f,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
+  function HeatProblem(sol,Du,f;gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
+    if σ==nothing
+      stochastic=false
+      σ=(x)->zeros(size(x,1))
+    else
+      stochastic=true
+    end
+    isLinear = numparameters(f)==2
     knownSol = true
     u0(x) = sol(x,0)
     gD = sol
-    return(new(u0,Du,f,gD,nothing,sol,knownSol,isLinear,σ,stochastic,noiseType))
+    return(new(u0,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType))
   end
-  function HeatProblem(u0,f,gD,gN,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
+  function HeatProblem(u0,f;gD=(x,t)->zeros(size(x,1)),gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
+    if σ==nothing
+      stochastic=false
+      σ=(x)->zeros(size(x,1))
+    else
+      stochastic=true
+    end
+    isLinear = numparameters(f)==2
     knownSol = false
-    return(new(u0,nothing,f,gD,gN,nothing,knownSol,isLinear,σ,stochastic,noiseType))
+    return(new(u0,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,σ,stochastic,noiseType))
   end
 end
 """
@@ -68,7 +82,7 @@ PoissonProblem
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
-Δu = f(x,t)
+``Δu = f(x,t)``
 
 #Constructors
 
@@ -84,10 +98,7 @@ functions are only functions of (x).
 
 #Keyword Arguments
 
-σ = The function which multiplies the noise dW. By default σ is 0.
-
-stochastic = A boolean which specifies if the problem is stochastic. By default
-stochastic is false.
+`σ` = The function which multiplies the noise ``dW``. By default `σ` is 0.
 
 noiseType = A string which specifies the type of noise to be generated. By default
 noiseType is "White" for Gaussian Spacetime White Noise.
@@ -95,26 +106,48 @@ noiseType is "White" for Gaussian Spacetime White Noise.
 """
 type PoissonProblem <: PdeProblem
   "f: Forcing function in the Poisson problem"
-  f
+  f::Function
   "sol: Solution to the Poisson problem"
-  sol
+  sol::Function
   "Du: Gradient of the solution to the Poisson problem"
-  Du
+  Du::Function
   "gD: Dirichlet Boundary Data"
-  gD
+  gD::Function
   "gN: Neumann Boundary Data"
-  gN
+  gN::Function
   "knownSol: Boolean which states whether the solution function is given"
-  knownSol
+  knownSol::Bool
   "isLinear: Boolean which states whether the problem is linear or nonlinear"
-  isLinear
-  σ
-  stochastic
-  noiseType
-  function PoissonProblem(f,sol,Du,gN,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
+  isLinear::Bool
+  σ::Function
+  stochastic::Bool
+  noiseType::AbstractString
+  function PoissonProblem(f,sol,Du;gN=(x)->zeros(size(x,1)),σ=nothing,noiseType="White")
+    if σ==nothing
+      stochastic=false
+      σ=(x)->zeros(size(x,1))
+    else
+      stochastic=true
+    end
+    isLinear = numparameters(f)==1
     return(new(f,sol,Du,sol,gN,true,isLinear,σ,stochastic,noiseType))
   end
-  function PoissonProblem(f,gD,gN,isLinear;σ=(x)->0,stochastic=false,noiseType="White")
-    return(new(f,nothing,nothing,gD,gN,false,isLinear,σ,stochastic,noiseType))
+  function PoissonProblem(f;gD=(x)->zeros(size(x,1)),gN=(x)->zeros(size(x,1)),σ=nothing,noiseType="White")
+    if σ==nothing
+      stochastic=false
+      σ=(x)->zeros(size(x,1))
+    else
+      stochastic = true
+    end
+
+    isLinear = numparameters(f)==1
+    return(new(f,(x)->0,(x)->0,gD,gN,false,isLinear,σ,stochastic,noiseType))
   end
+end
+
+function numparameters(f)
+  if length(methods(f))>1
+    warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
+  end
+  maximum([length(m.sig.parameters) for m in methods(f)])
 end

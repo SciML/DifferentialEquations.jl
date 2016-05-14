@@ -9,7 +9,7 @@ pdeProb = poissonProblemExample_birthdeath()
 
 res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
 
-if !isdefined(:testState) #Don't plot during test
-  Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)
-  #solplot_appx(res,savefile="plot.svg") #Approximately Flat solution at 2
-end
+Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)
+
+#Returns true if computed solution is homogenous near 2
+maximum(abs(res.u - 2))< 1e-12
