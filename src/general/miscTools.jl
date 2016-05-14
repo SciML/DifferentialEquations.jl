@@ -80,5 +80,16 @@ function CG2(u,A,b;tol=1e-6)
   return u,k
 end
 
+"""
+children(m::Module)
+
+Returns the modules in m
+"""
 children(m::Module) = filter(x->isa(x, Module), map(x->m.(x), names(m, true)))
+
+"""
+checkIfLoaded(pkg::AbstractString)
+
+Returns true if module "pkg" is defined in Main, otherwise false.
+"""
 checkIfLoaded(pkg::AbstractString)= maximum(map(string,children(Main)).==pkg)
