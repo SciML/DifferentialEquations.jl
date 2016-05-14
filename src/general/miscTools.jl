@@ -1,3 +1,4 @@
+#=
 """
 ```julia
 #This one won't add @progress
@@ -18,7 +19,7 @@ macro conditionalProgress(expr)
         expr
     end
 end
-
+=#
 
 
 ## Unused other versions of Functions
