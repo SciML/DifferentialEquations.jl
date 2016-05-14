@@ -28,7 +28,7 @@ build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
-      Pkg.clone(pwd(), \"DiffEq\"); Pkg.build(\"DiffEq\")"
+      Pkg.clone(pwd(), \"DifferentialEquations\"); Pkg.build(\"DifferentialEquations\")"
 
 test_script:
-  - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"DiffEq\")"
+  - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"DifferentialEquations\")"
