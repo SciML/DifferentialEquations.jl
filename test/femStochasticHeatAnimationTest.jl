@@ -6,9 +6,9 @@
 #Uses Plots.jl, requires matplotlib >=1.5
 #Will work on Windows, but will give blurry output
 using DifferentialEquations
-T = 3
+T = 5
 Δx = 1//2^(3)
-Δt = 1//2^(10)
+Δt = 1//2^(9)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 pdeProb = heatProblemExample_stochasticbirthdeath()
 
@@ -18,4 +18,4 @@ println("Generating Animation")
 solplot_animation(res::FEMSolution;zlim=(0,3),cbar=false) #Make animation
 
 #Variance implies stochastic. Returns true if properly stochastic
-var(res.u) > .00001
+var(res.u) > 1e-8

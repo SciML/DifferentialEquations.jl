@@ -54,8 +54,8 @@ export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExampl
         poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath
 
 #Plot Functions
-export  solplot_animation, solplot_appxvstrue, solplot_appx, showmesh, convplot,
-        convplot_fullΔt, convplot_fullΔx, convplot_fullΔx, convplot_l2vsΔt, convplot_node2vsΔt,
+export  solplot_appxvstrue, solplot_appx, showmesh, convplot, solplot_animation,
+        convplot_fullΔt, convplot_fullΔx, convplot_l2vsΔt, convplot_node2vsΔt,
         convplot_maxvsΔt, convplot_h1vsΔx, convplot_l2vsΔx, convplot_node2vsΔx, convplot_maxvsΔx,
         solplot
 
