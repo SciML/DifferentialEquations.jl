@@ -15,7 +15,13 @@ If you have any questions, or just want to chat about solvers/using the package,
 
 To install the package, use the following command inside the Julia REPL:
 ```julia
-Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")
+Pkg.add("DifferentialEquations")
+```
+
+For all of the latest features, switch to the master branch via:
+
+```julia
+Pkg.checkout("DifferentialEquations")
 ```
 
 To load the package, use the command
@@ -27,6 +33,8 @@ using DifferentialEquations
 To understand the package in more detail, check out the examples codes in [test/](test/).
 Note that for many of the examples in the test folder, you may wish to run them at
 lower Δx or Δt. These values were taken to be large in order make unit tests run faster!
+For the most up to date information, please contact me [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl)
+or [read the latest documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 
 ## Poisson Equation Finite Element Method Example
 
