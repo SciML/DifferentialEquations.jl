@@ -76,7 +76,7 @@ end
 """
 showmesh(femMesh::FEMmesh)
 """
-function showmesh(femMesh::FEMmesh;cmap=PyPlot.get_cmap("ocean"))
+function showmesh(femMesh::Mesh;cmap=PyPlot.get_cmap("ocean"))
   @unpack femMesh: node, elem
   dim = size(node,2)
   nv = size(elem,2)

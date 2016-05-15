@@ -2,7 +2,7 @@
 FEMmesh
 
 """
-type FEMmesh
+type FEMmesh <: Mesh
   node
   elem
   bdNode
@@ -60,7 +60,7 @@ end
 """
 SimpleMesh
 """
-type SimpleMesh
+type SimpleMesh <: Mesh
   node
   elem
   function SimpleMesh(node,elem)

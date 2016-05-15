@@ -21,14 +21,15 @@ this package also provides a good sandbox for developing novel numerical schemes
 module DifferentialEquations
 
 import PyPlot
-using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters
+using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, JLD
 import Base: length
 
 "PdeProblem: Defines PDE problems via its internal functions"
 abstract PdeProblem
 "PdeSolution: Wrapper for the objects obtained from a PdeSolver"
 abstract PdeSolution
-
+"Mesh: An abstract type which holds a (node,elem) pair and other information for a mesh"
+abstract Mesh
 AbstractArrayOrVoid = Union{AbstractArray,Void}
 NumberOrVoid = Union{Number,Void}
 FunctionOrVoid = Union{Function,Void}
@@ -43,10 +44,11 @@ include("general/problemTools.jl")
 include("general/stochasticTools.jl")
 include("general/miscTools.jl")
 include("examples/exampleProblems.jl")
+include("examples/exampleMeshes.jl")
 include("fem/femSolvers.jl")
 
 #Types
-export PdeProblem, PdeSolution, HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh
+export PdeProblem, PdeSolution, HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh, SimpleMesh
 
 #Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
