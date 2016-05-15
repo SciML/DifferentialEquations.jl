@@ -169,15 +169,15 @@ function quadpts(𝒪)
           ω = [0.223381589678011 0.223381589678011 0.223381589678011
                     0.109951743655322 0.109951743655322 0.109951743655322]
   elseif 𝒪==5
-          α1 = 0.059715871789770 ;     β1 = 0.470142064105115
-          α2 = 0.797426985353087 ;     β2 = 0.101286507323456
+          α₁ = 0.059715871789770 ;     β₁ = 0.470142064105115
+          α₂ = 0.797426985353087 ;     β₂ = 0.101286507323456
           λ = [   1/3    1/3    1/3
-                    α1  β1  β1
-                     β1 α1  β1
-                     β1  β1 α1
-                    α2  β2  β2
-                     β2 α2  β2
-                     β2  β2 α2]
+                    α₁  β₁  β₁
+                     β₁ α₁  β₁
+                     β₁  β₁ α₁
+                    α₂  β₂  β₂
+                     β₂ α₂  β₂
+                     β₂  β₂ α₂]β₂
           ω = [0.225 0.132394152788506 0.132394152788506 0.132394152788506
               0.125939180544827 0.125939180544827 0.125939180544827]
   elseif 𝒪==6
@@ -259,7 +259,7 @@ end
 """
 quadpts1(𝒪)
 
-References: 
+References:
 Pavel Holoborodko: http://www.holoborodko.com/pavel/numerical-methods/numerical-integration/
 """
 function quadpts1(𝒪)
@@ -333,9 +333,9 @@ elseif numPts==10
               -0.8650633666889845107320967 	0.1494513491505805931457763
               -0.9739065285171717200779640 	0.0666713443086881375935688]
   end
-  λ1 = (A[:,1]+1)/2
-  λ2 = 1 - λ1
-  λ = [λ1 λ2]
+  λ₁ = (A[:,1]+1)/2
+  λ₂ = 1 - λ₁
+  λ = [λ₁ λ₂]
   ω = A[:,2]/2
   return(λ,ω)
 end
@@ -377,25 +377,24 @@ function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
               quad𝒪 = 5
       end
   end
-
-  ## compute gradient of finite element function uh
+  ## compute ∇u of finite element function uh
   #Only ℙ1 Implemented
   if (size(uh,2) == 2) && (Nu == NT)      # uh is a piecewise constant vector
       Duh = uh
       area = abs(simplexvolume(node,elem))
   elseif size(uh,2) == 1   # scalar function uh
       if Nu==N      # piecewise linear function ℙ1 element
-              Duh,area = gradu(node,elem,uh)
+              Duh,area = ∇u(node,elem,uh)
       elseif Nu==NE     # piecewise linear function CR element
               elem2edge = elem2dof(:,4:6) - N
-              Duh,area = graduCR(node,elem,elem2edge,uh)
+              Duh,area = ∇uCR(node,elem,elem2edge,uh)
       elseif Nu==NE + NT # weak Galerkin element
               elem2edge = elem2dof(:,4:6) - N
-              Duh,area = graduWG(node,elem,elem2edge,uh)
+              Duh,area = ∇uWG(node,elem,elem2edge,uh)
       elseif Nu==NP2    # piecewise quadratic function
-              Dλ,area = gradbasis(node,elem)
+              Dλ,area = ∇basis(node,elem)
       elseif Nu==NP3
-              Dλ,area = gradbasis(node,elem)
+              Dλ,area = ∇basis(node,elem)
               elem2dof = dofP3(elem)
       end
   end
@@ -467,13 +466,13 @@ function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
 end
 
 """
-gradu(node,elem,u,Dλ=[])
+∇u(node,elem,u,Dλ=[])
 
-Estimates the gradient of u on the mesh (node,elem)
+Estimates ∇u of u on the mesh (node,elem)
 """
-function gradu(node,elem,u,Dλ=[])
+function ∇u(node,elem,u,Dλ=[])
   if isempty(Dλ)
-      Dλ,area = gradbasis(node,elem)
+      Dλ,area = ∇basis(node,elem)
   end
   dudx =  u[elem[:,1]].*Dλ[:,1,1] + u[elem[:,2]].*Dλ[:,1,2] +
         u[elem[:,3]].*Dλ[:,1,3]
@@ -484,11 +483,11 @@ function gradu(node,elem,u,Dλ=[])
 end
 
 """
-gradbasis(node,elem)
+∇basis(node,elem)
 
-Returns the gradient of the barycentric basis elements.
+Returns the ∇u of the barycentric basis elements.
 """
-function gradbasis(node,elem)
+function ∇basis(node,elem)
   NT = size(elem,1)
   Dλ = Array{Float64}(NT,2,3)
 
