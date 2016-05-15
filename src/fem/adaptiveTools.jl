@@ -3,11 +3,11 @@ estimaterecovery(node,elem,u)
 """
 function estimaterecovery(node,elem,u)
   #Computes the Δ error estimate η
-  Dλ,area = gradbasis(node,elem)
-  Du = gradu(node,elem,u,Dλ)
+  Dλ,area = ∇basis(node,elem)
+  Du = ∇u(node,elem,u,Dλ)
   Du = recovery(node,elem,Du,area)
-  DDu[:,1:2] = gradu(node,elem,Du[:,1],Dλ)
-  DDu[:,3:4] = gradu(node,elem,Du[:,2],Dλ)
+  DDu[:,1:2] = ∇u(node,elem,Du[:,1],Dλ)
+  DDu[:,3:4] = ∇u(node,elem,Du[:,2],Dλ)
   η = area.*sum(abs(DDu),2)
   return(η,Du)
 end
