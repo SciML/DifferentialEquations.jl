@@ -11,8 +11,8 @@ N = 2 #Number of different Δt to solve at, 2 for test speed
 topΔt = 5 # 1//2^(topΔt-1) is the max Δt. Small for test speed
 pdeProb = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 
-
 alg = "Euler" #Unstable due to μ
+println(alg)
 solutions = cell(N)
 for i = 1:N
   Δt = 1//2^(topΔt-i)
@@ -23,6 +23,7 @@ end
 simres = ConvergenceSimulation(solutions)
 
 alg = "ImplicitEuler"
+println(alg)
 solutions = cell(N)
 for i = 1:N
   Δt = 1//2^(topΔt-i)
@@ -33,6 +34,7 @@ end
 simres2 = ConvergenceSimulation(solutions)
 
 alg = "CrankNicholson" #Bound by spatial discretization error at low Δt, decrease Δx for full convergence
+println(alg)
 solutions = cell(N)
 for i = 1:N
   Δt = 1//2^(topΔt-i)

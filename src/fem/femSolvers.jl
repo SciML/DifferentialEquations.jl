@@ -1,7 +1,7 @@
 """
 fem_solvepoisson
 """
-function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::AbstractString="Direct",fquad𝒪::Int64=3,autodiff::Bool=true)
+function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::AbstractString="Direct",fquad𝒪::Int=3,autodiff::Bool=true)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -73,8 +73,8 @@ fem_solveheat
 Takes in a definition for the heat equation ``u_t = Δu + f`` on a finite element
 mesh with initial condtion u0 and returns the solution.
 """
-function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString = "Euler",fquad𝒪::Int64=3,
-  solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int64 = 100,autodiff::Bool=false)
+function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString = "Euler",fquad𝒪::Int=3,
+  solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,autodiff::Bool=false)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
