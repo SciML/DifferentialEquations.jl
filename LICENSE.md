@@ -1,4 +1,4 @@
-The DiffEq.jl package is licensed under the MIT "Expat" License:
+The DifferentialEquations.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2016: Chris Rackauckas.
 >
@@ -20,3 +20,9 @@ The DiffEq.jl package is licensed under the MIT "Expat" License:
 > CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Some finite element error mesh tools were derived from with 
+permission from L.Chen from the following source:
+
+L. Chen. iFEM: an integrated finite element method package in MATLAB. 
+Technical Report, University of California at Irvine, 2009.
