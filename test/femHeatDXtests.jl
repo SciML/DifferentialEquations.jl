@@ -20,6 +20,7 @@ topΔx = 7
 pdeProb = heatProblemExample_moving()
 
 alg = "Euler"
+println(alg)
 solutions = cell(N)
 for i = 1:N
   Δx = 1//2^(topΔx-i)
@@ -30,6 +31,7 @@ end
 simres = ConvergenceSimulation(solutions)
 
 alg = "ImplicitEuler"
+println(alg)
 solutions = cell(N)
 for i = 1:N
   Δx = 1//2^(topΔx-i)
@@ -40,6 +42,7 @@ end
 simres2 = ConvergenceSimulation(solutions)
 
 alg = "CrankNicholson"
+println(alg)
 solutions = cell(N)
 for i = 1:N
   Δx = 1//2^(topΔx-i)
