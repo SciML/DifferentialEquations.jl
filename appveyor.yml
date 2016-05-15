@@ -5,7 +5,6 @@ environment:
   allow_failures:
     - JULIAVERSION: "julianightlies/bin/winnt/x86/julia-latest-win32.exe"
     - JULIAVERSION: "julianightlies/bin/winnt/x64/julia-latest-win64.exe"
-
 branches:
   only:
     - master
