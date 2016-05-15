@@ -1,7 +1,7 @@
 """
 fem_solvepoisson
 """
-function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::AbstractString="Direct",fquadorder::Int64=3,autodiff::Bool=true)
+function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::AbstractString="Direct",fquad𝒪::Int64=3,autodiff::Bool=true)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -60,7 +60,7 @@ end
 
 ## Evolution Equation Solvers
 #Note
-#rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st order
+#rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st 𝒪
 """
 fem_solveheat
 
@@ -73,20 +73,20 @@ fem_solveheat
 Takes in a definition for the heat equation ``u_t = Δu + f`` on a finite element
 mesh with initial condtion u0 and returns the solution.
 """
-function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString = "Euler",fquadorder::Int64=3,
+function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString = "Euler",fquad𝒪::Int64=3,
   solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int64 = 100,autodiff::Bool=false)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
   #Unroll some important constants
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
-  @unpack pdeProb: f,u0,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType
+  @unpack pdeProb: f,u₀,Du,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType
 
   #Note if Atom is loaded for progress
   atomLoaded = checkIfLoaded("Atom")
 
   #Set Initial
-  u = u0(node)
+  u = u₀(node)
   t = 0
   #Setup f quadraturef
   mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
@@ -281,10 +281,10 @@ function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString
 end
 
 """
-quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquadorder=2)
+quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquad𝒪=2)
 
 """
-function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquadorder=2)
+function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquad𝒪=2)
   if isLinear
     bt1 = area.*(f(mid[:,:,2])+f(mid[:,:,3]))/6
     bt2 = area.*(f(mid[:,:,3])+f(mid[:,:,1]))/6
@@ -306,17 +306,17 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,is
   end
   if(!isempty(Neumann))
     el = sqrt(float(sum((node[Neumann[:,1],:] - node[Neumann[:,2],:]).^2,2)))
-    lambdagN,weightgN = quadpts1(gNquadorder)
-    phigN = lambdagN                # linear bases
-    nQuadgN = size(lambdagN,1)
+    λgN,ωgN = quadpts1(gNquad𝒪)
+    ϕgN = λgN                # linear bases
+    nQuadgN = size(λgN,1)
     ge = zeros(size(Neumann,1),2)
     for pp = 1:nQuadgN
         # quadrature points in the x-y coordinate
-        ppxy = lambdagN[pp,1]*node[Neumann[:,1],:] +
-               lambdagN[pp,2]*node[Neumann[:,2],:]
+        ppxy = λgN[pp,1]*node[Neumann[:,1],:] +
+               λgN[pp,2]*node[Neumann[:,2],:]
         gNp = gN(ppxy)
         for igN = 1:2
-            ge[:,igN] = ge[:,igN] + weightgN[pp]*phigN[pp,igN]*gNp
+            ge[:,igN] = ge[:,igN] + ωgN[pp]*ϕgN[pp,igN]*gNp
         end
     end
     ge = ge.*repmat(el,1,2)

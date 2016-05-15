@@ -11,7 +11,7 @@ HeatProblem(sol,Du,f,isLinear): Defines the Dirichlet problem with solution sol,
 solution gradient Du = [u_x,u_y], f, and a boolean which states whether the
 problem is linear (i.e. linear if f does not depend on u).
 
-HeatProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as a function or vector), f,
+HeatProblem(u₀,f,gD,gN,isLinear): Defines the problem with initial value u₀ (as a function or vector), f,
 Dirichlet boundary function gD,  Neumann boundary function gN, and a boolean which states whether the
 problem is linear (i.e. linear if f does not depend on u).
 
@@ -33,8 +33,8 @@ noiseType is "White" for Gaussian Spacetime White Noise.
 
 """
 type HeatProblem <: PdeProblem
-  "u0: Initial value function or vector"
-  u0
+  "u₀: Initial value function or vector"
+  u₀
   "Du: Function for the solution gradient [u_x,u_y]"
   Du
   "f: Forcing function in heat equation"
@@ -61,11 +61,11 @@ type HeatProblem <: PdeProblem
     end
     isLinear = numparameters(f)==2
     knownSol = true
-    u0(x) = sol(x,0)
+    u₀(x) = sol(x,0)
     gD = sol
-    return(new(u0,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType))
+    return(new(u₀,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType))
   end
-  function HeatProblem(u0,f;gD=(x,t)->zeros(size(x,1)),gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
+  function HeatProblem(u₀,f;gD=(x,t)->zeros(size(x,1)),gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
     if σ==nothing
       stochastic=false
       σ=(x)->zeros(size(x,1))
@@ -74,7 +74,7 @@ type HeatProblem <: PdeProblem
     end
     isLinear = numparameters(f)==2
     knownSol = false
-    return(new(u0,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,σ,stochastic,noiseType))
+    return(new(u₀,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,σ,stochastic,noiseType))
   end
 end
 
@@ -90,7 +90,7 @@ Wraps the data that define a 2D linear Poisson equation problem:
 PoissonProblem(f,sol,Du,gN,isLinear): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
 f, and Neumann boundary data gN,
 
-PoissonProblem(u0,f,gD,gN,isLinear): Defines the problem with initial value u0 (as a function or vector), f,
+PoissonProblem(u₀,f,gD,gN,isLinear): Defines the problem with initial value u₀ (as a function or vector), f,
 Dirichlet boundary function gD, and Neumann boundary function gN.
 
 Note: If isLinear is true, then all functions must only be functions of (x). If

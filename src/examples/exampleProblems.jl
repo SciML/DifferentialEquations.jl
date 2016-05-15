@@ -20,23 +20,23 @@ end
 "Example problem which starts with 1 at (0.5,0.5) and solves with f=gD=0"
 function heatProblemExample_pure()
   f(x,t)  = zeros(size(x,1))
-  u0(x) = float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) #Only mass at middle of (0,1)^2
-  return(HeatProblem(u0,f))
+  u₀(x) = float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) #Only mass at middle of (0,1)^2
+  return(HeatProblem(u₀,f))
 end
 
 "Example problem which starts with 0 and solves with f(u)=1-.1u"
 function heatProblemExample_birthdeath()
   f(u,x,t)  = ones(size(x,1)) - .5u
-  u0(x) = zeros(size(x,1))
-  return(HeatProblem(u0,f))
+  u₀(x) = zeros(size(x,1))
+  return(HeatProblem(u₀,f))
 end
 
 "Example problem which starts with 0 and solves with f(u)=1-.1u"
 function heatProblemExample_stochasticbirthdeath()
   f(u,x,t)  = ones(size(x,1)) - .5u
-  u0(x) = zeros(size(x,1))
+  u₀(x) = zeros(size(x,1))
   σ(u,x,t) = 10u.^2
-  return(HeatProblem(u0,f,σ=σ))
+  return(HeatProblem(u₀,f,σ=σ))
 end
 
 "Example problem with solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
