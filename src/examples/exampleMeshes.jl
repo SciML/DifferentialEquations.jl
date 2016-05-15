@@ -12,8 +12,6 @@ meshExample_Lshapeunstructure() = load("src/examples/prebuiltMeshes.jld","Lshape
 
 meshExample_oilpump() = load("src/examples/prebuiltMeshes.jld","oilpump")
 
-meshExample_oilpump() = load("src/examples/prebuiltMeshes.jld","oilpump")
-
 meshExample_wavymesh() = load("src/examples/prebuiltMeshes.jld","wavymesh")
 
 meshExample_wavyperturbmesh() = load("src/examples/prebuiltMeshes.jld","wavyperturbmesh")

@@ -55,6 +55,11 @@ export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExampl
         poissonProblemExample_wave, poissonProblemExample_noisyWave, heatProblemExample_birthdeath,
         poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath
 
+#Example Meshes
+export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,
+        meshExample_Lshapemesh, meshExample_Lshapeunstructure, meshExample_oilpump,
+        meshExample_wavymesh, meshExample_wavyperturbmesh
+
 #Plot Functions
 export  solplot_appxvstrue, solplot_appx, showmesh, convplot, solplot_animation,
         convplot_fullΔt, convplot_fullΔx, convplot_l2vsΔt, convplot_node2vsΔt,

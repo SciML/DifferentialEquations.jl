@@ -37,11 +37,11 @@ function assemblematrix(node,elem;lumpflag=false,K=[])
   for i = 1:3
       for j = 1:3
           Aij = (ve[:,1,i].*ve[:,1,j]+ve[:,2,i].*ve[:,2,j])./(4*area)
-          if ~isempty(K)
+          if !isempty(K)
             Aij = K.*Aij
           end
           A = A + sparse(elem[:,i],elem[:,j],Aij,N,N)
-          if ~lumpflag
+          if !lumpflag
              Mij = area*((i==j)+1)/12
              M = M + sparse(elem[:,i],elem[:,j],Mij,N,N)
           end
