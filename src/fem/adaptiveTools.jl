@@ -3,11 +3,11 @@ estimaterecovery(node,elem,u)
 """
 function estimaterecovery(node,elem,u)
   #Computes the Δ error estimate η
-  Dlambda,area = gradbasis(node,elem)
-  Du = gradu(node,elem,u,Dlambda)
+  Dλ,area = gradbasis(node,elem)
+  Du = gradu(node,elem,u,Dλ)
   Du = recovery(node,elem,Du,area)
-  DDu[:,1:2] = gradu(node,elem,Du[:,1],Dlambda)
-  DDu[:,3:4] = gradu(node,elem,Du[:,2],Dlambda)
+  DDu[:,1:2] = gradu(node,elem,Du[:,1],Dλ)
+  DDu[:,3:4] = gradu(node,elem,Du[:,2],Dλ)
   η = area.*sum(abs(DDu),2)
   return(η,Du)
 end
@@ -29,18 +29,18 @@ function recovery(node,elem,Du,area)
 end
 
 """
-mark(elem,eta,theta;method="L2")
+mark(elem,η,thη;method="L2")
 """
-function mark(elem,eta,theta;method="L2")
+function mark(elem,η,thη;method="L2")
   NT = size(elem,1); isMark = false(NT,1)
   if method == "Max"
-    isMark[eta>theta*max(eta)]=1
+    isMark[η>thη*max(η)]=1
   elseif method == "COARSEN"
-    isMark[eta<theta*max(eta)]=1
+    isMark[η<thη*max(η)]=1
   elseif method == "L2"
-    sortedEta,idx = sort(eta.^2,rev=true)
-    x = cumsum(sortedEta)
-    isMark[idx[x < theta* x[NT]]] = 1
+    sortedη,idx = sort(η.^2,rev=true)
+    x = cumsum(sortedη)
+    isMark[idx[x < thη* x[NT]]] = 1
     isMark[idx[1]] = 1
   end
   markedElem = convert(Int64,find(isMark==true))

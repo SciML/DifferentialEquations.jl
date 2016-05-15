@@ -29,4 +29,4 @@ res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",au
 Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)
 
 #Returns true if nonlinear solver is correct
-maximum(abs(res.u - .777))<.001
+maximum(abs(res.u - .777))<.01

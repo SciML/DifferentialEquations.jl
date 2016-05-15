@@ -1,186 +1,186 @@
 """
-getL2error(node,elem,uexact,uh,quadOrder=[])
+getL2error(node,elem,uexact,uh,quad𝒪=[])
 
 getL2error(femMesh::FEMmesh,sol,u)
 
 Estimates the L2 error between uexact and uh on the mesh (node,elem). It
 reads the mesh to estimate the element type and uses this to choose a
-quadrature order unless specified.
+quadrature 𝒪 unless specified.
 """
-function getL2error(node,elem,uexact,uh,quadOrder=[])
-## GETL2ERROR L2 norm of the approximation error.
+function getL2error(node,elem,uexact,uh,quad𝒪=[])
 
-## Number of vertices, elements, edges, and degrees of freedom
 Nu = length(uh);    N = size(node,1);   NT = size(elem,1)
-# Euler formula N-NE+NT = c
+# Euler formula: N-NE+NT = c
 NE = N + NT - 1;    NP2 = N + NE;   NP3 = N + 2*NE + NT
 
 if Nu > N+NT-5
     elem2dof = dofP2(elem)
-    NP2 = max(elem2dof(:))
+    NP2 = max(vec(elem2dof))
     NE = NP2 - N
     NP3 = N+2*NE+NT
 end
 
 
-## Default quadrature orders for different elements
-if isempty(quadOrder)
+## Default quadrature 𝒪's for different elements
+if isempty(quad𝒪)
     if Nu==NT # piecewise constant function P0
-            quadOrder = 2
+            quad𝒪 = 2
     elseif Nu==N      # piecewise linear function P1 element
-            quadOrder = 3
+            quad𝒪 = 3
     elseif Nu==NE     # piecewise linear function CR element
-            quadOrder = 3
+            quad𝒪 = 3
     elseif Nu==N+NT   # piecewise linear function + constant function
-            quadOrder = 3
+            quad𝒪 = 3
     elseif Nu==NP2    # piecewise quadratic function
-            quadOrder = 4
+            quad𝒪 = 4
     elseif Nu==NE+NT  # weak Galerkin element
-            quadOrder = 3
+            quad𝒪 = 3
     elseif Nu==NP3    # P3 element
-            quadOrder = 5
+            quad𝒪 = 5
     end
 end
 
-## compute L2 error element-wise using quadrature rule with order quadOrder
+## compute L2 error element-wise using quadrature rule with 𝒪 quad𝒪
 err = zeros(NT)
-lambda,weight = quadpts(quadOrder)
-# basis function at quadrature points
+λ,ω = quadpts(quad𝒪)
 if Nu==N # P1 piecewise linear function
-        phi = lambda # linear bases
+        ϕ = λ # linear bases
 elseif Nu==N+NT # P1+P0
-        phi = lambda # linear bases
+        ϕ = λ # linear bases
 elseif Nu==NE  # CR nonconforming P1 element
-        phi = 1-2*lambda
+        ϕ = 1-2*λ
         elem2edge = elem2dof[:,4:6] - N
 elseif Nu==NP2 # P2 piecewise quadratic elements
-        phi[:,1] =   lambda[:,1].*(2*lambda[:,1]-1)
-        phi[:,2] =   lambda[:,2].*(2*lambda[:,2]-1)
-        phi[:,3] =   lambda[:,3].*(2*lambda[:,3]-1)
-        phi[:,4] = 4*lambda[:,2].*lambda[:,3]
-        phi[:,5] = 4*lambda[:,1].*lambda[:,3]
-        phi[:,6] = 4*lambda[:,2].*lambda[:,1]
+        ϕ[:,1] =   λ[:,1].*(2*λ[:,1]-1)
+        ϕ[:,2] =   λ[:,2].*(2*λ[:,2]-1)
+        ϕ[:,3] =   λ[:,3].*(2*λ[:,3]-1)
+        ϕ[:,4] = 4*λ[:,2].*λ[:,3]
+        ϕ[:,5] = 4*λ[:,1].*λ[:,3]
+        ϕ[:,6] = 4*λ[:,2].*λ[:,1]
 elseif Nu==NE+NT  # weak Galerkin element
 #             uhp = uh(1:NT) # only count the interior part
-        phi = 1-2*lambda
+        ϕ = 1-2*λ
         elem2edge = elem2dof[:,4:6] - N + NT
 elseif Nu==2*NE+NT+N # P3 piecewise cubic elements
-        phi[:,1]  = 0.5*(3*lambda[:,1]-1).*(3*lambda[:,1]-2).*lambda[:,1]
-        phi[:,2]  = 0.5*(3*lambda[:,2]-1).*(3*lambda[:,2]-2).*lambda[:,2]
-        phi[:,3]  = 0.5*(3*lambda[:,3]-1).*(3*lambda[:,3]-2).*lambda[:,3]
-        phi[:,4]  = 9/2*lambda[:,3].*lambda[:,2].*(3*lambda[:,2]-1)
-        phi[:,5]  = 9/2*lambda[:,3].*lambda[:,2].*(3*lambda[:,3]-1)
-        phi[:,6]  = 9/2*lambda[:,1].*lambda[:,3].*(3*lambda[:,3]-1)
-        phi[:,7]  = 9/2*lambda[:,1].*lambda[:,3].*(3*lambda[:,1]-1)
-        phi[:,8]  = 9/2*lambda[:,1].*lambda[:,2].*(3*lambda[:,1]-1)
-        phi[:,9]  = 9/2*lambda[:,1].*lambda[:,2].*(3*lambda[:,2]-1)
-        phi[:,10] = 27* lambda[:,1].*lambda[:,2].*lambda[:,3]
+        ϕ[:,1]  = 0.5*(3*λ[:,1]-1).*(3*λ[:,1]-2).*λ[:,1]
+        ϕ[:,2]  = 0.5*(3*λ[:,2]-1).*(3*λ[:,2]-2).*λ[:,2]
+        ϕ[:,3]  = 0.5*(3*λ[:,3]-1).*(3*λ[:,3]-2).*λ[:,3]
+        ϕ[:,4]  = 9/2*λ[:,3].*λ[:,2].*(3*λ[:,2]-1)
+        ϕ[:,5]  = 9/2*λ[:,3].*λ[:,2].*(3*λ[:,3]-1)
+        ϕ[:,6]  = 9/2*λ[:,1].*λ[:,3].*(3*λ[:,3]-1)
+        ϕ[:,7]  = 9/2*λ[:,1].*λ[:,3].*(3*λ[:,1]-1)
+        ϕ[:,8]  = 9/2*λ[:,1].*λ[:,2].*(3*λ[:,1]-1)
+        ϕ[:,9]  = 9/2*λ[:,1].*λ[:,2].*(3*λ[:,2]-1)
+        ϕ[:,10] = 27* λ[:,1].*λ[:,2].*λ[:,3]
         elem2dof = dofP3(elem) #Not Implemented
 end
-nQuad = size(lambda,1)
+nQuad = size(λ,1)
 for p = 1:nQuad
     # evaluate uh at quadrature point
     if Nu==NT # P0 piecewise constant function
             uhp = uh
     elseif Nu==N    # P1 piecewise linear function
-            uhp = uh[elem[:,1]]*phi[p,1] +
-                  uh[elem[:,2]]*phi[p,2] +
-                  uh[elem[:,3]]*phi[p,3]
+            uhp = uh[elem[:,1]]*ϕ[p,1] +
+                  uh[elem[:,2]]*ϕ[p,2] +
+                  uh[elem[:,3]]*ϕ[p,3]
     elseif Nu==N+NT # P1+P0
-            uhp = uh[elem[:,1]]*phi[p,1] +
-                  uh[elem[:,2]]*phi[p,2] +
-                  uh[elem[:,3]]*phi[p,3]
+            uhp = uh[elem[:,1]]*ϕ[p,1] +
+                  uh[elem[:,2]]*ϕ[p,2] +
+                  uh[elem[:,3]]*ϕ[p,3]
             uhp = uhp + uh[N+1:end]
     elseif Nu==NE  # CR nonconforming P1 element
-            uhp = uh[elem2edge[:,1]]*phi[p,1] +
-                  uh[elem2edge[:,2]]*phi[p,2] +
-                  uh[elem2edge[:,3]]*phi[p,3]
+            uhp = uh[elem2edge[:,1]]*ϕ[p,1] +
+                  uh[elem2edge[:,2]]*ϕ[p,2] +
+                  uh[elem2edge[:,3]]*ϕ[p,3]
     elseif Nu==NP2 # P2 piecewise quadratic function
-            uhp = uh[elem2dof[:,1]].*phi[p,1] +
-                  uh[elem2dof[:,2]].*phi[p,2] +
-                  uh[elem2dof[:,3]].*phi[p,3] +
-                  uh[elem2dof[:,4]].*phi[p,4] +
-                  uh[elem2dof[:,5]].*phi[p,5] +
-                  uh[elem2dof[:,6]].*phi[p,6]
+            uhp = uh[elem2dof[:,1]].*ϕ[p,1] +
+                  uh[elem2dof[:,2]].*ϕ[p,2] +
+                  uh[elem2dof[:,3]].*ϕ[p,3] +
+                  uh[elem2dof[:,4]].*ϕ[p,4] +
+                  uh[elem2dof[:,5]].*ϕ[p,5] +
+                  uh[elem2dof[:,6]].*ϕ[p,6]
     elseif Nu==NP3
-            uhp = uh[elem2dof[:,1]].*phi[p,1] +
-                  uh[elem2dof[:,2]].*phi[p,2] +
-                  uh[elem2dof[:,3]].*phi[p,3] +
-                  uh[elem2dof[:,4]].*phi[p,4] +
-                  uh[elem2dof[:,5]].*phi[p,5] +
-                  uh[elem2dof[:,6]].*phi[p,6] +
-                  uh[elem2dof[:,7]].*phi[p,7] +
-                  uh[elem2dof[:,8]].*phi[p,8] +
-                  uh[elem2dof[:,9]].*phi[p,9] +
-                  uh[elem2dof[:,10]].*phi[p,10]
+            uhp = uh[elem2dof[:,1]].*ϕ[p,1] +
+                  uh[elem2dof[:,2]].*ϕ[p,2] +
+                  uh[elem2dof[:,3]].*ϕ[p,3] +
+                  uh[elem2dof[:,4]].*ϕ[p,4] +
+                  uh[elem2dof[:,5]].*ϕ[p,5] +
+                  uh[elem2dof[:,6]].*ϕ[p,6] +
+                  uh[elem2dof[:,7]].*ϕ[p,7] +
+                  uh[elem2dof[:,8]].*ϕ[p,8] +
+                  uh[elem2dof[:,9]].*ϕ[p,9] +
+                  uh[elem2dof[:,10]].*ϕ[p,10]
     elseif Nu==NE+NT  # weak Galerkin element
             #             uhp = uh(1:NT) # only count the interior part
-            uhp = uh[elem2edge[:,1]]*phi[p,1] +
-                  uh[elem2edge[:,2]]*phi[p,2] +
-                  uh[elem2edge[:,3]]*phi[p,3]
+            uhp = uh[elem2edge[:,1]]*ϕ[p,1] +
+                  uh[elem2edge[:,2]]*ϕ[p,2] +
+                  uh[elem2edge[:,3]]*ϕ[p,3]
     end
     # quadrature points in the x-y coordinate
-    pxy = lambda[p,1]*node[elem[:,1],:] +
-        lambda[p,2]*node[elem[:,2],:] +
-        lambda[p,3]*node[elem[:,3],:]
-    err = err + weight[p]*(uexact(pxy) - uhp).^2
+    pxy = λ[p,1]*node[elem[:,1],:] +
+        λ[p,2]*node[elem[:,2],:] +
+        λ[p,3]*node[elem[:,3],:]
+    err = err + ω[p]*(uexact(pxy) - uhp).^2
 end
-# Modification
-# area of triangles
+# Modify by area
 ve2 = node[elem[:,1],:]-node[elem[:,3],:]
 ve3 = node[elem[:,2],:]-node[elem[:,1],:]
 area = 0.5*abs(-ve3[:,1].*ve2[:,2]+ve3[:,2].*ve2[:,1])
 err = area.*err
-err[isnan(err)] = 0 # singular values, i.e. uexact(p) = infty, are excluded
+err[isnan(err)] = 0 # singular values are excluded
 err = sqrt(sum(err))
 return(err)
 end
 
 """
-quadpts(order)
+quadpts(𝒪)
 
-Returns the quadrature points and weights for and order ### quadrature in 2D.
+Returns the quadrature points and ω's for and 𝒪 ### quadrature in 2D.
+
+Reference:
+David Dunavant. High degree efficient symmetrical Gaussian
+quadrature rules for the triangle. International journal for numerical
+methods in engineering. 21(6):1129--1148, 1985.
 """
-function quadpts(order)
-## QUADPTS quadrature points in 2-D.
-  if order>9
-      order = 9
-  elseif order==1     # Order 1, nQuad 1
-          lambda = [1/3 1/3 1/3]
-          weight = 1
-  elseif order==2     # Order 2, nQuad 3
-          lambda = [2/3 1/6 1/6
+function quadpts(𝒪)
+  if 𝒪>9
+      𝒪 = 9
+  elseif 𝒪==1
+          λ = [1/3 1/3 1/3]
+          ω = 1
+  elseif 𝒪==2
+          λ = [2/3 1/6 1/6
                     1/6 2/3 1/6
                     1/6 1/6 2/3]
-          weight = [1/3 1/3 1/3]
-  elseif order==3     # Order 3, nQuad 4
-          lambda = [1/3 1/3 1/3
+          ω = [1/3 1/3 1/3]
+  elseif 𝒪==3
+          λ = [1/3 1/3 1/3
                     0.6 0.2 0.2
                     0.2 0.6 0.2
                     0.2 0.2 0.6]
-          weight = [-27/48 25/48 25/48 25/48]
-  elseif order==4     # Order 4, nQuad 6
-          lambda = [0.108103018168070 0.445948490915965 0.445948490915965
+          ω = [-27/48 25/48 25/48 25/48]
+  elseif 𝒪==4
+          λ = [0.108103018168070 0.445948490915965 0.445948490915965
                     0.445948490915965 0.108103018168070 0.445948490915965
                     0.445948490915965 0.445948490915965 0.108103018168070
                     0.816847572980459 0.091576213509771 0.091576213509771
                     0.091576213509771 0.816847572980459 0.091576213509771
                     0.091576213509771 0.091576213509771 0.816847572980459]
-          weight = [0.223381589678011 0.223381589678011 0.223381589678011
+          ω = [0.223381589678011 0.223381589678011 0.223381589678011
                     0.109951743655322 0.109951743655322 0.109951743655322]
-  elseif order==5     # Order 5, nQuad 7
-          alpha1 = 0.059715871789770 ;     beta1 = 0.470142064105115
-          alpha2 = 0.797426985353087 ;     beta2 = 0.101286507323456
-          lambda = [   1/3    1/3    1/3
-                    alpha1  beta1  beta1
-                     beta1 alpha1  beta1
-                     beta1  beta1 alpha1
-                    alpha2  beta2  beta2
-                     beta2 alpha2  beta2
-                     beta2  beta2 alpha2]
-          weight = [0.225 0.132394152788506 0.132394152788506 0.132394152788506
+  elseif 𝒪==5
+          α1 = 0.059715871789770 ;     β1 = 0.470142064105115
+          α2 = 0.797426985353087 ;     β2 = 0.101286507323456
+          λ = [   1/3    1/3    1/3
+                    α1  β1  β1
+                     β1 α1  β1
+                     β1  β1 α1
+                    α2  β2  β2
+                     β2 α2  β2
+                     β2  β2 α2]
+          ω = [0.225 0.132394152788506 0.132394152788506 0.132394152788506
               0.125939180544827 0.125939180544827 0.125939180544827]
-  elseif order==6
+  elseif 𝒪==6
           A =[0.249286745170910  0.249286745170910  0.116786275726379
               0.249286745170910  0.501426509658179  0.116786275726379
               0.501426509658179  0.249286745170910  0.116786275726379
@@ -193,9 +193,9 @@ function quadpts(order)
               0.636502499121399  0.310352451033784  0.082851075618374
               0.310352451033784  0.053145049844817  0.082851075618374
               0.053145049844817  0.636502499121399  0.082851075618374]
-          lambda = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
-          weight = A[:,3]
-  elseif order==7
+          λ = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
+          ω = A[:,3]
+  elseif 𝒪==7
           A =[0.333333333333333  0.333333333333333 -0.149570044467682
               0.260345966079040  0.260345966079040  0.175615257433208
               0.260345966079040  0.479308067841920  0.175615257433208
@@ -209,9 +209,9 @@ function quadpts(order)
               0.638444188569810  0.312865496004874  0.077113760890257
               0.312865496004874  0.048690315425316  0.077113760890257
               0.048690315425316  0.638444188569810  0.077113760890257]
-              lambda = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
-              weight = A[:,3]
-  elseif order==8
+              λ = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
+              ω = A[:,3]
+  elseif 𝒪==8
           A =[0.333333333333333  0.333333333333333  0.144315607677787
               0.081414823414554  0.459292588292723  0.095091634267285
               0.459292588292723  0.081414823414554  0.095091634267285
@@ -228,9 +228,9 @@ function quadpts(order)
               0.728492392955404  0.008394777409958  0.027230314174435
               0.263112829634638  0.728492392955404  0.027230314174435
               0.728492392955404  0.263112829634638  0.027230314174435]
-              lambda = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
-              weight = A[:,3]
-  elseif order==9
+              λ = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
+              ω = A[:,3]
+  elseif 𝒪==9
           A =[0.333333333333333  0.333333333333333  0.097135796282799
               0.020634961602525  0.489682519198738  0.031334700227139
               0.489682519198738  0.020634961602525  0.031334700227139
@@ -250,15 +250,20 @@ function quadpts(order)
               0.741198598784498  0.036838412054736  0.043283539377289
               0.221962989160766  0.741198598784498  0.043283539377289
               0.741198598784498  0.221962989160766  0.043283539377289]
-              lambda = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
-              weight = A[:,3]
+              λ = [A[:,[1;2]] 1-sum(A[:,[1;2]],2)]
+              ω = A[:,3]
   end
-  return(lambda,weight)
+  return(λ,ω)
 end
 
-function quadpts1(order)
-# QUADPTS1 quadrature points in 1-D.
-  numPts = ceil((order+1)/2)
+"""
+quadpts1(𝒪)
+
+References: 
+Pavel Holoborodko: http://www.holoborodko.com/pavel/numerical-methods/numerical-integration/
+"""
+function quadpts1(𝒪)
+  numPts = ceil((𝒪+1)/2)
   if numPts > 10
      numPts = 10
   end
@@ -328,23 +333,23 @@ elseif numPts==10
               -0.8650633666889845107320967 	0.1494513491505805931457763
               -0.9739065285171717200779640 	0.0666713443086881375935688]
   end
-  lambda1 = (A[:,1]+1)/2
-  lambda2 = 1 - lambda1
-  lambda = [lambda1 lambda2]
-  weight = A[:,2]/2
-  return(lambda,weight)
+  λ1 = (A[:,1]+1)/2
+  λ2 = 1 - λ1
+  λ = [λ1 λ2]
+  ω = A[:,2]/2
+  return(λ,ω)
 end
 """
-function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
+function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
 
 getH1error(femMesh::FEMmesh,Du,u)
 
 Estimates the H1 error between uexact and uh on the mesh (node,elem). It
 reads the mesh to estimate the element type and uses this to choose a
-quadrature order unless specified. If K is specified then it is the
+quadrature 𝒪 unless specified. If K is specified then it is the
 diffusion coefficient matrix.
 """
-function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
+function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
 
   Nu = size(uh,1);    N = size(node,1);   NT = size(elem,1);
   # Euler formula N-NE+NT = c # rough estimateus using Euler formula
@@ -356,30 +361,30 @@ function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
       NP3 = N+2*NE+NT
   end
 
-  ## Default quadrature orders for different elements
-  if isempty(quadOrder)
+  ## Default quadrature 𝒪s for different elements
+  if isempty(quad𝒪)
       if Nu==NT     # piecewise constant vector (uh is Duh)
-              quadOrder = 3
-      elseif Nu==N      # piecewise linear function P1 element
-              quadOrder = 3
+              quad𝒪 = 3
+      elseif Nu==N      # piecewise linear function ℙ1 element
+              quad𝒪 = 3
       elseif Nu==NE     # piecewise linear function CR element
-              quadOrder = 3
+              quad𝒪 = 3
       elseif Nu==NP2    # piecewise quadratic function
-              quadOrder = 4
+              quad𝒪 = 4
       elseif Nu==NE + NT # WG element
-              quadOrder = 3
-      elseif Nu==NP3    # P3 element
-              quadOrder = 5
+              quad𝒪 = 3
+      elseif Nu==NP3    # ℙ3 element
+              quad𝒪 = 5
       end
   end
 
   ## compute gradient of finite element function uh
-  #Only P1 Implemented
+  #Only ℙ1 Implemented
   if (size(uh,2) == 2) && (Nu == NT)      # uh is a piecewise constant vector
       Duh = uh
       area = abs(simplexvolume(node,elem))
   elseif size(uh,2) == 1   # scalar function uh
-      if Nu==N      # piecewise linear function P1 element
+      if Nu==N      # piecewise linear function ℙ1 element
               Duh,area = gradu(node,elem,uh)
       elseif Nu==NE     # piecewise linear function CR element
               elem2edge = elem2dof(:,4:6) - N
@@ -388,71 +393,71 @@ function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
               elem2edge = elem2dof(:,4:6) - N
               Duh,area = graduWG(node,elem,elem2edge,uh)
       elseif Nu==NP2    # piecewise quadratic function
-              Dlambda,area = gradbasis(node,elem)
+              Dλ,area = gradbasis(node,elem)
       elseif Nu==NP3
-              Dlambda,area = gradbasis(node,elem)
+              Dλ,area = gradbasis(node,elem)
               elem2dof = dofP3(elem)
       end
   end
 
-  ## compute H1 error element-wise using quadrature rule with order quadOrder
-  lambda,weight = quadpts(quadOrder)
-  nQuad = size(lambda,1)
+  ## compute H1 error element-wise using quadrature rule with 𝒪 quad𝒪
+  λ,ω = quadpts(quad𝒪)
+  nQuad = size(λ,1)
   err = zeros(NT)
   for p = 1:nQuad
-      pxy = lambda[p,1]*node[elem[:,1],:] +
-            lambda[p,2]*node[elem[:,2],:] +
-            lambda[p,3]*node[elem[:,3],:]
+      pxy = λ[p,1]*node[elem[:,1],:] +
+            λ[p,2]*node[elem[:,2],:] +
+            λ[p,3]*node[elem[:,3],:]
       if Nu == NP2 # piecewise quadratic function
-          Dphip1 = (4*lambda[p,1]-1).*Dlambda[:,:,1]
-          Dphip2 = (4*lambda[p,2]-1).*Dlambda[:,:,2]
-          Dphip3 = (4*lambda[p,3]-1).*Dlambda[:,:,3]
-          Dphip4 = 4*(lambda[p,2]*Dlambda[:,:,3]+lambda[p,3]*Dlambda[:,:,2])
-          Dphip5 = 4*(lambda[p,3]*Dlambda[:,:,1]+lambda[p,1]*Dlambda[:,:,3])
-          Dphip6 = 4*(lambda[p,1]*Dlambda[:,:,2]+lambda[p,2]*Dlambda[:,:,1])
-          Duh = repmat(uh(elem2dof[:,1]),1,2).*Dphip1 +
-                repmat(uh(elem2dof[:,2]),1,2).*Dphip2 +
-                repmat(uh(elem2dof[:,3]),1,2).*Dphip3 +
-                repmat(uh(elem2dof[:,4]),1,2).*Dphip4 +
-                repmat(uh(elem2dof[:,5]),1,2).*Dphip5 +
-                repmat(uh(elem2dof[:,6]),1,2).*Dphip6
+          Dϕp1 = (4*λ[p,1]-1).*Dλ[:,:,1]
+          Dϕp2 = (4*λ[p,2]-1).*Dλ[:,:,2]
+          Dϕp3 = (4*λ[p,3]-1).*Dλ[:,:,3]
+          Dϕp4 = 4*(λ[p,2]*Dλ[:,:,3]+λ[p,3]*Dλ[:,:,2])
+          Dϕp5 = 4*(λ[p,3]*Dλ[:,:,1]+λ[p,1]*Dλ[:,:,3])
+          Dϕp6 = 4*(λ[p,1]*Dλ[:,:,2]+λ[p,2]*Dλ[:,:,1])
+          Duh = repmat(uh(elem2dof[:,1]),1,2).*Dϕp1 +
+                repmat(uh(elem2dof[:,2]),1,2).*Dϕp2 +
+                repmat(uh(elem2dof[:,3]),1,2).*Dϕp3 +
+                repmat(uh(elem2dof[:,4]),1,2).*Dϕp4 +
+                repmat(uh(elem2dof[:,5]),1,2).*Dϕp5 +
+                repmat(uh(elem2dof[:,6]),1,2).*Dϕp6
       end
       if Nu == NP3 # piecewise cubic function
-          Dphip1 = (27/2*lambda(p,1)*lambda(p,1)-9*lambda(p,1)+1).*Dlambda(:,:,1)
-          Dphip2 = (27/2*lambda(p,2)*lambda(p,2)-9*lambda(p,2)+1).*Dlambda(:,:,2)
-          Dphip3 = (27/2*lambda(p,3)*lambda(p,3)-9*lambda(p,3)+1).*Dlambda(:,:,3)
-          Dphip4 = 9/2*((3*lambda(p,2)*lambda(p,2)-lambda(p,2)).*Dlambda(:,:,3)+
-                  lambda(p,3)*(6*lambda(p,2)-1).*Dlambda(:,:,2))
-          Dphip5 = 9/2*((3*lambda(p,3)*lambda(p,3)-lambda(p,3)).*Dlambda(:,:,2)+
-                   lambda(p,2)*(6*lambda(p,3)-1).*Dlambda(:,:,3))
-          Dphip6 = 9/2*((3*lambda(p,3)*lambda(p,3)-lambda(p,3)).*Dlambda(:,:,1)+
-                   lambda(p,1)*(6*lambda(p,3)-1).*Dlambda(:,:,3))
-          Dphip7 = 9/2*((3*lambda(p,1)*lambda(p,1)-lambda(p,1)).*Dlambda(:,:,3)+
-                   lambda(p,3)*(6*lambda(p,1)-1).*Dlambda(:,:,1))
-          Dphip8 = 9/2*((3*lambda(p,1)*lambda(p,1)-lambda(p,1)).*Dlambda(:,:,2)+
-                   lambda(p,2)*(6*lambda(p,1)-1).*Dlambda(:,:,1))
-          Dphip9 = 9/2*((3*lambda(p,2)*lambda(p,2)-lambda(p,2)).*Dlambda(:,:,1)+
-                   lambda(p,1)*(6*lambda(p,2)-1).*Dlambda(:,:,2))
-          Dphip10= 27*(lambda(p,1)*lambda(p,2)*Dlambda(:,:,3)+lambda(p,1)*lambda(p,3)*Dlambda(:,:,2)+
-                   lambda(p,3)*lambda(p,2)*Dlambda(:,:,1))
-          Duh = repmat(uh(elem2dof(:,1)),1,2).*Dphip1 +
-                repmat(uh(elem2dof(:,2)),1,2).*Dphip2 +
-                repmat(uh(elem2dof(:,3)),1,2).*Dphip3 +
-                repmat(uh(elem2dof(:,4)),1,2).*Dphip4 +
-                repmat(uh(elem2dof(:,5)),1,2).*Dphip5 +
-                repmat(uh(elem2dof(:,6)),1,2).*Dphip6 +
-                repmat(uh(elem2dof(:,7)),1,2).*Dphip7 +
-                repmat(uh(elem2dof(:,8)),1,2).*Dphip8 +
-                repmat(uh(elem2dof(:,9)),1,2).*Dphip9 +
-                repmat(uh(elem2dof(:,10)),1,2).*Dphip10
+          Dϕp1 = (27/2*λ(p,1)*λ(p,1)-9*λ(p,1)+1).*Dλ(:,:,1)
+          Dϕp2 = (27/2*λ(p,2)*λ(p,2)-9*λ(p,2)+1).*Dλ(:,:,2)
+          Dϕp3 = (27/2*λ(p,3)*λ(p,3)-9*λ(p,3)+1).*Dλ(:,:,3)
+          Dϕp4 = 9/2*((3*λ(p,2)*λ(p,2)-λ(p,2)).*Dλ(:,:,3)+
+                  λ(p,3)*(6*λ(p,2)-1).*Dλ(:,:,2))
+          Dϕp5 = 9/2*((3*λ(p,3)*λ(p,3)-λ(p,3)).*Dλ(:,:,2)+
+                   λ(p,2)*(6*λ(p,3)-1).*Dλ(:,:,3))
+          Dϕp6 = 9/2*((3*λ(p,3)*λ(p,3)-λ(p,3)).*Dλ(:,:,1)+
+                   λ(p,1)*(6*λ(p,3)-1).*Dλ(:,:,3))
+          Dϕp7 = 9/2*((3*λ(p,1)*λ(p,1)-λ(p,1)).*Dλ(:,:,3)+
+                   λ(p,3)*(6*λ(p,1)-1).*Dλ(:,:,1))
+          Dϕp8 = 9/2*((3*λ(p,1)*λ(p,1)-λ(p,1)).*Dλ(:,:,2)+
+                   λ(p,2)*(6*λ(p,1)-1).*Dλ(:,:,1))
+          Dϕp9 = 9/2*((3*λ(p,2)*λ(p,2)-λ(p,2)).*Dλ(:,:,1)+
+                   λ(p,1)*(6*λ(p,2)-1).*Dλ(:,:,2))
+          Dϕp10= 27*(λ(p,1)*λ(p,2)*Dλ(:,:,3)+λ(p,1)*λ(p,3)*Dλ(:,:,2)+
+                   λ(p,3)*λ(p,2)*Dλ(:,:,1))
+          Duh = repmat(uh(elem2dof(:,1)),1,2).*Dϕp1 +
+                repmat(uh(elem2dof(:,2)),1,2).*Dϕp2 +
+                repmat(uh(elem2dof(:,3)),1,2).*Dϕp3 +
+                repmat(uh(elem2dof(:,4)),1,2).*Dϕp4 +
+                repmat(uh(elem2dof(:,5)),1,2).*Dϕp5 +
+                repmat(uh(elem2dof(:,6)),1,2).*Dϕp6 +
+                repmat(uh(elem2dof(:,7)),1,2).*Dϕp7 +
+                repmat(uh(elem2dof(:,8)),1,2).*Dϕp8 +
+                repmat(uh(elem2dof(:,9)),1,2).*Dϕp9 +
+                repmat(uh(elem2dof(:,10)),1,2).*Dϕp10
       end
-      if ~isempty(K) && ~isnumeric(K) # K is a function
-          err = err + weight[p]*K(pxy).*sum((Du(pxy)-Duh).^2,2)
+      if isa(K,Function)
+          err = err + ω[p]*K(pxy).*sum((Du(pxy)-Duh).^2,2)
       else
-          err = err + weight[p]*sum((Du(pxy)-Duh).^2,2)
+          err = err + ω[p]*sum((Du(pxy)-Duh).^2,2)
       end
   end
-  if ~isempty(K) && isnumeric(K) && size(K,1) == NT
+  if !isempty(K) && isa(K,Vector{Number}) && size(K,1) == NT
       err = K.*err    # K is piecewise constant
   end
   err = area.*err
@@ -462,21 +467,20 @@ function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
 end
 
 """
-gradu(node,elem,u,Dlambda=[])
+gradu(node,elem,u,Dλ=[])
 
 Estimates the gradient of u on the mesh (node,elem)
 """
-function gradu(node,elem,u,Dlambda=[])
-  ## GRADU gradient of a finite element function.
-  if isempty(Dlambda)
-      Dlambda,area = gradbasis(node,elem)
+function gradu(node,elem,u,Dλ=[])
+  if isempty(Dλ)
+      Dλ,area = gradbasis(node,elem)
   end
-  dudx =  u[elem[:,1]].*Dlambda[:,1,1] + u[elem[:,2]].*Dlambda[:,1,2] +
-        u[elem[:,3]].*Dlambda[:,1,3]
-  dudy =  u[elem[:,1]].*Dlambda[:,2,1] + u[elem[:,2]].*Dlambda[:,2,2] +
-        u[elem[:,3]].*Dlambda[:,2,3]
+  dudx =  u[elem[:,1]].*Dλ[:,1,1] + u[elem[:,2]].*Dλ[:,1,2] +
+        u[elem[:,3]].*Dλ[:,1,3]
+  dudy =  u[elem[:,1]].*Dλ[:,2,1] + u[elem[:,2]].*Dλ[:,2,2] +
+        u[elem[:,3]].*Dλ[:,2,3]
   Du = [dudx dudy];
-  return(Du,area,Dlambda)
+  return(Du,area,Dλ)
 end
 
 """
@@ -485,26 +489,23 @@ gradbasis(node,elem)
 Returns the gradient of the barycentric basis elements.
 """
 function gradbasis(node,elem)
-  ## GRADBASIS gradient of barycentric basis.
   NT = size(elem,1)
-  Dlambda = Array{Float64}(NT,2,3)
-  # $\nabla \phi_i = rotation(l_i)/(2|\tau|)$
+  Dλ = Array{Float64}(NT,2,3)
+
   ve1 = node[elem[:,3],:]-node[elem[:,2],:]
   ve2 = node[elem[:,1],:]-node[elem[:,3],:]
   ve3 = node[elem[:,2],:]-node[elem[:,1],:]
   area = 0.5*(-ve3[:,1].*ve2[:,2] + ve3[:,2].*ve2[:,1])
-  Dlambda[1:NT,:,3] = [-ve3[:,2]./(2*area) ve3[:,1]./(2*area)]
-  Dlambda[1:NT,:,1] = [-ve1[:,2]./(2*area) ve1[:,1]./(2*area)]
-  Dlambda[1:NT,:,2] = [-ve2[:,2]./(2*area) ve2[:,1]./(2*area)]
+  Dλ[1:NT,:,3] = [-ve3[:,2]./(2*area) ve3[:,1]./(2*area)]
+  Dλ[1:NT,:,1] = [-ve1[:,2]./(2*area) ve1[:,1]./(2*area)]
+  Dλ[1:NT,:,2] = [-ve2[:,2]./(2*area) ve2[:,1]./(2*area)]
 
-  # When the triangle is not positive orientated, we reverse the sign of the
-  # area. The sign of Dlambda is always right since signed area is used in
-  # the computation.
+  # When not positive orientated, reverse the sign.
   idx = (area.<0)
   area[idx,:] = -area[idx,:]
   elemSign = ones(NT)
   elemSign[idx] = -1
-  return(Dlambda,area,elemSign)
+  return(Dλ,area,elemSign)
 end
 
 function getL2error(femMesh::FEMmesh,sol,u)
