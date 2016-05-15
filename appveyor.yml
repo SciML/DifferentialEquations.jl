@@ -33,4 +33,4 @@ build_script:
       Pkg.clone(pwd(), \"DifferentialEquations\"); Pkg.build(\"DifferentialEquations\")"
 
 test_script:
-  - C:\projects\julia\bin\julia --check-bounds=yes -e "include(\"\test\pyplotsetup.jl\"); Pkg.test(\"DifferentialEquations\")"
+  - C:\projects\julia\bin\julia --check-bounds=yes -e "include(\"test\\pyplotsetup.jl\"); Pkg.test(\"DifferentialEquations\")"
