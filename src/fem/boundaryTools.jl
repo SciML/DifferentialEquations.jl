@@ -25,7 +25,7 @@ function findboundary(elem::AbstractArray;bdFlag=[])
   elseif nv == 4
       totalEdge = [elem[:,[1,2]]; elem[:,[2,3]]; elem[:,[3,4]]; elem[:,[4 1]]]
   end
-  if ~isempty(bdFlag)
+  if !isempty(bdFlag)
       Dirichlet = totalEdge[(bdFlag[:] == 1),:]
       isBdNode = false(N,1)
       isBdNode[vec(Dirichlet)] = true
