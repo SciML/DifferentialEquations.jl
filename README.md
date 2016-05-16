@@ -145,7 +145,5 @@ solplot_animation(res::FEMSolution;zlim=(0,2),cbar=false)
     * Wave Equation
     * Transport Equation
     * Stokes Equation
-* SPDE Solvers
-  * Euler-Maruyama
-  * IIF-Maruyama
-  * IIF-Milstein
+    * Implicit Integration Factor (IIF) Maruyama
+    * Implicit Integration Factor (IIF) Milstein
