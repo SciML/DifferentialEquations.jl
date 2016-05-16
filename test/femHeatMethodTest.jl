@@ -34,6 +34,17 @@ res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",s
 println("CG")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson")
 
+#Define another parabolic problem
+T = 1
+Δx = 1//2^(3)
+Δt = 1//2^(7)
+femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
+pdeProb = heatProblemExample_diffuse() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
+
+#Solve it with a bunch of different algorithms, plot solution
+println("Euler")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler")
+
 #Define a different parabolic problem
 T = 1//2^(5)
 Δx = 1//2^(3)
