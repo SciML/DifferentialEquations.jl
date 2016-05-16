@@ -20,12 +20,13 @@ DifferentialEquations.CFLμ
 
 ```
 {docs}
-DifferentialEquations.gradbasis
+DifferentialEquations.∇basis
 DifferentialEquations.quadfbasis
 DifferentialEquations.quadpts
+DifferentialEquations.quadpts1
 DifferentialEquations.accumarray
 DifferentialEquations.assemblematrix
-DifferentialEquations.gradu
+DifferentialEquations.∇u
 ```
 
 ## Error Tools

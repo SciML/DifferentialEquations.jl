@@ -38,7 +38,7 @@ using DifferentialEquations
 ```
 
 To understand the package in more detail, check out the following tutorials. Example
-codes for the latest features can be found in [test/](test/). Note that for many of
+codes for the latest features can be found in [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test/). Note that for many of
 the examples in the test folder, you may wish to run them at lower Δx or Δt.
 These values were taken to be large in order make unit tests run faster!
 

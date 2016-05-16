@@ -4,9 +4,6 @@
 # The Solution Type
 
 
-appxTrue!
-
-
 <a id='Related-Functions-1'></a>
 
 ## Related Functions
@@ -18,7 +15,22 @@ appxTrue!
 
 FEMSolution
 
-A type which holds the data for the solution to a finite element problem.
+Holds the data for the solution to a finite element problem.
+
+**Fields**
+
+  * `femMesh::FEMmesh`: The finite element mesh the problem was solved on.
+  * `u::Array{Float64}`: The solution (at the final timepoint)
+  * `trueKnown::Bool`: Boolean flag for if the true solution is given.
+  * `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
+  * `l2Err::NumberOrVoid`: The L2 error between u and uTrue.
+  * `h1Err::NumberOrVoid`: The H1 error between u and uTrue.
+  * `maxErr::NumberOrVoid`: The nodal maximum error between u and uTrue.
+  * `nodeErr2::NumberOrVoid`: The nodal l2 error between y abd uTrue.
+  * `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
+  * `uFull`::AbstractArrayOrVoid`: u over time. Only saved if `fullSave=true` is specified in the solver.
+  * `tFull::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `fullSave=true` is specified in the solver.
+  * `fullSave::Bool`: True if solver saved the extra timepoints.
 
 <a id='DifferentialEquations.appxTrue!' href='#DifferentialEquations.appxTrue!'>#</a>
 **`DifferentialEquations.appxTrue!`** &mdash; *Function*.

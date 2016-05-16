@@ -3,20 +3,6 @@
 
 # Extra Functions
 
-<a id='DifferentialEquations.quadfbasis2' href='#DifferentialEquations.quadfbasis2'>#</a>
-**`DifferentialEquations.quadfbasis2`** &mdash; *Function*.
-
-
-
-quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode) Slightly slower than quadfbasis, easier to extend to higher order quadrature
-
-<a id='DifferentialEquations.CG2' href='#DifferentialEquations.CG2'>#</a>
-**`DifferentialEquations.CG2`** &mdash; *Function*.
-
-
-
-CG2(u,A,b;tol=1e-6)
-
 <a id='DifferentialEquations.modulechildren' href='#DifferentialEquations.modulechildren'>#</a>
 **`DifferentialEquations.modulechildren`** &mdash; *Function*.
 
@@ -34,4 +20,22 @@ Returns the modules in m
 `checkIfLoaded(pkg::AbstractString)`
 
 Returns true if module "pkg" is defined in Main, otherwise false.
+
+<a id='DifferentialEquations.getNoise' href='#DifferentialEquations.getNoise'>#</a>
+**`DifferentialEquations.getNoise`** &mdash; *Function*.
+
+
+
+getNoise(N,node,elem;noiseType="White")
+
+Returns a random vector corresponding to the noise type which was chosen.
+
+<a id='DifferentialEquations.numparameters' href='#DifferentialEquations.numparameters'>#</a>
+**`DifferentialEquations.numparameters`** &mdash; *Function*.
+
+
+
+numparameters(f)
+
+Returns the number of parameters of `f` for the method which has the most parameters.
 

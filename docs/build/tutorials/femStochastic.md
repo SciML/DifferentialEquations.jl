@@ -33,10 +33,10 @@ end
 ```
 
 
-using the same solving commands as shown in [femStochasticPoissonSolo.jl](/src/femStochasticPoissonSolo.jl). This gives the following plot:
+using the same solving commands as shown in [femStochasticPoissonSolo.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticPoissonSolo.jl). This gives the following plot:
 
 
-<img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />
+<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
 
 <a id='Finite-Element-Stochastic-Heat-Equation-1'></a>
@@ -62,7 +62,7 @@ end
 ```
 
 
-As shown in [femStochasticHeatAnimationTest.jl](/src/femStochasticHeatAnimationTest.jl), we use the following code create an animation of the solution:
+As shown in [femStochasticHeatAnimationTest.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticHeatAnimationTest.jl), we use the following code create an animation of the solution:
 
 
 ```julia
@@ -77,5 +77,5 @@ solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
 ```
 
 
-<img src="/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
+<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
 
