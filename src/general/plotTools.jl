@@ -3,7 +3,12 @@
 """
 solplot_animation(res::FEMSolution)
 
+Plots an animation of the solution. Requires `fullSave=true` was enabled in the solver.
 
+### Keyword Arguments
+
+* `zlim`: The limits on the z-axis in the simulation. Default nothing.
+* `cbar`: Boolean flag which turns on/off the color bar. Default true.
 """
 function solplot_animation(res::FEMSolution;zlim=nothing,cbar=true)
   Plots.pyplot(reuse=true,size=(750,750))
@@ -21,7 +26,16 @@ end
 """
 solplot_appxvstrue(res::FEMSolution)
 
+Plots the approximate solution and the true solution.
 
+### Keyword Arguments
+
+* `savefile`: Designates a file to save the plot in. Save type is defined by the chosen
+extension. Default is "" which implies no saving.
+* `title`: The title at the top of the plot. Default is "PDE Solution".
+* `appxTitle`: The title above the approximate solution. Default is "Approximated Solution".
+* `trueTitle`: The title above the true solution. Default is "True Solution".
+* `cmap`: Specifies the color map in the plot. Default is PyPlot.get_cmap("winter").
 """
 function solplot_appxvstrue(res::FEMSolution;savefile="",title="PDE Solution",
       appxTitle="Approximated Solution",trueTitle="True Solution",
@@ -49,6 +63,17 @@ end
 
 """
 solplot(res::FEMSolution)
+
+Plots the approximate solution and, if available, the true solution.
+
+### Keyword Arguments
+
+* `savefile`: Designates a file to save the plot in. Save type is defined by the chosen
+extension. Default is "" which implies no saving.
+* `title`: The title at the top of the plot. Default is "PDE Solution".
+* `appxTitle`: The title above the approximate solution. Default is "Approximated Solution".
+* `trueTitle`: The title above the true solution. Default is "True Solution".
+* `cmap`: Specifies the color map in the plot. Default is PyPlot.get_cmap("winter").
 """
 function solplot(res::FEMSolution;savefile="",title="PDE Solution",
         appxTitle="Approximated Solution",trueTitle="True Solution",
@@ -57,15 +82,23 @@ function solplot(res::FEMSolution;savefile="",title="PDE Solution",
     solplot_appxvstrue(res,savefile=savefile,title=title,appxTitle=appxTitle,
     trueTitle=trueTitle,cmap=cmap)
   else
-    solplot_appx(res,savefile=savefile,title=title,appxTitle=appxTitle,
-    cmap=cmap)
+    solplot_appx(res,savefile=savefile,title=title,cmap=cmap)
   end
 end
 
 """
 solplot_appx(res::FEMSolution)
+
+Plots the approximate solution.
+
+### Keyword Arguments
+
+* `savefile`: Designates a file to save the plot in. Save type is defined by the chosen
+extension. Default is "" which implies no saving.
+* `title`: The title at the top of the plot. Default is "PDE Solution".
+* `cmap`: Specifies the color map in the plot. Default is PyPlot.get_cmap("winter").
 """
-function solplot_appx(res::FEMSolution;savefile="",title="Approximated Solution",appxTitle="Approximated Solution",
+function solplot_appx(res::FEMSolution;savefile="",title="Approximated Solution",
   cmap=PyPlot.get_cmap("winter"))
   Plots.surface(res.femMesh.node[:,1],res.femMesh.node[:,2],res.u,cmap=PyPlot.get_cmap("winter"),title=title)
   if savefile!=""
@@ -75,6 +108,12 @@ end
 
 """
 showmesh(femMesh::FEMmesh)
+
+Shows the mesh which is defined by the (node,elem) structure.
+
+### Keyword Arguments
+
+* `cmap`: Specifies the color map in the plot. Default is PyPlot.get_cmap("winter").
 """
 function showmesh(femMesh::Mesh;cmap=PyPlot.get_cmap("ocean"))
   @unpack femMesh: node, elem
@@ -102,6 +141,14 @@ end
 
 """
 convplot(measure,err)
+
+Makes a convergence plot of err vs measure in loglog scale.
+
+### Keyword Arguments
+
+* `ErrStr`: The y-axis label. Default is "Error".
+* `measureStr`: The x-axis label. Default is "Measure".
+* `titleStr`: The title. Default is "\$ErrStr vs \$measureStr Convergence Plot".
 """
 function convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$ErrStr vs $measureStr Convergence Plot")
   PyPlot.loglog(measure,err)
@@ -117,7 +164,15 @@ function convplot(measure,err;ErrStr="Error",measureStr="Measure",titleStr="$Err
 end
 
 """
-convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+convplot_fullΔt(simres::ConvergenceSimulation)
+
+Plots a grid which shows the H1, L2, nodal maximum, and nodal l2 error convergence
+over changes of Δt.
+
+### Keyword Arguments
+
+* `savefile`: Designates a file to save the plot in. Save type is defined by the chosen
+extension. Default is "" which implies no saving.
 """
 function convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
@@ -147,7 +202,15 @@ function convplot_fullΔt(simres::ConvergenceSimulation;titleStr="All Convergenc
 end
 
 """
-convplot_fullΔx(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
+convplot_fullΔx(simres::ConvergenceSimulation)
+
+Plots a grid which shows the H1, L2, nodal maximum, and nodal l2 error convergence
+over changes of Δx.
+
+### Keyword Arguments
+
+* `savefile`: Designates a file to save the plot in. Save type is defined by the chosen
+extension. Default is "" which implies no saving.
 """
 function convplot_fullΔx(simres::ConvergenceSimulation;titleStr="All Convergences",savefile="")
   fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
@@ -168,40 +231,56 @@ end
 
 """
 convplot_h1vsΔt(simres::ConvergenceSimulation)
+
+Shows the H1 error convergence over changes of Δt.
 """
 convplot_h1vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.h1Errors;ErrStr="H1 Error",measureStr=L"$\Delta t$")
 
 """
 convplot_l2vsΔt(simres::ConvergenceSimulation)
+
+Shows the L2 error convergence over changes of Δt.
 """
 convplot_l2vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.l2Errors;ErrStr="L2 Error",measureStr=L"$\Delta t$")
 
 """
 convplot_node2vsΔt(simres::ConvergenceSimulation)
+
+Shows the nodal l2 error convergence over changes of Δt.
 """
 convplot_node2vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.node2Errors;ErrStr="Nodal L2 Error",measureStr=L"$\Delta t$")
 
 """
 convplot_maxvsΔt(simres::ConvergenceSimulation)
+
+Shows the nodal maximum error convergence over changes of Δt.
 """
 convplot_maxvsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.maxErrors;ErrStr="Nodal Max Error",measureStr=L"$\Delta t$")
 
 """
 convplot_h1vsΔx(simres::ConvergenceSimulation)
+
+Shows the H1 error convergence over changes of Δx.
 """
 convplot_h1vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.h1Errors;ErrStr="H1 Error",measureStr=L"$\Delta x$")
 
 """
 convplot_l2vsΔx(simres::ConvergenceSimulation)
+
+Shows the nodal l2 error convergence over changes of Δx.
 """
 convplot_l2vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.l2Errors;ErrStr="L2 Error",measureStr=L"$\Delta x$")
 
 """
 convplot_node2vsΔx(simres::ConvergenceSimulation)
+
+Shows the nodal l2 error convergence over changes of Δx.
 """
 convplot_node2vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.node2Errors;ErrStr="Nodal L2 Error",measureStr=L"$\Delta x$")
 
 """
 convplot_maxvsΔx(simres::ConvergenceSimulation)
+
+Shows the nodal maximum error convergence over changes of Δx.
 """
 convplot_maxvsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.maxErrors;ErrStr="Nodal Max Error",measureStr=L"$\Delta x$")
