@@ -1,34 +1,43 @@
-doc"""
+"""
 HeatProblem
 
-Wraps the data that define a 2D linear heat equation problem:
+Wraps the data that define a 2D heat equation problem:
 
-`` $$ u_t = Δu + f(x,t) $$ ``
+```math
+u_t = Δu + f
+```
+
+with bounday conditions `gD` on the Dirichlet boundary and gN on the Neumann boundary.
+Linearity is determined by whether the forcing function `f` is a function of two
+variables (x,t) or three (u,x,t) (with x=[:,1] and y=[:,2]).
+
+If they keyword `σ` is given, then this wraps the data that define a 2D stochastic heat equation
+
+```math
+u_t = Δu + f + σdW_t
+```
 
 ###Constructors
 
-HeatProblem(sol,Du,f,isLinear): Defines the Dirichlet problem with solution sol,
-solution gradient Du = [u_x,u_y], f, and a boolean which states whether the
-problem is linear (i.e. linear if f does not depend on u).
+* `HeatProblem(sol,Du,f)`: Defines the Dirichlet problem with solution `sol`,
+solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
 
-HeatProblem(u₀,f,gD,gN,isLinear): Defines the problem with initial value u₀ (as a function or vector), f,
-Dirichlet boundary function gD,  Neumann boundary function gN, and a boolean which states whether the
-problem is linear (i.e. linear if f does not depend on u).
+* `HeatProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and `f`.
+If your initial data is a vector, wrap it as u₀(x) = vector.
 
-Note: If isLinear is true, then all functions must only be functions of (x,t). If
-isLinear is false, then f=f(u,x,t) and σ=σ(u,x,t) (if specified), while the other
-functions are only functions of (x,t).
+Note: If all functions are of (x,t), then the program assumes it's linear. Write
+your functions using x = x[:,1] and y = x[:,2].  Use f=f(u,x,t) and σ=σ(u,x,t) (if specified)
+for nonlinear problems (with the boundary conditions still (x,t))
 
 ###Keyword Arguments
 
-The constructors take the following keyword arguments:
+* `gD` = Dirichlet boundary function
 
-σ = The function which multiplies the noise dW. By default σ is 0.
+* `gN` = Neumann boundary function
 
-stochastic = A boolean which specifies if the problem is stochastic. By default
-stochastic is false.
+* `σ` = The function which multiplies the noise dW. By default σ is 0.
 
-noiseType = A string which specifies the type of noise to be generated. By default
+* `noiseType` = A string which specifies the type of noise to be generated. By default
 noiseType is "White" for Gaussian Spacetime White Noise.
 
 """
@@ -83,26 +92,42 @@ PoissonProblem
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
-`` $$ Δu = f(x,t) $$ ``
+```math
+-Δu = f
+```
+
+with bounday conditions `gD` on the Dirichlet boundary and gN on the Neumann boundary.
+Linearity is determined by whether the forcing function `f` is a function of two
+variables (x,t) or three (u,x,t) (with x=[:,1] and y=[:,2]).
+
+If they keyword `σ` is given, then this wraps the data that define a 2D stochastic heat equation
+
+```math
+-Δu = f + σdW
+```
 
 ###Constructors
 
-PoissonProblem(f,sol,Du,gN,isLinear): Defines the Dirichlet problem with solution sol, solution gradient Du = [u_x,u_y],
-f, and Neumann boundary data gN,
+PoissonProblem(f,sol,Du): Defines the Dirichlet problem with solution `sol`, solution gradient `Du = [u_x,u_y]`,
+and forcing function `f`
 
-PoissonProblem(u₀,f,gD,gN,isLinear): Defines the problem with initial value u₀ (as a function or vector), f,
-Dirichlet boundary function gD, and Neumann boundary function gN.
+PoissonProblem(u₀,f): Defines the problem with initial value `u₀` (as a function) and f.
+If your initial data is a vector, wrap it as u₀(x) = vector.
 
-Note: If isLinear is true, then all functions must only be functions of (x). If
-isLinear is false, then f=f(u,x) and σ=σ(u,x) (if specified), while the other
-functions are only functions of (x).
+Note: If all functions are of (x,t), then the program assumes it's linear. Write
+your functions using x = x[:,1] and y = x[:,2].  Use f=f(u,x,t) and σ=σ(u,x,t) (if specified)
+for nonlinear problems (with the boundary conditions still (x,t))
 
 ###Keyword Arguments
 
-`σ` = The function which multiplies the noise ``dW``. By default `σ` is 0.
+* `gD` = Dirichlet boundary function
 
-noiseType = A string which specifies the type of noise to be generated. By default
-noiseType is "White" for Gaussian Spacetime White Noise.
+* `gN` = Neumann boundary function
+
+* `σ` = The function which multiplies the noise ``dW``. By default `σ` is 0.
+
+* `noiseType` = A string which specifies the type of noise to be generated. By default
+`noiseType` is "White" for Gaussian Spacetime White Noise.
 
 """
 type PoissonProblem <: PdeProblem
@@ -146,6 +171,11 @@ type PoissonProblem <: PdeProblem
   end
 end
 
+"""
+numparameters(f)
+
+Returns the number of parameters of `f` for the method which has the most parameters.
+"""
 function numparameters(f)
   if length(methods(f))>1
     warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")

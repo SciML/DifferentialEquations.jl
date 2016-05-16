@@ -1,5 +1,20 @@
+"""
+`modulechildren(m::Module)`
+
+Returns the modules in m
+"""
+modulechildren(m::Module) = filter(x->isa(x, Module), map(x->m.(x), names(m, true)))
+
+"""
+`checkIfLoaded(pkg::AbstractString)`
+
+Returns true if module "pkg" is defined in Main, otherwise false.
+"""
+checkIfLoaded(pkg::AbstractString)= maximum(map(string,modulechildren(Main)).==pkg)
+
 ## Unused other versions of Functions
 
+#=
 """
 quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
 Slightly slower than quadfbasis, easier to extend to higher order quadrature
@@ -37,6 +52,8 @@ end
 
 """
 CG2(u,A,b;tol=1e-6)
+
+Needs to be tested. Could be faster than CG.
 """
 function CG2(u,A,b;tol=1e-6)
   tol = tol*norm(b)
@@ -57,17 +74,4 @@ function CG2(u,A,b;tol=1e-6)
   end
   return u,k
 end
-
-"""
-`modulechildren(m::Module)`
-
-Returns the modules in m
-"""
-modulechildren(m::Module) = filter(x->isa(x, Module), map(x->m.(x), names(m, true)))
-
-"""
-`checkIfLoaded(pkg::AbstractString)`
-
-Returns true if module "pkg" is defined in Main, otherwise false.
-"""
-checkIfLoaded(pkg::AbstractString)= maximum(map(string,modulechildren(Main)).==pkg)
+=#

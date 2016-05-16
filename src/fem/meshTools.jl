@@ -1,6 +1,36 @@
 """
 FEMmesh
 
+Holds the information describing a finite element mesh. For information on how (node,elem)
+can be interpreted as a mesh describing a geometry, see [Programming of Finite
+Element Methods by Long Chen](http://www.math.uci.edu/~chenlong/226/Ch3FEMCode.pdf).
+
+### Fields
+
+* `node`: The nodes in the (node,elem) structure.
+* `elem`: The elements in the (node,elem) structure.
+* `bdNode`: Vector of indices for the boundary nodes.
+* `freeNode`: Vector of indices for the free (non-Dirichlet bound) nodes.
+* `bdEdge`: Indices of the edges in totalEdge which are on the boundary.
+* `isBdNode`: Boolean which is true for nodes on the boundary.
+* `isBdElem`: Boolean which is true for elements on the boundary.
+* `bdFlag`: Flag which describes the type of boundary condition. 1=> Dirichlet,
+2=>Neumann, 3=>Robin.
+* `totalEdge`: Vector of the edges.
+* `area`: Vector which is the area for each element.
+* `Dirichlet`: Indices for the nodes on the boundary which have a Dirichlet boundary condition.
+* `Neumann`: Indices for the nodes on the boundary which have a Neumann boundary condition.
+* `Robin`: Indices for the nodes on the boundary which have a Robin boundary condition.
+* `N::Int`: The number of nodes.
+* `NT`::Int: The number of triangles (elements).
+* `Δx`: The spatial discretization size. If non-uniform, this is the average.
+* `Δt`: The time discretization size. If adaptive, this is the initial.
+* `T`::Number: The end time.
+* `numIters`::Int: The number of iterations to go from 0 to T using Δt.
+* `μ`: The CFL μ stability parameter.
+* `ν`: The CFL ν stability parameter.
+* `evolutionEq`: True for a mesh which has non-trivial time components.
+
 """
 type FEMmesh <: Mesh
   node
@@ -59,6 +89,15 @@ end
 
 """
 SimpleMesh
+
+Holds the information describing a finite element mesh. For information on how (node,elem)
+can be interpreted as a mesh describing a geometry, see [Programming of Finite
+Element Methods by Long Chen](http://www.math.uci.edu/~chenlong/226/Ch3FEMCode.pdf).
+
+### Fields
+
+* `node`: The nodes in the (node,elem) structure.
+* `elem`: The elements in the (node,elem) structure.
 """
 type SimpleMesh <: Mesh
   node
