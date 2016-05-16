@@ -9,6 +9,7 @@ markdown_extensions:
   - extra
   - tables
   - fenced_code
+  - math
 
 extra_css:
   - assets/Documenter.css
