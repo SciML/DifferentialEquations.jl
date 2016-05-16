@@ -22,11 +22,19 @@ To install the package, use the following command inside the Julia REPL:
 
 
 ```julia
-Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")
+Pkg.add("DifferentialEquations")
 ```
 
 
-To load the package, use the command
+For all of the latest features, switch to the master branch via:
+
+
+```julia
+Pkg.checkout("DifferentialEquations")
+```
+
+
+To load the package, use the command:
 
 
 ```julia
@@ -34,15 +42,10 @@ using DifferentialEquations
 ```
 
 
-To understand the package in more detail, check out the following tutorials. Example codes for the latest features can be found in [test/](test/). Note that for many of the examples in the test folder, you may wish to run them at lower Δx or Δt. These values were taken to be large in order make unit tests run faster! Due to the fast development speed of the package, it is recommended you checkout the main branch:
+To understand the package in more detail, check out the following tutorials. Example codes for the latest features can be found in [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test/). Note that for many of the examples in the test folder, you may wish to run them at lower Δx or Δt. These values were taken to be large in order make unit tests run faster!
 
 
-```
-Pkg.checkout("DifferentialEquations")
-```
-
-
-This will keep your local repository up to date with the latest changes.
+For the most up to date on using the package information, please contact me [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl) or [read the latest documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 
 
 <a id='Tutorials-1'></a>
@@ -63,16 +66,16 @@ The following tutorials will introduce you to the functionality of DifferentialE
 ## Manual
 
 - [Overview of DifferentialEquations.jl Usage](man/overview.md#Overview-of-DifferentialEquations.jl-Usage-1)
-- [Common Terms](man/commonTerms.md#Common-Terms-1)
 - [Defining a Problem](man/problem.md#Defining-a-Problem-1)
     - [Poisson Equation Problem](man/problem.md#Poisson-Equation-Problem-1)
     - [Heat Equation Problem](man/problem.md#Heat-Equation-Problem-1)
     - [Example Problems](man/problem.md#Example-Problems-1)
     - [Related Functions](man/problem.md#Related-Functions-1)
-- [Mesh Generation](man/mesh.md#Mesh-Generation-1)
+- [Meshes](man/mesh.md#Meshes-1)
     - [Mesh Specification](man/mesh.md#Mesh-Specification-1)
     - [Mesh Type](man/mesh.md#Mesh-Type-1)
     - [Mesh Generation Functions](man/mesh.md#Mesh-Generation-Functions-1)
+    - [Example Meshes](man/mesh.md#Example-Meshes-1)
 - [Information on Solvers](man/solvers.md#Information-on-Solvers-1)
     - [Finite Element Method Solvers](man/solvers.md#Finite-Element-Method-Solvers-1)
 - [The Solution Type](man/solution.md#The-Solution-Type-1)
@@ -99,10 +102,10 @@ The following tutorials will introduce you to the functionality of DifferentialE
 
 ## Index
 
-- [`DifferentialEquations.CG2`](internals/extras.md#DifferentialEquations.CG2)
 - [`DifferentialEquations.checkIfLoaded`](internals/extras.md#DifferentialEquations.checkIfLoaded)
+- [`DifferentialEquations.getNoise`](internals/extras.md#DifferentialEquations.getNoise)
 - [`DifferentialEquations.modulechildren`](internals/extras.md#DifferentialEquations.modulechildren)
-- [`DifferentialEquations.quadfbasis2`](internals/extras.md#DifferentialEquations.quadfbasis2)
+- [`DifferentialEquations.numparameters`](internals/extras.md#DifferentialEquations.numparameters)
 - [`DifferentialEquations`](internals/femTools.md#DifferentialEquations)
 - [`DifferentialEquations.CFLμ`](internals/femTools.md#DifferentialEquations.CFLμ)
 - [`DifferentialEquations.CFLν`](internals/femTools.md#DifferentialEquations.CFLν)
@@ -110,11 +113,12 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [`DifferentialEquations.assemblematrix`](internals/femTools.md#DifferentialEquations.assemblematrix)
 - [`DifferentialEquations.getH1error`](internals/femTools.md#DifferentialEquations.getH1error)
 - [`DifferentialEquations.getL2error`](internals/femTools.md#DifferentialEquations.getL2error)
-- [`DifferentialEquations.gradbasis`](internals/femTools.md#DifferentialEquations.gradbasis)
-- [`DifferentialEquations.gradu`](internals/femTools.md#DifferentialEquations.gradu)
 - [`DifferentialEquations.meshgrid`](internals/femTools.md#DifferentialEquations.meshgrid)
 - [`DifferentialEquations.quadfbasis`](internals/femTools.md#DifferentialEquations.quadfbasis)
 - [`DifferentialEquations.quadpts`](internals/femTools.md#DifferentialEquations.quadpts)
+- [`DifferentialEquations.quadpts1`](internals/femTools.md#DifferentialEquations.quadpts1)
+- [`DifferentialEquations.∇basis`](internals/femTools.md#DifferentialEquations.∇basis)
+- [`DifferentialEquations.∇u`](internals/femTools.md#DifferentialEquations.∇u)
 - [`Base.length`](man/convergence.md#Base.length-Tuple{DifferentialEquations.ConvergenceSimulation})
 - [`DifferentialEquations.ConvergenceSimulation`](man/convergence.md#DifferentialEquations.ConvergenceSimulation)
 - [`DifferentialEquations.conv_ests`](man/convergence.md#DifferentialEquations.conv_ests)
@@ -129,9 +133,18 @@ The following tutorials will introduce you to the functionality of DifferentialE
 - [`DifferentialEquations.convplot_node2vsΔt`](man/convergence.md#DifferentialEquations.convplot_node2vsΔt)
 - [`DifferentialEquations.convplot_node2vsΔx`](man/convergence.md#DifferentialEquations.convplot_node2vsΔx)
 - [`DifferentialEquations.FEMmesh`](man/mesh.md#DifferentialEquations.FEMmesh)
+- [`DifferentialEquations.Mesh`](man/mesh.md#DifferentialEquations.Mesh)
 - [`DifferentialEquations.SimpleMesh`](man/mesh.md#DifferentialEquations.SimpleMesh)
 - [`DifferentialEquations.fem_squaremesh`](man/mesh.md#DifferentialEquations.fem_squaremesh)
 - [`DifferentialEquations.findboundary`](man/mesh.md#DifferentialEquations.findboundary)
+- [`DifferentialEquations.meshExample_Lshapemesh`](man/mesh.md#DifferentialEquations.meshExample_Lshapemesh)
+- [`DifferentialEquations.meshExample_Lshapeunstructure`](man/mesh.md#DifferentialEquations.meshExample_Lshapeunstructure)
+- [`DifferentialEquations.meshExample_bunny`](man/mesh.md#DifferentialEquations.meshExample_bunny)
+- [`DifferentialEquations.meshExample_flowpastcylindermesh`](man/mesh.md#DifferentialEquations.meshExample_flowpastcylindermesh)
+- [`DifferentialEquations.meshExample_lakemesh`](man/mesh.md#DifferentialEquations.meshExample_lakemesh)
+- [`DifferentialEquations.meshExample_oilpump`](man/mesh.md#DifferentialEquations.meshExample_oilpump)
+- [`DifferentialEquations.meshExample_wavymesh`](man/mesh.md#DifferentialEquations.meshExample_wavymesh)
+- [`DifferentialEquations.meshExample_wavyperturbmesh`](man/mesh.md#DifferentialEquations.meshExample_wavyperturbmesh)
 - [`DifferentialEquations.notime_squaremesh`](man/mesh.md#DifferentialEquations.notime_squaremesh)
 - [`DifferentialEquations.parabolic_squaremesh`](man/mesh.md#DifferentialEquations.parabolic_squaremesh)
 - [`DifferentialEquations.setboundary`](man/mesh.md#DifferentialEquations.setboundary)

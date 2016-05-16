@@ -25,6 +25,7 @@ Element Methods by Long Chen](http://www.math.uci.edu/~chenlong/226/Ch3FEMCode.p
 {docs}
 DifferentialEquations.FEMmesh
 DifferentialEquations.SimpleMesh
+DifferentialEquations.Mesh
 ```
 
 ## Mesh Generation Functions

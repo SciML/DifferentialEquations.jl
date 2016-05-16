@@ -4,4 +4,6 @@
 {docs}
 modulechildren
 checkIfLoaded
+DifferentialEquations.getNoise
+DifferentialEquations.numparameters
 ```

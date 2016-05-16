@@ -64,30 +64,43 @@ Computes the CFL-condition μ= Δt/(Δx*Δx)
 
 ## Solver Tools
 
-<a id='DifferentialEquations.gradbasis' href='#DifferentialEquations.gradbasis'>#</a>
-**`DifferentialEquations.gradbasis`** &mdash; *Function*.
+<a id='DifferentialEquations.∇basis' href='#DifferentialEquations.∇basis'>#</a>
+**`DifferentialEquations.∇basis`** &mdash; *Function*.
 
 
 
-gradbasis(node,elem)
+∇basis(node,elem)
 
-Returns the gradient of the barycentric basis elements.
+Returns the ∇u of the barycentric basis elements.
 
 <a id='DifferentialEquations.quadfbasis' href='#DifferentialEquations.quadfbasis'>#</a>
 **`DifferentialEquations.quadfbasis`** &mdash; *Function*.
 
 
 
-quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquadorder=2)
+quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquad𝒪=2)
+
+Performs the order 2 quadrature to calculate the vector from the term `<f,v>`.
 
 <a id='DifferentialEquations.quadpts' href='#DifferentialEquations.quadpts'>#</a>
 **`DifferentialEquations.quadpts`** &mdash; *Function*.
 
 
 
-quadpts(order)
+quadpts(𝒪)
 
-Returns the quadrature points and weights for and order ### quadrature in 2D.
+Returns the quadrature points and ω's for and 𝒪 ### quadrature in 2D.
+
+Reference: David Dunavant. High degree efficient symmetrical Gaussian quadrature rules for the triangle. International journal for numerical methods in engineering. 21(6):1129–1148, 1985.
+
+<a id='DifferentialEquations.quadpts1' href='#DifferentialEquations.quadpts1'>#</a>
+**`DifferentialEquations.quadpts1`** &mdash; *Function*.
+
+
+
+quadpts1(𝒪)
+
+References: Pavel Holoborodko: http://www.holoborodko.com/pavel/numerical-methods/numerical-integration/
 
 <a id='DifferentialEquations.accumarray' href='#DifferentialEquations.accumarray'>#</a>
 **`DifferentialEquations.accumarray`** &mdash; *Function*.
@@ -119,14 +132,14 @@ Assembles the stiffness matrix A as an approximation to Δ on the finite element
 
 A = Stiffness Matrix M = Mass Matrix area = A vector of the calculated areas for each element.
 
-<a id='DifferentialEquations.gradu' href='#DifferentialEquations.gradu'>#</a>
-**`DifferentialEquations.gradu`** &mdash; *Function*.
+<a id='DifferentialEquations.∇u' href='#DifferentialEquations.∇u'>#</a>
+**`DifferentialEquations.∇u`** &mdash; *Function*.
 
 
 
-gradu(node,elem,u,Dlambda=[])
+∇u(node,elem,u,Dλ=[])
 
-Estimates the gradient of u on the mesh (node,elem)
+Estimates ∇u of u on the mesh (node,elem)
 
 
 <a id='Error-Tools-1'></a>
@@ -138,20 +151,20 @@ Estimates the gradient of u on the mesh (node,elem)
 
 
 
-function getH1error(node,elem,Du,uh,K=[],quadOrder=[])
+function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
 
 getH1error(femMesh::FEMmesh,Du,u)
 
-Estimates the H1 error between uexact and uh on the mesh (node,elem). It reads the mesh to estimate the element type and uses this to choose a quadrature order unless specified. If K is specified then it is the diffusion coefficient matrix.
+Estimates the H1 error between uexact and uh on the mesh (node,elem). It reads the mesh to estimate the element type and uses this to choose a quadrature 𝒪 unless specified. If K is specified then it is the diffusion coefficient matrix.
 
 <a id='DifferentialEquations.getL2error' href='#DifferentialEquations.getL2error'>#</a>
 **`DifferentialEquations.getL2error`** &mdash; *Function*.
 
 
 
-getL2error(node,elem,uexact,uh,quadOrder=[])
+getL2error(node,elem,uexact,uh,quad𝒪=[])
 
 getL2error(femMesh::FEMmesh,sol,u)
 
-Estimates the L2 error between uexact and uh on the mesh (node,elem). It reads the mesh to estimate the element type and uses this to choose a quadrature order unless specified.
+Estimates the L2 error between uexact and uh on the mesh (node,elem). It reads the mesh to estimate the element type and uses this to choose a quadrature 𝒪 unless specified.
 
