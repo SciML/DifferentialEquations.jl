@@ -1,7 +1,5 @@
 # The Solution Type
 
-appxTrue!
-
 ## Related Functions
 
 ```

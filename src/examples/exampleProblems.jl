@@ -39,7 +39,7 @@ function heatProblemExample_stochasticbirthdeath()
   return(HeatProblem(u₀,f,σ=σ))
 end
 
-"Example problem with solution: ``u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
+"Example problem with solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
 function poissonProblemExample_wave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
@@ -47,7 +47,7 @@ function poissonProblemExample_wave()
   return(PoissonProblem(f,sol,Du))
 end
 
-"Example problem with deterministic solution: ``u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
+"Example problem with deterministic solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
 function poissonProblemExample_noisyWave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)

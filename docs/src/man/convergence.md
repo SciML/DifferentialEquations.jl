@@ -1,6 +1,9 @@
 # Convergence Simulations
 
-The convergence simulation
+The convergence simulation type is useful for deriving order of convergence estimates
+from a group of simulations. This object will automatically assemble error vectors
+into a more useful manner and provide plotting functionality. Convergence estimates
+are also given by pair-wise estimates.
 
 ## The ConvergenceSimulation Type
 
