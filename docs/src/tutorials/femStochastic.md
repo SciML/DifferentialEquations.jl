@@ -32,7 +32,7 @@ end
 using the same solving commands as shown in [femStochasticPoissonSolo.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticPoissonSolo.jl).
 This gives the following plot:
 
-<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/introductionStochasticExample.png" width="750" align="middle" />
+<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
 ## Finite Element Stochastic Heat Equation
 
@@ -70,4 +70,4 @@ res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=t
 solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
 ```
 
-<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
+<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
