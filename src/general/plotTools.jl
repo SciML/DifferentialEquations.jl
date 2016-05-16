@@ -120,7 +120,8 @@ function showmesh(femMesh::Mesh;cmap=PyPlot.get_cmap("ocean"))
   dim = size(node,2)
   nv = size(elem,2)
   if (dim==2) && (nv==3) # planar triangulation
-    h = surface(node[:,1],node[:,2],zeros(size(node,1)),cmap=cmap)
+
+    h = PyPlot.plot_trisurf(node[:,1],node[:,2],zeros(size(node,1)),cmap=cmap)
   end
 
   #Not supported yet
