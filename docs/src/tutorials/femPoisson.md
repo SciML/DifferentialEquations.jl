@@ -36,4 +36,4 @@ solplot(res,savefile="introductionExample.png")
 
 This gives us the following plot:
 
-<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/introductionExample.png" width="750" align="middle"  />
+![Example Image]("https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/src/examples/introductionExample.png") width="750" align="middle"  />
