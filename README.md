@@ -39,10 +39,10 @@ or [read the latest documentation](http://chrisrackauckas.github.io/Differential
 
 ## Poisson Equation Finite Element Method Example
 
-In this example we will solve the Poisson Equation Δu=f. The code for this example can be found in [tests/introductionExample.jl](tests/introductionExample.jl). For our example, we will take the linear equation where `f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])`. For this equation we know that solution is `u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)` with gradient `Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]`. Thus, we define a PoissonProblem as follows:
+In this example we will solve the Poisson Equation Δu=f. The code for this example can be found in [test/introductionExample.jl](test/introductionExample.jl). For our example, we will take the linear equation where `f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])`. For this equation we know that solution is `u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)` with gradient `Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]`. Thus, we define a PoissonProblem as follows:
 
 ```julia
-"Example problem with solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
+"Example problem with solution: u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
 function poissonProblemExample_wave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
@@ -80,7 +80,7 @@ This gives us the following plot:
 We can solve the same PDE as a stochastic PDE, -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
 
 ```julia
-"Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
+"Example problem with deterministic solution: u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
 function poissonProblemExample_noisyWave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)

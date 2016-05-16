@@ -29,10 +29,10 @@ function poissonProblemExample_noisyWave()
 end
 ```
 
-using the same solving commands as shown in [femStochasticPoissonSolo.jl](/src/femStochasticPoissonSolo.jl).
+using the same solving commands as shown in [femStochasticPoissonSolo.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticPoissonSolo.jl).
 This gives the following plot:
 
-<img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />
+<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
 ## Finite Element Stochastic Heat Equation
 
@@ -56,7 +56,7 @@ function heatProblemExample_stochasticbirthdeath()
 end
 ```
 
-As shown in [femStochasticHeatAnimationTest.jl](/src/femStochasticHeatAnimationTest.jl),
+As shown in [femStochasticHeatAnimationTest.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticHeatAnimationTest.jl),
 we use the following code create an animation of the solution:
 
 ```julia
@@ -70,4 +70,4 @@ res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=t
 solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
 ```
 
-<img src="/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
+<img src="https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />

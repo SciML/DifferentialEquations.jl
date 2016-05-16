@@ -2,8 +2,7 @@
 FEMmesh
 
 Holds the information describing a finite element mesh. For information on how (node,elem)
-can be interpreted as a mesh describing a geometry, see [Programming of Finite
-Element Methods by Long Chen](http://www.math.uci.edu/~chenlong/226/Ch3FEMCode.pdf).
+can be interpreted as a mesh describing a geometry, see the mesh specification documentation.
 
 ### Fields
 
