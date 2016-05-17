@@ -86,7 +86,7 @@ function poissonProblemExample_noisyWave()
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
   σ(x) = 5 #Additive noise, a big amount!
-  return(PoissonProblem(f,sol,Du,σ=σ,stochastic=stochastic))
+  return(PoissonProblem(f,sol,Du,σ=σ))
 end
 ```
 

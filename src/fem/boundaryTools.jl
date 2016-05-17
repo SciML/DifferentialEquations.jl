@@ -18,19 +18,19 @@ isBdElem = Vector of booleans size NT which denotes which are on the boundary
 
 """
 function findboundary(elem::AbstractArray;bdFlag=[])
-  N = maximum(elem)
+  N = round(Int,maximum(elem))
   nv = size(elem,2)
   if nv == 3 # triangle
       totalEdge = [elem[:,[2,3]]; elem[:,[3,1]]; elem[:,[1,2]]]
   elseif nv == 4
-      totalEdge = [elem[:,[1,2]]; elem[:,[2,3]]; elem[:,[3,4]]; elem[:,[4 1]]]
+      totalEdge = [elem[:,[1,2]]; elem[:,[2,3]]; elem[:,[3,4]]; elem[:,[4,1]]]
   end
   if !isempty(bdFlag)
-      Dirichlet = totalEdge[(vec(bdFlag) == 1),:]
-      isBdNode = false(N,1)
+      Dirichlet = totalEdge[(vec(bdFlag) .== 1),:]
+      isBdNode = falses(N)
       isBdNode[vec(Dirichlet)] = true
       bdNode = find(isBdNode)
-      bdEdge = totalEdge[(vec(bdFlag) == 2) | (vec(bdFlag) == 3),:]
+      bdEdge = totalEdge[(vec(bdFlag) .== 2) | (vec(bdFlag) .== 3),:]
   else
       totalEdge = sort(totalEdge,2)
       edgeMatrix = sparse(totalEdge[:,1],totalEdge[:,2],1)
@@ -44,7 +44,7 @@ function findboundary(elem::AbstractArray;bdFlag=[])
   return(bdNode,bdEdge,isBdNode,isBdElem)
 end
 
-findboundary(femMesh::Mesh,bdFlag=[]) = findboundary(elem,bdFlag=bdFlag)
+findboundary(femMesh::Mesh,bdFlag=[]) = findboundary(femMesh.elem,bdFlag=bdFlag)
 
 """
 setboundary(node::AbstractArray,elem::AbstractArray,bdType)
@@ -67,7 +67,7 @@ function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
   NT = size(elem,1)
   edge = unique(totalEdge,1)
   totalEdge = sort(totalEdge,2)
-  edgeMatrix = sparse(totalEdge[:,1],totalEdge[:,2],1)
+  edgeMatrix = sparse(round(Int,totalEdge[:,1]),round(Int,totalEdge[:,2]),1)
   i,j = ind2sub(size(edgeMatrix),find(x->x==1,edgeMatrix))
   bdEdge = [i';j']'
   bdEdgeidx = zeros(Int64,size(bdEdge,1))
@@ -102,7 +102,7 @@ function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
   return(bdFlag)
 end
 
-setboundary(femMesh::Mesh,bdType) = setboundary(node,elem,bdType)
+setboundary(femMesh::Mesh,bdType) = setboundary(femMesh.node,femMesh.elem,bdType)
 
 function findbdtype(bdstr)
         if bdstr=="Dirichlet"
