@@ -90,7 +90,7 @@ function poissonProblemExample_noisyWave()
 end
 ```
 
-and using the same solving commands as shown in [femStochasticPoissonSolo.jl](/src/femStochasticPoissonSolo.jl). This gives the following plot:
+and using the same solving commands as shown in [femStochasticPoissonSolo.jl](/test/femStochasticPoissonSolo.jl). This gives the following plot:
 
 <img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
@@ -109,7 +109,7 @@ function heatProblemExample_stochasticbirthdeath()
 end
 ```
 
-As shown in [femStochasticHeatAnimationTest.jl](/src/femStochasticHeatAnimationTest.jl), we use the following code create an animation of the solution:
+As shown in [femStochasticHeatAnimationTest.jl](/test/femStochasticHeatAnimationTest.jl), we use the following code create an animation of the solution:
 
 ```julia
 T = 5
