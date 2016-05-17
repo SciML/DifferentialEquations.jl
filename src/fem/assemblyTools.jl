@@ -83,15 +83,3 @@ function accumarray(subs, val, sz=(maximum(subs),))
     end
     A
 end
-
-function accumarray2(subs, val, fun=sum, fillval=0; sz=maximum(subs,1), issparse=false)
-   counts = Dict()
-   for i = 1:size(subs,1)
-        counts[subs[i,:]]=[get(counts,subs[i,:],[]);val[i...]]
-   end
-   A = fillval*ones(sz...)
-   for j = keys(counts)
-        A[j...] = fun(counts[j])
-   end
-   issparse ? sparse(A) : A
-end
