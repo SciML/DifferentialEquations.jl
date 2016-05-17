@@ -1,6 +1,3 @@
-######
-##FEM Poisson Method Tests
-######
 using DifferentialEquations
 
 Δx = 1//2^(5)
@@ -9,7 +6,6 @@ pdeProb = poissonProblemExample_wave()
 
 res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="CG")
 
-solplot_appxvstrue(res) #To save the plot, add ,savefile="plot.png" or "plot.pdf", etc.
+mesh = SimpleMesh(femMesh.node,femMesh.elem)
 
-#Error should be low
-res.l2Err < 1e-4
+true

@@ -22,8 +22,11 @@ res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",so
 println("LU")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",solver="LU")
 
-println("CG")
-res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler")
+println("QR")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",solver="QR")
+
+println("SVD")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",solver="SVD")
 
 println("Direct")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="Direct")
@@ -32,7 +35,10 @@ println("Cholesky")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="Cholesky")
 
 println("CG")
-res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="CG")
+
+println("GMRES")
+res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="CrankNicholson",solver="GMRES")
 
 #Define another parabolic problem
 T = 1

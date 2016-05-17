@@ -26,7 +26,7 @@ function findboundary(elem::AbstractArray;bdFlag=[])
       totalEdge = [elem[:,[1,2]]; elem[:,[2,3]]; elem[:,[3,4]]; elem[:,[4 1]]]
   end
   if !isempty(bdFlag)
-      Dirichlet = totalEdge[(bdFlag[:] == 1),:]
+      Dirichlet = totalEdge[(vec(bdFlag) == 1),:]
       isBdNode = false(N,1)
       isBdNode[vec(Dirichlet)] = true
       bdNode = find(isBdNode)
@@ -44,7 +44,7 @@ function findboundary(elem::AbstractArray;bdFlag=[])
   return(bdNode,bdEdge,isBdNode,isBdElem)
 end
 
-findboundary(femMesh::FEMmesh,bdFlag=[]) = findboundary(elem,bdFlag=bdFlag)
+findboundary(femMesh::Mesh,bdFlag=[]) = findboundary(elem,bdFlag=bdFlag)
 
 """
 setboundary(node::AbstractArray,elem::AbstractArray,bdType)
@@ -52,7 +52,7 @@ setboundary(node::AbstractArray,elem::AbstractArray,bdType)
 setboundary(femMesh::FEMmesh,bdType)
 
 Takes in the femMesh and creates an array bdFlag which denotes the boundary types.
-1 stands for Dirichlet, 2 for Neumann, 3 for Robin. 
+1 stands for Dirichlet, 2 for Neumann, 3 for Robin.
 """
 function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
   ## Find boundary edges
@@ -102,7 +102,7 @@ function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
   return(bdFlag)
 end
 
-setboundary(femMesh::FEMmesh,bdType) = setboundary(node,elem,bdType)
+setboundary(femMesh::Mesh,bdType) = setboundary(node,elem,bdType)
 
 function findbdtype(bdstr)
         if bdstr=="Dirichlet"
@@ -111,8 +111,10 @@ function findbdtype(bdstr)
             bdType = 2
         elseif bdstr=="Robin"
             bdType = 3
+        #=
         elseif bdstr=="ABC" # absorbing boundary condition for wave-type equations
-            bdType = 3
+            bdType = 4
+        =#
     end
     return(bdType)
 end
