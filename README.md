@@ -100,7 +100,7 @@ The last equation we will solve in this introductory example will be a nonlinear
 initial condition `u0=0`. We would expect this system to rise towards the deterministic steady state `u=2` (but stay in mean a bit below it due to 1st order "Milstein" effects), gaining more noise as it increases. This is specified as follows:
 
 ```julia
-"Example problem which starts with 0 and solves with f(u)=1-.1u"
+"Example problem which starts with 0 and solves with f(u)=1-.5u"
 function heatProblemExample_stochasticbirthdeath()
   f(u,x,t)  = ones(size(x,1)) - .5u
   u₀(x) = zeros(size(x,1))
