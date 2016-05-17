@@ -55,8 +55,8 @@ println("Semi-implicit Crank Nicholson GMRES")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="SemiImplicitCrankNicholson",solver="GMRES")
 
 #Define a quicker problem
-Δx = 1//2^(2)
-Δt = 1//2^(2)
+Δx = 1//2^(1)
+Δt = 1//2^(1)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 println("Implicit Euler")
 res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="ImplicitEuler",autodiff=true)

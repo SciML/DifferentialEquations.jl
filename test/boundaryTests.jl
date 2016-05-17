@@ -4,5 +4,7 @@ using DifferentialEquations
 
 mesh = meshExample_bunny()
 
-findboundary(mesh,[1 4 5])
+findboundary(mesh,ones(size(vec(mesh.elem))))
 setboundary(mesh,"Robin")
+
+true
