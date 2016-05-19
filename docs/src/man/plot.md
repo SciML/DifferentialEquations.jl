@@ -2,8 +2,7 @@
 
 ## Related Functions
 
-```
-{docs}
+```@docs
 DifferentialEquations.solplot_appxvstrue
 DifferentialEquations.solplot_animation
 DifferentialEquations.convplot

@@ -2,8 +2,7 @@
 
 ## Related Functions
 
-```
-{docs}
+```@docs
 DifferentialEquations.FEMSolution
 DifferentialEquations.appxTrue!
 DifferentialEquations.PdeSolution
