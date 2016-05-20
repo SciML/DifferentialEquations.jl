@@ -49,8 +49,7 @@ or [read the latest documentation](http://chrisrackauckas.github.io/Differential
 
 The following tutorials will introduce you to the functionality of DifferentialEquations.jl
 
-```
-{contents}
+```@contents
 Pages = [
     "tutorials/femPoisson.md",
     "tutorials/femHeat.md",
@@ -61,8 +60,7 @@ Depth = 2
 
 ## Manual
 
-```
-{contents}
+```@contents
 Pages = [
     "man/overview.md",
     "man/problem.md",
@@ -77,8 +75,7 @@ Depth = 2
 
 ## Internal Documentation
 
-```
-{contents}
+```@contents
 Pages = [
   "internals/femTools.md",
   "internals/extras.md"
@@ -88,6 +85,5 @@ Depth = 2
 
 ## Index
 
-```
-{index}
+```@index
 ```
