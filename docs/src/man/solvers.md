@@ -2,12 +2,10 @@
 
 ## Finite Element Method Solvers
 
-```
-{docs}
+```@docs
 fem_solvepoisson
 ```
 
-```
-{docs}
+```@docs
 fem_solveheat
 ```
