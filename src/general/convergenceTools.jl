@@ -42,6 +42,9 @@ type ConvergenceSimulation
       errors[k] = reshape(Float64[sol.errors[k] for sol in solutions],size(solutions)...)
     end
     𝒪est = Dict(map(calc𝒪estimates,errors))
+    for (k,v) in 𝒪est
+      if length(v)==1 𝒪est[k]=v[1] end
+    end
     return(new(solutions,errors,N,auxData,𝒪est))
   end
 end
@@ -89,7 +92,8 @@ Returns the mean of the convergence estimates
 """
 function calc𝒪estimates(error::Pair)
   key = error.first
-  error =mean(error.second,1)
+  error =error.second
+  if ndims(error)>1 mean(error,1); println(error) end
   S = Vector{Float64}(length(error)-1)
   for i=1:length(error)-1
     S[i] = log2(error[i+1]/error[i])
