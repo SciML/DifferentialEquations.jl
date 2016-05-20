@@ -7,23 +7,20 @@ are also given by pair-wise estimates.
 
 ## The ConvergenceSimulation Type
 
-```
-{docs}
+```@docs
 DifferentialEquations.ConvergenceSimulation
 ```
 
 ## Related Functions
 
-```
-{docs}
+```@docs
 Base.length(::ConvergenceSimulation)
 DifferentialEquations.conv_ests
 ```
 
 ## Plot Functions
 
-```
-{docs}
+```@docs
 DifferentialEquations.convplot_fullΔt
 DifferentialEquations.convplot_fullΔx
 DifferentialEquations.convplot_node2vsΔt

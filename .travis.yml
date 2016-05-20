@@ -13,8 +13,8 @@ matrix:
 notifications:
   email: false
 script:
-#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.init(); Pkg.clone("https://github.com/ChrisRackauckas/DifferentialEquations.jl")'
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone(pwd())'
   - julia -e 'ENV["PYTHON"]=""; Pkg.build("PyCall"); using PyPlot; Pkg.test("DifferentialEquations",coverage=true)'
 after_success:
   - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'

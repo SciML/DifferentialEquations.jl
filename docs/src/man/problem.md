@@ -18,22 +18,19 @@ of noise which is chosen. By default this is space-time Gaussian white noise.
 
 ## Poisson Equation Problem
 
-```
-{docs}
+```@docs
 PoissonProblem
 ```
 
 ## Heat Equation Problem
 
-```
-{docs}
+```@docs
 HeatProblem
 ```
 
 ## Example Problems
 
-```
-{docs}
+```@docs
 DifferentialEquations.poissonProblemExample_wave
 DifferentialEquations.poissonProblemExample_noisyWave
 DifferentialEquations.poissonProblemExample_birthdeath
@@ -47,7 +44,6 @@ DifferentialEquations.heatProblemExample_stochasticbirthdeath
 
 ## Related Functions
 
-```
-{docs}
+```@docs
 DifferentialEquations.PdeProblem
 ```
