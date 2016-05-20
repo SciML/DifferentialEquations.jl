@@ -93,7 +93,7 @@ Returns the mean of the convergence estimates
 function calc𝒪estimates(error::Pair)
   key = error.first
   error =error.second
-  if ndims(error)>1 mean(error,1); println(error) end
+  if ndims(error)>1 error=mean(error,1) end
   S = Vector{Float64}(length(error)-1)
   for i=1:length(error)-1
     S[i] = log2(error[i+1]/error[i])

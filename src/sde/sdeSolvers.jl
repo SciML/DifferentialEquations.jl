@@ -19,7 +19,11 @@ function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int =
 
   for i = 1:N
     dW = sqΔt*randn()
-    u = u + Δt*f(u,t) + σ(u,t)*dW
+    if alg=="EM"
+      u = u + Δt*f(u,t) + σ(u,t)*dW
+    if alg=="RKMil"
+      
+    end
     t=t+Δt
     W = W + dW
     if fullSave && i%saveSteps==0
