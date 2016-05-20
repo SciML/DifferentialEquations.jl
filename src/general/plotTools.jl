@@ -235,53 +235,53 @@ convplot_h1vsΔt(simres::ConvergenceSimulation)
 
 Shows the H1 error convergence over changes of Δt.
 """
-convplot_h1vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.h1Errors;ErrStr="H1 Error",measureStr=L"$\Delta t$")
+convplot_h1vsΔt(simres::ConvergenceSimulation) = convplot(simres.auxData["Δts"],simres.errors["H1"];ErrStr="H1 Error",measureStr=L"$\Delta t$")
 
 """
 convplot_l2vsΔt(simres::ConvergenceSimulation)
 
 Shows the L2 error convergence over changes of Δt.
 """
-convplot_l2vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.l2Errors;ErrStr="L2 Error",measureStr=L"$\Delta t$")
+convplot_l2vsΔt(simres::ConvergenceSimulation) = convplot(simres.auxData["Δts"],simres.errors["L2"];ErrStr="L2 Error",measureStr=L"$\Delta t$")
 
 """
 convplot_node2vsΔt(simres::ConvergenceSimulation)
 
 Shows the nodal l2 error convergence over changes of Δt.
 """
-convplot_node2vsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.node2Errors;ErrStr="Nodal L2 Error",measureStr=L"$\Delta t$")
+convplot_node2vsΔt(simres::ConvergenceSimulation) = convplot(simres.auxData["Δts"],simres.errors["l2"];ErrStr="Nodal L2 Error",measureStr=L"$\Delta t$")
 
 """
 convplot_maxvsΔt(simres::ConvergenceSimulation)
 
 Shows the nodal maximum error convergence over changes of Δt.
 """
-convplot_maxvsΔt(simres::ConvergenceSimulation) = convplot(simres.Δts,simres.maxErrors;ErrStr="Nodal Max Error",measureStr=L"$\Delta t$")
+convplot_maxvsΔt(simres::ConvergenceSimulation) = convplot(simres.auxData["Δts"],simres.errors["l∞"];ErrStr="Nodal Max Error",measureStr=L"$\Delta t$")
 
 """
 convplot_h1vsΔx(simres::ConvergenceSimulation)
 
 Shows the H1 error convergence over changes of Δx.
 """
-convplot_h1vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.h1Errors;ErrStr="H1 Error",measureStr=L"$\Delta x$")
+convplot_h1vsΔx(simres::ConvergenceSimulation) = convplot(simres.auxData["Δxs"],simres.errors["H1"];ErrStr="H1 Error",measureStr=L"$\Delta x$")
 
 """
 convplot_l2vsΔx(simres::ConvergenceSimulation)
 
 Shows the nodal l2 error convergence over changes of Δx.
 """
-convplot_l2vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.l2Errors;ErrStr="L2 Error",measureStr=L"$\Delta x$")
+convplot_l2vsΔx(simres::ConvergenceSimulation) = convplot(simres.auxData["Δxs"],simres.errors["L2"];ErrStr="L2 Error",measureStr=L"$\Delta x$")
 
 """
 convplot_node2vsΔx(simres::ConvergenceSimulation)
 
 Shows the nodal l2 error convergence over changes of Δx.
 """
-convplot_node2vsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.node2Errors;ErrStr="Nodal L2 Error",measureStr=L"$\Delta x$")
+convplot_node2vsΔx(simres::ConvergenceSimulation) = convplot(simres.auxData["Δxs"],simres.errors["l2"];ErrStr="Nodal L2 Error",measureStr=L"$\Delta x$")
 
 """
 convplot_maxvsΔx(simres::ConvergenceSimulation)
 
 Shows the nodal maximum error convergence over changes of Δx.
 """
-convplot_maxvsΔx(simres::ConvergenceSimulation) = convplot(simres.Δxs,simres.maxErrors;ErrStr="Nodal Max Error",measureStr=L"$\Delta x$")
+convplot_maxvsΔx(simres::ConvergenceSimulation) = convplot(simres.auxData["Δxs"],simres.errors["l∞"];ErrStr="Nodal Max Error",measureStr=L"$\Delta x$")

@@ -41,26 +41,26 @@ for nonlinear problems (with the boundary conditions still (x,t))
 noiseType is "White" for Gaussian Spacetime White Noise.
 
 """
-type HeatProblem <: PdeProblem
-  "u₀: Initial value function or vector"
-  u₀
+type HeatProblem <: DEProblem
+  "u₀: Initial value function"
+  u₀::Function
   "Du: Function for the solution gradient [u_x,u_y]"
-  Du
+  Du::Function
   "f: Forcing function in heat equation"
-  f
+  f::Function
   "gD: Dirichlet boundary data"
-  gD
+  gD::Function
   "gN: Neumann boundary data"
-  gN
+  gN::Function
   "sol: Solution to the heat problem"
-  sol
+  sol::Function
   "knownSol: Boolean which states whether the solution function is given"
-  knownSol
+  knownSol::Bool
   "isLinear: Boolean which states whether the problem is linear or nonlinear"
-  isLinear
-  σ
-  stochastic
-  noiseType
+  isLinear::Bool
+  σ::Function
+  stochastic::Bool
+  noiseType::AbstractString
   function HeatProblem(sol,Du,f;gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
     if σ==nothing
       stochastic=false
@@ -130,7 +130,7 @@ for nonlinear problems (with the boundary conditions still (x,t))
 `noiseType` is "White" for Gaussian Spacetime White Noise.
 
 """
-type PoissonProblem <: PdeProblem
+type PoissonProblem <: DEProblem
   "f: Forcing function in the Poisson problem"
   f::Function
   "sol: Solution to the Poisson problem"
@@ -168,6 +168,27 @@ type PoissonProblem <: PdeProblem
 
     isLinear = numparameters(f)==1
     return(new(f,(x)->0,(x)->0,gD,gN,false,isLinear,σ,stochastic,noiseType))
+  end
+end
+
+"""
+SDEProblem
+
+"""
+type SDEProblem <: DEProblem
+  f::Function
+  σ::Function
+  u₀::Number
+  sol::Function
+  knownSol::Bool
+  function SDEProblem(f,σ,u₀;sol=nothing)
+    if sol==nothing
+      knownSol = false
+      sol=(u,t,W)->0
+    else
+      knownSol = true
+    end
+    new(f,σ,u₀,sol,knownSol)
   end
 end
 

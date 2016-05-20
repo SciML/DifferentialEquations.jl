@@ -1,3 +1,15 @@
+### SDE Examples
+
+function linearSDEExample(;α=1,β=1)
+  f(u,t) = α*u
+  σ(u,t) = β*u
+  u₀ = 2
+  sol(u₀,t,W) = u₀*exp((α-β/2)*t+β*W)
+  return(SDEProblem(f,σ,u₀,sol=sol))
+end
+
+### Finite Element Examples
+
 "Example problem with solution: ``u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))``"
 function heatProblemExample_moving()
   sol(x,t) = 0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))

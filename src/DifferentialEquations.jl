@@ -21,16 +21,17 @@ this package also provides a good sandbox for developing novel numerical schemes
 module DifferentialEquations
 
 import PyPlot
-using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters
+using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat
 import Base: length
 import JLD: load
 
-"PdeProblem: Defines PDE problems via its internal functions"
-abstract PdeProblem
-"PdeSolution: Wrapper for the objects obtained from a PdeSolver"
-abstract PdeSolution
+"PdeProblem: Defines differential equation problems via its internal functions"
+abstract DEProblem
+"PdeSolution: Wrapper for the objects obtained from a solver"
+abstract DESolution
 "Mesh: An abstract type which holds a (node,elem) pair and other information for a mesh"
 abstract Mesh
+typealias String AbstractString
 AbstractArrayOrVoid = Union{AbstractArray,Void}
 NumberOrVoid = Union{Number,Void}
 FunctionOrVoid = Union{Function,Void}
@@ -39,19 +40,25 @@ include("fem/meshTools.jl")
 include("fem/assemblyTools.jl")
 include("fem/boundaryTools.jl")
 include("fem/errorTools.jl")
-include("general/solutionTools.jl")
-include("general/plotTools.jl")
 include("general/problemTools.jl")
+include("general/solutionTools.jl")
 include("general/stochasticTools.jl")
 include("general/miscTools.jl")
+include("general/convergenceTools.jl")
 include("examples/exampleProblems.jl")
 include("examples/exampleMeshes.jl")
+include("general/plotTools.jl")
 include("fem/femSolvers.jl")
+include("sde/sdeSolvers.jl")
 
 #Types
-export PdeProblem, PdeSolution, HeatProblem, PoissonProblem, FEMSolution, ConvergenceSimulation, FEMmesh, SimpleMesh
+export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution,
+       ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem
 
-#Example Problems
+#SDE Example Problems
+export linearSDEExample
+
+#FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
         poissonProblemExample_wave, poissonProblemExample_noisyWave, heatProblemExample_birthdeath,
         poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath
@@ -68,11 +75,11 @@ export  solplot_appxvstrue, solplot_appx, showmesh, convplot, solplot_animation,
         solplot
 
 #General Functions
-export conv_ests, appxTrue!, accumarray
+export conv_ests, appxTrue!, accumarray, solve, testConvergence
 
 #FEM Functions
 export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,
-        gradu, gradbasis, fem_solvepoisson, fem_solveheat, quadfbasis, fem_squaremesh, CFLμ, CFLν,
+        gradu, gradbasis, quadfbasis, fem_squaremesh, CFLμ, CFLν,
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 #Misc Tools
