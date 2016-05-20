@@ -1,7 +1,6 @@
 # Extra Functions
 
-```
-{docs}
+```@docs
 modulechildren
 checkIfLoaded
 DifferentialEquations.getNoise

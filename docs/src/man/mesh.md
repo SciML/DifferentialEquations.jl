@@ -21,8 +21,7 @@ Element Methods by Long Chen](http://www.math.uci.edu/~chenlong/226/Ch3FEMCode.p
 
 ## Mesh Type
 
-```
-{docs}
+```@docs
 DifferentialEquations.FEMmesh
 DifferentialEquations.SimpleMesh
 DifferentialEquations.Mesh
@@ -30,8 +29,7 @@ DifferentialEquations.Mesh
 
 ## Mesh Generation Functions
 
-```
-{docs}
+```@docs
 DifferentialEquations.findboundary
 DifferentialEquations.setboundary
 DifferentialEquations.fem_squaremesh
@@ -41,8 +39,7 @@ DifferentialEquations.parabolic_squaremesh
 
 ## Example Meshes
 
-```
-{docs}
+```@docs
 DifferentialEquations.meshExample_bunny
 DifferentialEquations.meshExample_flowpastcylindermesh
 DifferentialEquations.meshExample_lakemesh

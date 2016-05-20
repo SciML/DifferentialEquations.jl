@@ -2,15 +2,13 @@
 
 ## General
 
-```
-{docs}
+```@docs
 DifferentialEquations
 ```
 
 ## Mesh Tools
 
-```
-{docs}
+```@docs
 DifferentialEquations.meshgrid
 DifferentialEquations.CFLν
 DifferentialEquations.CFLμ
@@ -18,8 +16,7 @@ DifferentialEquations.CFLμ
 
 ## Solver Tools
 
-```
-{docs}
+```@docs
 DifferentialEquations.∇basis
 DifferentialEquations.quadfbasis
 DifferentialEquations.quadpts
@@ -31,8 +28,7 @@ DifferentialEquations.∇u
 
 ## Error Tools
 
-```
-{docs}
+```@docs
 DifferentialEquations.getH1error
 DifferentialEquations.getL2error
 ```
