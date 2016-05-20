@@ -1,7 +1,7 @@
 """
 ## Finite Element Poisson Equation Solver
 
-fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem)
+solve(femMesh::FEMmesh,pdeProb::PoissonProblem)
 
 Takes in a definition for the heat equation ``-Δu = f`` on `femMesh` with
 functions as defined in `pdeProb`. If `σ` is specified in `pdeProb`, then this
@@ -18,7 +18,7 @@ the implicit equation `Ax=b`. The default is `LU`. The choices are:
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
 """
-function fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::AbstractString="Direct",autodiff::Bool=true)
+function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",autodiff::Bool=true)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -82,7 +82,7 @@ end
 """
 ## Finite Element Heat Equation Solver
 
-`fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem)`
+`solve(femMesh::FEMmesh,pdeProb::HeatProblem)`
 
 Takes in a definition for the heat equation ``u_t = Δu + f`` on `femMesh` with
 functions as defined in `pdeProb`. If `σ` is specified in `pdeProb`, then this
@@ -128,7 +128,7 @@ By default fullSave is false.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
 """
-function fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem;alg::AbstractString = "Euler",
+function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,autodiff::Bool=false)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)

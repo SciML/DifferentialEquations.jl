@@ -7,7 +7,7 @@ using DifferentialEquations
 femMesh = notime_squaremesh([0 1 0 1],Δx,"Neumann")
 pdeProb = poissonProblemExample_birthdeath()
 
-res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
+res = solve(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
 
 Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)
 
