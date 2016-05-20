@@ -19,6 +19,7 @@ isBdElem = Vector of booleans size NT which denotes which are on the boundary
 """
 function findboundary(elem::AbstractArray;bdFlag=[])
   N = round(Int,maximum(elem))
+  elem = round(Int,elem)
   nv = size(elem,2)
   if nv == 3 # triangle
       totalEdge = [elem[:,[2,3]]; elem[:,[3,1]]; elem[:,[1,2]]]
