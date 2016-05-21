@@ -59,7 +59,7 @@ type SDESolution <: DESolution
   function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,WFull=nothing)
     fullSave = uFull == nothing
     trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),uFull,solFull,tFull,WFull,false,fullSave))
+    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,WFull,solFull,false,fullSave))
   end
   function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,WFull=nothing)
     fullSave = uFull != nothing
@@ -68,7 +68,7 @@ type SDESolution <: DESolution
     if fullSave
       errors = Dict("final"=>abs(u-uTrue),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,uFull,solFull,tFull,WFull,false,fullSave))
+    return(new(u,trueKnown,uTrue,errors,uFull,tFull,WFull,solFull,false,fullSave))
   end
 end
 
