@@ -1,16 +1,16 @@
 function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
 
   @unpack sdeProb: f,σ,u₀,knownSol,sol
-  N = ceil(Int64,T/Δt)
+  N = ceil(Int,T/Δt)
 
   u = float(u₀)
   t = 0.0
   W = 0.0
   Z = 0.0
   if fullSave
-    uFull = Vector{Float64}(ceil(Int64,N/saveSteps)+1)
-    tFull = Vector{Float64}(ceil(Int64,N/saveSteps)+1)
-    WFull = Vector{Float64}(ceil(Int64,N/saveSteps)+1)
+    uFull = Vector{Float64}(ceil(Int,N/saveSteps)+1)
+    tFull = Vector{Float64}(ceil(Int,N/saveSteps)+1)
+    WFull = Vector{Float64}(ceil(Int,N/saveSteps)+1)
     saveIdx = 1
     uFull[saveIdx] = u
     tFull[saveIdx] = t
