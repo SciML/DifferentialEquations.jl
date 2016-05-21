@@ -50,13 +50,15 @@ include("examples/exampleMeshes.jl")
 include("general/plotTools.jl")
 include("fem/femSolvers.jl")
 include("sde/sdeSolvers.jl")
+include("general/coefficientTypes.jl")
+include("general/parallelHelpers.jl")
 
 #Types
 export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution,
        ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem
 
 #SDE Example Problems
-export linearSDEExample
+export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample, multiDimAdditiveSDEExample
 
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
@@ -83,5 +85,6 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 #Misc Tools
-export quadfbasis2, CG2, checkIfLoaded, modulechildren, numparameters
+export quadfbasis2, CG2, checkIfLoaded, modulechildren, numparameters, checkSRIOrder, checkSRAOrder,
+       constructSRIW1, constructSRA1
 end # module

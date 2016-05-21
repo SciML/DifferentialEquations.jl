@@ -49,9 +49,9 @@ type ConvergenceSimulation
   end
 end
 
-function testConvergence(Δts::AbstractArray,prob::SDEProblem;T=1,numMonte=10000,fullSave=true)
+function testConvergence(Δts::AbstractArray,prob::SDEProblem;T=1,numMonte=10000,fullSave=true,alg="EM")
   N = length(Δts)
-  solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave) for j=1:numMonte,i=1:N]
+  solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave,alg=alg) for j=1:numMonte,i=1:N]
   auxData = Dict("Δts" =>  Δts)
   ConvergenceSimulation(solutions,auxData=auxData)
 end
