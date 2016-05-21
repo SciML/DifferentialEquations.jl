@@ -2,12 +2,15 @@ using DifferentialEquations
 prob = linearSDEExample()
 
 ## Solve and plot
+println("Solve and Plot")
 sol =solve(prob::SDEProblem,1//2^(4),1,fullSave=true,alg="SRI")
 
+fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
 PyPlot.plot(sol.tFull,sol.uFull)
 PyPlot.plot(sol.tFull,sol.solFull)
 
 ## Convergence Testing
+println("Convergence Test on Linear")
 Δts = 1.//2.^(10:-1:4) #14->7 good plot
 
 convsim = testConvergence(Δts,prob,numMonte=Int(1e1),alg="EM")
