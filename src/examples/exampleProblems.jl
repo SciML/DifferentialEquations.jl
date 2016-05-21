@@ -1,13 +1,39 @@
 ### SDE Examples
 
-function linearSDEExample(;α=1,β=1)
+function linearSDEExample(;α=1,β=1,u₀=1/2)
   f(u,t) = α*u
   σ(u,t) = β*u
-  u₀ = 2
-  sol(u₀,t,W) = u₀*exp((α-β/2)*t+β*W)
+  sol(u₀,t,W) = u₀*exp((α-(β^2)/2)*t+β*W)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
+function cubicSDEExample(;u₀=1/2)
+  f(u,t) = -.25*u.*(1-u.^2)
+  σ(u,t) = .5*(1-u.^2)
+  sol(u₀,t,W) = ((1+u₀)*exp(W)+u₀-1)./((1+u₀)*exp(W)+1-u₀)
+  return(SDEProblem(f,σ,u₀,sol=sol))
+end
+
+function waveSDEExample(;u₀=1)
+  f(u,t) = -0.01*sin(u).*cos(u).^3
+  σ(u,t) = 0.1*cos(u).^2
+  sol(u₀,t,W) = atan(0.1*W + tan(u₀))
+  return(SDEProblem(f,σ,u₀,sol=sol))
+end
+
+function additiveSDEExample(;α=0.1,β=0.5,u₀=1)
+  f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
+  σ(u,t) = α*β./sqrt(1+t)
+  sol(u₀,t,W) = u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)
+  return(SDEProblem(f,σ,u₀,sol=sol))
+end
+
+function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1)
+  f(u,t) = β/sqrt(1+t) - u/(2*(1+t))
+  σ(u,t) = α*β/sqrt(1+t)
+  sol(u₀,t,W) = u₀/sqrt(1+t) + β*(t+α*W)/sqrt(1+t)
+  return(SDEProblem(f,σ,u₀,sol=sol))
+end
 ### Finite Element Examples
 
 "Example problem with solution: ``u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))``"
