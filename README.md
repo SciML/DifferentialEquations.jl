@@ -125,18 +125,48 @@ solplot_animation(res::FEMSolution;zlim=(0,2),cbar=false)
 <img src="/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
 
 # Supported Equations
-* (Stochastic) PDE Solvers
-  * Finite Element Solvers
+
+For PDEs, one can optionally specify a noise equation. The solvers currently have
+stochastic variants for handling Gaussian Space-time white noise SPDEs.
+
+* SODEs
+* (Stochastic) PDEs
     * Linear Poisson Equation
     * Semi-linear Poisson Equation
     * Linear Heat Equation
     * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
 
-# Roadmap
-* SODE Solvers
+# Implemented Solvers
+
+For PDEs, [method] denotes an additional version for handling stochastic partial
+differential equations. The implemented methods for solving implicit equations
+are denoted by the implicit solvers at the bottom. Currently, nonlinear solving
+techniques are provided by NLSolve.jl.
+
+* SODEs
   * Euler-Maruyama
   * Milstein
   * Rossler-SRK
+* (Stochastic) PDEs
+  * Finite Element Solvers
+    * Semilinear Poisson Equation
+      * See implicit solvers
+    * Semilinear Heat Equation (Reaction-Diffusion)
+      * Forward Euler [Maruyama]
+      * Backward Euler (using NLSolve.jl) [Maruyama]
+      * Semi-implicit Crank-Nicholson [Maruyama]
+      * Semi-implicit Backward Euler [Maruyama]
+    * Linear Heat Equation
+      * Forward Euler [Maruyama]
+      * Backward Euler
+      * Crank-Nicholson
+* Implicit Solvers
+  * Direct
+
+
+# Roadmap
+
+* SODE Solvers
   * Adaptive-SRK
 * (Stochastic) PDE Solvers
   * Finite difference solvers:
