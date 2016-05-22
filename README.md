@@ -141,7 +141,7 @@ stochastic variants for handling Gaussian Space-time white noise SPDEs.
 For PDEs, [method] denotes an additional version for handling stochastic partial
 differential equations. The implemented methods for solving implicit equations
 are denoted by the implicit solvers at the bottom. Currently, nonlinear solving
-techniques are provided by NLSolve.jl.
+techniques are provided by [NLSolve.jl](https://github.com/EconForge/NLsolve.jl).
 
 * SODEs
   * Euler-Maruyama
@@ -153,7 +153,7 @@ techniques are provided by NLSolve.jl.
       * See implicit solvers
     * Semilinear Heat Equation (Reaction-Diffusion)
       * Forward Euler [Maruyama]
-      * Backward Euler (using NLSolve.jl) [Maruyama]
+      * Backward Euler (using [NLSolve.jl](https://github.com/EconForge/NLsolve.jl)) [Maruyama]
       * Semi-implicit Crank-Nicholson [Maruyama]
       * Semi-implicit Backward Euler [Maruyama]
     * Linear Heat Equation
