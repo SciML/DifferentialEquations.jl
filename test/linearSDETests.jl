@@ -19,4 +19,4 @@ convsim2 = testConvergence(Δts,prob,numMonte=Int(1e1),alg="RKMil")
 
 convsim3 = testConvergence(Δts,prob,numMonte=Int(1e1),alg="SRI")
 
-abs(convsim.𝒪est["l2"]-.5) + abs(convsim2.𝒪est["l∞"]-1) + abs(convsim3.𝒪est["final"]-1.5)<.5 #High tolerance since low Δts for testing!
+abs(convsim.𝒪est["l2"]-.5) + abs(convsim2.𝒪est["l∞"]-1) + abs(convsim3.𝒪est["final"]-1.5)<1 #High tolerance since low Δts for testing!
