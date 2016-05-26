@@ -7,6 +7,7 @@ using Base.Test
 # Run tests
 
 tic()
+#Finite Element
 println("Finite Element Heat Dt Tests")
 @time @test include("femHeatDtTests.jl")
 println("Finite Element Heat Dx Tests")
@@ -31,6 +32,23 @@ println("Example Mesh Tests")
 @time @test include("exampleMeshTests.jl")
 println("Simple Mesh Tests")
 @time @test include("simpleMeshTests.jl")
+
+#FDM
+##Stokes
+println("Stokes Tests")
+@time @test include("fdmStokesTests.jl")
+println("DGS Internals Test")
+@time @test include("dgsTest.jl")
+
+#SDE
+println("Linear SDE Tests")
+@time @test include("linearSDETests.jl")
+println("SDE Convergence Tests")
+@time @test include("sdeConvergenceTests.jl")
+println("Rossler Order Tests")
+@time @test include("RosslerOrderTest.jl")
+
+#Internals
 println("Meshgrid Tests")
 @time @test include("meshgridTests.jl")
 println("Quadrature Points Tests")
@@ -41,10 +59,4 @@ println("Assembly Tests")
 @time @test include("assemblyTests.jl")
 println("Boundary Tests")
 @time @test include("boundaryTests.jl")
-println("Linear SDE Tests")
-@time @test include("linearSDETests.jl")
-println("SDE Convergence Tests")
-@time @test include("sdeConvergenceTests.jl")
-println("Rossler Order Tests")
-@time @test include("RosslerOrderTest.jl")
 toc()

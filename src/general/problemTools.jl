@@ -192,6 +192,20 @@ type SDEProblem <: DEProblem
   end
 end
 
+type StokesProblem
+  f₁::Function
+  f₂::Function
+  g::Function
+  ugD::Function
+  vgD::Function
+  usol::Function
+  vsol::Function
+  psol::Function
+  trueKnown::Bool
+  StokesProblem(f₁,f₂,g,usol,vsol,psol) = new(f₁,f₂,g,usol,vsol,usol,vsol,psol,true)
+  StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
+end
+
 """
 numparameters(f)
 
