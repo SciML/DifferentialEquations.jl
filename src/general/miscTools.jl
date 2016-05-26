@@ -12,6 +12,14 @@ Returns true if module "pkg" is defined in Main, otherwise false.
 """
 checkIfLoaded(pkg::AbstractString)= maximum(map(string,modulechildren(Main)).==pkg)
 
+macro def(name, definition)
+    return quote
+        macro $name()
+            esc($(Expr(:quote, definition)))
+        end
+    end
+end
+
 ## Unused other versions of Functions
 
 #=

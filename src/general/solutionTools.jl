@@ -72,6 +72,19 @@ type SDESolution <: DESolution
   end
 end
 
+type StokesSolution <: DESolution
+  u
+  v
+  p
+  uTrue
+  vTrue
+  pTrue
+  mesh::FDMMesh
+  trueKnown::Bool
+  errors
+  converrors
+  StokesSolution(u,v,p,uTrue,vTrue,pTrue,mesh,trueKnown;errors=nothing,converrors=nothing) = new(u,v,p,uTrue,vTrue,pTrue,mesh,trueKnown,errors,converrors)
+end
 
 """
 appxTrue!(res,res2)
