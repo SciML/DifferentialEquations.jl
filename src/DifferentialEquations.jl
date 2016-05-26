@@ -22,7 +22,7 @@ module DifferentialEquations
 
 import PyPlot
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat
-import Base: length
+import Base: length, size
 import JLD: load
 
 "PdeProblem: Defines differential equation problems via its internal functions"
@@ -49,13 +49,14 @@ include("examples/exampleProblems.jl")
 include("examples/exampleMeshes.jl")
 include("general/plotTools.jl")
 include("fem/femSolvers.jl")
+include("fdm/stokesSolvers.jl")
 include("sde/sdeSolvers.jl")
 include("general/coefficientTypes.jl")
 include("general/parallelHelpers.jl")
 
 #Types
 export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution,
-       ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem
+       ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, FDMMesh
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample, multiDimAdditiveSDEExample
@@ -63,7 +64,8 @@ export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample, mu
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
         poissonProblemExample_wave, poissonProblemExample_noisyWave, heatProblemExample_birthdeath,
-        poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath
+        poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath,
+        homogeneousStokesExample, dirichletzeroStokesExample
 
 #Example Meshes
 export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,
@@ -86,5 +88,5 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
 
 #Misc Tools
 export quadfbasis2, CG2, checkIfLoaded, modulechildren, numparameters, checkSRIOrder, checkSRAOrder,
-       constructSRIW1, constructSRA1
+       constructSRIW1, constructSRA1, def
 end # module
