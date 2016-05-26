@@ -99,3 +99,25 @@ function poissonProblemExample_birthdeath()
   f(u,x)  = ones(size(x,1)) - .5u
   return(PoissonProblem(f))
 end
+
+## Stokes Examples
+
+function homogeneousStokesExample(;C=0)
+  f₁(x,y)   = zeros(x)
+  f₂(x,y)   = zeros(x)
+  usol(x,y) = 20x.*y.^3
+  vsol(x,y) = 5x.^4 - 5y.^4
+  psol(x,y) = 60x.^2 .*y - 20y.^3 + C
+  g(x,y)    = 0
+  return(StokesProblem(f₁,f₂,g,usol,vsol,psol))
+end
+
+function dirichletzeroStokesExample(;C=0)
+  f₁(x,y)   = zeros(x)
+  f₂(x,y)   = zeros(x)
+  usol(x,y) = 0
+  vsol(x,y) = 0
+  psol(x,y) = 0
+  g(x,y)    = 0
+  return(StokesProblem(f₁,f₂,g,usol,vsol,psol))
+end
