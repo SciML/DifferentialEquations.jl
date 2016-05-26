@@ -145,7 +145,8 @@ methods in engineering. 21(6):1129--1148, 1985.
 function quadpts(𝒪)
   if 𝒪>9
       𝒪 = 9
-  elseif 𝒪==1
+  end
+  if 𝒪==1
           λ = [1/3 1/3 1/3]
           ω = 1
   elseif 𝒪==2
