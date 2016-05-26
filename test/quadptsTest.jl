@@ -56,4 +56,4 @@ end
 println("Quadrature Errors")
 println(err)
 
-minimum(err[:,1] .< 1e-14) && minimum(diff(err[:,2]) .<0)
+minimum(err[:,1] .< 1e-14) && minimum(diff(err[1:end-1,2]) .<0)
