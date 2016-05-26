@@ -87,25 +87,3 @@ function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int =
     return(SDESolution(u))
   end
 end
-
-
-  ### Solvers ###
-  function EM!()
-    for i = 1:N
-      ΔW = sqΔt*randn()
-      u = u + Δt*f(u,t) + σ(u,t)*ΔW
-      loopFooter!()
-    end
-  end
-
-  ### Misc ###
-  function loopFooter!()
-    t=t+Δt
-    W = W + ΔW
-    if fullSave && i%saveSteps==0
-      saveIdx+=1
-      uFull[saveIdx] = u
-      tFull[saveIdx] = t
-      WFull[saveIdx] = W
-    end
-  end

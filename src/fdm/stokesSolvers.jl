@@ -221,12 +221,12 @@ function stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
 end
 
 @def dgs begin
-  for j = 1:20
+  for j = 1:gsiters
     GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy) # Inplace u => uhalf
     GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy) # Inplace v => vhalf
   end
   calc_rp!(rp,u,v,Δxs,g,px,py)
-  for j = 1:20
+  for j = 1:gsiters
     GSδq!(δq,rp,Δxs)
   end
   δq = -δq # Find out how to fix this. Too hacky
@@ -235,7 +235,7 @@ end
   update_p!(p,δq,Δxs)
 end
 
-function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,alg="DGS",levels=2,smoothSteps=10,coarseSteps=40)
+function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,alg="DGS",levels=2,smoothSteps=10,coarseSteps=40,gsiters=20)
   @unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs
   u = zeros(gridSize[1]-1,gridSize[2])
   v = zeros(gridSize[1],gridSize[2]-1)
@@ -277,6 +277,9 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
       error("True not known. Cannot calculate errors. Abandoning convergence calculations")
       converrors = false
     end
+    uold = float(usol(ux,uy))
+    vold = float(vsol(vx,vy))
+    pold = float(psol(px,py))
     converror_maxu    = Vector{Float64}(0)
     converror_maxv    = Vector{Float64}(0)
     converror_maxp    = Vector{Float64}(0)
@@ -294,10 +297,11 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
     converror_relresl2p  = Vector{Float64}(0)
   end
   for i = 1:maxiters
-
-    uold = copy(u)
-    vold = copy(v)
-    pold = copy(p)
+    if converrors
+      uold[:] = u
+      vold[:] = v
+      pold[:] = p
+    end
     if alg=="DGS"
       @dgs
     elseif alg=="Multigrid"
