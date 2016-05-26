@@ -8,7 +8,7 @@ l = 1
 
 f1(x,n) = x.^(2*n-1)
 f2(x) = sin(x)
-err = Array{Float64}(10,2)
+err = Array{Float64}(20,2)
 for n=1:20
   λ,ω = quadpts1(n)
   nQuad = size(λ,1)
@@ -35,7 +35,7 @@ f2(x,y) = sin(x+y) #Error should decay with n
 node = [0 0; 1 0; 0 1] # Reference Triangle
 elem = [1 2 3]
 area = 0.5
-err = Array{Float64}(9,2)
+err = Array{Float64}(10,2)
 for n = 1:10 #Integrate with each n
     λ,ω = quadpts(n)
     nQuad = size(λ,1)
