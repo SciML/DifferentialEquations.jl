@@ -89,4 +89,8 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
 #Misc Tools
 export quadfbasis2, CG2, checkIfLoaded, modulechildren, numparameters, checkSRIOrder, checkSRAOrder,
        constructSRIW1, constructSRA1, def
+
+#Constants
+
+const TEST_FLOPS_CUTOFF = 1e10
 end # module
