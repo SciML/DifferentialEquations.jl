@@ -2,6 +2,7 @@ using DifferentialEquations, Parameters
 import PyPlot.semilogy
 Δx = 1//2^3 # Make this much smaller (1^2-5) for your own tests
 mesh = FDMMesh(Δx,mins=[-1;-1],maxs=[1;1])
+prob = dirichletzeroStokesExample()
 prob = homogeneousStokesExample()
 
 @unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs

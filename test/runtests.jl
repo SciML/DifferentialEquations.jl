@@ -1,5 +1,7 @@
 #!/usr/bin/env julia
 
+const CPU_FLOPS = peakflops()
+
 #Start Test Script
 using DifferentialEquations
 using Base.Test
