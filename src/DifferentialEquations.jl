@@ -59,7 +59,8 @@ export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution,
        ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, FDMMesh
 
 #SDE Example Problems
-export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample, multiDimAdditiveSDEExample
+export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
+       multiDimAdditiveSDEExample, twoDimlinearSDEExample
 
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
