@@ -46,9 +46,9 @@ type FEMSolution <: DESolution
 end
 
 type SDESolution <: DESolution
-  u::Float64
+  u::AbstractArray
   trueKnown::Bool
-  uTrue::Float64
+  uTrue::AbstractArray
   errors#::Dict{}
   uFull::AbstractArrayOrVoid
   tFull::AbstractArrayOrVoid

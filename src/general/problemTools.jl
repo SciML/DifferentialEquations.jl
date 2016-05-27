@@ -178,9 +178,11 @@ SDEProblem
 type SDEProblem <: DEProblem
   f::Function
   σ::Function
-  u₀::Number
+  u₀::AbstractArray
   sol::Function
   knownSol::Bool
+  numVars::Int
+  sizeu::Tuple
   function SDEProblem(f,σ,u₀;sol=nothing)
     if sol==nothing
       knownSol = false
@@ -188,7 +190,9 @@ type SDEProblem <: DEProblem
     else
       knownSol = true
     end
-    new(f,σ,u₀,sol,knownSol)
+    sizeu = size(u₀)
+    numVars = size(u₀)[end]
+    new(f,σ,u₀,sol,knownSol,numVars,sizeu)
   end
 end
 
