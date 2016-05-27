@@ -1,20 +1,19 @@
 function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
 
-  @unpack sdeProb: f,σ,u₀,knownSol,sol
-  N = ceil(Int,T/Δt)
+  @unpack sdeProb: f,σ,u₀,knownSol,sol, numVars, sizeu
 
-  u = float(u₀)
+  u = u₀
   t = 0.0
-  W = 0.0
-  Z = 0.0
+  W = zeros(sizeu)
+  Z = zeros(sizeu)
+
   if fullSave
-    uFull = Vector{Float64}(ceil(Int,N/saveSteps)+1)
-    tFull = Vector{Float64}(ceil(Int,N/saveSteps)+1)
-    WFull = Vector{Float64}(ceil(Int,N/saveSteps)+1)
-    saveIdx = 1
-    uFull[saveIdx] = u
-    tFull[saveIdx] = t
-    WFull[saveIdx] = W
+    uFull = Vector{typeof(u)}(0)
+    tFull = Vector{Float64}(0)
+    WFull = Vector{typeof(u)}(0)
+    push!(uFull,u)
+    push!(tFull,t)
+    push!(WFull,W)
   end
 
   #PreProcess
@@ -23,26 +22,26 @@ function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int =
   if alg=="SRI"
     SRI = constructSRIW1()
     @unpack SRI: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
-    H0 = Vector{Float64}(length(α))
-    H1 = Vector{Float64}(length(α))
+    H0 = Array{Float64}(length(α),numVars)
+    H1 = Array{Float64}(length(α),numVars)
   elseif alg=="SRA"
     SRA = constructSRA1()
     @unpack SRA: c₀,c₁,A₀,B₀,α,β₁,β₂
-    H0 = Vector{Float64}(length(α))
+    H0 = Array{Float64}(length(α),numVars)
   end
 
-  for i = 1:N
-    ΔW = sqΔt*randn()
-    ΔZ = sqΔt*randn()
+  i = 0
+  while t < T
+    i += 1
+    ΔW = sqΔt*randn(sizeu)
+    ΔZ = sqΔt*randn(sizeu)
     if alg=="EM"
-      u = u + Δt*f(u,t) + σ(u,t)*ΔW
+      u = u + Δt.*f(u,t) + σ(u,t).*ΔW
     elseif alg=="RKMil"
-      #utilde = u + Δt*f(u,t) + sqdt*σ(u,t)
-      #u = u + Δt*f(u,t) + σ(u,t)*ΔW + (utilde-)
-      K = u + Δt*f(u,t)
+      K = u + Δt.*f(u,t)
       L = σ(u,t)
-      utilde = K + L*sqΔt
-      u = K+L*ΔW+(σ(utilde,t)-σ(u,t))./(2sqΔt).*(ΔW.^2 - Δt)
+      utilde = K + L.*sqΔt
+      u = K+L.*ΔW+(σ(utilde,t)-σ(u,t))./(2sqΔt).*(ΔW.^2 - Δt)
     elseif alg=="SRA"
       chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
       H0[:]=zeros(length(α))
@@ -67,10 +66,9 @@ function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int =
     W = W + ΔW
     Z = Z + ΔZ
     if fullSave && i%saveSteps==0
-      saveIdx+=1
-      uFull[saveIdx] = u
-      tFull[saveIdx] = t
-      WFull[saveIdx] = W
+      push!(uFull,u)
+      push!(tFull,t)
+      push!(WFull,W)
     end
   end
 
@@ -78,7 +76,19 @@ function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int =
 
     uTrue = sol(u₀,t,W)
     if fullSave
-      solFull = sol(u₀,tFull,WFull)
+      ## Reshape solution. Needs to be fixed for arbitrary dimensions
+      fill = Array{Float64}(size(WFull)...,size(u)...)
+      fill2= Array{Float64}(size(WFull)...,size(u)...)
+      for i in eachindex(uFull) ### Change to arbitrary dimensions
+        fill[i,:] = WFull[i]'
+        fill2[i,:]= uFull[i]'
+      end
+      uFull = fill2
+      WFull = fill
+      solFull = similar(WFull)
+      for i in 1:size(WFull,1)
+        solFull[i,:] = sol(u₀,tFull[i],WFull[i,:]')'
+      end
       return(SDESolution(u,uTrue,uFull=uFull,tFull=tFull,WFull=WFull,solFull=solFull))
     else
       return(SDESolution(u,uTrue))
