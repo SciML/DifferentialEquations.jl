@@ -7,7 +7,7 @@ function linearSDEExample(;α=1,β=1,u₀=1/2)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
-function twoDimlinearSDEExample(;α=ones(2),β=ones(2),u₀=ones(2)/2)
+function twoDimlinearSDEExample(;α=ones(4,2),β=ones(4,2),u₀=ones(4,2)/2)
   f(u,t) = α.*u
   σ(u,t) = β.*u
   sol(u₀,t,W) = u₀.*exp((α-(β.^2)./2).*t+β.*W)
