@@ -7,8 +7,10 @@ println("Solve and Plot")
 sol =solve(prob::SDEProblem,1//2^(4),1,fullSave=true,alg="SRI")
 
 fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
-PyPlot.plot(sol.tFull,sol.uFull)
 PyPlot.plot(sol.tFull,sol.solFull)
+PyPlot.plot(sol.tFull,sol.uFull)
+
+@time testConvergence(Δts,prob,numMonte=Int(5e1),alg="SRI")
 
 ## Convergence Testing
 println("Convergence Test on Linear")
