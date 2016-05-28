@@ -46,9 +46,9 @@ type FEMSolution <: DESolution
 end
 
 type SDESolution <: DESolution
-  u::AbstractArray
+  u#::AbstractArrayOrNumber
   trueKnown::Bool
-  uTrue::AbstractArray
+  uTrue#::AbstractArrayOrNumber
   errors#::Dict{}
   uFull::AbstractArrayOrVoid
   tFull::AbstractArrayOrVoid
@@ -66,7 +66,7 @@ type SDESolution <: DESolution
     trueKnown = true
     errors = Dict("final"=>abs(u-uTrue))
     if fullSave
-      errors = Dict("final"=>abs(u-uTrue),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
+      errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
     end
     return(new(u,trueKnown,uTrue,errors,uFull,tFull,WFull,solFull,false,fullSave))
   end
