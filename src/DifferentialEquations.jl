@@ -24,6 +24,7 @@ import PyPlot
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat
 import Base: length, size
 import JLD: load
+using GrowableArrays, CheckImports, ChunkedArrays
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem
@@ -88,6 +89,7 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
 #Misc Tools
+export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,
        constructSRIW1, constructSRA1, def
 
 #Constants
