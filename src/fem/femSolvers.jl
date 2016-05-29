@@ -38,9 +38,9 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
 
   #Stochastic Part
   if stochastic
-    dW = getNoise(N,node,elem,noiseType=noiseType)
-    √Δt = sqrt(Δt)
-    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear).*dW.*√Δt
+    rands = getNoise(N,node,elem,noiseType=noiseType)
+    dW = next(rands)
+    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear).*dW
   else #Not Stochastic
     rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)
   end
@@ -270,7 +270,9 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       lhs = svdfact(lhs)
     end
   end
-
+  if stochastic
+    rands = getNoise(N,node,elem,noiseType=noiseType)
+  end
   if methodType == "NonlinearSolve"
     output = u
   end
@@ -279,7 +281,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
     t += Δt
     if methodType == "Implicit"
       if stochastic
-        dW = getNoise(N,node,elem,noiseType=noiseType)
+        dW = next(rands)
         if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
           u[freeNode] = lhs\rhs(u,i,dW)
         elseif solver == "CG"
@@ -298,7 +300,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       end
     elseif methodType == "Explicit"
       if stochastic
-        dW = getNoise(N,node,elem,noiseType=noiseType)
+        dW = next(rands)
         u[freeNode] = rhs(u,i,dW)
       else
         u[freeNode] = rhs(u,i)
@@ -306,7 +308,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
     elseif methodType == "NonlinearSolve"
       uOld = u
       if stochastic
-        dW = getNoise(N,node,elem,noiseType=noiseType)
+        dW = next(rands)
         nlres = nlsolve((u,output)->rhs!(u,output,dW,uOld,i),u,autodiff=autodiff)
       else
         nlres = nlsolve((u,output)->rhs!(u,output,uOld,i),u,autodiff=autodiff)

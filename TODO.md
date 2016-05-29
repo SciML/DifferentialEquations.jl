@@ -2,8 +2,6 @@
 
 ## General
 * Change all solvers to work on systems of equations
-* Setup plotting tools with Plots.jl
-* Change plotting functions to a standard name plus dispatches
 * Upgrade to v0.5
 
 ## Algorithms
@@ -19,8 +17,6 @@
 * Adaptive-SRK
 
 ## Performance
-* Implement random number generation caching
-* Implement parallel Monte Carlo simulations
 * Implement simd/threading in core loops?
 * Test ParallelAccelerator.jl on functionalities
 * Turn off bounds checking in core loops

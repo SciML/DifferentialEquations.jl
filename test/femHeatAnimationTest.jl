@@ -10,12 +10,12 @@ T = 2
 Δx = 1//2^(3)
 Δt = 1//2^(9)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
-pdeProb = heatProblemExample_moving()
+prob = heatProblemExample_moving()
 
-res = solve(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
+sim = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true)
 
 println("Generating Animation")
-@linux? solplot_animation(res::FEMSolution;zlim=(0,.1),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
+@linux? animate(sim::FEMSolution;zlim=(0,.1),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
 
 ## Should have moved off the frame.
-maximum(res.u) .< 1e-6
+maximum(sim.u) .< 1e-6
