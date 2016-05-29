@@ -9,6 +9,7 @@ pdeProb = poissonProblemExample_birthdeath()
 
 res = solve(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
 
+#Plots.gr()
 Plots.surface(femMesh.node[:,1],femMesh.node[:,2],res.u,zlim=(0,2),cbar=false)
 
 #Returns true if computed solution is homogenous near 2

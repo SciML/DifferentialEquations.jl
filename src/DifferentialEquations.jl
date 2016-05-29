@@ -24,7 +24,7 @@ import PyPlot
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat
 import Base: length, size
 import JLD: load
-using GrowableArrays, CheckImports#, ChunkedArrays
+using GrowableArrays, CheckImports, ChunkedArrays
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem
