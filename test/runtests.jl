@@ -3,7 +3,7 @@
 const CPU_FLOPS = peakflops()
 
 #Start Test Script
-using DifferentialEquations
+using DifferentialEquations, Plots
 using Base.Test
 
 # Run tests

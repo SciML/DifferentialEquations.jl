@@ -20,8 +20,8 @@ this package also provides a good sandbox for developing novel numerical schemes
 """ ->
 module DifferentialEquations
 
-import PyPlot
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat
+import Plots: plot
 import Base: length, size
 import JLD: load
 using GrowableArrays, CheckImports, ChunkedArrays
@@ -37,6 +37,10 @@ AbstractArrayOrVoid = Union{AbstractArray,Void}
 NumberOrVoid = Union{Number,Void}
 FunctionOrVoid = Union{Function,Void}
 
+#Constants
+
+const TEST_FLOPS_CUTOFF = 1e10
+
 include("fem/meshTools.jl")
 include("fem/assemblyTools.jl")
 include("fem/boundaryTools.jl")
@@ -48,16 +52,17 @@ include("general/miscTools.jl")
 include("general/convergenceTools.jl")
 include("examples/exampleProblems.jl")
 include("examples/exampleMeshes.jl")
-include("general/plotTools.jl")
 include("fem/femSolvers.jl")
 include("fdm/stokesSolvers.jl")
 include("sde/sdeSolvers.jl")
+include("general/plotTools.jl")
 include("general/coefficientTypes.jl")
 include("general/parallelHelpers.jl")
 
 #Types
-export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution,
-       ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, FDMMesh
+export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
+       ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
+       SDESolution, FDMMesh
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
@@ -75,13 +80,13 @@ export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemes
         meshExample_wavymesh, meshExample_wavyperturbmesh
 
 #Plot Functions
-export  solplot_appxvstrue, solplot_appx, showmesh, convplot, solplot_animation,
+export  plot, showmesh, convplot, solplot_animation,
         convplot_fullΔt, convplot_fullΔx, convplot_l2vsΔt, convplot_node2vsΔt,
         convplot_maxvsΔt, convplot_h1vsΔx, convplot_l2vsΔx, convplot_node2vsΔx, convplot_maxvsΔx,
         solplot
 
 #General Functions
-export conv_ests, appxTrue!, accumarray, solve, testConvergence
+export conv_ests, appxTrue!, accumarray, solve, testConvergence, monteCarloSim
 
 #FEM Functions
 export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,
@@ -92,7 +97,4 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
 export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,
        constructSRIW1, constructSRA1, def
 
-#Constants
-
-const TEST_FLOPS_CUTOFF = 1e10
 end # module

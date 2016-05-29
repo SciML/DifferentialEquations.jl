@@ -1,4 +1,4 @@
-using DifferentialEquations
+using DifferentialEquations, Plots
 srand(100)
 prob = linearSDEExample()
 
@@ -6,20 +6,18 @@ prob = linearSDEExample()
 println("Solve and Plot")
 sol =solve(prob::SDEProblem,1//2^(4),1,fullSave=true,alg="SRI")
 
-fig = PyPlot.figure("pyplot_appx_vs_true",figsize=(10,10))
-PyPlot.plot(sol.tFull,sol.solFull)
-PyPlot.plot(sol.tFull,sol.uFull)
-
-@time testConvergence(Δts,prob,numMonte=Int(5e1),alg="SRI")
+plot(sol)
 
 ## Convergence Testing
 println("Convergence Test on Linear")
-Δts = 1.//2.^(10:-1:4) #14->7 good plot
+Δts = 1.//2.^(11:-1:4) #14->7 good plot with higher num Monte
 
-convsim = testConvergence(Δts,prob,numMonte=Int(5e1),alg="EM")
+sim = testConvergence(Δts,prob,numMonte=Int(1e2),alg="EM")
 
-convsim2 = testConvergence(Δts,prob,numMonte=Int(5e1),alg="RKMil")
+sim2 = testConvergence(Δts,prob,numMonte=Int(1e2),alg="RKMil")
 
-convsim3 = testConvergence(Δts,prob,numMonte=Int(5e1),alg="SRI")
+sim3 = testConvergence(Δts,prob,numMonte=Int(1e2),alg="SRI")
 
-abs(convsim.𝒪est["l2"]-.5) + abs(convsim2.𝒪est["l∞"]-1) + abs(convsim3.𝒪est["final"]-1.5)<.2 #High tolerance since low Δts for testing!
+plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,600))
+
+abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5)<.2 #High tolerance since low Δts for testing!
