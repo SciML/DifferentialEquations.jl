@@ -138,7 +138,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   @unpack pdeProb: f,u₀,Du,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType
 
   #Note if Atom is loaded for progress
-  atomLoaded = checkIfLoaded("Atom")
+  atomLoaded = isimported("Atom")
 
   #Set Initial
   u = u₀(node)
