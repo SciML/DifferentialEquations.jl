@@ -1,4 +1,4 @@
-using DifferentialEquations
+using DifferentialEquations, GrowableArrays
 srand(100)
 prob = twoDimlinearSDEExample()
 
@@ -20,10 +20,12 @@ PyPlot.plot(sol.tFull,sol.solFull[..,2])
 println("Convergence Test on Linear")
 Δts = 1.//2.^(14:-1:7) #14->7 good plot
 
+println(@elapsed begin
 convsim = testConvergence(Δts,prob,numMonte=Int(5e1),alg="EM")
 
 convsim2 = testConvergence(Δts,prob,numMonte=Int(5e1),alg="RKMil")
 
 convsim3 = testConvergence(Δts,prob,numMonte=Int(5e1),alg="SRI")
+end)
 
 abs(convsim.𝒪est["l2"]-.5) + abs(convsim2.𝒪est["l∞"]-1) + abs(convsim3.𝒪est["final"]-1.5)<.2 #High tolerance since low Δts for testing!

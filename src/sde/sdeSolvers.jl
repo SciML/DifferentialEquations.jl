@@ -106,17 +106,16 @@ function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int =
       H0 = Array{Float64}(size(u)...,length(α))
     end
   end
-
+  if numVars == 1
+    rands = ChunkedArray(randn)
+  else
+    rands = ChunkedArray(randn,u)
+  end
   iter = 0
   while t < T
     iter += 1
-    if numVars == 1
-      ΔW = sqΔt*randn()
-      ΔZ = sqΔt*randn()
-    else
-      ΔW = sqΔt*randn(sizeu)
-      ΔZ = sqΔt*randn(sizeu)
-    end
+    ΔW = sqΔt*next(rands)
+    ΔZ = sqΔt*next(rands)
     if alg=="EM"
       u = u + Δt.*f(u,t) + σ(u,t).*ΔW
     elseif alg=="RKMil"
