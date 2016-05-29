@@ -35,7 +35,8 @@ type ConvergenceSimulation
   N
   auxData
   𝒪est
-  function ConvergenceSimulation(solutions::Array{DESolution};auxData=nothing)
+  convergenceAxis
+  function ConvergenceSimulation(solutions::Array{DESolution},convergenceAxis;auxData=nothing)
     N = size(solutions,1)
     errors = Dict() #Should add type information
     for k in keys(solutions[1].errors)
@@ -45,18 +46,25 @@ type ConvergenceSimulation
     for (k,v) in 𝒪est
       if length(v)==1 𝒪est[k]=v[1] end
     end
-    return(new(solutions,errors,N,auxData,𝒪est))
+    return(new(solutions,errors,N,auxData,𝒪est,convergenceAxis))
   end
+end
+function ConvergenceSimulation(solutions::Array{SDESolution},convergenceAxis;auxData=nothing)
+  ConvergenceSimulation(convert(Array{DESolution},solutions),convergenceAxis;auxData=auxData)
 end
 
 function testConvergence(Δts::AbstractArray,prob::SDEProblem;T=1,numMonte=10000,fullSave=true,alg="EM")
   N = length(Δts)
-  solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave,alg=alg) for j=1:numMonte,i=1:N]
+  #solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave,alg=alg) for j=1:numMonte,i=1:N]
+  is = repmat(1:N,1,numMonte)'
+  solutions = pmap((i)->solve(prob,Δts[i],T,fullSave=fullSave,alg=alg),is)
+  solutions = convert(Array{SDESolution},solutions)
+  solutions = reshape(solutions,numMonte,N)
   auxData = Dict("Δts" =>  Δts)
-  ConvergenceSimulation(solutions,auxData=auxData)
+  ConvergenceSimulation(solutions,Δts,auxData=auxData)
 end
 
-function testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem;T=1,alg="Euler")
+function testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,convergenceAxis;T=1,alg="Euler")
   if length(Δts)!=length(Δxs) error("Lengths of Δts!=Δxs. Invalid convergence simulation") end
   solutions = DESolution[solve(parabolic_squaremesh([0 1 0 1],Δxs[i],Δts[i],T,"Dirichlet"),prob,alg=alg) for i in eachindex(Δts)]
   auxData = Dict(
@@ -64,13 +72,13 @@ function testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProbl
             "Δxs" => [sol.femMesh.Δx for sol in solutions],
             "Δμs" => [sol.femMesh.μ  for sol in solutions],
             "Δνs" => [sol.femMesh.ν  for sol in solutions])
-  return(ConvergenceSimulation(solutions,auxData=auxData))
+  return(ConvergenceSimulation(solutions,convergenceAxis,auxData=auxData))
 end
 
 function testConvergence(Δxs::AbstractArray,prob::PoissonProblem;alg="Euler")
   solutions = DESolution[solve(notime_squaremesh([0 1 0 1],Δxs[i],"Dirichlet"),prob) for i in eachindex(Δxs)]
   auxData = Dict("Δxs" => [sol.femMesh.Δx for sol in solutions])
-  return(ConvergenceSimulation(solutions,auxData=auxData))
+  return(ConvergenceSimulation(solutions,Δxs,auxData=auxData))
 end
 
 """
