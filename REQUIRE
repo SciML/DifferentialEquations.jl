@@ -6,3 +6,6 @@ PyPlot
 NLsolve
 Parameters
 JLD
+GrowableArrays
+CheckImports
+ChunkedArrays
