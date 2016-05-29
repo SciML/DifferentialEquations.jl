@@ -70,6 +70,8 @@ type SDESolution <: DESolution
     end
     return(new(u,trueKnown,uTrue,errors,uFull,tFull,WFull,solFull,false,fullSave))
   end
+  #Required to convert pmap results
+  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.WFull,a.solFull,a.appxTrue,a.fullSave)
 end
 
 type StokesSolution <: DESolution

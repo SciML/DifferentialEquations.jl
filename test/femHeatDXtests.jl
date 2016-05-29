@@ -1,7 +1,7 @@
 ######
 ##FEM Heat Δx Convergence Tests
 ######
-using DifferentialEquations
+using DifferentialEquations, Plots
 
 #Travis CI Test Setting
 #Not good plots, but quick for unit tests
@@ -14,20 +14,18 @@ N = 4
 topΔx = 7
 =#
 
-pdeProb = heatProblemExample_moving()
+prob = heatProblemExample_moving()
 
 alg = "Euler"; println(alg)
-convsim = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem;alg=alg)
+sim = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)
 
 alg = "ImplicitEuler"; println(alg)
-convsim2 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem;alg=alg)
+sim2 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)
 
 alg = "CrankNicholson"; println(alg)
-convsim3 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem;alg=alg)
+sim3 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)
 
-convplot_fullΔx(convsim,titleStr="")
-convplot_fullΔx(convsim2,titleStr="")
-convplot_fullΔx(convsim3,titleStr="Dx Convergence Plots")
+plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,400))
 
 #Returns true if all converge approximately Δx^2
-minimum([convsim.𝒪est["L2"],convsim2.𝒪est["L2"],convsim3.𝒪est["L2"]] - 2 .<.1)
+minimum([sim.𝒪est["L2"],sim2.𝒪est["L2"],sim3.𝒪est["L2"]] - 2 .<.1)

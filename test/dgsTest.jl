@@ -1,5 +1,4 @@
-using DifferentialEquations, Parameters
-import PyPlot.semilogy
+using DifferentialEquations, Parameters, Plots
 Δx = 1//2^3 # Make this much smaller (1^2-5) for your own tests
 mesh = FDMMesh(Δx,mins=[-1;-1],maxs=[1;1])
 prob = dirichletzeroStokesExample()
@@ -37,7 +36,7 @@ err1 = Vector{Float64}(0)
 err2 = Vector{Float64}(0)
 DifferentialEquations.GSu!(u,f₁,Δxs,pTrue,ugD,grids,ux,uy) # Inplace u => uhalf
 DifferentialEquations.GSv!(v,f₂,Δxs,pTrue,vgD,grids,vx,vy) # Inplace v => vhalf
-for j = 1:5000
+for j = 1:100
   DifferentialEquations.GSu!(u,f₁,Δxs,pTrue,ugD,grids,ux,uy) # Inplace u => uhalf
   DifferentialEquations.GSv!(v,f₂,Δxs,pTrue,vgD,grids,vx,vy) # Inplace v => vhalf
   DifferentialEquations.push!(err1,maximum(u-uTrue))
@@ -45,8 +44,7 @@ for j = 1:5000
 end
 
 #Should Converge
-semilogy(1:5000,err1)
-semilogy(1:5000,err2)
+plot(1:100,[err1 err2],yscale=:log10)
 
 #Now test rp
 err1 = Vector{Float64}(0)

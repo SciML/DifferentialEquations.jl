@@ -5,11 +5,10 @@ using DifferentialEquations
 
 Δx = 1//2^(5)
 femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
-pdeProb = poissonProblemExample_noisyWave()
+prob = poissonProblemExample_noisyWave()
 
-res = solve(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
+sol = solve(femMesh::FEMmesh,prob::PoissonProblem,solver="CG")
 
-solplot_appxvstrue(res,trueTitle="True Deterministic Solution",appxTitle="Stochastic Solution")
-
+plot(sol,title=["True Deterministic Solution" "Stochastic Solution"],plottrue=true)
 #This condition should be true with really high probability
-var(res.u) < 8e-4
+var(sol.u) < 8e-4
