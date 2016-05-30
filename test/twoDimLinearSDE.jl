@@ -11,11 +11,6 @@ monteCarloSim(1//2^(4),prob::SDEProblem,T=1)
 #Has 4 rows and two columns, sol.uFull[..,1] returns the time series for the
 #first row, and sol.uFull[..,2] returns the time series for the second.
 plot(sol,plottrue=true)
-# reshape(sol.uFull,size(sol.uFull,1),size(sol.uFull,2)*size(sol.uFull,3))
-PyPlot.plot(sol.tFull,sol.uFull[..,1])
-PyPlot.plot(sol.tFull,sol.solFull[..,1])
-PyPlot.plot(sol.tFull,sol.uFull[..,2])
-PyPlot.plot(sol.tFull,sol.solFull[..,2])
 
 ## Convergence Testing
 println("Convergence Test on Linear")
