@@ -1,7 +1,7 @@
 #plot(z, zlim = (should_override ? zlim_override : default(:zlim)))
 
 """
-solplot_animation(res::FEMSolution)
+animate(res::FEMSolution)
 
 Plots an animation of the solution. Requires `fullSave=true` was enabled in the solver.
 
