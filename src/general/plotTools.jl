@@ -25,8 +25,16 @@ end
 
 @recipe function f(sol::FEMSolution;plottrue=false)
   plottrue = pop!(d,:plottrue)
-  u = Any[sol.u];
-  plottrue && push!(u, sol.uTrue);
+  u = Any[]
+  for i = 1:size(sol.u,2)
+    push!(u,sol.u[:,i])
+  end
+  if plottrue
+    for i = 1:size(sol.u,2)
+      push!(u,sol.uTrue[:,i])
+    end
+  end
+  #println(length(u))
   seriestype --> :surface
   layout --> length(u)
   sol.femMesh.node[:,1], sol.femMesh.node[:,2], u
