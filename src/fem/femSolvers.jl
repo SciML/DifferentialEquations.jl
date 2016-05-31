@@ -195,10 +195,8 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   #Setup animation
 
   if fullSave
-    uFull = Array{Float64}(length(u),ceil(Int64,femMesh.numIters/saveSteps))
-    tFull = Array{Float64}(ceil(Int64,femMesh.numIters/saveSteps))
-    saveIdx = 1
-    uFull[:,saveIdx] = u
+    uFull = GrowableArray(u)
+    tFull = Float64[t]
   end
 
   #Setup for Calculations
@@ -209,7 +207,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       if femMesh.μ>=0.5
         warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
       end
-      K = eye(N) - Δt*Minv*D.*A #D okay since numVar = 1 for linear
+      K = eye(N) - Δt*Minv*D*A #D okay since numVar = 1 for linear
       if stochastic
         rhs(u,i,dW) = K[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
@@ -221,7 +219,6 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       end
     elseif alg == "ImplicitEuler"
       methodType = "Implicit"
-      println(D)
       K = eye(N) + Δt*Minv*D*A #D okay since numVar = 1 for linear
       lhs = K[freeNode,freeNode]
       if stochastic
@@ -252,17 +249,17 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       end
       K = eye(N) - Δt*Minv*A
       if stochastic
-        rhs(u,i,dW) = D.*(K[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+        rhs(u,i,dW) = u[freeNode,:] - D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                                 A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
         function rhs(u,i)
-          D.*(K[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+          u[freeNode,:] - D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
         end
       end
-    elseif alg == "SemiImplicitEuler"
+    elseif alg == "SemiImplicitEuler" #Incorrect for system with different diffusions
       methodType = "Implicit"
       Dinv = D.^(-1)
       K = eye(N) + Δt*Minv*A
@@ -276,7 +273,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
         rhs(u,i) = u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "SemiImplicitCrankNicholson"
+    elseif alg == "SemiImplicitCrankNicholson" #Incorrect for system with different diffusions
       methodType = "Implicit"
       Km = eye(N) - Δt*Minv*A/2
       Kp = eye(N) + Δt*Minv*A/2
@@ -377,14 +374,15 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
     end
     u[bdNode] = gD(node,i*Δt)[bdNode]
     if fullSave && i%saveSteps==0
-      saveIdx+=1
-      uFull[:,saveIdx] = u
-      tFull[saveIdx] = t
+      push!(uFull,u)
+      push!(tFull,t)
     end
     atomLoaded ? Main.Atom.progress(i/femMesh.numIters) : nothing #Use Atom's progressbar if loaded
   end
   if knownSol #True Solution exists
     if fullSave
+      println("here")
+      uFull = copy(uFull)
       return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,uFull,tFull))
     else
       return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du))
