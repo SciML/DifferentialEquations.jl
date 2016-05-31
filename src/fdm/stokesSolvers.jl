@@ -270,7 +270,7 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   v[end,:] = vgD(vx[end,:],vy[end,:])
 
   #Note if Atom is loaded for progress
-  atomLoaded = isimported("Atom")
+  atomLoaded = isdefined(Main,:Atom)
 
   if converrors
     if !trueKnown
