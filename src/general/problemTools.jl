@@ -49,41 +49,100 @@ type HeatProblem <: DEProblem
   "f: Forcing function in heat equation"
   f::Function
   "gD: Dirichlet boundary data"
-  gD::Function
+  gD#::Function
   "gN: Neumann boundary data"
-  gN::Function
+  gN#::Function
   "sol: Solution to the heat problem"
   sol::Function
   "knownSol: Boolean which states whether the solution function is given"
   knownSol::Bool
   "isLinear: Boolean which states whether the problem is linear or nonlinear"
   isLinear::Bool
+  numVars::Int
   σ::Function
   stochastic::Bool
   noiseType::AbstractString
-  function HeatProblem(sol,Du,f;gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
-    if σ==nothing
-      stochastic=false
-      σ=(x)->zeros(size(x,1))
-    else
-      stochastic=true
-    end
+  D#AbstractArray
+  function HeatProblem(sol,Du,f;gN=nothing,σ=nothing,noiseType="White",numVars=nothing,D=nothing)
     isLinear = numparameters(f)==2
     knownSol = true
     u₀(x) = sol(x,0)
+    numVars = size(u₀([0 0
+                       0 0
+                       0 0]),2)
     gD = sol
-    return(new(u₀,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType))
-  end
-  function HeatProblem(u₀,f;gD=(x,t)->zeros(size(x,1)),gN=(x,t)->zeros(size(x,1)),σ=nothing,noiseType="White")
+    if gN == nothing
+      gN=(x,t)->zeros(size(x,1),numVars)
+    end
     if σ==nothing
       stochastic=false
-      σ=(x)->zeros(size(x,1))
+      σ=(x,t)->zeros(size(x,1),numVars)
+    else
+      stochastic=true
+    end
+    if D == nothing
+      if numVars == 1
+        D = 1
+      else
+        D = ones(1,numVars)
+      end
+    end
+    return(new(u₀,Du,f,gD,gN,sol,knownSol,isLinear,numVars,σ,stochastic,noiseType,D))
+  end
+  function HeatProblem(u₀,f;gD=nothing,gN=nothing,σ=nothing,noiseType="White",numVars=nothing,D=nothing)
+    if σ==nothing
+      stochastic=false
+      σ=(x,t)->zeros(size(x,1))
     else
       stochastic=true
     end
     isLinear = numparameters(f)==2
     knownSol = false
-    return(new(u₀,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,σ,stochastic,noiseType))
+    if isLinear
+      if u₀==nothing
+        u₀=(x)->zeros(size(x,1))
+      end
+      if gD == nothing
+        gD=(x,t)->zeros(size(x,1))
+      end
+      if gN == nothing
+        gN=(x,t)->zeros(size(x,1))
+      end
+      if D == nothing
+        D = 1
+      end
+      numVars = 1
+    end
+    if !isLinear #nonlinear
+      if u₀==nothing && numVars == nothing
+        warn("u₀ and numVars must be given. numVars assumed 1.")
+        numVars = 1
+        u₀=(x)->zeros(size(x,1),numVars)
+        if gD == nothing
+          gD=(x,t)->zeros(size(x,1),numVars)
+        end
+        if gN == nothing
+          gN=(x,t)->zeros(size(x,1),numVars)
+        end
+        if D == nothing
+          D = 1
+        end
+      elseif u₀==nothing #numVars!=nothing
+        u₀=(x)->zeros(size(x,1),numVars) #Default to zero
+        if gD == nothing
+          gD=(x,t)->zeros(size(x,1),numVars)
+        end
+        if gN == nothing
+          gN=(x,t)->zeros(size(x,1),numVars)
+        end
+        if D == nothing
+          D = ones(1,numVars)
+        end
+      elseif numVars==nothing #If u₀ is given but numVars is not, we're still okay. Generate from size in function.
+        numVars=0 #Placeholder, update gD and gN in solver
+      end
+    end
+    return(new(u₀,(x)->0,f,gD,gN,(x)->0,knownSol,isLinear,numVars,σ,stochastic,noiseType,D))
   end
 end
 
@@ -138,36 +197,97 @@ type PoissonProblem <: DEProblem
   "Du: Gradient of the solution to the Poisson problem"
   Du::Function
   "gD: Dirichlet Boundary Data"
-  gD::Function
+  gD#::Nullable{Function}
   "gN: Neumann Boundary Data"
-  gN::Function
+  gN#::Nullable{Function}
   "knownSol: Boolean which states whether the solution function is given"
   knownSol::Bool
   "isLinear: Boolean which states whether the problem is linear or nonlinear"
   isLinear::Bool
+  u₀::Function
+  numVars::Int
   σ::Function
   stochastic::Bool
   noiseType::AbstractString
-  function PoissonProblem(f,sol,Du;gN=(x)->zeros(size(x,1)),σ=nothing,noiseType="White")
+  D#::AbstractArray
+  function PoissonProblem(f,sol,Du;gN=nothing,σ=nothing,u₀=nothing,noiseType="White",numVars=nothing,D=nothing)
+    gD = sol
+    numVars = size(sol([0 0
+                        0 0
+                        0 0]),2)
+    isLinear = numparameters(f)==1
+    if gN == nothing
+      gN=(x)->zeros(size(x,1),numVars)
+    end
+    if u₀==nothing
+      u₀=(x)->zeros(size(x,1),numVars)
+    end
+    if D == nothing
+      if numVars == 1
+        D = 1
+      else
+        D = ones(1,numVars)
+      end
+    end
     if σ==nothing
       stochastic=false
-      σ=(x)->zeros(size(x,1))
+      σ=(x)->zeros(size(x,1),numVars)
     else
       stochastic=true
     end
-    isLinear = numparameters(f)==1
-    return(new(f,sol,Du,sol,gN,true,isLinear,σ,stochastic,noiseType))
+    return(new(f,sol,Du,sol,gN,true,isLinear,u₀,numVars,σ,stochastic,noiseType,D))
   end
-  function PoissonProblem(f;gD=(x)->zeros(size(x,1)),gN=(x)->zeros(size(x,1)),σ=nothing,noiseType="White")
+  function PoissonProblem(f;gD=nothing,gN=nothing,u₀=nothing,σ=nothing,noiseType="White",numVars=nothing,D=nothing)
     if σ==nothing
       stochastic=false
       σ=(x)->zeros(size(x,1))
     else
       stochastic = true
     end
-
     isLinear = numparameters(f)==1
-    return(new(f,(x)->0,(x)->0,gD,gN,false,isLinear,σ,stochastic,noiseType))
+    if isLinear && u₀==nothing
+      u₀=(x)->zeros(size(x,1))
+      if gD == nothing
+        gD=(x)->zeros(size(x,1))
+      end
+      if gN == nothing
+        gN=(x)->zeros(size(x,1))
+      end
+      if D == nothing
+        D = 1
+      end
+      numVars = 1
+    end
+    if !isLinear #nonlinear
+      if u₀==nothing && numVars == nothing
+        warn("u₀ and numVars must be given. numVars assumed 1.")
+        numVars = 1
+        u₀=(x)->zeros(size(x,1))
+        if gD == nothing
+          gD=(x)->zeros(size(x,1))
+        end
+        if gN == nothing
+          gN=(x)->zeros(size(x,1))
+        end
+        if D == nothing
+          D = 1
+        end
+      elseif u₀==nothing #numVars!=nothing
+        u₀=(x)->zeros(size(x,1),numVars) #Default to zero
+        if gD == nothing
+          gD=(x)->zeros(size(x,1),numVars)
+        end
+        if gN == nothing
+          gN=(x)->zeros(size(x,1),numVars)
+        end
+        if D == nothing
+          D = ones(1,numVars)
+        end
+      elseif numVars==nothing #If u₀ is given but numVars is not, we're still okay. Generate from size in function.
+        numVars=0 #Placeholder, update gD and gN in solver
+      end
+    end
+    return(new(f,(x)->0,(x)->0,gD,gN,false,isLinear,u₀,numVars,σ,stochastic,noiseType,D))
   end
 end
 

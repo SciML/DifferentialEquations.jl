@@ -34,11 +34,13 @@ sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="Dire
 println("Cholesky")
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="Cholesky")
 
+#=
 println("CG")
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="CG")
 
 println("GMRES")
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="GMRES")
+=#
 
 #Define another parabolic problem
 T = 1
