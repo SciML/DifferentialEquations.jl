@@ -24,7 +24,7 @@ using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat, Ellips
 import Plots: plot
 import Base: length, size
 import JLD: load
-using GrowableArrays, CheckImports, ChunkedArrays
+using GrowableArrays, ChunkedArrays
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem

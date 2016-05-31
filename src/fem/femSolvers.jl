@@ -163,7 +163,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   @unpack pdeProb: f,u₀,Du,gD,gN,sol,knownSol,isLinear,numVars,σ,stochastic,noiseType,D
 
   #Note if Atom is loaded for progress
-  atomLoaded = isimported("Atom")
+  atomLoaded = isdefined(Main,:Atom)
 
   #Set Initial
   u = u₀(node)
@@ -287,7 +287,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
         rhs(u,i) = Km[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "ImplicitEuler" # Does this have an issue?
+    elseif alg == "ImplicitEuler"
       methodType = "NonlinearSolve"
       if stochastic
         function rhs!(u,resid,dW,uOld,i)
@@ -357,6 +357,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
         u[freeNode,:] = rhs(u,i,dW)
       else
         u[freeNode,:] = rhs(u,i)
+        #println(maximum(rhs(u,i)))
       end
     elseif methodType == "NonlinearSolve"
       u = vec(u)
@@ -381,7 +382,6 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   end
   if knownSol #True Solution exists
     if fullSave
-      println("here")
       uFull = copy(uFull)
       return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,uFull,tFull))
     else
