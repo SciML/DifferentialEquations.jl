@@ -74,7 +74,7 @@ export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExampl
         poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath,
         homogeneousStokesExample, dirichletzeroStokesExample, poissonProblemExample_birthdeathsystem,
         poissonProblemExample_birthdeathinteractingsystem,heatProblemExample_birthdeathinteractingsystem,
-        heatProblemExample_birthdeathsystem,heatProblemExample_grayscott,heatProblemExample_diffusionconstants
+        heatProblemExample_birthdeathsystem,heatProblemExample_grayscott,heatProblemExample_diffusionconstants,heatProblemExample_gierermeinhardt
 
 #Example Meshes
 export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,
