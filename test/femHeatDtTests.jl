@@ -1,7 +1,7 @@
 ######
 ##FEM Heat Δt Convergence Tests
 ######
-using DifferentialEquations
+using DifferentialEquations, Plots
 
 #Convergences estimate has not converged in this range
 #Should decrease Δx/Δt for better estimate

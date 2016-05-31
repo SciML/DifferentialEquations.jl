@@ -82,7 +82,7 @@ type HeatProblem <: DEProblem
     end
     if D == nothing
       if numVars == 1
-        D = 1
+        D = 1.0
       else
         D = ones(1,numVars)
       end
@@ -109,7 +109,7 @@ type HeatProblem <: DEProblem
         gN=(x,t)->zeros(size(x,1))
       end
       if D == nothing
-        D = 1
+        D = 1.0
       end
       numVars = 1
     end
@@ -125,7 +125,7 @@ type HeatProblem <: DEProblem
           gN=(x,t)->zeros(size(x,1),numVars)
         end
         if D == nothing
-          D = 1
+          D = 1.0
         end
       elseif u₀==nothing #numVars!=nothing
         u₀=(x)->zeros(size(x,1),numVars) #Default to zero
@@ -224,7 +224,7 @@ type PoissonProblem <: DEProblem
     end
     if D == nothing
       if numVars == 1
-        D = 1
+        D = 1.0
       else
         D = ones(1,numVars)
       end
@@ -254,7 +254,7 @@ type PoissonProblem <: DEProblem
         gN=(x)->zeros(size(x,1))
       end
       if D == nothing
-        D = 1
+        D = 1.0
       end
       numVars = 1
     end
@@ -270,7 +270,7 @@ type PoissonProblem <: DEProblem
           gN=(x)->zeros(size(x,1))
         end
         if D == nothing
-          D = 1
+          D = 1.0
         end
       elseif u₀==nothing #numVars!=nothing
         u₀=(x)->zeros(size(x,1),numVars) #Default to zero
