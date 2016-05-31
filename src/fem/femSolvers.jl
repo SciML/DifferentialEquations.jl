@@ -249,13 +249,13 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       end
       K = eye(N) - Δt*Minv*A
       if stochastic
-        rhs(u,i,dW) = u[freeNode,:] - D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+        rhs(u,i,dW) = u[freeNode,:] - D.*(Δt*Minv*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                                 A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
         function rhs(u,i)
-          u[freeNode,:] - D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+          u[freeNode,:] - D.*(Δt*Minv*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
         end
       end

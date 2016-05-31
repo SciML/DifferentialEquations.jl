@@ -84,6 +84,14 @@ function heatProblemExample_birthdeathsystem()
   return(HeatProblem(u₀,f))
 end
 
+function heatProblemExample_diffusionconstants(D=[.01 .001])
+  f₁(u,x,t)  = zeros(size(x,1))
+  f₂(u,x,t)  = zeros(size(x,1))
+  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  u₀(x) = [float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6))]  # size (x,2), 2 meaning 2 variables
+  return(HeatProblem(u₀,f,D=D))
+end
+
 function heatProblemExample_birthdeathinteractingsystem()
   f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
   f₂(u,x,t)  = .5u[:,1] -   u[:,2]
@@ -92,7 +100,7 @@ function heatProblemExample_birthdeathinteractingsystem()
   return(HeatProblem(u₀,f))
 end
 
-function heatProblemExample_grayscott(ρ=.03,k=.062;D=[1 .001])
+function heatProblemExample_grayscott(ρ=.03,k=.062;D=[1e-4 .5e-4])
   f₁(u,x,t)  = - u[:,1].*u[:,2].*u[:,2] + ρ*(1-u[:,1])
   f₂(u,x,t)  = u[:,1].*u[:,2].*u[:,2] - (ρ+k).*u[:,2]
   f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
