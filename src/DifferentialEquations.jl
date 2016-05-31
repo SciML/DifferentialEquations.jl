@@ -72,7 +72,9 @@ export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
         poissonProblemExample_wave, poissonProblemExample_noisyWave, heatProblemExample_birthdeath,
         poissonProblemExample_birthdeath, heatProblemExample_stochasticbirthdeath,
-        homogeneousStokesExample, dirichletzeroStokesExample
+        homogeneousStokesExample, dirichletzeroStokesExample, poissonProblemExample_birthdeathsystem,
+        poissonProblemExample_birthdeathinteractingsystem,heatProblemExample_birthdeathinteractingsystem,
+        heatProblemExample_birthdeathsystem,heatProblemExample_grayscott
 
 #Example Meshes
 export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,

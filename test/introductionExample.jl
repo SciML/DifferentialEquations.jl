@@ -7,7 +7,7 @@ using DifferentialEquations
 femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
 pdeProb = poissonProblemExample_wave()
 
-sol = solve(femMesh,pdeProb,solver="CG")
+sol = solve(femMesh,pdeProb)#,solver="CG") TODO fix CG
 
 plot(sol::FEMSolution,plottrue=false) #To save the plot, use savefig("plot.png") or "plot.pdf", etc.
 
