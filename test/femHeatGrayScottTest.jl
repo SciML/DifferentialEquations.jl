@@ -10,4 +10,4 @@ T = 5
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 prob = heatProblemExample_birthdeathinteractingsystem()
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="SemiImplicitEuler")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")

@@ -1,7 +1,6 @@
 # TODO List
 
 ## General
-* Change all solvers to work on systems of equations
 * Upgrade to v0.5
 
 ## Algorithms
@@ -26,3 +25,5 @@
 ## Misc
 * Davie-Gaines convergence analysis
 * CG and GMRES don't work with systems, change IterativeSolvers
+* CG and GMRES need diffusion constants
+* SemiImplicit Methods need diffusion constants
