@@ -159,10 +159,13 @@ techniques are provided by [NLSolve.jl](https://github.com/EconForge/NLsolve.jl)
       * Semi-implicit Backward Euler [Maruyama]
     * Linear Heat Equation
       * Forward Euler [Maruyama]
-      * Backward Euler
-      * Crank-Nicholson
+      * Backward Euler [Maruyama]
+      * Crank-Nicholson [Maruyama]
 * Implicit Solvers
   * Direct
+  * Factorizations (LU, Cholesky, QR, SVD)
+  * Conjugate-Gradient
+  * GMRES
 
 
 # Roadmap

@@ -1,7 +1,7 @@
 #plot(z, zlim = (should_override ? zlim_override : default(:zlim)))
 
 """
-animate(res::FEMSolution)
+animate(sol::FEMSolution)
 
 Plots an animation of the solution. Requires `fullSave=true` was enabled in the solver.
 
@@ -10,15 +10,15 @@ Plots an animation of the solution. Requires `fullSave=true` was enabled in the 
 * `zlim`: The limits on the z-axis in the simulation. Default nothing.
 * `cbar`: Boolean flag which turns on/off the color bar. Default true.
 """
-function animate(res::FEMSolution;zlim=nothing,cbar=true)
+function animate(sol::FEMSolution;zlim=nothing,cbar=true)
   Plots.pyplot(reuse=true,size=(750,750))
   if zlim==nothing
-    @gif for i=1:size(res.uFull,2)
-        surface(res.femMesh.node[:,1],res.femMesh.node[:,2],res.uFull[:,i],cbar=cbar)
+    @gif for j=1:size(sol.uFull,3),i=1:size(sol.uFull,2)
+        surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.uFull[:,i,j],cbar=cbar)
     end
   else
-    @gif for i=1:size(res.uFull,2)
-        surface(res.femMesh.node[:,1],res.femMesh.node[:,2],res.uFull[:,i],zlim=zlim,cbar=cbar)
+    @gif for j=1:size(sol.uFull,3),i=1:size(sol.uFull,2)
+        surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.uFull[:,i,j],zlim=zlim,cbar=cbar)
     end
   end
 end
