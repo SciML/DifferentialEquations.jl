@@ -76,6 +76,31 @@ function heatProblemExample_birthdeath()
   return(HeatProblem(u₀,f))
 end
 
+function heatProblemExample_birthdeathsystem()
+  f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
+  f₂(u,x,t)  = ones(size(x,1)) -   u[:,2]
+  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  u₀(x) = ones(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
+  return(HeatProblem(u₀,f))
+end
+
+function heatProblemExample_birthdeathinteractingsystem()
+  f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
+  f₂(u,x,t)  = .5u[:,1] -   u[:,2]
+  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  u₀(x) = ones(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
+  return(HeatProblem(u₀,f))
+end
+
+function heatProblemExample_grayscott(ρ=.03,k=.062)
+  f₁(u,x,t)  = - u[:,1].*u[:,2].^2 + ρ*(1-u[:,1])
+  f₂(u,x,t)  = u[:,1].*u[:,2].*u[:,2] - (ρ+k).*u[:,2]
+  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  D = [1e-4 .5e-4]
+  u₀(x) = rand(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
+  return(HeatProblem(u₀,f,D=D))
+end
+
 "Example problem which starts with 0 and solves with ``f(u)=1-u/2`` with noise ``σ(u)=10u^2``"
 function heatProblemExample_stochasticbirthdeath()
   f(u,x,t)  = ones(size(x,1)) - .5u
@@ -104,7 +129,24 @@ end
 "Example problem for nonlinear Poisson equation. Uses ``f(u)=1-u/2``."
 function poissonProblemExample_birthdeath()
   f(u,x)  = ones(size(x,1)) - .5u
-  return(PoissonProblem(f))
+  numVars = 1
+  return(PoissonProblem(f,numVars=numVars))
+end
+
+function poissonProblemExample_birthdeathsystem()
+  f₁(u,x)  = ones(size(x,1)) - .5u[:,1]
+  f₂(u,x)  = ones(size(x,1)) -   u[:,2]
+  f(u,x) = [f₁(u,x) f₂(u,x)]
+  u₀(x) = .5*ones(size(x,1),2) # size (x,2), 2 meaning 2 variables
+  return(PoissonProblem(f,u₀=u₀))
+end
+
+function poissonProblemExample_birthdeathinteractingsystem()
+  f₁(u,x)  = ones(size(x,1)) - .5u[:,1]
+  f₂(u,x)  = .5u[:,1] -   u[:,2]
+  f(u,x) = [f₁(u,x) f₂(u,x)]
+  u₀(x) = ones(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
+  return(PoissonProblem(f,u₀=u₀))
 end
 
 ## Stokes Examples

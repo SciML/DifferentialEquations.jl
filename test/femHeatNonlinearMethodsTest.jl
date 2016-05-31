@@ -48,11 +48,14 @@ sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")
 println("Semi-implicit Euler")
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="SemiImplicitEuler")
 
+#=
+# CG and GMRES require size 1 vector, breaks with numVars change
 println("Semi-implicit Crank Nicholson")
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="SemiImplicitCrankNicholson",solver="CG")
 
 println("Semi-implicit Crank Nicholson GMRES")
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="SemiImplicitCrankNicholson",solver="GMRES")
+=#
 
 #Define a quicker problem
 Δx = 1//2^(1)

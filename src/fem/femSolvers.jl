@@ -18,13 +18,13 @@ the implicit equation `Ax=b`. The default is `LU`. The choices are:
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
 """
-function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",autodiff::Bool=true)
+function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
   #Unroll some important constants
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
-  @unpack pdeProb: f,Du,f,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType
+  @unpack pdeProb: f,Du,f,gD,gN,sol,knownSol,isLinear,u₀,numVars,σ,stochastic,noiseType
 
   #Setup f quadrature
   mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
@@ -33,25 +33,35 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
   mid[:,:,3] = (node[vec(elem[:,1]),:]+node[vec(elem[:,2]),:])/2
 
   #Setup u
-  u = zeros(N)
+  u = u₀(node)
+  if numVars==0
+    numVars = size(u,2)
+    #pdeProb.numVars = numVars #Mutate problem to be correct.
+    if gD == nothing
+      gD=(x)->zeros(size(x,1),numVars)
+    end
+    if gN == nothing
+      gN=(x)->zeros(size(x,1),numVars)
+    end
+  end
   u[bdNode] = gD(node[bdNode,:])
 
   #Stochastic Part
   if stochastic
-    rands = getNoise(N,node,elem,noiseType=noiseType)
+    rands = getNoise(u,node,elem,noiseType=noiseType)
     dW = next(rands)
-    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear).*dW
+    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars).*dW
   else #Not Stochastic
-    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear)
+    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars)
   end
   #Solve
   if isLinear
     if solver == "Direct"
-      u[freeNode]=A[freeNode,freeNode]\rhs(u)[freeNode]
+      u[freeNode,:]=A[freeNode,freeNode]\rhs(u)[freeNode]
     elseif solver == "CG"
-      u[freeNode],ch=cg!(u[freeNode],A[freeNode,freeNode],rhs(u)[freeNode])
+      u[freeNode,:],ch=cg!(u[freeNode,:],A[freeNode,freeNode],rhs(u)[freeNode])
     elseif solver == "GMRES"
-      u[freeNode],ch=gmres!(u[freeNode],A[freeNode,freeNode],rhs(u)[freeNode])
+      u[freeNode,:],ch=gmres!(u[freeNode,:],A[freeNode,freeNode],rhs(u)[freeNode])
     end
     #Adjust result
     if isempty(Dirichlet) #isPureNeumann
@@ -60,12 +70,19 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
       u = u - uc   # Impose integral of u = 0
     end
   else #Nonlinear
-    output = u
     function rhs!(u,resid)
-      resid[freeNode]=A[freeNode,freeNode]*u[freeNode]-rhs(u)[freeNode]
+      u = reshape(u,N,numVars)
+      resid = reshape(resid,N,numVars)
+      resid[freeNode,:]=A[freeNode,freeNode]*u[freeNode,:]-rhs(u)[freeNode,:]
+      u = vec(u)
+      resid = vec(resid)
     end
-    nlres = nlsolve(rhs!,u,autodiff=autodiff)
+    u = vec(u)
+    nlres = nlsolve(rhs!,u,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
     u = nlres.zero
+    if numVars > 1
+      u = reshape(u,N,numVars)
+    end
   end
 
   #Return
@@ -78,7 +95,7 @@ end
 
 ## Evolution Equation Solvers
 #Note
-#rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st 𝒪
+#rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode,:] + Δt*f(node,(i-.5)*Δt)[freeNode] #Nodel interpolation 1st 𝒪
 """
 ## Finite Element Heat Equation Solver
 
@@ -129,19 +146,30 @@ By default fullSave is false.
 for the nonlinear solving. By default autodiff is false.
 """
 function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
-  solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,autodiff::Bool=false)
+  solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,
+  autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
   #Unroll some important constants
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
-  @unpack pdeProb: f,u₀,Du,gD,gN,sol,knownSol,isLinear,σ,stochastic,noiseType
+  @unpack pdeProb: f,u₀,Du,gD,gN,sol,knownSol,isLinear,numVars,σ,stochastic,noiseType
 
   #Note if Atom is loaded for progress
   atomLoaded = isimported("Atom")
 
   #Set Initial
   u = u₀(node)
+  if numVars==0
+    numVars = size(u,2)
+    #pdeProb.numVars = numVars #Mutate problem to be correct.
+    if gD == nothing
+      gD=(x,t)->zeros(size(x,1),numVars)
+    end
+    if gN == nothing
+      gN=(x,t)->zeros(size(x,1),numVars)
+    end
+  end
   t = 0
   √Δt = sqrt(Δt)
   #Setup f quadraturef
@@ -169,24 +197,24 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       end
       D = eye(N) - Δt*Minv*A
       if stochastic
-        rhs(u,i,dW) = D[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] +
+        rhs(u,i,dW) = D[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((x)->σ(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
-        rhs(u,i) = D[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        rhs(u,i) = D[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
     elseif alg == "ImplicitEuler"
       methodType = "Implicit"
       D = eye(N) + Δt*Minv*A
       lhs = D[freeNode,freeNode]
       if stochastic
-        rhs(u,i,dW) = u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] +
+        rhs(u,i,dW) = u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((x)->σ(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
-        rhs(u,i) = u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        rhs(u,i) = u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
     elseif alg == "CrankNicholson"
       methodType = "Implicit"
@@ -194,11 +222,11 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       Dp = eye(N) + Δt*Minv*A/2
       lhs = Dp[freeNode,freeNode]
       if stochastic
-        rhs(u,i,dW) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] +
+        rhs(u,i,dW) = Dm[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((x)->σ(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
-        rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
     end
   else #Nonlinear Algorithms
@@ -209,26 +237,28 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       end
       D = eye(N) - Δt*Minv*A
       if stochastic
-        rhs(u,i,dW) = D[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] +
+        rhs(u,i,dW) = D[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
-        rhs(u,i) = D[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        function rhs(u,i)
+          D[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
+        end
       end
     elseif alg == "SemiImplicitEuler"
       methodType = "Implicit"
       D = eye(N) + Δt*Minv*A
       lhs = D[freeNode,freeNode]
       if stochastic
-        rhs(u,i,dW) = u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] +
+        rhs(u,i,dW) = u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
-        rhs(u,i) = u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        rhs(u,i) = u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
     elseif alg == "SemiImplicitCrankNicholson"
       methodType = "Implicit"
@@ -236,24 +266,34 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       Dp = eye(N) + Δt*Minv*A/2
       lhs = Dp[freeNode,freeNode]
       if stochastic
-        rhs(u,i,dW) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] +
+        rhs(u,i,dW) = Dm[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+                                A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
-        rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
-                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        rhs(u,i) = Dm[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
+                    A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "ImplicitEuler"
+    elseif alg == "ImplicitEuler" # Does this have an issue?
       methodType = "NonlinearSolve"
       if stochastic
-        function rhs!(u,output,dW,uOld,i)
-          output[freeNode] = u[freeNode] - uOld[freeNode] - Δt*Minv*A[freeNode,freeNode]*u[freeNode] - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode] -(√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                      A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        function rhs!(u,resid,dW,uOld,i)
+          u = reshape(u,N,numVars)
+          resid = reshape(resid,N,numVars)
+          resid[freeNode,:] = u[freeNode,:] - uOld[freeNode,:] + Δt*Minv*A[freeNode,freeNode]*u[freeNode,:] - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] -(√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
+                      A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
+          u = vec(u)
+          resid = vec(resid)
         end
       else #Deterministic
-        function rhs!(u,output,uOld,i)
-          output[freeNode] = u[freeNode] - uOld[freeNode] - Δt*Minv*A[freeNode,freeNode]*u[freeNode] - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear))[freeNode]
+        function rhs!(u,resid,uOld,i)
+          u = reshape(u,N,numVars)
+          uOld = reshape(uOld,N,numVars)
+          resid = reshape(resid,N,numVars)
+          resid[freeNode,:] = u[freeNode,:] - uOld[freeNode,:] + Δt*Minv*A[freeNode,freeNode]*u[freeNode,:] -
+          (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
+          u = vec(u)
+          resid = vec(resid)
         end
       end
     end
@@ -271,10 +311,10 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
     end
   end
   if stochastic
-    rands = getNoise(N,node,elem,noiseType=noiseType)
+    rands = getNoise(u,node,elem,noiseType=noiseType)
   end
   if methodType == "NonlinearSolve"
-    output = u
+    uOld = similar(vec(u))
   end
   #Heat Equation Loop
   for i=1:femMesh.numIters
@@ -283,37 +323,41 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       if stochastic
         dW = next(rands)
         if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
-          u[freeNode] = lhs\rhs(u,i,dW)
+          u[freeNode,:] = lhs\rhs(u,i,dW)
         elseif solver == "CG"
-          u[freeNode],ch = cg!(u[freeNode],lhs,rhs(u,i,dW))
+          u[freeNode],ch = cg!(u[freeNode],lhs,rhs(u,i,dW)) # Requires Vector, need to change rhs
         elseif solver == "GMRES"
-          u[freeNode],ch = gmres!(u[freeNode],lhs,rhs(u,i,dW))
+          u[freeNode],ch = gmres!(u[freeNode],lhs,rhs(u,i,dW)) # Requires Vector, need to change rhs
         end
       else #Deterministic
         if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
-          u[freeNode] = lhs\rhs(u,i)
+          u[freeNode,:] = lhs\rhs(u,i)
         elseif solver == "CG"
-          u[freeNode],ch = cg!(u[freeNode],lhs,rhs(u,i))
+          u[freeNode],ch = cg!(u[freeNode],lhs,(u,i)->vec(rhs(u,i))) # Requires Vector, need to change rhs
         elseif solver == "GMRES"
-          u[freeNode],ch = gmres!(u[freeNode],lhs,rhs(u,i))
+          u[freeNode],ch = gmres!(u[freeNode],lhs,(u,i)->vec(rhs(u,i))) # Requires Vector, need to change rhs
         end
       end
     elseif methodType == "Explicit"
       if stochastic
         dW = next(rands)
-        u[freeNode] = rhs(u,i,dW)
+        u[freeNode,:] = rhs(u,i,dW)
       else
-        u[freeNode] = rhs(u,i)
+        u[freeNode,:] = rhs(u,i)
       end
     elseif methodType == "NonlinearSolve"
-      uOld = u
+      u = vec(u)
+      uOld = copy(u)
       if stochastic
         dW = next(rands)
-        nlres = nlsolve((u,output)->rhs!(u,output,dW,uOld,i),u,autodiff=autodiff)
+        nlres = nlsolve((u,resid)->rhs!(u,resid,dW,uOld,i),uOld,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
       else
-        nlres = nlsolve((u,output)->rhs!(u,output,uOld,i),u,autodiff=autodiff)
+        nlres = nlsolve((u,resid)->rhs!(u,resid,uOld,i),uOld,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
       end
       u = nlres.zero
+      if numVars > 1
+        u = reshape(u,N,numVars)
+      end
     end
     u[bdNode] = gD(node,i*Δt)[bdNode]
     if fullSave && i%saveSteps==0
@@ -343,7 +387,7 @@ quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gN
 
 Performs the order 2 quadrature to calculate the vector from the term ``<f,v>``.
 """
-function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquad𝒪=2)
+function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars;gNquad𝒪=2)
   if isLinear
     bt1 = area.*(f(mid[:,:,2])+f(mid[:,:,3]))/6
     bt2 = area.*(f(mid[:,:,3])+f(mid[:,:,1]))/6
@@ -356,30 +400,41 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,is
     bt2 = area.*(f(u3,mid[:,:,3])+f(u1,mid[:,:,1]))/6
     bt3 = area.*(f(u1,mid[:,:,1])+f(u2,mid[:,:,2]))/6
   end
-  b = vec(accumarray(vec(elem),vec([bt1;bt2;bt3])))
+  b = Array{eltype(bt1)}(N,numVars) #size(bt1,2) == numVars
+  for i = 1:numVars
+    b[:,i] = accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
+  end
 
   if(!isempty(Dirichlet))
-    uz = zeros(N)
-    uz[bdNode] = gD(node[bdNode,:])
+    uz = zeros(u)
+    uz[bdNode,:] = gD(node[bdNode,:])
     b = b-A*uz
   end
+
   if(!isempty(Neumann))
     el = sqrt(float(sum((node[Neumann[:,1],:] - node[Neumann[:,2],:]).^2,2)))
     λgN,ωgN = quadpts1(gNquad𝒪)
     ϕgN = λgN                # linear bases
     nQuadgN = size(λgN,1)
-    ge = zeros(size(Neumann,1),2)
+    ge = zeros(size(Neumann,1),2,numVars)
+
     for pp = 1:nQuadgN
         # quadrature points in the x-y coordinate
         ppxy = λgN[pp,1]*node[Neumann[:,1],:] +
                λgN[pp,2]*node[Neumann[:,2],:]
         gNp = gN(ppxy)
-        for igN = 1:2
-            ge[:,igN] = ge[:,igN] + ωgN[pp]*ϕgN[pp,igN]*gNp
+        for igN = 1:2, var = 1:numVars
+            ge[:,igN,var] = ge[:,igN,var] + vec(ωgN[pp]*ϕgN[pp,igN]*gNp[:,var])
         end
     end
-    ge = ge.*repmat(el,1,2)
-    b = b + accumarray(vec(Neumann), vec(ge),[N,1])
+    ge = ge.*repeat(el,outer=[1,2,numVars]) # tuple in v0.5?
+
+    for i=1:numVars
+      b[:,i] = b[:,i] + accumarray(vec(Neumann), vec(ge[:,i]),[N,1])
+    end
+  end
+  if numVars == 1
+    b = vec(b)
   end
   return(b)
 end

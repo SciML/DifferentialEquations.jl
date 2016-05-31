@@ -25,3 +25,4 @@
 
 ## Misc
 * Davie-Gaines convergence analysis
+* CG and GMRES don't work with systems, change IterativeSolvers
