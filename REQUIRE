@@ -7,6 +7,5 @@ NLsolve
 Parameters
 JLD
 GrowableArrays
-CheckImports
 ChunkedArrays
 EllipsisNotation

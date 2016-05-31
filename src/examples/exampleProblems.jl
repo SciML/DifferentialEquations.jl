@@ -92,12 +92,12 @@ function heatProblemExample_birthdeathinteractingsystem()
   return(HeatProblem(u₀,f))
 end
 
-function heatProblemExample_grayscott(ρ=.03,k=.062)
-  f₁(u,x,t)  = - u[:,1].*u[:,2].^2 + ρ*(1-u[:,1])
-  f₂(u,x,t)  = 1 - u[:,1].*u[:,2].*u[:,2] - (ρ+k).*u[:,2]
+function heatProblemExample_grayscott(ρ=.03,k=.062;D=[1 .001])
+  f₁(u,x,t)  = - u[:,1].*u[:,2].*u[:,2] + ρ*(1-u[:,1])
+  f₂(u,x,t)  = u[:,1].*u[:,2].*u[:,2] - (ρ+k).*u[:,2]
   f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
-  D = [1e-4 .5e-4]
-  u₀(x) = [ones(size(x,1))+rand(size(x,1)) float((x[:,1].>.5) & (x[:,2].>.5))] # size (x,2), 2 meaning 2 variables
+  u₀(x) = [ones(size(x,1))+rand(size(x,1)) .25.*float(((.2.<x[:,1].<.6) &
+          (.2.<x[:,2].<.6)) | ((.85.<x[:,1]) & (.85.<x[:,2])))] # size (x,2), 2 meaning 2 variables
   return(HeatProblem(u₀,f,D=D))
 end
 
