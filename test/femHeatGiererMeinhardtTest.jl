@@ -1,7 +1,7 @@
 using DifferentialEquations, Plots
 
 #Define a parabolic problem
-T = .25
+T = .5
 Δx = 1//2^(4)
 Δt = 1//2^(10)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
