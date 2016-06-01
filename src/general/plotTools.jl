@@ -105,6 +105,36 @@ end
   sol.tFull, vals
 end
 
+@recipe function f(sol::ODESolution;plottrue=false)
+  if ndims(sol.uFull) > 2
+    totaldims = 1
+    for i=2:ndims(sol.uFull)
+      totaldims *= size(sol.uFull,i)
+    end
+    #println(totaldims)
+    vals = reshape(sol.uFull,size(sol.uFull,1),totaldims)
+  else
+    vals = sol.uFull
+  end
+  if plottrue
+    if ndims(sol.solFull) > 2
+      totaldims = 1
+      for i=2:ndims(sol.uFull)
+        totaldims *= size(sol.solFull,i)
+      end
+      vals = [vals reshape(sol.solFull,size(sol.solFull,1),totaldims)]
+    else
+      vals = [vals sol.solFull]
+    end
+  end
+  plottrue = pop!(d,:plottrue)
+  #u = Any[sol.uFull];
+  #plottrue && push!(u, sol.solFull);
+  seriestype --> :path
+  #layout --> length(u)
+  sol.tFull, vals
+end
+
 @recipe function f(sim::ConvergenceSimulation)
   if ndims(collect(values(sim.errors))[1])>1 #Monte Carlo
     vals = [mean(x,1) for x in values(sim.errors)]'

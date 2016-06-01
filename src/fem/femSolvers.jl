@@ -18,7 +18,7 @@ the implicit equation `Ax=b`. The default is `LU`. The choices are:
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
 """
-function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
+function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
