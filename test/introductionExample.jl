@@ -1,4 +1,4 @@
-#Finite Element Method Introduction
+##Finite Element Method Introduction
 
 using DifferentialEquations
 
@@ -15,24 +15,32 @@ function poissonProblemExample_wave()
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
   return(PoissonProblem(f,sol,Du))
 end
-#Here we have the true solution and the true gradient `Du`. The solvers will
-#automatically use these to calculate errors. Now we generate the problem type:
+#=
+Here we have the true solution and the true gradient `Du`. The solvers will
+automatically use these to calculate errors. Now we generate the problem type:
+=#
 pdeProb = poissonProblemExample_wave()
 
 ### Solving
 
 #To solve an FEMProblem, we only need to pass the solver the mesh and the problem
-sol = solve(femMesh,pdeProb)#,solver="CG") TODO fix CG
-#The solver picks the dispatch for the Poisson example, and by default solvers via
-#A direct solve with \. Returned is a solver object with all the knowledge of the solution.
+sol = solve(femMesh,pdeProb)
+#=
+The solver picks the dispatch for the Poisson example, and by default solvers via
+A direct solve with \. Returned is a solver object with all the knowledge of the solution.
+=#
 
 ### Plotting
 
-#The plotting abilities are given by Plots.jl. Since DifferentialEquations.jl
-#defines recipes for the solution objects, we can plot the default plot via:
-plot(sol::FEMSolution,plottrue=false) #To save the plot, use savefig("plot.png") or "plot.pdf", etc.
-#Note that if we set plottrue=true, we will plot the true solution alongside the
-#approximated solution. Other arguments can be found via the Plots.jl documentation.
+#=
+The plotting abilities are given by Plots.jl. Since DifferentialEquations.jl
+defines recipes for the solution objects, we can plot the default plot via:
+=#
+plot(sol::FEMSolution,plottrue=true) #To save the plot, use savefig("plot.png") or "plot.pdf", etc.
+#=
+Note that if we set plottrue=true, we will plot the true solution alongside the
+approximated solution. Other arguments can be found via the Plots.jl documentation.
+=#
 
 ### Test Results
 

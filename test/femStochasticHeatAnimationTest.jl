@@ -10,9 +10,9 @@ T = 5
 Δx = 1//2^(3)
 Δt = 1//2^(11)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
-pdeProb = heatProblemExample_stochasticbirthdeath()
+prob = heatProblemExample_stochasticbirthdeath()
 
-sol = solve(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true,solver="LU")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true,solver="LU")
 
 println("Generating Animation")
 @linux? animate(sol::FEMSolution;zlim=(0,3),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")

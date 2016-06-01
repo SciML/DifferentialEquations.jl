@@ -1,22 +1,10 @@
 # DifferentialEquations.jl Documentation
 
-This is a package for solving numerically solving differential equations in Julia
-by Chris Rackauckas. The purpose of this package is to supply efficient Julia
-implementations of solvers for various differential equations. Equations within
-the realm of this package include stochastic ordinary differential equations
-(SODEs or SDEs), stochastic partial differential equations (SPDEs), partial
-differential equations (with both finite difference and finite element methods),
-and differential delay equations. For ordinary differential equation solvers,
-see [ODE.jl](https://github.com/JuliaLang/ODE.jl)
+This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations.
 
-This package is for efficient and parallel implementations of research-level
-algorithms, many of which are quite recent. These algorithms aim to be optimized
-for HPC applications, including the use of GPUs, Xeon Phis, and multi-node
-parallelism. With the easy to use plot/convergence testing algorithms,
-this package also provides a good sandbox for developing novel numerical schemes.
+This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end). All of the methods have associated tests to ensure that the theoretical order of accuracy is attained.
 
-If at any time you run into documentation that is incomplete/confusing, please
-contact me via the Gitter channel and I will clear it up!
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
 
 ## Using the Package
 
@@ -63,7 +51,7 @@ Depth = 2
 ```@contents
 Pages = [
     "man/overview.md",
-    "man/problem.md",
+    "man/femProblem.md",
     "man/mesh.md",
     "man/solvers.md",
     "man/solution.md",

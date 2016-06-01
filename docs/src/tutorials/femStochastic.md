@@ -16,16 +16,13 @@ We can solve the same PDE as in the Poisson Tutorial except as the stochastic PD
  ``-Δu=f+gdW``, with additive space-time white noise by specifying the problem as:
 
 ```julia
-"Example problem with deterministic solution: u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
+"Example problem with deterministic solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
 function poissonProblemExample_noisyWave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
-  gN(x) = 0
-  isLinear = true
-  stochastic = true
-  σ(x) = 5 #Additive noise, a big amount!
-  return(PoissonProblem(f,sol,Du,gN,isLinear,σ=σ,stochastic=stochastic))
+  σ(x) = 5 #Additive noise
+  return(PoissonProblem(f,sol,Du,σ=σ))
 end
 ```
 
@@ -43,16 +40,12 @@ it due to 1st order "Milstein" effects), gaining more noise as it increases.
 This is specified as follows:
 
 ```julia
-"Example problem which starts with 0 and solves with f(u)=1-.1u"
+"Example problem which starts with 0 and solves with ``f(u)=1-u/2`` with noise ``σ(u)=10u^2``"
 function heatProblemExample_stochasticbirthdeath()
-  gD(x,t) = zeros(size(x,1))
   f(u,x,t)  = ones(size(x,1)) - .5u
-  u0(x) = zeros(size(x,1))
-  gN(x,t) = 0
-  isLinear = false
-  stochastic = true
-  σ(u,x,t) = 100u.^2
-  return(HeatProblem(u0,f,gD,gN,isLinear,σ=σ,stochastic=stochastic))
+  u₀(x) = zeros(size(x,1))
+  σ(u,x,t) = 1u.^2
+  return(HeatProblem(u₀,f,σ=σ))
 end
 ```
 
@@ -61,13 +54,13 @@ we use the following code create an animation of the solution:
 
 ```julia
 T = 5
-Δx = 1//2^(4)
-Δt = 1//2^(12)
+Δx = 1//2^(3)
+Δt = 1//2^(11)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
-pdeProb = heatProblemExample_stochasticbirthdeath()
+prob = heatProblemExample_stochasticbirthdeath()
 
-res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
-solplot_animation(res::FEMSolution;zlim=(0,2),vmax=.1,cbar=false)
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true,solver="LU")
+animate(sol::FEMSolution;zlim=(0,3),cbar=false)
 ```
 
 <img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
