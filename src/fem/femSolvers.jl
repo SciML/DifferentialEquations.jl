@@ -17,6 +17,9 @@ the implicit equation `Ax=b`. The default is `LU`. The choices are:
 * `saveSteps` = If `fullSave=true`, then this is the number of steps between the saves.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
+* `method` = Method the nonlinear solver uses. Defaults to `:trust_region`.
+* `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
+* `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
 """
 function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
@@ -154,6 +157,9 @@ By default fullSave is false.
 * `saveSteps` = If `fullSave=true`, then this is the number of steps between the saves.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
+* `method` = Method the nonlinear solver uses. Defaults to `:trust_region`.
+* `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
+* `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
 """
 function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
   solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,
@@ -403,9 +409,9 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
 end
 
 """
-quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear;gNquad𝒪=2)
+quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars;gNquad𝒪=2)
 
-Performs the order 2 quadrature to calculate the vector from the term ``<f,v>``.
+Performs the order 2 quadrature to calculate the vector from the term ``<f,v>`` for linear elements.
 """
 function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars;gNquad𝒪=2)
   if isLinear

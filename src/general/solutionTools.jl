@@ -9,15 +9,13 @@ Holds the data for the solution to a finite element problem.
 * `u::Array{Float64}`: The solution (at the final timepoint)
 * `trueKnown::Bool`: Boolean flag for if the true solution is given.
 * `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
-* `l2Err::NumberOrVoid`: The L2 error between u and uTrue.
-* `h1Err::NumberOrVoid`: The H1 error between u and uTrue.
-* `maxErr::NumberOrVoid`: The nodal maximum error between u and uTrue.
-* `nodeErr2::NumberOrVoid`: The nodal l2 error between y abd uTrue.
+* `errors`: A dictionary of the error calculations.
 * `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
 * `uFull`::AbstractArrayOrVoid`: u over time. Only saved if `fullSave=true`
 is specified in the solver.
 * `tFull::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `fullSave=true`
 is specified in the solver.
+* `prob::DEProblem`: Holds the problem object used to define the problem.
 * `fullSave::Bool`: True if solver saved the extra timepoints.
 
 """
@@ -46,6 +44,29 @@ type FEMSolution <: DESolution
   end
 end
 
+"""
+SDESolution
+
+Holds the data for the solution to a SDE problem.
+
+### Fields
+
+* `u::Array{Float64}`: The solution (at the final timepoint)
+* `trueKnown::Bool`: Boolean flag for if the true solution is given.
+* `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
+* `errors`: A dictionary of the error calculations.
+* `uFull`::AbstractArrayOrVoid`: u over time. Only saved if `fullSave=true`
+is specified in the solver.
+* `tFull::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `fullSave=true`
+is specified in the solver.
+* `WFull`: All of the W's in the solution. Only saved if `fullSave=true` is specified
+in the solver.
+* `solFull`: If `fullSave=true`, saves the solution at each save point.
+* `prob::DEProblem`: Holds the problem object used to define the problem.
+* `fullSave::Bool`: True if solver saved the extra timepoints.
+* `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
+
+"""
 type SDESolution <: DESolution
   u#::AbstractArrayOrNumber
   trueKnown::Bool
@@ -75,6 +96,27 @@ type SDESolution <: DESolution
   SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.WFull,a.solFull,a.appxTrue,a.fullSave)
 end
 
+"""
+ODESolution
+
+Holds the data for the solution to an ODE problem.
+
+### Fields
+
+* `u::Array{Float64}`: The solution (at the final timepoint)
+* `trueKnown::Bool`: Boolean flag for if the true solution is given.
+* `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
+* `errors`: A dictionary of the error calculations.
+* `uFull`::AbstractArrayOrVoid`: u over time. Only saved if `fullSave=true`
+is specified in the solver.
+* `tFull::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `fullSave=true`
+is specified in the solver.
+* `solFull`: If `fullSave=true`, saves the solution at each timestep.
+* `prob::DEProblem`: Holds the problem object used to define the problem.
+* `fullSave::Bool`: True if solver saved the extra timepoints.
+* `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
+
+"""
 type ODESolution <: DESolution
   u#::AbstractArrayOrNumber
   trueKnown::Bool
@@ -101,6 +143,25 @@ type ODESolution <: DESolution
   end
 end
 
+"""
+StokesSolution
+
+Holds the data for the solution to a Stokes problem.
+
+### Fields
+
+* u
+* v
+* p
+* uTrue
+* vTrue
+* pTrue
+* mesh
+* trueKnown
+* errors
+* converrors
+
+"""
 type StokesSolution <: DESolution
   u
   v

@@ -246,4 +246,9 @@ type FDMMesh
   FDMMesh(Δx::Number;mins=[0;0],maxs=[1;1],buildMesh=true) = FDMMesh(Δx*ones(mins),mins=mins,maxs=maxs,buildMesh=buildMesh)
 end
 
+"""
+size(mesh::FDMMesh)
+
+Returns gridSize.
+"""
 size(mesh::FDMMesh) = mesh.gridSize

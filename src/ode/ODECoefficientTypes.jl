@@ -1,3 +1,8 @@
+"""
+ExplicitRK
+
+Holds a tableau which defines an explicit Runge-Kutta method.
+"""
 type ExplicitRK
   A::Array{Float64,2}
   c::Vector{Float64}
@@ -8,8 +13,18 @@ type ExplicitRK
   ExplicitRK(A,c,α,order;αEEst=Float64[]) = new(A,c,α,αEEst,length(α),order)
 end
 
+"""
+Base.length(tab::ExplicitRK)
+
+Defines the length of a Runge-Kutta method to be the number of stages.
+"""
 Base.length(tab::ExplicitRK) = tab.stages
 
+"""
+constructHuen()
+
+Constructs the tableau object for Huen's Order 2 method.
+"""
 function constructHuen()
   A = [0 0
        1 0]
@@ -18,7 +33,11 @@ function constructHuen()
   αEEst = [1;0]
   return(ExplicitRK(A,c,α,2,αEEst=αEEst))
 end
+"""
+constructRalston()
 
+Constructs the tableau object for Ralston's Order 2 method.
+"""
 function constructRalston()
   A = [0 0
        2/3 0]
@@ -27,6 +46,11 @@ function constructRalston()
   return(ExplicitRK(A,c,α,2))
 end
 
+"""
+constructRKF()
+
+Constructs the tableau object for the Runge-Kutta-Fuhlberg Order 4/5 method.
+"""
 function constructRKF()
   A = [0 0 0 0 0 0
       1/4 0 0 0 0 0
@@ -40,6 +64,11 @@ function constructRKF()
   return(ExplicitRK(A,c,α,5,αEEst=αEEst))
 end
 
+"""
+constructBogakiShampine()
+
+Constructs the tableau object for the Bogakai-Shampine Order 2/3 method.
+"""
 function constructBogakiShampine()
   A = [0 0 0 0
       1/2 0 0 0
@@ -51,6 +80,11 @@ function constructBogakiShampine()
   return(ExplicitRK(A,c,α,3,αEEst=αEEst))
 end
 
+"""
+constructCashKarp()
+
+Constructs the tableau object for the Cash-Karp Order 4/5 method.
+"""
 function constructCashKarp()
   A = [0 0 0 0 0 0
        1/5 0 0 0 0 0
@@ -64,6 +98,11 @@ function constructCashKarp()
   return(ExplicitRK(A,c,α,5,αEEst=αEEst))
 end
 
+"""
+constructDormandPrince()
+
+Constructs the tableau object for the Dormand-Prince Order 4/5 method.
+"""
 function constructDormandPrince()
   A = [0 0 0 0 0 0 0
       1/5 0 0 0 0 0 0
@@ -78,6 +117,11 @@ function constructDormandPrince()
   return(ExplicitRK(A,c,α,5,αEEst=αEEst))
 end
 
+"""
+constructRKF8()
+
+Constructs the tableau object for the Runge-Kutta-Fuhlberg Order 7/8 method.
+"""
 function constructRKF8()
   A =[0 0 0 0 0 0 0 0 0 0 0 0 0
       2/27 0 0 0 0 0 0 0 0 0 0 0 0
@@ -98,4 +142,9 @@ function constructRKF8()
   return(ExplicitRK(A,c,α,8,αEEst=αEEst))
 end
 
+"""
+DEFAULT_TABLEAU
+
+Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
+"""
 DEFAULT_TABLEAU = constructDormandPrince()
