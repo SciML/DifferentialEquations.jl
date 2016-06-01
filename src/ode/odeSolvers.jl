@@ -1,4 +1,4 @@
-function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="Euler",tableau=DEFAULT_TABLEAU)
+function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="Euler",tableau=DEFAULT_TABLEAU,adaptive=false)
 
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
 
@@ -56,6 +56,14 @@ function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,
         utilde += α[i]*ks[..,i]
       end
       u = u + Δt*utilde
+      if adaptive
+        uEEst = αEEst[1]*ks[..,1]
+        for i = 2:stages
+          uEEst += αEEst[i]*ks[..,i]
+        end
+        EEst = norm(utilde-uEEst,2)
+        relEEst = EEst/norm(uEEst,2)
+      end
     end
     t = t + Δt
     if fullSave && iter%saveSteps==0
