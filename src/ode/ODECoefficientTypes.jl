@@ -4,7 +4,8 @@ type ExplicitRK
   α::Vector{Float64}
   αEEst::Vector{Float64}
   stages::Int
-  ExplicitRK(A,c,α;αEEst=Float64[]) = new(A,c,α,αEEst,length(α))
+  order::Int
+  ExplicitRK(A,c,α,order;αEEst=Float64[]) = new(A,c,α,αEEst,length(α),order)
 end
 
 Base.length(tab::ExplicitRK) = tab.stages
@@ -15,7 +16,7 @@ function constructHuen()
   c = [0;1]
   α = [1/2;1/2]
   αEEst = [1;0]
-  return(ExplicitRK(A,c,α,αEEst=αEEst))
+  return(ExplicitRK(A,c,α,2,αEEst=αEEst))
 end
 
 function constructRalston()
@@ -23,7 +24,7 @@ function constructRalston()
        2/3 0]
   c = [0;2/3]
   α = [1/4;3/4]
-  return(ExplicitRK(A,c,α))
+  return(ExplicitRK(A,c,α,2))
 end
 
 function constructRKF()
@@ -36,7 +37,7 @@ function constructRKF()
   c = [0;1/4;3/8;12/13;1;1/2]
   α = [16/135;0;6656/12825;28561/56430;-9/50;2/55]
   αEEst = [25/216;0;1408/2565;2197/4104;-1/5;0]
-  return(ExplicitRK(A,c,α,αEEst=αEEst))
+  return(ExplicitRK(A,c,α,5,αEEst=αEEst))
 end
 
 function constructBogakiShampine()
@@ -47,7 +48,7 @@ function constructBogakiShampine()
   c = [0,1/2,3/4,1]
   α = [2/9;1/3;4/9;0]
   αEEst = [7/24;1/4;1/3;1/8]
-  return(ExplicitRK(A,c,α,αEEst=αEEst))
+  return(ExplicitRK(A,c,α,3,αEEst=αEEst))
 end
 
 function constructCashKarp()
@@ -60,7 +61,7 @@ function constructCashKarp()
   c = [0;1/5;3/10;3/5;1;7/8]
   α = [37/378;0;250/621;125/594;0;512/1771]
   αEEst = [2825/27648;0;18574/48384;13525/554296;277/14336;1/4]
-  return(ExplicitRK(A,c,α,αEEst=αEEst))
+  return(ExplicitRK(A,c,α,5,αEEst=αEEst))
 end
 
 function constructDormandPrince()
@@ -74,7 +75,7 @@ function constructDormandPrince()
   c = [0;1/5;3/10;4/5;8/9;1;1]
   α = [35/384;0;500/1113;125/192;-2187/6784;11/84;0]
   αEEst = [5179/57600;0;7571/16695;393/640;-92097/339200;187/2100;1/40]
-  return(ExplicitRK(A,c,α,αEEst=αEEst))
+  return(ExplicitRK(A,c,α,5,αEEst=αEEst))
 end
 
 function constructRKF8()
@@ -94,7 +95,7 @@ function constructRKF8()
     α = [41/840;0;0;0;0;34/105;9/35;9/35;9/280;9/280;41/840;0;0]
     αEEst = [0;0;0;0;0;34/105;9/35;9/35;9/280;9/280;0;41/840;41/840]
     c = [0;2/27;1/9;1/6;5/12;1/2;5/6;1/6;2/3;1/3;1;0;1]
-  return(ExplicitRK(A,c,α,αEEst=αEEst))
+  return(ExplicitRK(A,c,α,8,αEEst=αEEst))
 end
 
-DEFAULT_TABLEAU = constructHuen()
+DEFAULT_TABLEAU = constructDormandPrince()
