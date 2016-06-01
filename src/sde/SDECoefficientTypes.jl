@@ -1,3 +1,8 @@
+"""
+RosslerSRI
+
+Holds the Butcher tableaus for a Rosser SRI method.
+"""
 type RosslerSRI
   c₀
   c₁
@@ -12,6 +17,11 @@ type RosslerSRI
   β₄
 end
 
+"""
+RosslerSRA
+
+Holds the Butcher tableaus for a Rosser SRA method.
+"""
 type RosslerSRA
   c₀
   c₁
@@ -22,6 +32,11 @@ type RosslerSRA
   β₂
 end
 
+"""
+constructSRIW1()
+
+Constructs the tableau type for the SRIW1 method.
+"""
 function constructSRIW1()
   c₀ = [0;3/4;0;0]
   c₁ = [0;1/4;1;1/4]
@@ -51,6 +66,11 @@ function constructSRIW1()
   RosslerSRI(c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄)
 end
 
+"""
+constructSRA1()
+
+Constructs the taleau type for the SRA1 method.
+"""
 function constructSRA1()
   α  = [1/3;2/3]
   β₁ = [1;0]
@@ -64,6 +84,11 @@ function constructSRA1()
   RosslerSRA(c₀,c₁,A₀,B₀,α,β₁,β₂)
 end
 
+"""
+checkSRIOrder(RosslerSRI)
+
+Determines whether the order conditions are met via the tableaus of the SRI method.
+"""
 function checkSRIOrder(RosslerSRI;tol=1e-6)
   @unpack RosslerSRI: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   e = ones(size(α))
@@ -96,6 +121,11 @@ function checkSRIOrder(RosslerSRI;tol=1e-6)
   return(conditions)
 end
 
+"""
+checkSRAOrder(RosslerSRI)
+
+Determines whether the order conditions are met via the tableaus of the SRA method.
+"""
 function checkSRAOrder(SRA;tol=1e-6)
   @unpack SRA: c₀,c₁,A₀,B₀,α,β₁,β₂
   e = ones(size(α))

@@ -1,3 +1,8 @@
+"""
+GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
+
+Performs a Gauss-Seidel iteration on u.
+"""
 function GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
   inti = 2:size(u,1)-1; intj = 2:size(u,2)-1 # Coordinates for interior
   fh₁ = Δxs[1]*Δxs[2]*f₁(ux,uy) # Get f values plus ghosts, include left/right boundary
@@ -17,6 +22,11 @@ function GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
   end
 end
 
+"""
+GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
+
+Performs a Gauss-Seidel iteration on v.
+"""
 function GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
   inti = 2:size(v,1)-1; intj = 2:size(v,2)-1 # Coordinates for interior
   fh₂   = Δxs[1]*Δxs[2]*f₂(vx,vy) # Get f values plus ghosts, include top/bottom boundary
@@ -36,18 +46,33 @@ function GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
   end
 end
 
+"""
+calc_rp!(rp,u,v,Δxs,g,px,py)
+
+Calculates the rp from the u and v's.
+"""
 function calc_rp!(rp,u,v,Δxs,g,px,py)
   for j=1:size(rp,2),i=1:size(rp,1)
     rp[i,j] = Δxs[1]*Δxs[2]*g(px[i,j],py[i,j]) - (u[i,j+1]-u[i,j])*Δxs[2] - (v[i+1,j]-v[i,j])*Δxs[1]
   end
 end
 
+"""
+uzawa_p!(p,u,v,Δxs,g,px,py)
+
+Solves for p from u and v using an Uzawa update.
+"""
 function uzawa_p!(p,u,v,Δxs,g,px,py)
   for j=1:size(p,2),i=1:size(p,1)
     p[i,j] = p[i,j] + 0.01(-(u[i,j+1]-u[i,j])/Δxs[1] - (v[i+1,j]-v[i,j])/Δxs[2] + g(px[i,j],py[i,j]))
   end
 end
 
+"""
+GSδq!(δq,rp,Δxs)
+
+Performs a Gauss-Seidel iteration for δq.
+"""
 function GSδq!(δq,rp,Δxs)
   for j=2:size(δq,2)-1, i=2:size(δq,1)-1 # Interior
     δq[i,j] = (rp[i,j] + δq[i-1,j] + δq[i+1,j] + δq[i,j-1] + δq[i,j+1])/4
@@ -75,18 +100,33 @@ function GSδq!(δq,rp,Δxs)
   δq[i,j] = (rp[i,j] + δq[i-1,j] + δq[i,j-1])/2
 end
 
+"""
+update_u!(u,δq,Δxs)
+
+Updates u given δq
+"""
 function update_u!(u,δq,Δxs)
   for i=1:size(u,1),j=2:size(u,2)-1
     u[i,j] = u[i,j] - (δq[i,j]-δq[i,j-1])/Δxs[2]
   end
 end
 
+"""
+update_v!(v,δq,Δxs)
+
+Updates v given δq
+"""
 function update_v!(v,δq,Δxs)
   for i=2:size(v,1)-1,j=1:size(v,2)
     v[i,j] = v[i,j] - (δq[i,j]-δq[i-1,j])/Δxs[1]
   end
 end
 
+"""
+update_p!(p,δq,Δxs)
+
+Updates p given δq
+"""
 function update_p!(p,δq,Δxs)
   for j=2:size(p,2)-1, i=2:size(p,1)-1 #Interior
     p[i,j] = p[i,j] - (4δq[i,j]-δq[i-1,j]-δq[i+1,j]-δq[i,j-1]-δq[i,j+1])/(Δxs[1]*Δxs[2])
@@ -114,6 +154,11 @@ function update_p!(p,δq,Δxs)
   p[i,j] = p[i,j] - (2δq[i,j]-δq[i-1,j]-δq[i,j-1])/(Δxs[1]*Δxs[2])
 end
 
+"""
+stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
+
+Restricts the Stokes problem to the coarsegrid.
+"""
 function stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   n = size(p,1); m = size(p,2)
   newu = Array{Float64}(n÷2,m÷2+1)
@@ -151,6 +196,11 @@ function stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   return(newu,newv,newp,Δxs,grids,ux,uy,vx,vy,px,py)
 end
 
+"""
+stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
+
+Prolongates the Stokes problem to the fine grid
+"""
 function stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   n = size(p,1); m = size(p,2)
   newu = Array{Float64}(2n,2m+1)
@@ -235,6 +285,21 @@ end
   update_p!(p,δq,Δxs)
 end
 
+"""
+solve(prob::StokesProblem,mesh::FDMMesh)
+
+Solves the given stationary Stokes problem on the given finite difference mesh.
+
+### Keyword Arguments
+
+* `converrors`: Whether to calculate all of the errors along the convergence. Default is true.
+* `maxiters`: Maximum number of iterations before haulting. Default is 100.
+* `alg`: The solver algorithm. Default is "dgs". Other option is "multigrid".
+* `level`: The number of levels in the Multigrid. Default is 2.
+* `smoothSteps`: The number of Gauss-Seidel iterations to do at each smoothing step. Default is 10.
+* `coarseSteps`: The number of Gauss-Seidel iterations to do at the coarsegrid. Default is 40.
+* `gsiters`: The number of Gauss-Seidel iterations to do at each step. Default is 20.
+"""
 function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,alg="DGS",levels=2,smoothSteps=10,coarseSteps=40,gsiters=20)
   @unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs
   u = zeros(gridSize[1]-1,gridSize[2])
