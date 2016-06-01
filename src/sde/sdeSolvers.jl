@@ -63,9 +63,24 @@ end
   u = u + Δt*dot(α,f(H0,t+c₀*Δt)) + dot(β₁*ΔW + β₂*chi2,σ(H0,t+c₁*Δt))
 end
 
-function solve(sdeProb::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
+"""
+solve(prob::SDEProblem,Δt,T)
 
-  @unpack sdeProb: f,σ,u₀,knownSol,sol, numVars, sizeu
+Solves the SDE as defined by prob with initial Δt on the time interval [0,T]
+
+### Keyword Arguments
+
+* fullSave: Saves the result at every saveSteps steps. Default is false.
+saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
+* alg: String which defines the solver algorithm. Defult is "EM". Possibilities are:
+  * "EM"- The Euler-Maruyama method.
+  * "RKMil" - An explicit Runge-Kutta discretization of the strong Order 1.0 Milstein method.
+  * "SRA" - The strong Order 1.5 method for additive SDEs due to Rossler.
+  * "SRI" - The strong Order 1.5 method for diagonal/scalar SDEs due to Rosser. Most efficient.
+"""
+function solve(prob::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
+
+  @unpack prob: f,σ,u₀,knownSol,sol, numVars, sizeu
 
   u = float(u₀)
   t = 0.0

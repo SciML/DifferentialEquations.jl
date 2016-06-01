@@ -40,6 +40,9 @@ for nonlinear problems (with the boundary conditions still (x,t))
 * `noiseType` = A string which specifies the type of noise to be generated. By default
 noiseType is "White" for Gaussian Spacetime White Noise.
 
+* `numVars` = Number of variables in the system. Automatically calculated from u₀ in most cases.
+
+* `D` = Array which defines the diffusion coefficients. Defaults to 1's.
 """
 type HeatProblem <: DEProblem
   "u₀: Initial value function"
@@ -188,6 +191,10 @@ for nonlinear problems (with the boundary conditions still (x,t))
 * `noiseType` = A string which specifies the type of noise to be generated. By default
 `noiseType` is "White" for Gaussian Spacetime White Noise.
 
+* `numVars` = The number of variables in the Poisson system. Automatically calculated in many cases.
+
+* `D` = Vector of diffusion coefficients. Defaults to ones.
+
 """
 type PoissonProblem <: DEProblem
   "f: Forcing function in the Poisson problem"
@@ -294,6 +301,29 @@ end
 """
 SDEProblem
 
+Wraps the data which defines an SDE problem
+
+```math
+uₜ = f(uₜ,t)dt + Σσᵢ(uₜ,t)dWⁱₜ
+```
+
+with initial condition u₀.
+
+### Fields
+
+* `f`: The drift function in the SDE.
+* `σ`: The noise function in the SDE.
+* `u₀`: The initial condition.
+* `sol`: A function which describes the solution.
+* `knownSol`: True if the solution is given.
+* `numVars`: The number of variables in the system
+* `sizeu`: The size of the initial condition (and thus `u`)
+
+### Constructors
+
+SDEProblem(f,σ,u₀;sol=nothing) : Defines the SDE with the specified functions and
+defines the solution if sol is given.
+
 """
 type SDEProblem <: DEProblem
   f::Function
@@ -324,6 +354,28 @@ end
 """
 ODEProblem
 
+Wraps the data which defines an SDE problem
+
+```math
+uₜ = f(uₜ,t)dt
+```
+
+with initial condition u₀.
+
+### Fields
+
+* `f`: The drift function in the ODE.
+* `u₀`: The initial condition.
+* `sol`: A function which describes the solution.
+* `knownSol`: True if the solution is given.
+* `numVars`: The number of variables in the system
+* `sizeu`: The size of the initial condition (and thus `u`)
+
+### Constructors
+
+ODEProblem(f,u₀;sol=nothing) : Defines the SDE with the specified functions and
+defines the solution if sol is given.
+
 """
 type ODEProblem <: DEProblem
   f::Function
@@ -350,6 +402,33 @@ type ODEProblem <: DEProblem
   end
 end
 
+"""
+StokesProblem
+
+Defines the solution to a stationary Stokes problem:
+
+```math
+
+```
+
+### Fields
+
+* `f₁::Function`
+* `f₂::Function`
+* `g::Function`
+* `ugD::Function`
+* `vgD::Function`
+* `usol::Function`
+* `vsol::Function`
+* `psol::Function`
+* `trueKnown::Bool`
+
+### Constructors
+
+`StokesProblem(f₁,f₂,g,usol,vsol,psol)`
+
+`StokesProblem(f₁,f₂,g,ugD,vgD)`
+"""
 type StokesProblem
   f₁::Function
   f₂::Function
