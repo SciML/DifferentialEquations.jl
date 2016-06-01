@@ -13,7 +13,7 @@ Plots an animation of the solution. Requires `fullSave=true` was enabled in the 
 function animate(sol::FEMSolution;zlims=nothing,cbar=true,size=nothing,plotfunc=Plots.surface)
   atomLoaded = isdefined(Main,:Atom)
   if size == nothing
-    size = (750,750*sol.prob.numVars)
+    size = (750*sol.prob.numVars,750)
   end
   Plots.pyplot(reuse=true,size=size)
   if zlims==nothing
