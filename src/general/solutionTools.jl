@@ -28,20 +28,21 @@ type FEMSolution <: DESolution
   uTrue::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
   appxTrue::Bool
-  uFull::AbstractArrayOrVoid
+  timeSeries::GrowableArray
   tFull::AbstractArrayOrVoid
+  prob::DEProblem
   fullSave::Bool
-  function FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,uFull,tFull;fullSave=true)
+  function FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,timeSeries,tFull,prob;fullSave=true)
     errors = Dict("L2"=>getL2error(femMesh,sol,u),"H1"=>getH1error(femMesh,Du,u),
                   "l∞"=> maximum(abs(u-uTrue)), "l2"=> norm(u-uTrue,2))
-    return(new(femMesh,u,true,uTrue,errors,false,uFull,tFull,true))
+    return(new(femMesh,u,true,uTrue,errors,false,timeSeries,tFull,prob,true))
   end
-  FEMSolution(femMesh,u,uTrue,sol,Du) = FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,nothing,nothing,fullSave=false)
-  function FEMSolution(femMesh::FEMmesh,u::AbstractArray)
-    return(FEMSolution(femMesh,u,nothing,nothing,fullSave=true))
+  FEMSolution(femMesh,u,uTrue,sol,Du,prob) = FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,nothing,nothing,prob,fullSave=false)
+  function FEMSolution(femMesh::FEMmesh,u::AbstractArray,prob)
+    return(FEMSolution(femMesh,u,nothing,nothing,prob,fullSave=false))
   end
-  function FEMSolution(femMesh::FEMmesh,u::AbstractArray,uFull,tFull;fullSave=true)
-    return(new(femMesh,u,false,nothing,Dict{String,Float64},false,uFull,tFull,fullSave))
+  function FEMSolution(femMesh::FEMmesh,u::AbstractArray,timeSeries,tFull,prob;fullSave=true)
+    return(new(femMesh,u,false,nothing,Dict{String,Float64},false,timeSeries,tFull,prob,fullSave))
   end
 end
 
@@ -100,4 +101,26 @@ function appxTrue!(res::FEMSolution,res2::FEMSolution)
   res.uTrue = res2.u
   res.errors = Dict("l∞"=>maximum(abs(res.u-res.uTrue)),"l2"=>norm(res.u-res.uTrue,2))
   res.appxTrue = true
+end
+
+"""
+S = FEMSolutionTS(uFull::GrowableArray,numVars::Int)
+S[i][j] => Variable i at time j.
+"""
+function FEMSolutionTS(uFull::GrowableArray,numVars::Int)
+  G = GrowableArray(uFull[1][:,1])
+  for j = 2:length(uFull)
+    push!(G,uFull[j][:,1])
+  end
+  ts = GrowableArray(G)
+  if numVars > 1
+    for i=2:numVars
+      G = GrowableArray(uFull[1][:,i])
+      for j = 2:length(uFull)
+        push!(G,uFull[j][:,i])
+      end
+      push!(ts,G)
+    end
+  end
+  return(ts)
 end

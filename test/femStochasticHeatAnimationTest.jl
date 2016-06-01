@@ -8,7 +8,7 @@
 using DifferentialEquations
 T = 5
 Δx = 1//2^(3)
-Δt = 1//2^(9)
+Δt = 1//2^(11)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 pdeProb = heatProblemExample_stochasticbirthdeath()
 

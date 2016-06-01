@@ -24,7 +24,7 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
 
   #Unroll some important constants
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
-  @unpack pdeProb: f,Du,f,gD,gN,sol,knownSol,isLinear,u₀,numVars,σ,stochastic,noiseType, D
+  @unpack prob: f,Du,f,gD,gN,sol,knownSol,isLinear,u₀,numVars,σ,stochastic,noiseType, D
 
   #Setup f quadrature
   mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
@@ -36,13 +36,15 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
   u = u₀(node)
   if numVars==0
     numVars = size(u,2)
-    #pdeProb.numVars = numVars #Mutate problem to be correct.
+    prob.numVars = numVars #Mutate problem to be correct.
     if gD == nothing
       gD=(x)->zeros(size(x,1),numVars)
     end
+    prob.gD = gD
     if gN == nothing
       gN=(x)->zeros(size(x,1),numVars)
     end
+    prob.gN = gN
     if D == nothing
       if numVars == 1
         D = 1.0
@@ -50,6 +52,7 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
         D = ones(1,numVars)
       end
     end
+    prob.D = D
   end
   u[bdNode] = gD(node[bdNode,:])
 
@@ -94,9 +97,9 @@ function solve(femMesh::FEMmesh,pdeProb::PoissonProblem;solver::String="Direct",
 
   #Return
   if knownSol # True solution exists
-    return(FEMSolution(femMesh,u,sol(node),sol,Du))
+    return(FEMSolution(femMesh,u,sol(node),sol,Du,prob))
   else #No true solution
-    return(FEMSolution(femMesh,u))
+    return(FEMSolution(femMesh,u,prob))
   end
 end
 
@@ -152,7 +155,7 @@ By default fullSave is false.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
 """
-function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
+function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
   solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,
   autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
@@ -160,7 +163,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
 
   #Unroll some important constants
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
-  @unpack pdeProb: f,u₀,Du,gD,gN,sol,knownSol,isLinear,numVars,σ,stochastic,noiseType,D
+  @unpack prob: f,u₀,Du,gD,gN,sol,knownSol,isLinear,numVars,σ,stochastic,noiseType,D
 
   #Note if Atom is loaded for progress
   atomLoaded = isdefined(Main,:Atom)
@@ -169,13 +172,15 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   u = u₀(node)
   if numVars==0
     numVars = size(u,2)
-    #pdeProb.numVars = numVars #Mutate problem to be correct.
+    prob.numVars = numVars #Mutate problem to be correct.
     if gD == nothing
       gD=(x,t)->zeros(size(x,1),numVars)
     end
+    prob.gD = gD
     if gN == nothing
       gN=(x,t)->zeros(size(x,1),numVars)
     end
+    prob.gN = gN
     if D == nothing
       if numVars == 1
         D = 1.0
@@ -183,6 +188,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
         D = ones(1,numVars)
       end
     end
+    prob.D = D
   end
   t = 0
   √Δt = sqrt(Δt)
@@ -247,15 +253,15 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
       if femMesh.μ>=0.5
         warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
       end
-      K = eye(N) - Δt*Minv*A
+      #K = eye(N) - Δt*Minv*A
       if stochastic
-        rhs(u,i,dW) = u[freeNode,:] - D.*(Δt*Minv*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+        rhs(u,i,dW) = u[freeNode,:] - D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] +
                     (√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                                 A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       else #Deterministic
         function rhs(u,i)
-          u[freeNode,:] - D.*(Δt*Minv*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
+          u[freeNode,:] - D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
         end
       end
@@ -293,7 +299,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
         function rhs!(u,resid,dW,uOld,i)
           u = reshape(u,N,numVars)
           resid = reshape(resid,N,numVars)
-          resid[freeNode,:] = u[freeNode,:] - uOld[freeNode,:] + D.*(Δt*Minv*A[freeNode,freeNode]*u[freeNode,:]) - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] -(√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
+          resid[freeNode,:] = u[freeNode,:] - uOld[freeNode,:] + D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:] -(√Δt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
                       A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
           u = vec(u)
           resid = vec(resid)
@@ -303,7 +309,7 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
           u = reshape(u,N,numVars)
           uOld = reshape(uOld,N,numVars)
           resid = reshape(resid,N,numVars)
-          resid[freeNode,:] = u[freeNode,:] - uOld[freeNode,:] + D.*(Δt*Minv*A[freeNode,freeNode]*u[freeNode,:]) -
+          resid[freeNode,:] = u[freeNode,:] - uOld[freeNode,:] + D.*(Δt*Minv[freeNode,freeNode]*A[freeNode,freeNode]*u[freeNode,:]) -
           (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
           u = vec(u)
           resid = vec(resid)
@@ -357,7 +363,6 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
         u[freeNode,:] = rhs(u,i,dW)
       else
         u[freeNode,:] = rhs(u,i)
-        #println(maximum(rhs(u,i)))
       end
     elseif methodType == "NonlinearSolve"
       u = vec(u)
@@ -382,16 +387,17 @@ function solve(femMesh::FEMmesh,pdeProb::HeatProblem;alg::String = "Euler",
   end
   if knownSol #True Solution exists
     if fullSave
-      uFull = copy(uFull)
-      return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,uFull,tFull))
+      timeSeries = FEMSolutionTS(uFull,numVars)
+      return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,timeSeries,tFull,prob))
     else
-      return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du))
+      return(FEMSolution(femMesh,u,sol(node,femMesh.T),sol,Du,prob))
     end
   else #No true solution
     if fullSave
-      return(FEMSolution(femMesh,u,uFull,tFull))
+      timeSeries = FEMSolutionTS(uFull,numVars)
+      return(FEMSolution(femMesh,u,timeSeries,tFull,prob))
     else
-      return(FEMSolution(femMesh,u))
+      return(FEMSolution(femMesh,u,prob))
     end
   end
 end
