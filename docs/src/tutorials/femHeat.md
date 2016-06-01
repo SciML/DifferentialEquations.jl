@@ -5,13 +5,13 @@ a HeatProblem which contains the function ``f`` and the boundary conditions. We
 specify one as follows:
 
 ```julia
-"Example problem which starts with 0 and solves with f(u)=1-.1u"
+"Example problem which starts with 0 and solves with ``f(u)=1-u/2``"
 function heatProblemExample_birthdeath()
   f(u,x,t)  = ones(size(x,1)) - .5u
-  u0(x) = zeros(size(x,1))
-  return(HeatProblem(u0,f))
+  u₀(x) = zeros(size(x,1))
+  return(HeatProblem(u₀,f))
 end
-pdeProb = heatProblemExample_birthdeath()
+prob = heatProblemExample_birthdeath()
 ```
 
 Here the equation we chose was nonlinear since ``f`` depends on the variable ``u``.
@@ -28,13 +28,13 @@ to 1, the domain is the unit square. To generate this mesh, we use the command
 T = 1
 Δx = 1//2^(3)
 Δt = 1//2^(7)
-femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
+femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 ```  
 
-We then call the appropriate solver
+We then call the solver
 
 ```julia
-res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")
 ```
 
 Here we have chosen to use the Euler algorithm to solve the equation. Other algorithms

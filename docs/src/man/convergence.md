@@ -5,6 +5,9 @@ from a group of simulations. This object will automatically assemble error vecto
 into a more useful manner and provide plotting functionality. Convergence estimates
 are also given by pair-wise estimates.
 
+`ConvergenceSimulation`s can either be created by passing the constructor the
+approrpiate solution array or by using one of the provided `testConvergence` functions. 
+
 ## The ConvergenceSimulation Type
 
 ```@docs
@@ -20,15 +23,13 @@ DifferentialEquations.conv_ests
 
 ## Plot Functions
 
-```@docs
-DifferentialEquations.convplot_fullΔt
-DifferentialEquations.convplot_fullΔx
-DifferentialEquations.convplot_node2vsΔt
-DifferentialEquations.convplot_maxvsΔx
-DifferentialEquations.convplot_l2vsΔt
-DifferentialEquations.convplot_h1vsΔt
-DifferentialEquations.convplot_l2vsΔx
-DifferentialEquations.convplot_h1vsΔx
-DifferentialEquations.convplot_node2vsΔx
-DifferentialEquations.convplot_maxvsΔt
+The plot functionality is provided by a Plots.jl recipe. What is plotted is a
+line series for each calculated error along the convergence axis. To plot a
+convergence simulation, simply use:
+
+```julia
+plot(sim::ConvergenceSimulation)
 ```
+
+All of the functionality (keyword arguments) provided by Plots.jl are able to
+be used in this command. Please see the Plots.jl documentation for more information.

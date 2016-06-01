@@ -18,7 +18,7 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 * γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
 * qmax - Defines the maximum value possible for the adaptive q. Default is 10.
 """
-function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
+function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
 
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
 

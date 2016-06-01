@@ -78,7 +78,7 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
   * "SRA" - The strong Order 1.5 method for additive SDEs due to Rossler.
   * "SRI" - The strong Order 1.5 method for diagonal/scalar SDEs due to Rosser. Most efficient.
 """
-function solve(prob::SDEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
+function solve(prob::SDEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
 
   @unpack prob: f,σ,u₀,knownSol,sol, numVars, sizeu
 
