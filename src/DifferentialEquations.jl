@@ -82,10 +82,7 @@ export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemes
         meshExample_wavymesh, meshExample_wavyperturbmesh
 
 #Plot Functions
-export  plot, showmesh, convplot, solplot_animation,
-        convplot_fullΔt, convplot_fullΔx, convplot_l2vsΔt, convplot_node2vsΔt,
-        convplot_maxvsΔt, convplot_h1vsΔx, convplot_l2vsΔx, convplot_node2vsΔx, convplot_maxvsΔx,
-        solplot
+export  plot, animate
 
 #General Functions
 export conv_ests, appxTrue!, accumarray, solve, testConvergence, monteCarloSim

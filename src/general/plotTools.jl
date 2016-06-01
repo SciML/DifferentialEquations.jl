@@ -11,14 +11,25 @@ Plots an animation of the solution. Requires `fullSave=true` was enabled in the 
 * `cbar`: Boolean flag which turns on/off the color bar. Default true.
 """
 function animate(sol::FEMSolution;zlim=nothing,cbar=true)
+  atomLoaded = isdefined(Main,:Atom)
   Plots.pyplot(reuse=true,size=(750,750))
   if zlim==nothing
-    @gif for j=1:size(sol.uFull,3),i=1:size(sol.uFull,2)
-        surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.uFull[:,i,j],cbar=cbar)
+    @gif for j=1:length(sol.timeSeries[1])
+      ps = Any[]
+      for i=1:sol.prob.numVars
+        push!(ps,Plots.surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j]))
+      end
+      plot(ps...)
+      atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
     end
   else
-    @gif for j=1:size(sol.uFull,3),i=1:size(sol.uFull,2)
-        surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.uFull[:,i,j],zlim=zlim,cbar=cbar)
+    @gif for j=1:length(sol.timeSeries[1])
+      ps = Any[]
+      for i=1:sol.prob.numVars
+        push!(ps,Plots.surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j],zlim=zlim,cbar=cbar))
+      end
+      plot(ps...)
+      atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
     end
   end
 end

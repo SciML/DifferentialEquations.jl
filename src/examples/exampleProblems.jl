@@ -132,7 +132,7 @@ end
 function heatProblemExample_stochasticbirthdeath()
   f(u,x,t)  = ones(size(x,1)) - .5u
   u₀(x) = zeros(size(x,1))
-  σ(u,x,t) = 10u.^2
+  σ(u,x,t) = 1u.^2
   return(HeatProblem(u₀,f,σ=σ))
 end
 
