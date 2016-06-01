@@ -14,6 +14,8 @@ println("Linear ODE Tests")
 @time @test include("twoDimLinearODE.jl")
 println("ODE Convergence Tests")
 @time @test include("odeConvergenceTests.jl")
+println("ODE Adaptive Tests")
+@time @test include("odeAdaptiveTests.jl")
 
 #SDE
 println("Linear SDE Tests")

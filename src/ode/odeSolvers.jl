@@ -1,4 +1,4 @@
-function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="Euler",tableau=DEFAULT_TABLEAU,adaptive=false)
+function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="Euler",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
 
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
 
@@ -25,7 +25,7 @@ function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,
     halfΔt = .5Δt
   elseif alg == "ExplicitRK"
     # tableau from keyword argument
-    @unpack tableau:   A,c,α,αEEst,stages
+    @unpack tableau:   A,c,α,αEEst,stages,order
     ks = Array{Float64}(size(u)...,stages)
   end
 
@@ -55,20 +55,40 @@ function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,
       for i = 2:stages
         utilde += α[i]*ks[..,i]
       end
-      u = u + Δt*utilde
       if adaptive
+        utmp = u + Δt*utilde
         uEEst = αEEst[1]*ks[..,1]
         for i = 2:stages
           uEEst += αEEst[i]*ks[..,i]
         end
-        EEst = norm(utilde-uEEst,2)
-        relEEst = EEst/norm(uEEst,2)
+        absEEst = norm(utilde-uEEst,2)
+        relEEst = absEEst/norm(uEEst,2)
+      else
+        u = u + Δt*utilde
       end
     end
-    t = t + Δt
-    if fullSave && iter%saveSteps==0
-      push!(uFull,u)
-      push!(tFull,t)
+    if adaptive
+      standard = abs((tol)/(γ*absEEst)).^(1/order)
+      if isinf(standard)
+          q = qmax
+      else
+         q = min(qmax,max(standard,eps()))
+      end
+      if q > 1
+        t = t + Δt
+        u = utmp
+        if fullSave && iter%saveSteps==0
+          push!(uFull,u)
+          push!(tFull,t)
+        end
+      end
+      Δt = q*Δt
+    else # Non adaptive
+      t = t + Δt
+      if fullSave && iter%saveSteps==0
+        push!(uFull,u)
+        push!(tFull,t)
+      end
     end
   end
 
