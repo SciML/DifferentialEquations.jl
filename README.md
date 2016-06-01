@@ -147,14 +147,14 @@ techniques are provided by [NLSolve.jl](https://github.com/EconForge/NLsolve.jl)
 
 SDE solvers and ODE solvers take in general sized inputs. For example, if u₀ is
 a matrix (and your problem functions are designed to work with matrices), then
-the solver will use the matrices without error. 
+the solver will use the matrices without error.
 
 * ODEs
   * Optimized Explicit Solvers
     * Euler
     * Midpoint Method
     * RK4
-  * General Explicit Runge-Kutta Methods
+  * General Explicit (Adaptive) Runge-Kutta Methods
     * Huen's Method
     * Cash-Karp
     * Runge-Kutta-Fuhlberg (RKF) 4/5
