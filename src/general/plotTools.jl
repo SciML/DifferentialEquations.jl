@@ -10,14 +10,17 @@ Plots an animation of the solution. Requires `fullSave=true` was enabled in the 
 * `zlim`: The limits on the z-axis in the simulation. Default nothing.
 * `cbar`: Boolean flag which turns on/off the color bar. Default true.
 """
-function animate(sol::FEMSolution;zlims=nothing,cbar=true)
+function animate(sol::FEMSolution;zlims=nothing,cbar=true,size=nothing,plotfunc=Plots.surface)
   atomLoaded = isdefined(Main,:Atom)
-  Plots.pyplot(reuse=true,size=(750,750))
+  if size == nothing
+    size = (750,750*sol.prob.numVars)
+  end
+  Plots.pyplot(reuse=true,size=size)
   if zlims==nothing
     @gif for j=1:length(sol.timeSeries[1])
       ps = Any[]
       for i=1:sol.prob.numVars
-        push!(ps,Plots.surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j]))
+        push!(ps,plotfunc(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j]))
       end
       plot(ps...)
       atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
@@ -30,7 +33,7 @@ function animate(sol::FEMSolution;zlims=nothing,cbar=true)
     @gif for j=1:length(sol.timeSeries[1])
       ps = Any[]
       for i=1:sol.prob.numVars
-        push!(ps,Plots.surface(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j],zlim=zlims[i],cbar=cbar))
+        push!(ps,plotfunc(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j],zlim=zlims[i],cbar=cbar))
       end
       plot(ps...)
       atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
