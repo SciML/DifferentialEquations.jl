@@ -1,3 +1,11 @@
+### ODE Examples
+
+function twoDimlinearODEExample(;α=ones(4,2),β=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
+  f(u,t) = α.*u
+  sol(u₀,t) = u₀.*exp(α.*t)
+  return(ODEProblem(f,u₀,sol=sol))
+end
+
 ### SDE Examples
 
 function linearSDEExample(;α=1,β=1,u₀=1/2)

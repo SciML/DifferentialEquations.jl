@@ -28,7 +28,7 @@ type FEMSolution <: DESolution
   uTrue::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
   appxTrue::Bool
-  timeSeries::GrowableArray
+  timeSeries#::GrowableArray
   tFull::AbstractArrayOrVoid
   prob::DEProblem
   fullSave::Bool
@@ -73,6 +73,32 @@ type SDESolution <: DESolution
   end
   #Required to convert pmap results
   SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.WFull,a.solFull,a.appxTrue,a.fullSave)
+end
+
+type ODESolution <: DESolution
+  u#::AbstractArrayOrNumber
+  trueKnown::Bool
+  uTrue#::AbstractArrayOrNumber
+  errors#::Dict{}
+  uFull::AbstractArrayOrVoid
+  tFull::AbstractArrayOrVoid
+  solFull::AbstractArrayOrVoid
+  appxTrue::Bool
+  fullSave::Bool
+  function ODESolution(u;uFull=nothing,solFull=nothing,tFull=nothing)
+    fullSave = uFull == nothing
+    trueKnown = false
+    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,solFull,false,fullSave))
+  end
+  function ODESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing)
+    fullSave = uFull != nothing
+    trueKnown = true
+    errors = Dict("final"=>abs(u-uTrue))
+    if fullSave
+      errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
+    end
+    return(new(u,trueKnown,uTrue,errors,uFull,tFull,solFull,false,fullSave))
+  end
 end
 
 type StokesSolution <: DESolution
