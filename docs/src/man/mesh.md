@@ -49,3 +49,15 @@ DifferentialEquations.meshExample_oilpump
 DifferentialEquations.meshExample_wavymesh
 DifferentialEquations.meshExample_wavyperturbmesh
 ```
+
+## Plot Functions
+
+The plot functionality is provided by a Plots.jl recipe. What is plotted is a
+"trisurf" of the mesh. To plot a mesh, simply use:
+
+```julia
+plot(mesh::Mesh)
+```
+
+All of the functionality (keyword arguments) provided by Plots.jl are able to
+be used in this command. Please see the Plots.jl documentation for more information.

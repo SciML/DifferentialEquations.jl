@@ -1,11 +1,33 @@
 # Information on Solvers
 
+## Ordinary Differential Equation Solvers
+
+### ODE
+
+```@docs
+solve(::ODEProblem,::Number,::Number)
+```
+
+### SDE
+
+```@docs
+solve(::SDEProblem,::Number,::Number)
+```
+
+## Finite Difference Method Solvers
+
+### Stokes Equation
+
+```@docs
+solve(::StokesProblem,::FDMMesh)
+```
+
 ## Finite Element Method Solvers
 
 ```@docs
-fem_solvepoisson
+solve(::FEMmesh,::PoissonProblem)
 ```
 
 ```@docs
-fem_solveheat
+solve(::FEMmesh,::HeatProblem)
 ```
