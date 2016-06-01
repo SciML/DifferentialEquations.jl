@@ -321,6 +321,35 @@ type SDEProblem <: DEProblem
   end
 end
 
+"""
+ODEProblem
+
+"""
+type ODEProblem <: DEProblem
+  f::Function
+  u₀#::AbstractArray
+  sol::Function
+  knownSol::Bool
+  numVars::Int
+  sizeu#::Tuple
+  function ODEProblem(f,u₀;sol=nothing)
+    if sol==nothing
+      knownSol = false
+      sol=(u,t)->0
+    else
+      knownSol = true
+    end
+    if typeof(u₀) <: Number
+      sizeu = (1,)
+      numVars = 1
+    else
+      sizeu = size(u₀)
+      numVars = size(u₀)[end]
+    end
+    new(f,u₀,sol,knownSol,numVars,sizeu)
+  end
+end
+
 type StokesProblem
   f₁::Function
   f₂::Function

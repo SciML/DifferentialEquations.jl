@@ -55,18 +55,23 @@ include("examples/exampleMeshes.jl")
 include("fem/femSolvers.jl")
 include("fdm/stokesSolvers.jl")
 include("sde/sdeSolvers.jl")
+include("ode/odeSolvers.jl")
 include("general/plotTools.jl")
-include("general/coefficientTypes.jl")
+include("sde/SDECoefficientTypes.jl")
+include("ode/ODECoefficientTypes.jl")
 include("general/parallelHelpers.jl")
 
 #Types
 export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
        ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
-       SDESolution, FDMMesh
+       SDESolution, ODESolution, ODEProblem, FDMMesh
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
        multiDimAdditiveSDEExample, twoDimlinearSDEExample
+
+#ODE Example Problems
+export twoDimlinearODEExample
 
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
@@ -91,6 +96,10 @@ export conv_ests, appxTrue!, accumarray, solve, testConvergence, monteCarloSim
 export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,
         gradu, gradbasis, quadfbasis, fem_squaremesh, CFLμ, CFLν,
         meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
+
+#Tableus
+export constructRalston, constructHuen, constructRKF, constructBogakiShampine,
+       constructCashKarp, constructDormandPrince, constructRKF8
 
 #Misc Tools
 export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,
