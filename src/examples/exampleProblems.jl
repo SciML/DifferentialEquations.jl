@@ -1,6 +1,7 @@
 ### ODE Examples
 
-function twoDimlinearODEExample(;α=ones(4,2),β=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
+"""Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
+function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
   f(u,t) = α.*u
   sol(u₀,t) = u₀.*exp(α.*t)
   return(ODEProblem(f,u₀,sol=sol))
@@ -8,6 +9,7 @@ end
 
 ### SDE Examples
 
+"""Example problem with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
 function linearSDEExample(;α=1,β=1,u₀=1/2)
   f(u,t) = α*u
   σ(u,t) = β*u
@@ -15,6 +17,7 @@ function linearSDEExample(;α=1,β=1,u₀=1/2)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
+"""Example problem of 8 linear SDEs (as a 4x2 matrix) with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
 function twoDimlinearSDEExample(;α=ones(4,2),β=ones(4,2),u₀=ones(4,2)/2)
   f(u,t) = α.*u
   σ(u,t) = β.*u
@@ -22,6 +25,7 @@ function twoDimlinearSDEExample(;α=ones(4,2),β=ones(4,2),u₀=ones(4,2)/2)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
+"""Example problem with solution ``u(t,W)=((1+u₀)*exp(W)+u₀-1)./((1+u₀)*exp(W)+1-u₀)``"""
 function cubicSDEExample(;u₀=1/2)
   f(u,t) = -.25*u.*(1-u.^2)
   σ(u,t) = .5*(1-u.^2)
@@ -29,6 +33,7 @@ function cubicSDEExample(;u₀=1/2)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
+"""Example problem with solution ``u(t,W)=atan(0.1*W + tan(u₀))``"""
 function waveSDEExample(;u₀=1)
   f(u,t) = -0.01*sin(u).*cos(u).^3
   σ(u,t) = 0.1*cos(u).^2
@@ -36,6 +41,7 @@ function waveSDEExample(;u₀=1)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
+"""Example additive noise problem with solution ``u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)``"""
 function additiveSDEExample(;α=0.1,β=0.5,u₀=1)
   f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
   σ(u,t) = α*β./sqrt(1+t)
@@ -43,6 +49,7 @@ function additiveSDEExample(;α=0.1,β=0.5,u₀=1)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
+"""Multiple Ito dimension extension of additiveSDEExample"""
 function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1)
   f(u,t) = β/sqrt(1+t) - u/(2*(1+t))
   σ(u,t) = α*β/sqrt(1+t)
@@ -84,6 +91,7 @@ function heatProblemExample_birthdeath()
   return(HeatProblem(u₀,f))
 end
 
+"Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=1-v``"
 function heatProblemExample_birthdeathsystem()
   f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
   f₂(u,x,t)  = ones(size(x,1)) -   u[:,2]
@@ -92,6 +100,7 @@ function heatProblemExample_birthdeathsystem()
   return(HeatProblem(u₀,f))
 end
 
+"Example problem which solves the homogeneous Heat equation with all mass starting at (1/2,1/2) with two different diffusion constants."
 function heatProblemExample_diffusionconstants(;D=[.01 .001],max=1)
   f₁(u,x,t)  = zeros(size(x,1))
   f₂(u,x,t)  = zeros(size(x,1))
@@ -100,6 +109,7 @@ function heatProblemExample_diffusionconstants(;D=[.01 .001],max=1)
   return(HeatProblem(u₀,f,D=D))
 end
 
+"Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=.5u-v``"
 function heatProblemExample_birthdeathinteractingsystem()
   f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
   f₂(u,x,t)  = .5u[:,1] -   u[:,2]
@@ -108,6 +118,7 @@ function heatProblemExample_birthdeathinteractingsystem()
   return(HeatProblem(u₀,f))
 end
 
+"Example problem which solves the Gray-Scott equations with quasi-random initial conditions"
 function heatProblemExample_grayscott(;ρ=.03,k=.062,D=[1e-3 .5e-3])
   f₁(u,x,t)  = + u[:,1].*u[:,2].*u[:,2] + ρ*(1-u[:,2])
   f₂(u,x,t)  = u[:,1].*u[:,2].*u[:,2] -(ρ+k).*u[:,2]
@@ -117,6 +128,7 @@ function heatProblemExample_grayscott(;ρ=.03,k=.062,D=[1e-3 .5e-3])
   return(HeatProblem(u₀,f,D=D))
 end
 
+"Example problem which solves the Gierer-Meinhardt equations wtih quasi-random initial perturbations."
 function heatProblemExample_gierermeinhardt(;a=1,α=1,D=[0.01 1.0],ubar=1,vbar=0,β=10,startNoise=0.01)
   f₁(u,x,t)  = a*u[:,1].*u[:,1]./u[:,2] + ubar - α*u[:,1]
   f₂(u,x,t)  = a*u[:,1].*u[:,1] + vbar -β.*u[:,2]
@@ -159,6 +171,7 @@ function poissonProblemExample_birthdeath()
   return(PoissonProblem(f,numVars=numVars))
 end
 
+"Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=1-v``"
 function poissonProblemExample_birthdeathsystem()
   f₁(u,x)  = ones(size(x,1)) - .5u[:,1]
   f₂(u,x)  = ones(size(x,1)) -   u[:,2]
@@ -167,6 +180,7 @@ function poissonProblemExample_birthdeathsystem()
   return(PoissonProblem(f,u₀=u₀))
 end
 
+"Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=.5u-v``"
 function poissonProblemExample_birthdeathinteractingsystem()
   f₁(u,x)  = ones(size(x,1)) - .5u[:,1]
   f₂(u,x)  = .5u[:,1] -   u[:,2]
@@ -177,6 +191,7 @@ end
 
 ## Stokes Examples
 
+"Example problem for a homogeneous stationary Stokes equation."
 function homogeneousStokesExample(;C=0)
   f₁(x,y)   = zeros(x)
   f₂(x,y)   = zeros(x)
@@ -187,6 +202,7 @@ function homogeneousStokesExample(;C=0)
   return(StokesProblem(f₁,f₂,g,usol,vsol,psol))
 end
 
+"Example problme for solving the trivial stationary Stokes equation."
 function dirichletzeroStokesExample(;C=0)
   f₁(x,y)   = zeros(x)
   f₂(x,y)   = zeros(x)

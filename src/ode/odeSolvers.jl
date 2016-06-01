@@ -1,4 +1,24 @@
-function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="Euler",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
+"""
+solve(prob::ODEProblem,Δt,T)
+
+Solves the ODE defined by prob with initial Δt on the time interval [0,T].
+
+### Keyword Arguments
+
+* fullSave: Saves the result at every saveSteps steps. Default is false.
+saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
+* alg: String which defines the solver algorithm. Defult is "RK4". Possibilities are:
+  * "Euler" - The canonical forward Euler method.
+  * "Midpoint" - The second order midpoint method.
+  * "RK4" - The canonical Runge-Kutta Order 4 method.
+  * "ExplicitRK" - A general Runge-Kutta solver which takes in a tableau. Can be adaptive.
+* tableau - Takes in an object which defines a tableau. Default is Dormand-Prince 4/5.
+* adaptive - Turns on adaptive timestepping for appropriate methods. Default is false.
+* tol - The error tolerance of the adaptive method. Default is 1e-4.
+* γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
+* qmax - Defines the maximum value possible for the adaptive q. Default is 10.
+"""
+function solve(prob::ODEProblem,Δt,T;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
 
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
 

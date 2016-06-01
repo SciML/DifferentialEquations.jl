@@ -5,10 +5,13 @@ animate(sol::FEMSolution)
 
 Plots an animation of the solution. Requires `fullSave=true` was enabled in the solver.
 
+
 ### Keyword Arguments
 
 * `zlim`: The limits on the z-axis in the simulation. Default nothing.
 * `cbar`: Boolean flag which turns on/off the color bar. Default true.
+* `plotfunc`: The plotting function to animate. Defaults to `Plots.surface`.
+* `size`: Size of the animation. Defaults to `(750*sol.prob.numVars,750)`
 """
 function animate(sol::FEMSolution;zlims=nothing,cbar=true,size=nothing,plotfunc=Plots.surface)
   atomLoaded = isdefined(Main,:Atom)
