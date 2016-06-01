@@ -39,3 +39,5 @@ bool9 = abs(sim9.𝒪est["l∞"]-5) < 0.1
 tab = constructRKF8()
 sim10 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool10 = abs(sim10.𝒪est["l∞"]-8) < 0.1
+
+bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10
