@@ -109,15 +109,6 @@ function heatProblemExample_grayscott(;ρ=.03,k=.062,D=[1e-3 .5e-3])
   return(HeatProblem(u₀,f,D=D))
 end
 
-function heatProblemExample_grayscott(;ρ=.03,k=.062,D=[1e-3 .5e-3])
-  f₁(u,x,t)  = - u[:,1].*u[:,2].*u[:,2] + ρ*(1-u[:,1])
-  f₂(u,x,t)  = u[:,1].*u[:,2].*u[:,2] -(ρ+k).*u[:,2]
-  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
-  u₀(x) = [ones(size(x,1))+rand(size(x,1)) .25.*float(((.2.<x[:,1].<.6) &
-          (.2.<x[:,2].<.6)) | ((.85.<x[:,1]) & (.85.<x[:,2])))] # size (x,2), 2 meaning 2 variables
-  return(HeatProblem(u₀,f,D=D))
-end
-
 function heatProblemExample_gierermeinhardt(;a=1,α=1,D=[0.01 1.0],ubar=1,vbar=0,β=10)
   f₁(u,x,t)  = a*u[:,1].*u[:,1]./u[:,2] + ubar - α*u[:,1]
   f₂(u,x,t)  = a*u[:,1].*u[:,1] + vbar -β.*u[:,2]
