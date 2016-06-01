@@ -9,6 +9,21 @@ using Base.Test
 # Run tests
 
 tic()
+#ODE
+println("Linear ODE Tests")
+@time @test include("twoDimLinearODE.jl")
+println("ODE Convergence Tests")
+@time @test include("odeConvergenceTests.jl")
+
+#SDE
+println("Linear SDE Tests")
+@time @test include("linearSDETests.jl")
+@time @test include("twoDimLinearSDE.jl")
+println("SDE Convergence Tests")
+@time @test include("sdeConvergenceTests.jl")
+println("Rossler Order Tests")
+@time @test include("RosslerOrderTest.jl")
+
 #Finite Element
 println("Finite Element Heat Dt Tests")
 @time @test include("femHeatDtTests.jl")
@@ -45,14 +60,6 @@ println("Stokes Tests")
 @time @test include("fdmStokesTests.jl")
 println("DGS Internals Test")
 @time @test include("dgsTest.jl")
-
-#SDE
-println("Linear SDE Tests")
-@time @test include("linearSDETests.jl")
-println("SDE Convergence Tests")
-@time @test include("sdeConvergenceTests.jl")
-println("Rossler Order Tests")
-@time @test include("RosslerOrderTest.jl")
 
 #Internals
 println("Meshgrid Tests")
