@@ -26,14 +26,6 @@ function constructRalston()
   return(ExplicitRK(A,c,α))
 end
 
-function constructRalston()
-  A = [0 0
-       2/3 0]
-  c = [0;2/3]
-  α = [1/4;3/4]
-  return(ExplicitRK(A,c,α))
-end
-
 function constructRKF()
   A = [0 0 0 0 0 0
       1/4 0 0 0 0 0

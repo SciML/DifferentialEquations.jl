@@ -7,7 +7,7 @@
 Note: This package is currently undergoing a lot of changes. The documentation only holds for the last tagged version v0.2. This
 will be fixed in the coming weeks as the package stabilizes.
 
-This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. 
+This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations.
 
 This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end). All of the methods have associated tests to ensure that the theoretical order of accuracy is attained.
 
@@ -130,6 +130,7 @@ solplot_animation(res::FEMSolution;zlim=(0,2),cbar=false)
 For PDEs, one can optionally specify a noise equation. The solvers currently have
 stochastic variants for handling Gaussian Space-time white noise SPDEs.
 
+* ODEs
 * SODEs
 * (Stochastic) PDEs
     * Linear Poisson Equation
@@ -144,6 +145,23 @@ differential equations. The implemented methods for solving implicit equations
 are denoted by the implicit solvers at the bottom. Currently, nonlinear solving
 techniques are provided by [NLSolve.jl](https://github.com/EconForge/NLsolve.jl).
 
+SDE solvers and ODE solvers take in general sized inputs. For example, if u₀ is
+a matrix (and your problem functions are designed to work with matrices), then
+the solver will use the matrices without error. 
+
+* ODEs
+  * Optimized Explicit Solvers
+    * Euler
+    * Midpoint Method
+    * RK4
+  * General Explicit Runge-Kutta Methods
+    * Huen's Method
+    * Cash-Karp
+    * Runge-Kutta-Fuhlberg (RKF) 4/5
+    * Ralston's Method
+    * Bogaki-Shampine
+    * Dormand-Prince 4/5
+    * Runge-Kutta-Fuhlberg (RKF) 7/8
 * SODEs
   * Euler-Maruyama
   * Milstein
