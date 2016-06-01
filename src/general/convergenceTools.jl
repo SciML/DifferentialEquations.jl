@@ -64,6 +64,13 @@ function testConvergence(Δts::AbstractArray,prob::SDEProblem;T=1,numMonte=10000
   ConvergenceSimulation(solutions,Δts,auxData=auxData)
 end
 
+function testConvergence(Δts::AbstractArray,prob::ODEProblem;T=1,fullSave=true,alg="Euler",tableau=DEFAULT_TABLEAU)
+  N = length(Δts)
+  solutions = DESolution[solve(prob::ODEProblem,Δts[i],T,fullSave=fullSave,alg=alg,tableau=tableau) for i=1:N]
+  auxData = Dict("Δts" =>  Δts)
+  ConvergenceSimulation(solutions,Δts,auxData=auxData)
+end
+
 function testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,convergenceAxis;T=1,alg="Euler")
   if length(Δts)!=length(Δxs) error("Lengths of Δts!=Δxs. Invalid convergence simulation") end
   solutions = DESolution[solve(parabolic_squaremesh([0 1 0 1],Δxs[i],Δts[i],T,"Dirichlet"),prob,alg=alg) for i in eachindex(Δts)]

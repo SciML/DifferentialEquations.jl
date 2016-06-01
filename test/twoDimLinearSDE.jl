@@ -5,7 +5,10 @@ prob = twoDimlinearSDEExample()
 ## Solve and plot
 println("Solve and Plot")
 sol =solve(prob::SDEProblem,1//2^(4),1,fullSave=true,alg="SRI")
-monteCarloSim(1//2^(4),prob::SDEProblem,T=1)
+
+#Now do the simulation 10000 times in parallel. Return an array
+solArr = monteCarloSim(1//2^(4),prob::SDEProblem,T=1)
+
 #First index is the sime, so sol.uFull[1,..] is the initial condition
 #Last indices are the indexes of the variables. Since our initial condition
 #Has 4 rows and two columns, sol.uFull[..,1] returns the time series for the
