@@ -12,3 +12,5 @@ sol =solve(prob::ODEProblem,1//2^(4),1,fullSave=true,alg="Euler")
 plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,1//2^(4),1,fullSave=true,alg="ExplicitRK")
+
+true
