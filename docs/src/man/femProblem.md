@@ -1,4 +1,4 @@
-# Defining a Problem
+# Defining an FEM Problem
 
 Below are the definitions of the types which specify problems. Some general notes are:
 
@@ -45,5 +45,5 @@ DifferentialEquations.heatProblemExample_stochasticbirthdeath
 ## Related Functions
 
 ```@docs
-DifferentialEquations.PdeProblem
+DifferentialEquations.DEProblem
 ```
