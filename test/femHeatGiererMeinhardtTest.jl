@@ -21,6 +21,7 @@ Plots.heatmap(vec(reshape(sol.femMesh.node[:,1],2^(4)+1,2^(k)+1)[1,:]),
               reshape(sol.timeSeries[1][1],2^(4)+1,2^(k)+1))
 zlims=[(0,10),(0,2)]
 cbar = false
+
 atomLoaded = isdefined(Main,:Atom)
 Plots.pyplot(reuse=true,size=(1500,750))
 @gif for j=1:length(sol.timeSeries[1])
