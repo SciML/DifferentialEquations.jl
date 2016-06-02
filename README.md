@@ -38,19 +38,63 @@ lower Δx or Δt. These values were taken to be large in order make unit tests r
 For the most up to date information, please contact me [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl)
 or [read the latest documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 
+## ODE Example
+
+In this example we will solve the equation
+
+```math
+uₜ = f(u,t)dt
+```
+
+where ``f(u,t)=αu``. We know via Calculus that the solution to this equation is
+``u(t)=u₀*exp(α*t)``. To solve this numerically, we define a problem type by
+giving it the equation and the initial condition:
+
+```julia
+"""Example problem with solution ``u(t)=u₀*exp(α*t)``"""
+function linearODEExample(;α=1,u₀=1/2)
+  f(u,t) = α*u
+  sol(u₀,t) = u₀*exp(α*t)
+  return(ODEProblem(f,u₀,sol=sol))
+end
+```
+
+Then we setup some parameters:
+
+```julia
+Δt = 1//2^(4) #The initial timestepping size
+T = 1 # The final time
+```
+
+We then send these items to the solver.
+
+```julia
+sol =solve(prob::ODEProblem,Δt,T,fullSave=true,alg="Euler")
+```
+
+Plotting commands are provided via a recipe to Plots.jl. To plot the solution
+object, simply call plot:
+
+```julia
+plot(sol,plottrue=true)
+#Use Plots.jl's gui() command to display the plot.
+Plots.gui()
+#Shown is both the true solution and the approximated solution.
+```
+
 ## Poisson Equation Finite Element Method Example
 
 In this example we will solve the Poisson Equation Δu=f. The code for this example can be found in [test/introductionExample.jl](test/introductionExample.jl). For our example, we will take the linear equation where `f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])`. For this equation we know that solution is `u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)` with gradient `Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]`. Thus, we define a PoissonProblem as follows:
 
 ```julia
-"Example problem with solution: u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
+"Example problem with solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
 function poissonProblemExample_wave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
   sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
   Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
   return(PoissonProblem(f,sol,Du))
 end
-pdeProb = poissonProblemExample_wave()
+prob = poissonProblemExample_wave()
 ```
 
 Note that in this case since the solution is known, the Dirichlet boundary condition `gD` is automatically set to match the true solution. The code for other example problems can be found in [src/examples/exampleProblems.jl](src/examples/exampleProblems.jl). To solve this problem, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
@@ -63,37 +107,18 @@ femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
 Note that by specifying "Dirichlet" our boundary conditions is set on all boundaries to Dirichlet. This gives an FEMmesh object which stores a finite element mesh in the same layout as [iFEM](http://www.math.uci.edu/~chenlong/programming.html). Notice this code shows that the package supports the use of rationals in meshes. Other numbers such as floating point and integers can be used as well. Finally, to solve the equation we use
 
 ```julia
-res = fem_solvepoisson(femMesh::FEMmesh,pdeProb::PoissonProblem,solver="GMRES")
+sol = solve(femMesh::FEMmesh,prob::PoissonProblem,solver="GMRES")
 ```
 
-fem_solvepoisson takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This reurns a FEMSolution object which holds data about the solution, such as the solution values (u), the true solution (uTrue), error estimates, etc. To plot the solution, we use the command
+solve takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This returns a FEMSolution object which holds data about the solution, such as the solution values (u), the true solution (uTrue), error estimates, etc. To plot the solution, we use the command
 
 ```julia
-solplot(res,savefile="introductionExample.png")
+plot(sol,plottrue=true)
 ```
 
 This gives us the following plot:
 
 <img src="/src/examples/introductionExample.png" width="750" align="middle"  />
-
-### Finite Element Stochastic Poisson Equation
-
-We can solve the same PDE as a stochastic PDE, -Δu=f+gdW, with additive space-time white noise by specifying the problem as:
-
-```julia
-"Example problem with deterministic solution: u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)"
-function poissonProblemExample_noisyWave()
-  f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
-  sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
-  Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
-  σ(x) = 5 #Additive noise, a big amount!
-  return(PoissonProblem(f,sol,Du,σ=σ))
-end
-```
-
-and using the same solving commands as shown in [femStochasticPoissonSolo.jl](/test/femStochasticPoissonSolo.jl). This gives the following plot:
-
-<img src="/src/examples/introductionStochasticExample.png" width="750" align="middle" />
 
 ### Finite Element Stochastic Heat Equation
 
