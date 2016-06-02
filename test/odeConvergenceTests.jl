@@ -46,6 +46,7 @@ sim10 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool10 = abs(sim10.𝒪est["l∞"]-8) < 0.1
 superbool1 = bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10
 
+println("Tests pass: $superbool1")
 ### Stiff Solvers
 
 println("Convergence Test on Stiff")
@@ -58,5 +59,5 @@ sim12 = testConvergence(Δts,prob,alg="Trapezoid")
 bool12 = abs(sim12.𝒪est["final"]-2) < 0.1
 
 superbool2 = bool11 && bool12
-
+println("Tests pass: $superbool2")
 superbool1 && superbool2
