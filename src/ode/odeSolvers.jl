@@ -12,6 +12,8 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
   * "Midpoint" - The second order midpoint method.
   * "RK4" - The canonical Runge-Kutta Order 4 method.
   * "ExplicitRK" - A general Runge-Kutta solver which takes in a tableau. Can be adaptive.
+  * "ImplicitEuler" - A 1st order implicit solver. Unconditionally stable.
+  * "Trapezoid" - A second order unconditionally stable implicit solver. Good for highly stiff.
 * tableau - Takes in an object which defines a tableau. Default is Dormand-Prince 4/5.
 * adaptive - Turns on adaptive timestepping for appropriate methods. Default is false.
 * tol - The error tolerance of the adaptive method. Default is 1e-4.
@@ -21,7 +23,6 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
 
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
-
   u = float(u₀)
   t = 0.0
 
@@ -47,6 +48,22 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
     # tableau from keyword argument
     @unpack tableau:   A,c,α,αEEst,stages,order
     ks = Array{Float64}(size(u)...,stages)
+  elseif alg == "ImplicitEuler"
+    function rhs(u,resid,uOld,t,Δt)
+      u = reshape(u,sizeu...)
+      resid = reshape(resid,sizeu...)
+      resid[:] = u - uOld - Δt*f(u,t+Δt)
+      vec(u)
+      vec(resid)
+    end
+  elseif alg == "Trapezoid"
+    function rhs(u,resid,uOld,t,Δt)
+      u = reshape(u,sizeu...)
+      resid = reshape(resid,sizeu...)
+      resid[:] = u - uOld - .5Δt*(f(u,t+Δt)+f(uOld,t))
+      u = vec(u)
+      resid = vec(resid)
+    end
   end
 
   while t < T
@@ -90,6 +107,16 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
       else
         u = u + Δt*utilde
       end
+    elseif alg=="ImplicitEuler"
+      uOld = copy(u)
+      u = vec(u)
+      nlres = nlsolve((u,resid)->rhs(u,resid,uOld,t,Δt),u)
+      u = reshape(nlres.zero,sizeu...)
+    elseif alg=="Trapezoid"
+      uOld = copy(u)
+      u = vec(u)
+      nlres = nlsolve((u,resid)->rhs(u,resid,uOld,t,Δt),u)
+      u = reshape(nlres.zero,sizeu...)
     end
     if adaptive
       standard = abs((tol)/(γ*absEEst)).^(1/order)
