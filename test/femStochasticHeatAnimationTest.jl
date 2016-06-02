@@ -15,7 +15,7 @@ prob = heatProblemExample_stochasticbirthdeath()
 sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true,solver="LU")
 
 println("Generating Animation")
-@linux? animate(sol::FEMSolution;zlim=(0,3),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
+@linux? animate(sol::FEMSolution;zlims=(0,3),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
 
 # Returns true if nothing error'd
 true
