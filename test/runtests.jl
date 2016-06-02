@@ -1,5 +1,9 @@
 #!/usr/bin/env julia
 
+Pkg.checkout("RecipesBase")
+Pkg.checkout("Plots")
+Pkg.update()
+
 const CPU_FLOPS = peakflops()
 
 #Start Test Script
