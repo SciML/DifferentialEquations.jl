@@ -44,7 +44,12 @@ println("Super High Order")
 tab = constructRKF8()
 sim10 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool10 = abs(sim10.𝒪est["l∞"]-8) < 0.1
-superbool1 = bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10
+
+tab = constructDormandPrice8()
+sim11 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
+bool11 = abs(sim11.𝒪est["l∞"]-9.44) < 0.1 #Converges on linear at above 9!
+
+superbool1 = bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10 && bool11
 
 println("Tests pass: $superbool1")
 ### Stiff Solvers
@@ -52,16 +57,16 @@ println("Tests pass: $superbool1")
 println("Convergence Test on Stiff")
 Δts = 1.//2.^(8:-1:4)
 
-sim11 = testConvergence(Δts,prob,alg="ImplicitEuler")
-bool11 = abs(sim11.𝒪est["final"]-1) < 0.1
+sim12 = testConvergence(Δts,prob,alg="ImplicitEuler")
+bool12 = abs(sim12.𝒪est["final"]-1) < 0.1
 
-sim12 = testConvergence(Δts,prob,alg="Trapezoid")
-bool12 = abs(sim12.𝒪est["final"]-2) < 0.1
-
-sim13 = testConvergence(Δts,prob,alg="Rosenbrock32")
+sim13 = testConvergence(Δts,prob,alg="Trapezoid")
 bool13 = abs(sim13.𝒪est["final"]-2) < 0.1
 
-superbool2 = bool11 && bool12 && bool13
+sim14 = testConvergence(Δts,prob,alg="Rosenbrock32")
+bool14 = abs(sim14.𝒪est["final"]-2) < 0.1
+
+superbool2 = bool12 && bool13 && bool14
 
 println("Tests pass: $superbool2")
 superbool1 && superbool2
