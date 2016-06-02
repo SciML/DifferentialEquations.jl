@@ -2,10 +2,6 @@
 
 const CPU_FLOPS = peakflops()
 
-Pkg.checkout("Plots","dev")
-Pkg.checkout("ChunkedArrays")
-Pkg.checkout("GrowableArrays")
-Pkg.checkout("EllipsisNotation")
 #Start Test Script
 using DifferentialEquations, Plots
 using Base.Test
