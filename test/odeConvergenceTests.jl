@@ -25,7 +25,7 @@ sim6 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool6 = abs(sim6.𝒪est["l∞"]-3) < 0.1
 
 println("Higher Order")
-Δts = 1.//2.^(7:-1:3)
+Δts = 1.//2.^(7:-1:4)
 tab = constructRKF()
 sim7 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool7 = abs(sim7.𝒪est["l∞"]-5) < 0.1
