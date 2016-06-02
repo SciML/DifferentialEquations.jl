@@ -4,7 +4,7 @@ To define an SDE Problem, you simply need to give the forcing function ``f``,
 the noise function `σ`, and the initial condition ``u₀`` which define an SDE
 
 ```math
-duₜ = f(uₜ,t)dt + Σσᵢ(uₜ,t)dWⁱₜ
+du = f(u,t)dt + Σσᵢ(u,t)dWⁱ
 ```
 
 `f` and `σ` should be specified as `f(u,t)` and  `σ(u,t)` respectively, and `u₀`
