@@ -1,7 +1,0 @@
-Need to make u₀ generate numVars.
-
-No need to multi-var linear case.
-
-Start with Poisson
-
-Optional u₀ for nonlinear start, if not given then need numVars, else warn and set to 1
