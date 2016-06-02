@@ -1,5 +1,12 @@
 ### ODE Examples
 
+"""Example problem with solution ``u(t)=u₀*exp(α*t)``"""
+function linearODEExample(;α=1,u₀=1/2)
+  f(u,t) = α*u
+  sol(u₀,t) = u₀*exp(α*t)
+  return(ODEProblem(f,u₀,sol=sol))
+end
+
 """Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
 function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
   f(u,t) = α.*u

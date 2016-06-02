@@ -8,10 +8,37 @@
 solve(::ODEProblem,::Number,::Number)
 ```
 
+#### ODE Solver Extras
+
+```@docs
+DifferentialEquations.ExplicitRK
+DifferentialEquations.DEFAULT_TABLEAU
+DifferentialEquations.constructCashKarp
+DifferentialEquations.constructRalston
+DifferentialEquations.constructDormandPrince
+DifferentialEquations.constructBogakiShampine
+DifferentialEquations.constructHuen
+DifferentialEquations.constructRKF
+DifferentialEquations.constructRKF8
+```
+## Stochastic Differential Equation Solvers
+
 ### SDE
 
 ```@docs
 solve(::SDEProblem,::Number,::Number)
+```
+
+#### SDE Solver Extras
+
+```@docs
+DifferentialEquations.monteCarloSim
+DifferentialEquations.RosslerSRI
+DifferentialEquations.RosslerSRA
+DifferentialEquations.constructSRA1
+DifferentialEquations.constructSRIW1
+DifferentialEquations.checkSRAOrder
+DifferentialEquations.checkSRIOrder
 ```
 
 ## Finite Difference Method Solvers

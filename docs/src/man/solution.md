@@ -21,10 +21,19 @@ passing a `ConvergenceSimulation` a vector of solutions, or using one of the pro
 `testConvergence` functions. These will give order of convergence estimates and
 provide plotting functionality.
 
-## Related Functions
+## Solution Types
 
 ```@docs
 DifferentialEquations.FEMSolution
-DifferentialEquations.appxTrue!
 DifferentialEquations.DESolution
+DifferentialEquations.SDESolution
+DifferentialEquations.ODESolution
+DifferentialEquations.StokesSolution
+```
+
+## Related Functions
+
+```@docs
+DifferentialEquations.appxTrue!
+DifferentialEquations.FEMSolutionTS
 ```
