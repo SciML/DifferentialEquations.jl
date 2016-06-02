@@ -2,7 +2,7 @@
 
 const CPU_FLOPS = peakflops()
 
-Pkg.checkout("Plots")
+Pkg.checkout("Plots","dev")
 Pkg.checkout("ChunkedArrays")
 Pkg.checkout("GrowableArrays")
 Pkg.checkout("EllipsisNotation")

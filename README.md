@@ -43,7 +43,7 @@ or [read the latest documentation](http://chrisrackauckas.github.io/Differential
 In this example we will solve the equation
 
 ```math
-uₜ = f(u,t)dt
+du/dt = f(u,t)
 ```
 
 where ``f(u,t)=αu``. We know via Calculus that the solution to this equation is
