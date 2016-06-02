@@ -16,8 +16,8 @@ solArr = monteCarloSim(1//2^(4),prob::SDEProblem,T=1)
 plot(sol,plottrue=true)
 
 ## Convergence Testing
-println("Convergence Test on Linear")
-Δts = 1.//2.^(11:-1:4) #14->7 good plot
+println("Convergence Test on 2D Linear")
+Δts = 1.//2.^(8:-1:4) #14->7 good plot
 
 println(@elapsed begin
 sim = testConvergence(Δts,prob,numMonte=Int(1e2),alg="EM")
@@ -27,4 +27,4 @@ sim2 = testConvergence(Δts,prob,numMonte=Int(1e2),alg="RKMil")
 sim3 = testConvergence(Δts,prob,numMonte=Int(1e2),alg="SRI")
 end)
 
-abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5)<.2 #High tolerance since low Δts for testing!
+abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5)<.4 #High tolerance since low Δts for testing!
