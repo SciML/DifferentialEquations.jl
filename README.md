@@ -14,6 +14,13 @@ This package is for efficient and parallel implementations of research-level alg
 
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
 
+## Note on Compatibility
+
+Note that, although there is no promise of future compatibility, most of the changes from this point forward will be for increasing the performance of the codes and adding new solvers.
+However, most of this should be hidden to the user. The interface for defining problems is robust and should not see many changes in the near future. Some aspects of the Solution type
+may be modified, but again, most of the foreseeable work will be on implementing newer solvers on accelerator hardware (GPUs/Xeon Phis) and not changing the API (though they will likely
+have additional keywords for using the new features).
+
 # Using the package
 
 To install the package, use the following command inside the Julia REPL:
