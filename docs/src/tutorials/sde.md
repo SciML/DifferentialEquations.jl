@@ -3,7 +3,7 @@
 In this example we will solve the equation
 
 ```math
-duₜ = f(uₜ,t)dt + Σσᵢ(uₜ,t)dWⁱₜ
+du = f(u,t)dt + Σσᵢ(u,t)dWⁱ
 ```
 
 where ``f(u,t)=αu`` and ``σ(u,t)=βu``. We know via Stochastic Calculus that the
