@@ -15,7 +15,7 @@ prob = heatProblemExample_moving()
 sim = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true)
 
 println("Generating Animation")
-@linux? animate(sim::FEMSolution;zlim=(0,.1),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
+@linux? animate(sim::FEMSolution;zlims=(0,.1),cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
 
 ## Should have moved off the frame.
 maximum(sim.u) .< 1e-6

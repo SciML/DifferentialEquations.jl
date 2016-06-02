@@ -1,6 +1,7 @@
 ##Finite Element Method Introduction
 
 using DifferentialEquations
+import DifferentialEquations.poissonProblemExample_wave #Ignore
 
 ### Setup
 

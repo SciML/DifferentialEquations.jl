@@ -17,14 +17,14 @@ plot(sol,plottrue=true)
 
 ## Convergence Testing
 println("Convergence Test on Linear")
-Δts = 1.//2.^(14:-1:7) #14->7 good plot
+Δts = 1.//2.^(11:-1:4) #14->7 good plot
 
 println(@elapsed begin
-sim = testConvergence(Δts,prob,numMonte=Int(5e1),alg="EM")
+sim = testConvergence(Δts,prob,numMonte=Int(1e2),alg="EM")
 
-sim2 = testConvergence(Δts,prob,numMonte=Int(5e1),alg="RKMil")
+sim2 = testConvergence(Δts,prob,numMonte=Int(1e2),alg="RKMil")
 
-sim3 = testConvergence(Δts,prob,numMonte=Int(5e1),alg="SRI")
+sim3 = testConvergence(Δts,prob,numMonte=Int(1e2),alg="SRI")
 end)
 
 abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5)<.2 #High tolerance since low Δts for testing!
