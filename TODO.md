@@ -21,6 +21,7 @@
 * Turn off bounds checking in core loops
 * Add an option for fast math
 * Add Xeon Phi / GPU variants for PDE solvers
+* Multi-thread FEM
 
 ## Misc
 * Davie-Gaines convergence analysis
