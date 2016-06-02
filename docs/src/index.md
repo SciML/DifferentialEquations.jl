@@ -2,9 +2,20 @@
 
 This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations.
 
-This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end). All of the methods have associated tests to ensure that the theoretical order of accuracy is attained.
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests  are included in the [test/](test/) folder if you're interested.
+The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. If you find any equation where there seems
+to be an error, please open an issue.
+
+This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end).
 
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
+
+## Note on Compatibility
+
+Note that, although there is no promise of future compatibility, most of the changes from this point forward will be for increasing the performance of the codes and adding new solvers.
+However, most of this should be hidden to the user. The interface for defining problems is robust and should not see many changes in the near future. Some aspects of the Solution type
+may be modified, but again, most of the foreseeable work will be on implementing newer solvers on accelerator hardware (GPUs/Xeon Phis) and not changing the API (though they will likely
+have additional keywords for using the new features).
 
 ## Using the Package
 
@@ -26,7 +37,7 @@ using DifferentialEquations
 ```
 
 To understand the package in more detail, check out the following tutorials. Example
-codes for the latest features can be found in [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test/). Note that for many of
+codes for the latest features can be found in [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test). Note that for many of
 the examples in the test folder, you may wish to run them at lower Δx or Δt.
 These values were taken to be large in order make unit tests run faster!
 
