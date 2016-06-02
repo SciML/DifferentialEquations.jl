@@ -65,7 +65,11 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
       u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
     elseif alg=="ExplicitRK"
       for i = 1:stages
-        utilde = zeros(u)
+        if typeof(u)<:Number
+          utilde = 0
+        else
+          utilde = zeros(u)
+        end
         for j = 1:i-1
           utilde += A[i,j]*ks[..,j]
         end
