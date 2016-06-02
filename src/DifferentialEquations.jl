@@ -20,7 +20,8 @@ this package also provides a good sandbox for developing novel numerical schemes
 """ ->
 module DifferentialEquations
 
-using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters, Compat, EllipsisNotation
+using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters,
+      Compat, EllipsisNotation, ForwardDiff
 import Plots: plot
 import Base: length, size
 import JLD: load

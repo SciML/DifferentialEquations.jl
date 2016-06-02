@@ -14,13 +14,14 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
   * "ExplicitRK" - A general Runge-Kutta solver which takes in a tableau. Can be adaptive.
   * "ImplicitEuler" - A 1st order implicit solver. Unconditionally stable.
   * "Trapezoid" - A second order unconditionally stable implicit solver. Good for highly stiff.
+  * "Rosenbrock23" - A fast solver which is good for stiff equations.
 * tableau - Takes in an object which defines a tableau. Default is Dormand-Prince 4/5.
 * adaptive - Turns on adaptive timestepping for appropriate methods. Default is false.
 * tol - The error tolerance of the adaptive method. Default is 1e-4.
 * γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
 * qmax - Defines the maximum value possible for the adaptive q. Default is 10.
 """
-function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10)
+function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10,diffLength=50)
 
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
   u = float(u₀)
@@ -64,6 +65,15 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
       u = vec(u)
       resid = vec(resid)
     end
+  elseif alg == "Rosenbrock32"
+    k₁ = similar(u)
+    k₂ = similar(u)
+    k₃ = similar(u)
+    c₃₂ = 6 + sqrt(2)
+    d = 1/(2+sqrt(2))
+    function vecf(u,t)
+      return(vec(f(reshape(u,sizeu...),t)))
+    end
   end
 
   while t < T
@@ -103,7 +113,7 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
           uEEst += αEEst[i]*ks[..,i]
         end
         absEEst = norm(utilde-uEEst,2)
-        relEEst = absEEst/norm(uEEst,2)
+        relEEst = absEEst/norm(u,2)
       else
         u = u + Δt*utilde
       end
@@ -117,6 +127,22 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
       u = vec(u)
       nlres = nlsolve((u,resid)->rhs(u,resid,uOld,t,Δt),u)
       u = reshape(nlres.zero,sizeu...)
+    elseif alg=="Rosenbrock32"
+      # Time derivative
+      dT = derivative((t)->f(u,t),t)
+      J = jacobian((u)->vecf(u,t),vec(u))
+      W = one(J)-Δt*d*J
+      f₀ = f(u,t)
+      k₁[:] = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
+      f₁ = f(u+.5Δt*k₁,t+.5Δt)
+      k₂[:] = reshape(W\vec(f₁-k₁),sizeu...) + k₁
+      u = u + Δt*k₂
+      if adaptive
+        f₂ = f(u,t+Δt)
+        k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
+        absEEst = norm(Δt(k₁ - 2k₂ + k₃)/6,2)
+        relEEst = absEEst/norm(u,2)
+      end
     end
     if adaptive
       standard = abs((tol)/(γ*absEEst)).^(1/order)

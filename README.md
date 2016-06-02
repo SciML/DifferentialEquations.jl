@@ -243,6 +243,7 @@ the solver will use the matrices without error.
   * Stiff Solvers
     * Implicit Euler
     * Trapezoidal
+    * Rosenbrock32
 * SODEs
   * Euler-Maruyama
   * Milstein

@@ -9,3 +9,4 @@ JLD
 GrowableArrays
 ChunkedArrays
 EllipsisNotation
+ForwardDiff
