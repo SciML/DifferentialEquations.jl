@@ -240,6 +240,7 @@ the solver will use the matrices without error.
     * Bogaki-Shampine
     * Dormand-Prince 4/5
     * Runge-Kutta-Fuhlberg (RKF) 7/8
+    * Dormand-Prince 7/8
   * Stiff Solvers
     * Implicit Euler
     * Trapezoidal
