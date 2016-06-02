@@ -31,7 +31,7 @@ function animate(sol::FEMSolution;zlims=nothing,cbar=true,size=nothing,plotfunc=
   else
     if typeof(zlims)<:Tuple
       ztemp = [zlims]
-      zlims = repmat(ztemp,numVars)
+      zlims = repmat(ztemp,sol.prob.numVars)
     end
     @gif for j=1:length(sol.timeSeries[1])
       ps = Any[]
