@@ -58,6 +58,10 @@ bool11 = abs(sim11.𝒪est["final"]-1) < 0.1
 sim12 = testConvergence(Δts,prob,alg="Trapezoid")
 bool12 = abs(sim12.𝒪est["final"]-2) < 0.1
 
-superbool2 = bool11 && bool12
+sim13 = testConvergence(Δts,prob,alg="Rosenbrock32")
+bool13 = abs(sim13.𝒪est["final"]-2) < 0.1
+
+superbool2 = bool11 && bool12 && bool13
+
 println("Tests pass: $superbool2")
 superbool1 && superbool2
