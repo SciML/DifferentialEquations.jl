@@ -9,7 +9,7 @@ markdown_extensions:
   - extra
   - tables
   - fenced_code
-  - mdx_math
+  #- mdx_math
 
 extra_css:
   - assets/Documenter.css
@@ -23,12 +23,17 @@ docs_dir: 'build'
 pages:
 - Introduction: index.md
 - Tutorial:
+  - Ordinary Differential Equation Example: tutorials/ode.md
+  - Stochastic Differential Equation Example: tutorials/sde.md
   - Poisson Equation Finite Element Method Example: tutorials/femPoisson.md
   - Heat Equation Finite Element Method Example: tutorials/femHeat.md
   - Stochastic Finite Element Examples: tutorials/femStochastic.md
 - Manual:
   - Overview of DifferentialEquations.jl Usage: man/overview.md
-  - Defining a Problem: man/problem.md
+  - Defining an ODE Problem: man/odeProblem.md
+  - Defining an SDE Problem: man/sdeProblem.md
+  - Defining a Finite Element Problem: man/femProblem.md
+  - Defining a Stokes Problem: man/stokesProblem.md
   - Meshes: man/mesh.md
   - Information on Solvers: man/solvers.md
   - The Solution Type: man/solution.md
@@ -37,3 +42,4 @@ pages:
 - Internal Documentation:
   - Internal Finite Element Tools: internals/femTools.md
   - Extra Functions: internals/extras.md
+  - Solver Helpers: internals/solverHelpers.md

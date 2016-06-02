@@ -1,4 +1,4 @@
-# Defining an FEM Problem
+# Defining a FEM Problem
 
 Below are the definitions of the types which specify problems. Some general notes are:
 
@@ -30,16 +30,29 @@ HeatProblem
 
 ## Example Problems
 
+### Poisson Equation
+
 ```@docs
 DifferentialEquations.poissonProblemExample_wave
 DifferentialEquations.poissonProblemExample_noisyWave
 DifferentialEquations.poissonProblemExample_birthdeath
+DifferentialEquations.poissonProblemExample_birthdeathinteractingsystem
+DifferentialEquations.poissonProblemExample_birthdeathsystem
+```
+
+### Heat Equation
+
+```@docs
 DifferentialEquations.heatProblemExample_diffuse
 DifferentialEquations.heatProblemExample_pure
 DifferentialEquations.heatProblemExample_moving
 DifferentialEquations.heatProblemExample_birthdeath
 DifferentialEquations.heatProblemExample_stochasticbirthdeath
-
+DifferentialEquations.heatProblemExample_birthdeathinteractingsystem
+DifferentialEquations.heatProblemExample_gierermeinhardt
+DifferentialEquations.heatProblemExample_birthdeathsystem
+DifferentialEquations.heatProblemExample_diffusionconstants
+DifferentialEquations.heatProblemExample_grayscott
 ```
 
 ## Related Functions
