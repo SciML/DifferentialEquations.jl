@@ -2,7 +2,7 @@
 
 using DifferentialEquations
 
-mesh = meshExample_bunny()
+mesh = meshExample_lakemesh()
 
 findboundary(mesh,ones(size(vec(mesh.elem))))
 setboundary(mesh,"Robin")
