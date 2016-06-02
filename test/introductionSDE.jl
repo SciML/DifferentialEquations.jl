@@ -18,7 +18,7 @@ prob = linearSDEExample()
 T = 1 # The final time
 
 ### Solve and plot
-#We can plot using the classic Euler-Maruyama algorithm as follows:
+#We can solve using the classic Euler-Maruyama algorithm:
 sol =solve(prob::SDEProblem,Δt,T,fullSave=true,alg="EM")
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
