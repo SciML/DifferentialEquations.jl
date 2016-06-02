@@ -142,7 +142,12 @@ function constructRKF8()
   return(ExplicitRK(A,c,α,8,αEEst=αEEst))
 end
 
-function constructDormandPrice8()
+"""
+constructDormandPrice8()
+
+Constructs the tableau object for the Dormand-Prince Order 7/8 method.
+"""
+function constructDormandPrince8()
   A =      [0 0 0 0 0 0 0 0 0 0 0 0 0
             1/18 0 0 0 0 0 0 0 0 0 0 0 0
             1/48 1/16 0 0 0 0 0 0 0 0 0 0 0
