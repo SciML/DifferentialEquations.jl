@@ -45,7 +45,7 @@ tab = constructRKF8()
 sim10 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool10 = abs(sim10.𝒪est["l∞"]-8) < 0.1
 
-tab = constructDormandPrice8()
+tab = constructDormandPrince8()
 sim11 = testConvergence(Δts,prob,alg="ExplicitRK",tableau=tab)
 bool11 = abs(sim11.𝒪est["l∞"]-9.44) < 0.1 #Converges on linear at above 9!
 

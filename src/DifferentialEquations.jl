@@ -100,7 +100,7 @@ export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadp
 
 #Tableus
 export constructRalston, constructHuen, constructRKF, constructBogakiShampine,
-       constructCashKarp, constructDormandPrince, constructRKF8, constructDormandPrice8
+       constructCashKarp, constructDormandPrince, constructRKF8, constructDormandPrince8
 
 #Misc Tools
 export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,
