@@ -4,12 +4,13 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ChrisRackauckas.github.io/DifferentialEquations.jl/stable)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChrisRackauckas.github.io/DifferentialEquations.jl/latest)
 
-Note: This package is currently undergoing a lot of changes. The documentation only holds for the last tagged version v0.2. This
-will be fixed in the coming weeks as the package stabilizes.
-
 This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations.
 
-This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end). All of the methods have associated tests to ensure that the theoretical order of accuracy is attained.
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests  are included in the [test/](test/) folder if you're interested.
+The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. If you find any equation where there seems
+to be an error, please open an issue.
+
+This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end).
 
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
 
@@ -87,7 +88,7 @@ Plots.gui()
 In this example we will solve the equation
 
 ```math
-duₜ = f(uₜ,t)dt + Σσᵢ(uₜ,t)dWⁱₜ
+du = f(u,t)dt + Σσᵢ(u,t)dWⁱ
 ```
 
 where ``f(u,t)=αu`` and ``σ(u,t)=βu``. We know via Stochastic Calculus that the
@@ -111,14 +112,14 @@ T = 1 # The final time
 and then we pass this information to the solver and plot:
 
 ```julia
-#We can plot using the classic Euler-Maruyama algorithm as follows:
+#We can solve using the classic Euler-Maruyama algorithm:
 sol =solve(prob::SDEProblem,Δt,T,fullSave=true,alg="EM")
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
 gui()
 ```
 
-We can choose a very state of the art high-order solver as well:
+We can choose a very state of the art high Strong order solver as well:
 
 ```julia
 #We can choose a better method as follows:
