@@ -1,6 +1,6 @@
 using DifferentialEquations
 prob = twoDimlinearODEExample()
-
+srand(100)
 ## Convergence Testing
 println("Convergence Test on Linear")
 Δts = 1.//2.^(8:-1:4)
