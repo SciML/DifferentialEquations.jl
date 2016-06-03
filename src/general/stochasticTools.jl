@@ -21,8 +21,8 @@ Returns a vector of solution objects.
 * fullSave - Denotes whether fullSave should be turned on in each run. Default is true.
 * alg - Algorithm for solving the SDEs. Default is "EM"
 """
-function monteCarloSim(Δt::Number,prob::SDEProblem;T=1,numMonte=10000,fullSave=true,alg="EM")
-  solutions = pmap((i)->solve(prob,Δt,T,fullSave=fullSave,alg=alg),1:numMonte)
+function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,fullSave=true,alg="EM")
+  solutions = pmap((i)->solve(prob,tspan,Δt=Δt,fullSave=fullSave,alg=alg),1:numMonte)
   solutions = convert(Array{SDESolution},solutions)
   return(solutions)
 end
