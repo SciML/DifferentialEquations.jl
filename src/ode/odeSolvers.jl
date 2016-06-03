@@ -21,11 +21,16 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 * γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
 * qmax - Defines the maximum value possible for the adaptive q. Default is 10.
 """
-function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,tol=1e-4,qmax=10,diffLength=50)
-
+function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,abstol=1e-8,reltol=1e-6,qmax=4,diffLength=50)
+  tspan = vec(tspan)
+  if tspan[2]-tspan[1]<0 || length(tspan)>2
+    error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
+  end
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
+  T = tspan[2]
+  t = tspan[1]
   u = float(u₀)
-  t = 0.0
+
 
   if fullSave
     uFull = GrowableArray(u)
@@ -38,13 +43,11 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
   #Pre-process
   if alg == "Midpoint"
     utilde = similar(u)
-    halfΔt = .5Δt
   elseif alg == "RK4"
     k₁ = similar(u)
     k₂ = similar(u)
     k₃ = similar(u)
     k₄ = similar(u)
-    halfΔt = .5Δt
   elseif alg == "ExplicitRK"
     # tableau from keyword argument
     @unpack tableau:   A,c,α,αEEst,stages,order
@@ -76,6 +79,30 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
     end
   end
 
+  if Δt == 0
+    d₀ = norm(u₀./(abstol+u*reltol),2)
+    f₀ = f(u₀,t)
+    d₁ = norm(f₀./(abstol+u*reltol),2)
+    if d₀ < 1e-5 || d₁ < 1e-5
+      Δt₀ = 1e-6
+    else
+      Δt₀ = 0.01*(d₀/d₁)
+    end
+    u₁ = u₀ + Δt₀*f₀
+    f₁ = f(u₀,t+Δt₀)
+    d₂ = norm((f₁-f₀)./(abstol+u*reltol),2)/Δt₀
+    if max(d₁,d₂)<=1e-15
+      Δt₁ = max(1e-6,Δt₀*1e-3)
+    else
+      if !isdefined(Main,:order)
+        order = 1 #Convervative choice
+      end
+      Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+    end
+    Δt = min(100*Δt₀,Δt₁)
+  end
+
+  halfΔt = .5Δt # For some explicit methods
   while t < T
     iter += 1
     if alg=="Euler"
@@ -112,8 +139,7 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
         for i = 2:stages
           uEEst += αEEst[i]*ks[..,i]
         end
-        absEEst = norm(utilde-uEEst,2)
-        relEEst = absEEst/norm(u,2)
+        EEst = norm((utilde-uEEst)./(abstol+u*reltol),2)
       else
         u = u + Δt*utilde
       end
@@ -140,12 +166,11 @@ function solve(prob::ODEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
       if adaptive
         f₂ = f(u,t+Δt)
         k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
-        absEEst = norm(Δt(k₁ - 2k₂ + k₃)/6,2)
-        relEEst = absEEst/norm(u,2)
+        EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),2)
       end
     end
     if adaptive
-      standard = abs((tol)/(γ*absEEst)).^(1/order)
+      standard = abs(1/(γ*EEst)).^(1/order)
       if isinf(standard)
           q = qmax
       else
