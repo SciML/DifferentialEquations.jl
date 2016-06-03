@@ -22,14 +22,14 @@ end
 Then we setup some parameters:
 
 ```julia
-Δt = 1//2^(4) #The initial timestepping size
-T = 1 # The final time
+Δt = 1//2^(4) #The initial step size. It will automatically determined if not given.
+tspan = [0,1] # The timespan. This is the default if not given.
 ```
 
 We then send these items to the solver.
 
 ```julia
-sol =solve(prob::ODEProblem,Δt,T,fullSave=true,alg="Euler")
+sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg="Euler")
 ```
 
 Plotting commands are provided via a recipe to Plots.jl. To plot the solution
@@ -49,7 +49,7 @@ this solution, we see that it is off from the true solution. We can choose a
 better algorithm by specifying:
 
 ```julia
-sol =solve(prob::ODEProblem,1//2^(4),1,fullSave=true,alg="ExplicitRK")
+sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg="ExplicitRK")
 plot(sol,plottrue=true)
 Plots.gui()
 ```
@@ -63,7 +63,7 @@ solve the problem in less timesteps by turning on adaptive timestepping. To
 do so, you simply pass a keyword argument:
 
 ```julia
-sol =solve(prob::ODEProblem,1//2^(4),1,fullSave=true,alg="ExplicitRK",adaptive=true)
+sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg="ExplicitRK",adaptive=true)
 plot(sol,plottrue=true)
 Plots.gui()
 ```
@@ -92,7 +92,7 @@ ODEs, but you can do whatever you want. To solve the ODE, we do the same steps
 as before.
 
 ```julia
-sol =solve(prob::ODEProblem,1//2^(4),1,fullSave=true,alg="ExplicitRK")
+sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg="ExplicitRK")
 plot(sol,plottrue=true)
 Plots.gui()
 ```

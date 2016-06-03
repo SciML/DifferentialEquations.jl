@@ -14,18 +14,18 @@ function linearSDEExample(;α=1,β=1,u₀=1/2)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 prob = linearSDEExample()
-Δt = 1//2^(4) #The initial timestepping size
-T = 1 # The final time
+Δt = 1//2^(4) #The initial timestepping size. It will automatically assigned if not given.
+tspan = [0,1] # The timespan. This is the default if not given.
 
 ### Solve and plot
 #We can solve using the classic Euler-Maruyama algorithm:
-sol =solve(prob::SDEProblem,Δt,T,fullSave=true,alg="EM")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="EM")
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
 gui()
 
 ### Extras
 #We can choose a better method as follows:
-sol =solve(prob::SDEProblem,Δt,T,fullSave=true,alg="SRI")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="SRI")
 plot(sol,plottrue=true)
 gui()
