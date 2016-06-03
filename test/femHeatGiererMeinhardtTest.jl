@@ -18,7 +18,7 @@ gui()
 
 Plots.heatmap(vec(reshape(sol.femMesh.node[:,1],2^(4)+1,2^(k)+1)[1,:]),
               vec(reshape(sol.femMesh.node[:,2],2^(4)+1,2^(k)+1)[:,1]),
-              reshape(sol.timeSeries[1][1],2^(4)+1,2^(k)+1))
+              reshape(sol.timeSeries[1][end],2^(4)+1,2^(k)+1))
 zlims=[(0,10),(0,2)]
 cbar = false
 
