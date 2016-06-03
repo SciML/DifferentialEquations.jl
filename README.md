@@ -70,14 +70,14 @@ end
 Then we setup some parameters:
 
 ```julia
-Δt = 1//2^(4) #The initial timestepping size
-T = 1 # The final time
+Δt = 1//2^(4) #The initial timestepping size. It will automatically assigned if not given.
+tspan = [0,1] # The timespan. This is the default if not given.
 ```
 
 We then send these items to the solver.
 
 ```julia
-sol =solve(prob::ODEProblem,Δt,T,fullSave=true,alg="Euler")
+sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg="Euler")
 ```
 
 Plotting commands are provided via a recipe to Plots.jl. To plot the solution
@@ -120,7 +120,7 @@ and then we pass this information to the solver and plot:
 
 ```julia
 #We can solve using the classic Euler-Maruyama algorithm:
-sol =solve(prob::SDEProblem,Δt,T,fullSave=true,alg="EM")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="EM")
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
 gui()
@@ -130,7 +130,7 @@ We can choose a very state of the art high Strong order solver as well:
 
 ```julia
 #We can choose a better method as follows:
-sol =solve(prob::SDEProblem,Δt,T,fullSave=true,alg="SRI")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="SRI")
 plot(sol,plottrue=true)
 gui()
 ```

@@ -71,11 +71,11 @@ solved over the given Δts.
 * `saveSteps`: Denotes the steps to save at if `fullSave=true`. Default is 1
 * `alg`: The algorithm to test. Defaults to "EM".
 """
-function testConvergence(Δts::AbstractArray,prob::SDEProblem;T=1,numMonte=10000,fullSave=true,saveSteps=1,alg="EM")
+function testConvergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,fullSave=true,saveSteps=1,alg="EM")
   N = length(Δts)
   #solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave,alg=alg) for j=1:numMonte,i=1:N]
   is = repmat(1:N,1,numMonte)'
-  solutions = pmap((i)->solve(prob,Δts[i],T,fullSave=fullSave,saveSteps=saveSteps,alg=alg),is)
+  solutions = pmap((i)->solve(prob,tspan,Δt=Δts[i],fullSave=fullSave,saveSteps=saveSteps,alg=alg),is)
   solutions = convert(Array{SDESolution},solutions)
   solutions = reshape(solutions,numMonte,N)
   auxData = Dict("Δts" =>  Δts)
@@ -96,9 +96,9 @@ solved over the given Δts.
 * `alg`: The algorithm to test. Defaults to "Euler".
 * `tableau`: The tableau used for generic methods. Defaults to DEFAULT_TABLEAU.
 """
-function testConvergence(Δts::AbstractArray,prob::ODEProblem;T=1,fullSave=true,alg="Euler",saveSteps=1,tableau=DEFAULT_TABLEAU)
+function testConvergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],fullSave=true,alg="Euler",saveSteps=1,tableau=DEFAULT_TABLEAU)
   N = length(Δts)
-  solutions = DESolution[solve(prob::ODEProblem,Δts[i],T,fullSave=fullSave,alg=alg,saveSteps=saveSteps,tableau=tableau) for i=1:N]
+  solutions = DESolution[solve(prob::ODEProblem,tspan,Δt=Δts[i],fullSave=fullSave,alg=alg,saveSteps=saveSteps,tableau=tableau) for i=1:N]
   auxData = Dict("Δts" =>  Δts)
   ConvergenceSimulation(solutions,Δts,auxData=auxData)
 end

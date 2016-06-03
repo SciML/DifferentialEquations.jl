@@ -64,9 +64,10 @@ end
 end
 
 """
-solve(prob::SDEProblem,Δt,T)
+solve(prob::SDEProblem,tspan=[0,1];Δt=0)
 
-Solves the SDE as defined by prob with initial Δt on the time interval [0,T]
+Solves the SDE as defined by prob with initial Δt on the time interval tspan.
+If not given, tspan defaults to [0,1]. If
 
 ### Keyword Arguments
 
@@ -78,10 +79,16 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
   * "SRA" - The strong Order 1.5 method for additive SDEs due to Rossler.
   * "SRI" - The strong Order 1.5 method for diagonal/scalar SDEs due to Rosser. Most efficient.
 """
-function solve(prob::SDEProblem,Δt::Number,T::Number;fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
+function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="EM")
 
   @unpack prob: f,σ,u₀,knownSol,sol, numVars, sizeu
 
+  tspan = vec(tspan)
+  if tspan[2]-tspan[1]<0 || length(tspan)>2
+    error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
+  end
+  T = tspan[2]
+  t = tspan[1]
   u = float(u₀)
   t = 0.0
   if numVars == 1
@@ -100,6 +107,32 @@ function solve(prob::SDEProblem,Δt::Number,T::Number;fullSave::Bool = false,sav
   end
 
   #PreProcess
+  if Δt == 0
+    d₀ = norm(u₀./(abstol+u*reltol),2)
+    f₀ = f(u₀,t)
+    σ₀ = 2σ(u₀,t)
+    d₁ = norm(max(abs(f₀+2σ(u₀,t)),abs(f₀-2σ(u₀,t)))./(abstol+u*reltol),2)
+    if d₀ < 1e-5 || d₁ < 1e-5
+      Δt₀ = 1e-6
+    else
+      Δt₀ = 0.01*(d₀/d₁)
+    end
+    u₁ = u₀ + Δt₀*f₀
+    f₁ = f(u₀,t+Δt₀)
+    σ₁ = σ(u₀,t+Δt₀)
+    ΔσMax = max(abs(σ₀-σ₁),abs(σ₀+σ₁),abs(-σ₀-σ₁),abs(σ₁-σ₀))
+    d₂ = norm(max(f₁-f₀+ΔσMax,f₁-f₀-ΔσMax)./(abstol+u*reltol),2)/Δt₀
+    if max(d₁,d₂)<=1e-15
+      Δt₁ = max(1e-6,Δt₀*1e-3)
+    else
+      if !isdefined(Main,:order)
+        order = 1 #Convervative choice
+      end
+      Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))*2) #Order is assumed 1/2 for conservativity
+    end
+    Δt = min(100*Δt₀,Δt₁)
+  end
+
   sqΔt = sqrt(Δt)
 
   if alg=="SRI"
