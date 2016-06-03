@@ -112,8 +112,8 @@ function linearSDEExample(;α=1,β=1,u₀=1/2)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 prob = linearSDEExample()
-Δt = 1//2^(4) #The initial timestepping size
-T = 1 # The final time
+Δt = 1//2^(4) #The initial timestepping size. It will automatically assigned if not given.
+tspan = [0,1] # The timespan. This is the default if not given.
 ```
 
 and then we pass this information to the solver and plot:
