@@ -21,7 +21,7 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 * γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
 * qmax - Defines the maximum value possible for the adaptive q. Default is 10.
 """
-function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,abstol=1e-8,reltol=1e-6,qmax=4,diffLength=50)
+function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2.0,abstol=1e-8,reltol=1e-6,qmax=4,diffLength=50)
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
