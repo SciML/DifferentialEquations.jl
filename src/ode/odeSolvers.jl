@@ -94,7 +94,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
       Δt₀ = 0.01*(d₀/d₁)
     end
     u₁ = u₀ + Δt₀*f₀
-    f₁ = f(u₀,t+Δt₀)
+    f₁ = f(u₁,t+Δt₀)
     d₂ = norm((f₁-f₀)./(abstol+u*reltol),2)/Δt₀
     if max(d₁,d₂)<=1e-15
       Δt₁ = max(1e-6,Δt₀*1e-3)
