@@ -21,8 +21,30 @@ Returns a vector of solution objects.
 * fullSave - Denotes whether fullSave should be turned on in each run. Default is true.
 * alg - Algorithm for solving the SDEs. Default is "EM"
 """
-function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,fullSave=true,alg="EM")
-  solutions = pmap((i)->solve(prob,tspan,Δt=Δt,fullSave=fullSave,alg=alg),1:numMonte)
+function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,fullSave=true,alg="SRI",adaptive=false,abstol=1e-3,reltol=1e-2)
+  elapsedTime = @elapsed solutions = pmap((i)->solve(prob,tspan,Δt=Δt,fullSave=fullSave,alg=alg,adaptive=adaptive,abstol=abstol,reltol=reltol),1:numMonte)
   solutions = convert(Array{SDESolution},solutions)
-  return(solutions)
+  if prob.knownSol
+    N = size(solutions,1)
+    errors = Dict() #Should add type information
+    means  = Dict()
+    medians= Dict()
+    for k in keys(solutions[1].errors)
+      errors[k] = reshape(Float64[sol.errors[k] for sol in solutions],size(solutions)...)
+      means[k] = mean(errors[k])
+      medians[k]=median(errors[k])
+    end
+  end
+  return(MonteCarloSimulation(solutions,errors,means,medians,N,elapsedTime))
 end
+
+type MonteCarloSimulation
+  solutions::Array{SDESolution}
+  errors
+  means
+  medians
+  N
+  elapsedTime
+end
+
+Base.length(sim::MonteCarloSimulation) = sim.N
