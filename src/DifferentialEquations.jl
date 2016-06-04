@@ -21,7 +21,7 @@ this package also provides a good sandbox for developing novel numerical schemes
 module DifferentialEquations
 
 using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters,
-      Compat, EllipsisNotation, ForwardDiff
+      Compat, EllipsisNotation, ForwardDiff, DataStructures
 import Plots: plot
 import Base: length, size
 import JLD: load
@@ -69,10 +69,10 @@ export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
-       multiDimAdditiveSDEExample, twoDimlinearSDEExample
+       multiDimAdditiveSDEExample, twoDimlinearSDEExample, lorenzAttractorSDEExample
 
 #ODE Example Problems
-export twoDimlinearODEExample, linearODEExample
+export twoDimlinearODEExample, linearODEExample, lorenzAttractorODEExample
 
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,

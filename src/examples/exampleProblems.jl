@@ -14,6 +14,14 @@ function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
   return(ODEProblem(f,u₀,sol=sol))
 end
 
+function lorenzAttractorODEExample(;σ=10.,ρ=28.,β=8/3,u₀=ones(3))
+  f₁(u,t) = σ*(u[2]-u[1])
+  f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
+  f₃(u,t) = u[1]*u[2] - β*u[3]
+  f(u,t) = [f₁(u,t);f₂(u,t);f₃(u,t)]
+  return(ODEProblem(f,u₀))
+end
+
 ### SDE Examples
 
 """Example problem with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
@@ -63,6 +71,16 @@ function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1)
   sol(u₀,t,W) = u₀/sqrt(1+t) + β*(t+α*W)/sqrt(1+t)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
+
+function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8/3,u₀=ones(3),σ₀=1)
+  f₁(u,t) = α*(u[2]-u[1])
+  f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
+  f₃(u,t) = u[1]*u[2] - β*u[3]
+  f(u,t) = [f₁(u,t);f₂(u,t);f₃(u,t)]
+  σ(u,t) = σ₀ #Additive
+  return(SDEProblem(f,σ,u₀))
+end
+
 ### Finite Element Examples
 
 "Example problem with solution: ``u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))``"

@@ -1,9 +1,5 @@
 #!/usr/bin/env julia
 
-Pkg.checkout("RecipesBase")
-Pkg.checkout("Plots")
-Pkg.update()
-
 const CPU_FLOPS = peakflops()
 
 #Start Test Script
@@ -20,6 +16,8 @@ println("ODE Convergence Tests")
 @time @test include("odeConvergenceTests.jl")
 println("ODE Adaptive Tests")
 @time @test include("odeAdaptiveTests.jl")
+println("ODE Lorenz Attractor")
+@time @test include("odeLorenzAttractor.jl")
 
 #SDE
 println("Linear SDE Tests")
@@ -29,6 +27,16 @@ println("SDE Convergence Tests")
 @time @test include("sdeConvergenceTests.jl")
 println("Rossler Order Tests")
 @time @test include("RosslerOrderTest.jl")
+
+#Adaptive SDE
+println("Adaptive SDE Linear Tests")
+@time @test include("linearSDEAdaptiveTest.jl")
+println("Adaptive SDE Distribution Test")
+@time @test include("sdeAdaptiveDistributionTest.jl")
+println("Multiple Dimension Linear Adaptive Test")
+@time @test include("twoDimlinearSDEAdaptiveTest.jl")
+println("SDE Additive Lorenz Attractor Test")
+#@time @test include("sdeLorenzAttractor.jl")
 
 #Finite Element
 println("Finite Element Heat Dt Tests")
