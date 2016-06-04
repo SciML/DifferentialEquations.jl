@@ -57,7 +57,7 @@ function waveSDEExample(;u₀=1)
 end
 
 """Example additive noise problem with solution ``u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)``"""
-function additiveSDEExample(;α=0.1,β=0.5,u₀=1)
+function additiveSDEExample(;α=0.1,β=0.05,u₀=1)
   f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
   σ(u,t) = α*β./sqrt(1+t)
   sol(u₀,t,W) = u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)
