@@ -2,15 +2,14 @@ using DifferentialEquations, Stats, Distributions, HypothesisTests
 prob = linearSDEExample()
 srand(200)
 T = 1
-N = 1000
-M=10
+N = 100
+M=5
 ps = Vector{Float64}(M)
 
 
 for j = 1:M
   Wends = Vector{Float64}(N)
   for i = 1:N
-    println("$j $i")
     sol =solve(prob::SDEProblem,[0,T],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-2,reltol=0,adaptiveAlg="RSwM1")
     Wends[i] = sol.WFull[end]
   end
@@ -23,7 +22,6 @@ bool1 = sum(ps .> 0.05) > length(ps)/2 ### Make sure more passes than fails
 for j = 1:M
   Wends = Vector{Float64}(N)
   for i = 1:N
-    println("$j $i")
     sol =solve(prob::SDEProblem,[0,T],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-2,reltol=0,adaptiveAlg="RSwM2")
     Wends[i] = sol.WFull[end]
   end
@@ -36,7 +34,6 @@ bool2 = sum(ps .> 0.05) > length(ps)/2 ### Make sure more passes than fails
 for j = 1:M
   Wends = Vector{Float64}(N)
   for i = 1:N
-    println("$j $i")
     sol =solve(prob::SDEProblem,[0,T],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-2,reltol=0,adaptiveAlg="RSwM3")
     Wends[i] = sol.WFull[end]
   end
@@ -46,20 +43,7 @@ end
 
 bool3 = sum(ps .> 0.05) > length(ps)/2 ### Make sure more passes than fails
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#=
 #println(ApproximateOneSampleKSTest(randn(N), Normal()))
 
 
@@ -80,3 +64,4 @@ qqnorm(x, elements::ElementOrFunction...) = qqplot(Normal(), x, Guide.xlabel("Th
 qqplot(Wends/sqrt(T),randn(N))
 kssol = ApproximateOneSampleKSTest(Wends/sqrt(T), Normal())
 ps = pvalue(kssol) #Should be not significant (most of the time)
+=#
