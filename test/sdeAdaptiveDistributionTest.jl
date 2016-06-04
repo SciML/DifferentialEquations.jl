@@ -2,7 +2,7 @@ using DifferentialEquations, Stats, Distributions, HypothesisTests
 prob = linearSDEExample()
 srand(200)
 T = 1
-N = 100
+N = 1000
 M=10
 ps = Vector{Float64}(M)
 
