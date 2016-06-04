@@ -4,10 +4,11 @@ prob = twoDimlinearSDEExample()
 
 ## Solve and plot
 println("Solve and Plot")
+#Let the solver determine the initial stepsize for you!
 sol =solve(prob::SDEProblem,fullSave=true,alg="SRI",adaptive=true)
 
-#Now do the simulation 10000 times in parallel. Return an array
-solArr = monteCarloSim(prob::SDEProblem,Δt=1//2^(4))
-
 plot(sol,plottrue=true)
-gui()
+#gui()
+
+#Make sure it does a good job
+sol.tFull[2] > 1e-7
