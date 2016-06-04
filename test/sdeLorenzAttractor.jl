@@ -22,6 +22,6 @@ sol4 =solve(prob::SDEProblem,[0,Tend];Δt=1//2^(4),fullSave=true,alg="SRI",adapt
 p4 = plot(sol4.uFull[..,1],sol4.uFull[..,2],sol4.uFull[..,3],title="abstol = 1/100")
 
 plot(p1,p2,p3,p4,size=(1200,800),title="Lorenz Attractors")
-#gui()
+gui()
 
 true

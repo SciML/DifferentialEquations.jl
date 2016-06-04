@@ -19,7 +19,7 @@ err3 = sol3.errors["final"]
 p3 = plot(sol3,plottrue=true,legend=false,title="tol = 1e-2")
 
 println("1e-3")
-sol4 =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-3,reltol=0)
+sol4 =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-4,reltol=0)
 err4 = sol4.errors["final"]
 p4 = plot(sol4,plottrue=true,legend=false,title="tol = 1e-3")
 
