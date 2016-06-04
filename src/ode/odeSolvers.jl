@@ -21,7 +21,11 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 * γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
 * qmax - Defines the maximum value possible for the adaptive q. Default is 10.
 """
-function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",tableau=DEFAULT_TABLEAU,adaptive=false,γ=2,abstol=1e-8,reltol=1e-6,qmax=4,diffLength=50)
+function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
+              fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",
+              tableau=DEFAULT_TABLEAU,adaptive=false,γ=2.0,
+              abstol=1e-8,reltol=1e-6,qmax=4,maxIters::Int = round(Int,1e9),
+              Δtmax::Float64=(tspan[2]-tspan[1])/2,Δtmin::Float64 = 1e-4)
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
@@ -39,6 +43,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
   end
 
   iter = 0
+  acceptedIters = 0
 
   #Pre-process
   if alg == "Midpoint"
@@ -162,11 +167,13 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
       k₁[:] = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
       f₁ = f(u+.5Δt*k₁,t+.5Δt)
       k₂[:] = reshape(W\vec(f₁-k₁),sizeu...) + k₁
-      u = u + Δt*k₂
       if adaptive
-        f₂ = f(u,t+Δt)
+        utmp = u + Δt*k₂
+        f₂ = f(utmp,t+Δt)
         k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
         EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),2)
+      else
+        u = u + Δt*k₂
       end
     end
     if adaptive
@@ -177,14 +184,16 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
          q = min(qmax,max(standard,eps()))
       end
       if q > 1
+        acceptedIters += 1
         t = t + Δt
         u = utmp
-        if fullSave && iter%saveSteps==0
+        if fullSave && acceptedIters%saveSteps==0
           push!(uFull,u)
           push!(tFull,t)
         end
       end
-      Δt = q*Δt
+      Δtpropose = min(Δtmax,q*Δt)
+      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     else # Non adaptive
       t = t + Δt
       if fullSave && iter%saveSteps==0
@@ -208,6 +217,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
       return(ODESolution(u,uTrue))
     end
   else #No known sol
-    return(ODESolution(u))
+    if fullSave
+      uFull = copy(uFull)
+      return(ODESolution(u,uFull=uFull,tFull=tFull))
+    else
+      return(ODESolution(u))
+    end
   end
 end
