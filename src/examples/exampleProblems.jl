@@ -81,6 +81,38 @@ function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8/3,u₀=ones(3),σ₀=1)
   return(SDEProblem(f,σ,u₀))
 end
 
+function oval2ModelExample()
+
+  snail1 = u[1]
+  SNAIL  = u[2]
+  miR34  = u[3]
+  SR     = u[4]
+  zeb    = u[5]
+  ZEB    = u[6]
+  miR200 = u[7]
+  ZR1    = u[8]
+  ZR2    = u[9]
+  ZR3    = u[10]
+  ZR4    = u[11]
+  ZR5    = u[12]
+  tgf    = u[13]
+  TGF    = u[14]
+  TR     = u[15]
+  Ecad   = u[16]
+  Vim    = u[17]
+  OVOL2  = u[18]
+
+  sumiC5 = 5ZR1 + 20ZR2 + 30ZR3 + 20ZR4 + 5ZR5
+  sumC5  = 5ZR1 + 10ZR2 + 10ZR3 + 5ZR4  + ZR5
+
+  f₁(u,t) = α*(u[2]-u[1])
+  f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
+  f₃(u,t) = u[1]*u[2] - β*u[3]
+  f(u,t) = [f₁(u,t);f₂(u,t);f₃(u,t)]
+  σ(u,t) = σ₀ #Additive
+  return(SDEProblem(f,σ,u₀))
+end
+
 ### Finite Element Examples
 
 "Example problem with solution: ``u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))``"
