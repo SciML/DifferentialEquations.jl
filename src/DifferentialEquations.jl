@@ -65,7 +65,7 @@ include("general/parallelHelpers.jl")
 #Types
 export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
        ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
-       SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRK
+       SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRK, MonteCarloSimulation
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
