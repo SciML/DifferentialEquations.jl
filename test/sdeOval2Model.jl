@@ -8,7 +8,7 @@ sol =solve(prob::SDEProblem,[0;500],Δt=1//2^(10),fullSave=true,alg="SRI",adapti
 
 p1 = plot(sol.tFull,sol.uFull[..,16],top_margin=50px,title="Ecad",xguide="Time",yguide="Concentration",guidefont=font(16),tickfont=font(16))
 p2 = plot(sol.tFull,sol.uFull[..,17],top_margin=50px,title="Vim",xguide="Time",yguide="Concentration",guidefont=font(16),tickfont=font(16))
-p3 = plot(sol.tFull[1:end-1],diff(sol.tFull)/1000,xguide="Time",yguide="Average Dt over 1000 accepted steps",guidefont=font(16),tickfont=font(16))
+p3 = plot(sol.tFull[1:end],sol.ΔtFull,xguide="Time",yguide="Accepted Dt",guidefont=font(16),tickfont=font(16),yscale=:log10)
 plot(p1,p2,p3,layout=@layout([a b;c]),size=(1200,800),title="Adaptive Solution to Stochastic Cell Model")
 gui()
 
