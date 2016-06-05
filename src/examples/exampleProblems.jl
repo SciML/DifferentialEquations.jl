@@ -212,7 +212,7 @@ function oval2ModelExample()
     dσ[18]= 6y[18]
     return(dσ)
   end
-  
+
 
   #=
   function σ(y,t)
