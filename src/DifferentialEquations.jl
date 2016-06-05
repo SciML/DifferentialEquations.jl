@@ -69,7 +69,8 @@ export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
-       multiDimAdditiveSDEExample, twoDimlinearSDEExample, lorenzAttractorSDEExample
+       multiDimAdditiveSDEExample, twoDimlinearSDEExample, lorenzAttractorSDEExample,
+       oval2ModelExample
 
 #ODE Example Problems
 export twoDimlinearODEExample, linearODEExample, lorenzAttractorODEExample
