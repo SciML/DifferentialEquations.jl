@@ -1,8 +1,8 @@
-using DifferentialEquations, Plots
+using DifferentialEquations, Plots, LaTeXStrings
 
 
 ## Setup
-N = 6
+N = 5
 msims = Vector{MonteCarloSimulation}(N)
 elapsed = Vector{Float64}(N)
 medians = Vector{Float64}(N)
@@ -25,7 +25,8 @@ adaptiveAlg = "RSwM1"
   means[i+1]   = msims[i+1].means["l2"]
 end
 
-p11 = plot(tols,means,xscale=:log10,yscale=:log10)
+l2 = L"l^2"
+p11 = plot(tols,means,xscale=:log10,yscale=:log10,title="Test",titlefont=font(24),legendfont=font(14),tickfont=font(16),guidefont=font(16),xguide=L"ϵ",yguide="$l2 Error")
 p12 = plot(tols,medians,xscale=:log10,yscale=:log10)
 p13 = plot(tols,elapsed,xscale=:log10,yscale=:log10)
 
