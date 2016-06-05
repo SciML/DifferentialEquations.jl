@@ -2,8 +2,6 @@ addprocs(32)
 
 using DifferentialEquations, Plots, LaTeXStrings
 
-l2 = L"l^2"
-
 probs = Vector{SDEProblem}(3)
 p1 = Vector{Any}(3)
 p2 = Vector{Any}(3)
@@ -25,8 +23,6 @@ for k in eachindex(probs)
   medians = Array{Float64}(N,3)
   means   = Array{Float64}(N,3)
   tols    = Array{Float64}(N,3)
-
-
 
   #Compile
   adaptiveAlg = "RSwM1"
