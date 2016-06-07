@@ -14,12 +14,12 @@ err2 = sol2.errors["final"]
 println("Final error for the second solution was $err2")
 p2 = plot(sol2,plottrue=true)
 
-sol3 =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-2,reltol=0)
+sol3 =solve(prob::SDEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-2,reltol=0)
 err3 = sol3.errors["final"]
 println("Final error for the third solution was $err3")
 p3 = plot(sol3,plottrue=true)
 
-sol4 =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-3,reltol=0)
+sol4 =solve(prob::SDEProblem,[0,1],Δt=1/2^(4),fullSave=true,alg="SRI",adaptive=true,abstol=1e-3,reltol=0)
 err4 = sol4.errors["final"]
 println("Final error for the fourth solution was $err4")
 p4 = plot(sol4,plottrue=true)

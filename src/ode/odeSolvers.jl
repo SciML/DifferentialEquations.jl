@@ -24,31 +24,55 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
               fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",
               tableau=DEFAULT_TABLEAU,adaptive=false,γ=2.0,
-              abstol=1e-8,reltol=1e-6,qmax=4,maxIters::Int = round(Int,1e9),
-              Δtmax::Float64=(tspan[2]-tspan[1])/2,Δtmin::Float64 = 1e-4)
+              abstol=nothing,reltol=nothing,qmax=4,maxIters::Int = round(Int,1e9),
+              Δtmax=nothing,Δtmin=nothing,tType=typeof(Δt),internalNorm = 2)
+
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
   end
+
   @unpack prob: f,u₀,knownSol,sol, numVars, sizeu
+  if typeof(u₀)<:Number
+    uType = typeof(u₀)
+  elseif typeof(u₀) <: AbstractArray
+    uType = eltype(u₀)
+  else
+    error("u₀ must be a number or an array")
+  end
+
+  if Δtmax == nothing
+    Δtmax = tType((tspan[2]-tspan[1])//2)
+  end
+  if Δtmin == nothing
+    Δtmin = tType(1//10^(10))
+  end
+  if abstol == nothing
+    abstol = uType(1//10^8)
+  end
+  if reltol == nothing
+    reltol = uType(1//10^6)
+  end
+
   T = tspan[2]
-  t = tspan[1]
-  u = float(u₀)
+  t = tType(tspan[1])
+  u = u₀
 
 
   if fullSave
     uFull = GrowableArray(u)
-    tFull = Vector{Float64}(0)
+    tFull = Vector{tType}(0)
     push!(tFull,t)
   end
 
   iter = 0
   acceptedIters = 0
 
+
   #Pre-process
   if alg == "Midpoint"
     utilde = similar(u)
-  elseif alg == "RK4"
+  elseif alg == "RK4" && typeof(u)<:AbstractArray
     k₁ = similar(u)
     k₂ = similar(u)
     k₃ = similar(u)
@@ -56,7 +80,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
   elseif alg == "ExplicitRK"
     # tableau from keyword argument
     @unpack tableau:   A,c,α,αEEst,stages,order
-    ks = Array{Float64}(size(u)...,stages)
+    if typeof(u)<:Number
+      ks = Array{typeof(u)}(stages)
+    elseif typeof(u)<:AbstractArray
+      ks = Array{eltype(u)}(size(u)...,stages)
+    end
   elseif alg == "ImplicitEuler"
     function rhs(u,resid,uOld,t,Δt)
       u = reshape(u,sizeu...)
@@ -69,14 +97,16 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
     function rhs(u,resid,uOld,t,Δt)
       u = reshape(u,sizeu...)
       resid = reshape(resid,sizeu...)
-      resid[:] = u - uOld - .5Δt*(f(u,t+Δt)+f(uOld,t))
+      resid[:] = u - uOld - Δt*(f(u,t+Δt)+f(uOld,t))/2
       u = vec(u)
       resid = vec(resid)
     end
   elseif alg == "Rosenbrock32"
-    k₁ = similar(u)
-    k₂ = similar(u)
-    k₃ = similar(u)
+    if typeof(u) <: AbstractArray
+      k₁ = similar(u)
+      k₂ = similar(u)
+      k₃ = similar(u)
+    end
     c₃₂ = 6 + sqrt(2)
     d = 1/(2+sqrt(2))
     function vecf(u,t)
@@ -85,50 +115,56 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
   end
 
   if Δt == 0
-    d₀ = norm(u₀./(abstol+u*reltol),2)
+    d₀ = norm(u₀./(abstol+u*reltol),internalNorm)
     f₀ = f(u₀,t)
-    d₁ = norm(f₀./(abstol+u*reltol),2)
-    if d₀ < 1e-5 || d₁ < 1e-5
-      Δt₀ = 1e-6
+    d₁ = norm(f₀./(abstol+u*reltol),internalNorm)
+    if d₀ < 1//10^(5) || d₁ < 1//10^(5)
+      Δt₀ = 1//10^(6)
     else
-      Δt₀ = 0.01*(d₀/d₁)
+      Δt₀ = (d₀/d₁)/100
     end
     u₁ = u₀ + Δt₀*f₀
     f₁ = f(u₁,t+Δt₀)
-    d₂ = norm((f₁-f₀)./(abstol+u*reltol),2)/Δt₀
-    if max(d₁,d₂)<=1e-15
-      Δt₁ = max(1e-6,Δt₀*1e-3)
+    d₂ = norm((f₁-f₀)./(abstol+u*reltol),internalNorm)/Δt₀
+    if max(d₁,d₂)<=1//10^(15)
+      Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
     else
       if !isdefined(Main,:order)
         order = 1 #Convervative choice
       end
       Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
     end
-    Δt = min(100*Δt₀,Δt₁)
+    Δt = min(100Δt₀,Δt₁)
   end
 
-  halfΔt = .5Δt # For some explicit methods
+  halfΔt = Δt/2 # For some explicit methods
   while t < T
     iter += 1
     if alg=="Euler"
       u = u + Δt.*f(u,t)
-    elseif alg=="Midpoint"
+    elseif alg=="Midpoint" && typeof(u)<:Number
+      utilde = u + Δt.*f(u,t)
+      u = u + Δt.*f(u+halfΔt*utilde,t+halfΔt)
+    elseif alg=="Midpoint" && typeof(u)<:AbstractArray
       utilde[:] = u + Δt.*f(u,t)
       u = u + Δt.*f(u+halfΔt*utilde,t+halfΔt)
-    elseif alg=="RK4"
+    elseif alg=="RK4" && typeof(u)<:Number
+      k₁ = f(u,t)
+      ttmp = t+halfΔt
+      k₂ = f(u+halfΔt*k₁,ttmp)
+      k₃ = f(u+halfΔt*k₂,ttmp)
+      k₄ = f(u+Δt*k₃,t+Δt)
+      u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
+    elseif alg=="RK4" && typeof(u)<:AbstractArray
       k₁[:] = f(u,t)
       ttmp = t+halfΔt
       k₂[:] = f(u+halfΔt*k₁,ttmp)
       k₃[:] = f(u+halfΔt*k₂,ttmp)
       k₄[:] = f(u+Δt*k₃,t+Δt)
       u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
-    elseif alg=="ExplicitRK"
+    elseif alg=="ExplicitRK" && typeof(u)<:AbstractArray
       for i = 1:stages
-        if typeof(u)<:Number
-          utilde = 0
-        else
-          utilde = zeros(u)
-        end
+        utilde = zeros(u)
         for j = 1:i-1
           utilde += A[i,j]*ks[..,j]
         end
@@ -144,7 +180,29 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
         for i = 2:stages
           uEEst += αEEst[i]*ks[..,i]
         end
-        EEst = norm((utilde-uEEst)./(abstol+u*reltol),2)
+        EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalNorm)
+      else
+        u = u + Δt*utilde
+      end
+    elseif alg=="ExplicitRK" && typeof(u)<:Number
+      for i = 1:stages
+        utilde = 0
+        for j = 1:i-1
+          utilde += A[i,j]*ks[j]
+        end
+        ks[i] = f(u+Δt*utilde,t+c[i]*Δt)
+      end
+      utilde = α[1]*ks[1]
+      for i = 2:stages
+        utilde += α[i]*ks[i]
+      end
+      if adaptive
+        utmp = u + Δt*utilde
+        uEEst = αEEst[1]*ks[1]
+        for i = 2:stages
+          uEEst += αEEst[i]*ks[i]
+        end
+        EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalNorm)
       else
         u = u + Δt*utilde
       end
@@ -158,26 +216,43 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
       u = vec(u)
       nlres = nlsolve((u,resid)->rhs(u,resid,uOld,t,Δt),u)
       u = reshape(nlres.zero,sizeu...)
-    elseif alg=="Rosenbrock32"
+    elseif alg=="Rosenbrock32" && typeof(u)<:AbstractArray
       # Time derivative
       dT = derivative((t)->f(u,t),t)
       J = jacobian((u)->vecf(u,t),vec(u))
       W = one(J)-Δt*d*J
       f₀ = f(u,t)
       k₁[:] = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
-      f₁ = f(u+.5Δt*k₁,t+.5Δt)
+      f₁ = f(u+Δt*k₁/2,t+Δt/2)
       k₂[:] = reshape(W\vec(f₁-k₁),sizeu...) + k₁
       if adaptive
         utmp = u + Δt*k₂
         f₂ = f(utmp,t+Δt)
         k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
-        EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),2)
+        EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalNorm)
+      else
+        u = u + Δt*k₂
+      end
+    elseif alg=="Rosenbrock32" && typeof(u)<:Number
+      # Time derivative
+      dT = derivative((t)->f(u,t),t)
+      J = jacobian((u)->vecf(u,t),vec(u))
+      W = one(J)-Δt*d*J
+      f₀ = f(u,t)
+      k₁ = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
+      f₁ = f(u+Δt*k₁/2,t+Δt/2)
+      k₂ = reshape(W\vec(f₁-k₁),sizeu...) + k₁
+      if adaptive
+        utmp = u + Δt*k₂
+        f₂ = f(utmp,t+Δt)
+        k₃ = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
+        EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalNorm)
       else
         u = u + Δt*k₂
       end
     end
     if adaptive
-      standard = abs(1/(γ*EEst)).^(1/order)
+      standard = abs(1/(γ*EEst))^(1/order)
       if isinf(standard)
           q = qmax
       else

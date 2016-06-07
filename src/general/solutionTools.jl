@@ -21,7 +21,7 @@ is specified in the solver.
 """
 type FEMSolution <: DESolution
   femMesh::FEMmesh
-  u::Array{Float64}
+  u#::Array{Number}
   trueKnown::Bool
   uTrue::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
