@@ -1,9 +1,11 @@
 using DifferentialEquations, Plots, EllipsisNotation, JLD
 srand(100)
-set_bigfloat_precision(113)
-prob = oval2ModelExample(largeFluctuations=true,useBigs=true)
 
-sol =solve(prob::SDEProblem,[0;500],Δt=big(1/2)^(10),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-6,reltol=1e-4)
+#set_bigfloat_precision(113)
+prob = oval2ModelExample(largeFluctuations=false,useBigs=true)
+
+sol =solve(prob::SDEProblem,[0;.25],Δt=big(1/2)^(10),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-6,reltol=1e-4)
+
 
 #Plots
 lw = 2
@@ -22,7 +24,13 @@ gui()
 
 save("Oval2Solution.jld","sol",sol,"prob",prob)
 
-
+#=
+u = big(0)
+for i = 1:10000000
+  u += randn()/10^12
+  println(u)
+end
+=#
 
 ##Adaptivity Necessity Tests
 sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
