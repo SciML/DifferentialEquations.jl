@@ -1,7 +1,7 @@
 ### ODE Examples
 
 """Example problem with solution ``u(t)=u₀*exp(α*t)``"""
-function linearODEExample(;α=1,u₀=1/2)
+function linearODEExample(;α=1,u₀=1//2)
   f(u,t) = α*u
   sol(u₀,t) = u₀*exp(α*t)
   return(ODEProblem(f,u₀,sol=sol))
@@ -14,7 +14,7 @@ function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
   return(ODEProblem(f,u₀,sol=sol))
 end
 
-function lorenzAttractorODEExample(;σ=10.,ρ=28.,β=8/3,u₀=ones(3))
+function lorenzAttractorODEExample(;σ=10.,ρ=28.,β=8//3,u₀=ones(3))
   f₁(u,t) = σ*(u[2]-u[1])
   f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
   f₃(u,t) = u[1]*u[2] - β*u[3]
@@ -49,7 +49,7 @@ function cubicSDEExample(;u₀=1/2)
 end
 
 """Example problem with solution ``u(t,W)=atan(0.1*W + tan(u₀))``"""
-function waveSDEExample(;u₀=1)
+function waveSDEExample(;u₀=1.)
   f(u,t) = -0.01*sin(u).*cos(u).^3
   σ(u,t) = 0.1*cos(u).^2
   sol(u₀,t,W) = atan(0.1*W + tan(u₀))
@@ -57,7 +57,7 @@ function waveSDEExample(;u₀=1)
 end
 
 """Example additive noise problem with solution ``u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)``"""
-function additiveSDEExample(;α=0.1,β=0.05,u₀=1)
+function additiveSDEExample(;α=0.1,β=0.05,u₀=1.)
   f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
   σ(u,t) = α*β./sqrt(1+t)
   sol(u₀,t,W) = u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)
@@ -65,14 +65,14 @@ function additiveSDEExample(;α=0.1,β=0.05,u₀=1)
 end
 
 """Multiple Ito dimension extension of additiveSDEExample"""
-function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1)
+function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1.)
   f(u,t) = β/sqrt(1+t) - u/(2*(1+t))
   σ(u,t) = α*β/sqrt(1+t)
   sol(u₀,t,W) = u₀/sqrt(1+t) + β*(t+α*W)/sqrt(1+t)
   return(SDEProblem(f,σ,u₀,sol=sol))
 end
 
-function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8/3,u₀=ones(3),σ₀=1)
+function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8//3,u₀=ones(3),σ₀=1)
   f₁(u,t) = α*(u[2]-u[1])
   f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
   f₃(u,t) = u[1]*u[2] - β*u[3]
@@ -81,7 +81,7 @@ function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8/3,u₀=ones(3),σ₀=1)
   return(SDEProblem(f,σ,u₀))
 end
 
-function oval2ModelExample(largeFluctuations=false)
+function oval2ModelExample(;largeFluctuations=false,useBigs=false)
   #Parameters
   J1_200=3
   J1_34=0.15
@@ -224,6 +224,9 @@ function oval2ModelExample(largeFluctuations=false)
   end
 
   u₀ = [0.128483;1.256853;0.0030203;0.0027977;0.0101511;0.0422942;0.2391346;0.0008014;0.0001464;2.67e-05;4.8e-6;9e-7;0.0619917;1.2444292;0.0486676;199.9383546;137.4267984;1.5180203;1.5180203] #Fig 9B
+  if useBigs
+    u₀ = big(u₀)
+  end
   #u₀ =  [0.1701;1.6758;0.0027;0.0025;0.0141;0.0811;0.1642;0.0009;0.0001;0.0000;0.0000;0.0000;0.0697;1.2586;0.0478;194.2496;140.0758;1.5407;1.5407] #Fig 9A
   return(SDEProblem(f,σ,u₀))
 end
