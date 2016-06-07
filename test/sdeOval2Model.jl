@@ -4,7 +4,7 @@ srand(100)
 #set_bigfloat_precision(113)
 prob = oval2ModelExample(largeFluctuations=false,useBigs=true)
 
-sol =solve(prob::SDEProblem,[0;.25],Δt=big(1/2)^(10),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-6,reltol=1e-4)
+sol =solve(prob::SDEProblem,[0;1],Δt=big(1/2)^(10),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-6,reltol=1e-4)
 
 
 #Plots
@@ -32,24 +32,26 @@ for i = 1:10000000
 end
 =#
 
+prob = oval2ModelExample(largeFluctuations=true,useBigs=false,α=1)
+
 ##Adaptivity Necessity Tests
 sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
 Int(sol.u[1]!=NaN)
 numFails = 0
-for i = 1:100
-  sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
-  numFails+=sol.u[1]!=NaN
+@progress for i = 1:100
+  sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(13),fullSave=true,alg="EM",adaptive=false,saveSteps=1)
+  numFails+=any(isnan,sol.u)
 end
 println("The number of Euler-Maruyama Fails is $numFails")
 numFails = 0
-for i = 1:100
-  sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="SRI",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
-  numFails+=sol.u[1]!=NaN
+@progress for i = 1:100
+  sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(13),fullSave=true,alg="SRI",adaptive=false,saveSteps=1)
+  numFails+=any(isnan,sol.u)
 end
 println("The number of Rossler-SRI Fails is $numFails")
 numFails = 0
-for i = 1:100
-  sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
-  numFails+=sol.u[1]!=NaN
+@progress for i = 1:100
+  sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(7),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
+  numFails+=any(isnan,sol.u)
 end
 println("The number of ESRK1+RSwM3 Fails is $numFails")

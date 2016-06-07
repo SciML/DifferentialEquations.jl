@@ -81,7 +81,7 @@ function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8//3,u₀=ones(3),σ₀=1)
   return(SDEProblem(f,σ,u₀))
 end
 
-function oval2ModelExample(;largeFluctuations=false,useBigs=false)
+function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
   #Parameters
   J1_200=3
   J1_34=0.15
@@ -208,8 +208,8 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false)
   if largeFluctuations
     function σ(y,t)
       dσ = zeros(19)
-      dσ[1] = 1.5y[1]
-      dσ[18]= 6y[18]
+      dσ[1] = α*1.5y[1]
+      dσ[18]= α*6y[18]
       return(dσ)
     end
   else
