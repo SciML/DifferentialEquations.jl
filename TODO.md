@@ -2,6 +2,7 @@
 
 ## General
 * Upgrade to v0.5
+* Remove float conversions in plot recipe (for bigfloats, Plots.jl fixed)
 
 ## Algorithms
 * Finite difference solvers:
