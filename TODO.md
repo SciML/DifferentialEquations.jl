@@ -2,7 +2,6 @@
 
 ## General
 * Upgrade to v0.5
-* Remove float conversions in plot recipe (for bigfloats, Plots.jl fixed)
 
 ## Algorithms
 * Finite difference solvers:
@@ -26,6 +25,3 @@
 
 ## Misc
 * Davie-Gaines convergence analysis
-* CG and GMRES don't work with systems, change IterativeSolvers
-* CG and GMRES need diffusion constants
-* SemiImplicit Methods need diffusion constants
