@@ -12,10 +12,7 @@ If you have any questions, or just want to chat about solvers/using the package,
 
 ## Note on Compatibility
 
-Note that, although there is no promise of future compatibility, most of the changes from this point forward will be for increasing the performance of the codes and adding new solvers.
-However, most of this should be hidden to the user. The interface for defining problems is robust and should not see many changes in the near future. Some aspects of the Solution type
-may be modified, but again, most of the foreseeable work will be on implementing newer solvers on accelerator hardware (GPUs/Xeon Phis) and not changing the API (though they will likely
-have additional keywords for using the new features).
+The v0.0.3 release is the last release targetting Julia v0.4. Future development will be targeting Julia v0.5 and does not guerentee backwards compatibility with v0.4. That said, most of the code should work. The only breaking change may be within the dependency ChunkedArrays which will require a very different method of parallelism in future versions, and thus one should make sure to use the tag for v0.4 in ChunkedArrays.
 
 ## Using the Package
 
