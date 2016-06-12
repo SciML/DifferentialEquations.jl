@@ -304,7 +304,7 @@ SDEProblem
 Wraps the data which defines an SDE problem
 
 ```math
-uₜ = f(uₜ,t)dt + Σσᵢ(uₜ,t)dWⁱₜ
+u = f(u,t)dt + Σσᵢ(u,t)dWⁱ
 ```
 
 with initial condition u₀.

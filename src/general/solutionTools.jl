@@ -21,7 +21,7 @@ is specified in the solver.
 """
 type FEMSolution <: DESolution
   femMesh::FEMmesh
-  u::Array{Float64}
+  u#::Array{Number}
   trueKnown::Bool
   uTrue::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
@@ -74,26 +74,28 @@ type SDESolution <: DESolution
   errors#::Dict{}
   uFull::AbstractArrayOrVoid
   tFull::AbstractArrayOrVoid
+  ΔtFull::AbstractArrayOrVoid
   WFull::AbstractArrayOrVoid
   solFull::AbstractArrayOrVoid
   appxTrue::Bool
   fullSave::Bool
-  function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,WFull=nothing)
+  maxStackSize::Int
+  function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing)
     fullSave = uFull == nothing
     trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,WFull,solFull,false,fullSave))
+    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize))
   end
-  function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,WFull=nothing)
+  function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing)
     fullSave = uFull != nothing
     trueKnown = true
     errors = Dict("final"=>abs(u-uTrue))
     if fullSave
       errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,uFull,tFull,WFull,solFull,false,fullSave))
+    return(new(u,trueKnown,uTrue,errors,uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.WFull,a.solFull,a.appxTrue,a.fullSave)
+  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.ΔtFull,a.WFull,a.solFull,a.appxTrue,a.fullSave,a.maxStackSize)
 end
 
 """
