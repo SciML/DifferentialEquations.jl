@@ -47,9 +47,13 @@ type ConvergenceSimulation
       errors[k] = reshape(Float64[sol.errors[k] for sol in solutions],size(solutions)...)
     end
     𝒪est = Dict(map(calc𝒪estimates,errors))
+    𝒪esttmp = Dict() #Makes Dict of Any to be more compatible
     for (k,v) in 𝒪est
-      if length(v)==1 𝒪est[k]=v[1] end
+      if length(v)==1 push!(𝒪esttmp,Pair(k,v[1]))
+      else push!(𝒪esttmp,Pair(k,v))
+      end
     end
+    𝒪est = 𝒪esttmp
     return(new(solutions,errors,N,auxData,𝒪est,convergenceAxis))
   end
 end

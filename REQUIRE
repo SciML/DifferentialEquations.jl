@@ -4,6 +4,7 @@ GrowableArrays
 ChunkedArrays
 EllipsisNotation
 NLsolve
+Plots
 JLD
 ForwardDiff
 IterativeSolvers
