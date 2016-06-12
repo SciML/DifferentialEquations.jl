@@ -20,12 +20,9 @@ this package also provides a good sandbox for developing novel numerical schemes
 """ ->
 module DifferentialEquations
 
-using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters,
-      Compat, EllipsisNotation, ForwardDiff
-import Plots: plot
+using LaTeXStrings, IterativeSolvers, NLsolve, Parameters, Plots, EllipsisNotation, ForwardDiff, JLD, GrowableArrays, ChunkedArrays
 import Base: length, size
 import JLD: load
-using GrowableArrays, ChunkedArrays
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem
