@@ -13,7 +13,13 @@ This package is for efficient and parallel implementations of research-level alg
 """ ->
 module DifferentialEquations
 
+<<<<<<< HEAD
 using LaTeXStrings, IterativeSolvers, NLsolve, Parameters, Plots, EllipsisNotation, ForwardDiff, JLD, GrowableArrays, ChunkedArrays
+=======
+using LaTeXStrings, Plots, IterativeSolvers, NLsolve, Parameters,
+      Compat, EllipsisNotation, ForwardDiff, DataStructures
+import Plots: plot
+>>>>>>> 665425c08dead91df820ad09e77d2e83ad8b7257
 import Base: length, size
 import JLD: load
 
@@ -59,7 +65,8 @@ export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
 
 #SDE Example Problems
 export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
-       multiDimAdditiveSDEExample, twoDimlinearSDEExample
+       multiDimAdditiveSDEExample, twoDimlinearSDEExample, lorenzAttractorSDEExample,
+       oval2ModelExample
 
 #ODE Example Problems
 export twoDimlinearODEExample, linearODEExample, lorenzAttractorODEExample
