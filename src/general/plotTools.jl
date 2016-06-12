@@ -1,82 +1,42 @@
-#plot(z, zlim = (should_override ? zlim_override : default(:zlim)))
-
 """
 animate(sol::FEMSolution)
 
 Plots an animation of the solution. Requires `fullSave=true` was enabled in the solver.
-
-
-### Keyword Arguments
-
-* `zlim`: The limits on the z-axis in the simulation. Default nothing.
-* `cbar`: Boolean flag which turns on/off the color bar. Default true.
-* `plotfunc`: The plotting function to animate. Defaults to `Plots.surface`.
-* `size`: Size of the animation. Defaults to `(750*sol.prob.numVars,750)`
 """
-function animate(sol::FEMSolution;zlims=nothing,cbar=true,size=nothing,plotfunc=Plots.surface)
+function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
   atomLoaded = isdefined(Main,:Atom)
-  if size == nothing
-    size = (750*sol.prob.numVars,750)
+  anim = Animation()
+  for j=1:length(sol.timeSeries[1])
+    plot(sol,tsLocation=j;kw...)
+    frame(anim)
+    atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
   end
-  Plots.pyplot(reuse=true,size=size)
-  if zlims==nothing
-    @gif for j=1:length(sol.timeSeries[1])
-      ps = Any[]
-      for i=1:sol.prob.numVars
-        push!(ps,plotfunc(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j]))
-      end
-      plot(ps...)
-      atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
-    end
-  else
-    if typeof(zlims)<:Tuple
-      ztemp = [zlims]
-      zlims = repmat(ztemp,sol.prob.numVars)
-    end
-    @gif for j=1:length(sol.timeSeries[1])
-      ps = Any[]
-      for i=1:sol.prob.numVars
-        push!(ps,plotfunc(sol.femMesh.node[:,1],sol.femMesh.node[:,2],sol.timeSeries[i][j],zlim=zlims[i],cbar=cbar))
-      end
-      plot(ps...)
-      atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
-    end
-  end
+  gif(anim,filename,fps=fps)
 end
 
-@recipe function f(sol::FEMSolution;plottrue=false)
+@recipe function f(sol::FEMSolution;plottrue=false,tsLocation=0)
   plottrue = pop!(d,:plottrue)
-  u = Any[]
-  for i = 1:size(sol.u,2)
-    push!(u,sol.u[:,i])
-  end
-  if plottrue
+  tsLocation = pop!(d,:tsLocation)
+  if tsLocation==0 #Plot solution at end
+    out = Any[]
     for i = 1:size(sol.u,2)
-      push!(u,sol.uTrue[:,i])
+      push!(out,sol.u[:,i])
+    end
+    if plottrue
+      for i = 1:size(sol.u,2)
+        push!(out,sol.uTrue[:,i])
+      end
+    end
+  else #use timeseries
+    out = Any[]
+    for i = 1:sol.prob.numVars
+      push!(out,sol.timeSeries[i][tsLocation])
     end
   end
-  #println(length(u))
   seriestype --> :surface
-  layout --> length(u)
-  sol.femMesh.node[:,1], sol.femMesh.node[:,2], u
+  layout --> length(out)
+  sol.femMesh.node[:,1], sol.femMesh.node[:,2], out
 end
-
-#=
-@recipe function f(sims1::ConvergenceSimulation,sims_tail::ConvergenceSimulation...)
-  u = Any[sims1]
-  [push!(u,sim) for sim in sims_tail] #u is a vector of all the sims
-  vals = [[x for x in values(sim.errors)] for sim in u] #vals[i] is the vector of vectors
-                                                        #'for plot i
-  layout --> length(u)
-  seriestype --> :path
-  label  --> [key for key in keys(sims1.errors)]'
-  xguide  --> "Convergence Axis"
-  yguide  --> "Error"
-  xscale --> :log10
-  yscale --> :log10
-  sims1.convergenceAxis, vals
-end
-=#
 
 @recipe function f(sol::SDESolution;plottrue=false)
   if ndims(sol.uFull) > 2
