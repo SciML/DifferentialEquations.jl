@@ -24,14 +24,9 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
               fullSave::Bool = false,saveSteps::Int = 1,alg::AbstractString="RK4",
               tableau=DEFAULT_TABLEAU,adaptive=false,γ=2.0,
-<<<<<<< HEAD
               abstol=nothing,reltol=nothing,qmax=4,maxIters::Int = round(Int,1e9),
               Δtmax=nothing,Δtmin=nothing,tType=typeof(Δt),internalNorm = 2)
 
-=======
-              abstol=1e-8,reltol=1e-6,qmax=4,maxIters::Int = round(Int,1e9),
-              Δtmax::Float64=(tspan[2]-tspan[1])/2,Δtmin::Float64 = 1e-4)
->>>>>>> adaptive SDE initiated
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
@@ -72,10 +67,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
 
   iter = 0
   acceptedIters = 0
-<<<<<<< HEAD
 
-=======
->>>>>>> adaptive SDE initiated
 
   #Pre-process
   if alg == "Midpoint"
@@ -237,7 +229,6 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
         utmp = u + Δt*k₂
         f₂ = f(utmp,t+Δt)
         k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
-<<<<<<< HEAD
         EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalNorm)
       else
         u = u + Δt*k₂
@@ -256,9 +247,6 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
         f₂ = f(utmp,t+Δt)
         k₃ = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
         EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalNorm)
-=======
-        EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),2)
->>>>>>> adaptive SDE initiated
       else
         u = u + Δt*k₂
       end
