@@ -29,9 +29,6 @@ println("Rossler Order Tests")
 @time @test include("RosslerOrderTest.jl")
 
 #Adaptive SDE
-<<<<<<< HEAD
-#No adaptivity until publication
-=======
 println("Adaptive SDE Linear Tests")
 @time @test include("linearSDEAdaptiveTest.jl")
 println("Adaptive SDE Distribution Test")
@@ -40,7 +37,6 @@ println("Multiple Dimension Linear Adaptive Test")
 @time @test include("twoDimlinearSDEAdaptiveTest.jl")
 println("SDE Additive Lorenz Attractor Test")
 #@time @test include("sdeLorenzAttractor.jl")
->>>>>>> 665425c08dead91df820ad09e77d2e83ad8b7257
 
 #Finite Element
 println("Finite Element Heat Dt Tests")
