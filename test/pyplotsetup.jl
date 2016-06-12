@@ -7,5 +7,5 @@ WinRPM.update()
 
 ENV["PYTHON"]=""
 Pkg.add("PyCall")
-Pkg.add("PyPLot")
+Pkg.add("PyPlot")
 using PyPlot
