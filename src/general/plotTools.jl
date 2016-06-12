@@ -5,10 +5,10 @@ Plots an animation of the solution. Requires `fullSave=true` was enabled in the 
 """
 function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
   atomLoaded = isdefined(Main,:Atom)
-  anim = Animation()
+  anim = Plots.Animation()
   for j=1:length(sol.timeSeries[1])
     plot(sol,tsLocation=j;kw...)
-    frame(anim)
+    Plots.frame(anim)
     atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
   end
   gif(anim,filename,fps=fps)
