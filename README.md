@@ -65,7 +65,12 @@ function linearODEExample(;α=1,u₀=1/2)
   sol(u₀,t) = u₀*exp(α*t)
   return(ODEProblem(f,u₀,sol=sol))
 end
+prob = linearODEExample()
 ```
+
+Notice that for this equation the solution is known so we passed it to the ODEProblem.
+The package can use this information to calculate errors, test convergence, and make
+plots. However, this is optional and simply for demonstration purposes.
 
 Then we setup some parameters:
 
@@ -150,7 +155,9 @@ end
 prob = poissonProblemExample_wave()
 ```
 
-Note that in this case since the solution is known, the Dirichlet boundary condition `gD` is automatically set to match the true solution. The code for other example problems can be found in [src/examples/exampleProblems.jl](src/examples/exampleProblems.jl). To solve this problem, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
+Note that in this case since the solution is known, the Dirichlet boundary condition `gD` is automatically set to match the true solution. If the solution is unknown, one would instead define a PoissonProblem via `PoissonProblem(f,gD=gD,gN=gN)` where `gD` are the Dirichlet boundary conditions and `gN` are the Neumann boundary conditions. If the boundary conditions are unspecified, they default to zero. The code for other example problems can be found in [src/examples/exampleProblems.jl](src/examples/exampleProblems.jl).
+
+To solve the problem we specified, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
 
 ```julia
 Δx = 1//2^(5)
