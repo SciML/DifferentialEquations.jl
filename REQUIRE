@@ -7,6 +7,5 @@ NLsolve
 JLD
 ForwardDiff
 IterativeSolvers
-Plots
-PyPlot
+RecipesBase
 LaTeXStrings
