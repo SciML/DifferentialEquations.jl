@@ -105,7 +105,7 @@ end
   #plottrue && push!(u, sol.solFull);
   seriestype --> :path
   #layout --> length(u)
-  sol.tFull, vals
+  map(Float64,sol.tFull), map(Float64,vals) #Remove when Tom commits
 end
 
 @recipe function f(sol::ODESolution;plottrue=false)
