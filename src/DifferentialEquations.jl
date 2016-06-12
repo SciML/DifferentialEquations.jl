@@ -69,7 +69,7 @@ export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
        multiDimAdditiveSDEExample, twoDimlinearSDEExample
 
 #ODE Example Problems
-export twoDimlinearODEExample, linearODEExample
+export twoDimlinearODEExample, linearODEExample, lorenzAttractorODEExample
 
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
