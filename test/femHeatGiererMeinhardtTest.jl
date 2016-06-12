@@ -14,7 +14,7 @@ sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true,saveSte
 plot(sol,plottrue=false,zlim=(0,10),cbar=false)
 gui()
 
-@linux? animate(sol,zlims=[(0,10),(0,2)],cbar=false) : println("Animation only works with ImageMagick installation, disabled on osx for testing")
+animate(sol,zlims=[(0,10),(0,2)],cbar=false)
 
 Plots.heatmap(vec(reshape(sol.femMesh.node[:,1],2^(4)+1,2^(k)+1)[1,:]),
               vec(reshape(sol.femMesh.node[:,2],2^(4)+1,2^(k)+1)[:,1]),
