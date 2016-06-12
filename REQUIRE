@@ -1,12 +1,11 @@
 julia 0.4
-LaTeXStrings
-Plots
-IterativeSolvers
-PyPlot
-NLsolve
 Parameters
-JLD
 GrowableArrays
 ChunkedArrays
 EllipsisNotation
+NLsolve
+JLD
 ForwardDiff
+IterativeSolvers
+Plots
+PyPlot
