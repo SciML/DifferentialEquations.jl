@@ -1,10 +1,11 @@
+addprocs(32)
 using DifferentialEquations, Plots, EllipsisNotation, JLD, LaTeXStrings
 srand(100)
-
-#set_bigfloat_precision(113)
 prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
 
-sol =solve(prob::SDEProblem,[0;100],Δt=(1/2)^(8),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-5,reltol=1e-3)
+
+#Big Run
+sol =solve(prob::SDEProblem,[0;500],Δt=(1/2)^(8),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-5,reltol=1e-3)
 
 
 #Plots
@@ -24,31 +25,22 @@ gui()
 
 save("Oval2Solution.jld","sol",sol,"prob",prob)
 
-#=
-u = big(0)
-for i = 1:10000000
-  u += randn()/10^12
-  println(u)
-end
-=#
 
-prob = oval2ModelExample(largeFluctuations=true,useBigs=false,α=1)
 
 ##Adaptivity Necessity Tests
 sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
 Int(sol.u[1]!=NaN)
 
-js = 8:20
+js = 18:20
 Δts = 1./2.^(js)
 fails = Array{Int}(length(Δts),2)
 times = Array{Float64}(length(Δts),2)
-numRuns = 5000
+numRuns = 100
 for j in eachindex(js)
   println("j = $j")
   numFails = 0
   t1 = @elapsed numFails = @parallel (+) for i = 1:numRuns
-    sol =solve(prob::SDEProblem,[0;1],Δt=Δts[j],fullSave=true,alg="EM",adaptive=false,saveSteps=1)
-    Main.Atom.progress(i/numRuns)
+    sol =solve(prob::SDEProblem,[0;500],Δt=Δts[j],alg="EM")
     Int(any(isnan,sol.u))
   end
   fails[j,1] = numFails
@@ -60,8 +52,7 @@ end
 for j in js
   numFails = 0
   t2 = @elapsed numFails = @parallel (+) for i = 1:numRuns
-    sol =solve(prob::SDEProblem,[0;1],Δt=Δts[j],fullSave=true,alg="SRI",adaptive=false,saveSteps=1)
-    Main.Atom.progress(i/numRuns)
+    sol =solve(prob::SDEProblem,[0;1],Δt=Δts[j],alg="SRI",adaptive=false)
     Int(any(isnan,sol.u))
   end
   println("The number of Rossler-SRI Fails is $numFails")
@@ -72,7 +63,7 @@ end
 
 numFails = 0
 adaptiveTime = @elapsed @progress for i = 1:numRuns
-  sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(8),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,saveSteps=1,abstol=1e-5,reltol=1e-3)
+  sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(8),alg="SRI",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
   numFails+=any(isnan,sol.u)
 end
 
