@@ -4,9 +4,10 @@ srand(100)
 prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
 
 
+
+
 #Big Run
 sol =solve(prob::SDEProblem,[0;500],Δt=(1/2)^(8),fullSave=true,alg="SRI",adaptiveAlg="RSwM3",adaptive=true,progressBar=true,saveSteps=100,abstol=1e-5,reltol=1e-3)
-
 
 #Plots
 lw = 2
