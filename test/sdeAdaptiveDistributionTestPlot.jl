@@ -57,11 +57,16 @@ save("ksTestResults.jld","ps",ps)
 ps = load("ksTestResults.jld","ps")
 p = Vector{Any}(3)
 
-p[1] = Plots.plot(vec(repmat(tols,1,M)'),vec(ps[..,1]),xscale=:log,yscale=:log,linetype=:scatter,yguide="Kolmogorov Smirnov,P-values",title="RSwM1",left_margin=90px,guidefont=font(16),titlefont=font(20),tickfont=font(16),ylim=(1e-4,1.1),xlim=(1e-6,1),leg=false)
+p[1] = Plots.plot(vec(repmat(tols,1,M)'),vec(ps[..,1]),xscale=:log,yscale=:log,
+      linetype=:scatter,yguide="Kolmogorov Smirnov,P-values",title="RSwM1",left_margin=90px,
+      guidefont=font(16),titlefont=font(20),tickfont=font(16),ylim=(1e-4,1.1),xlim=(1e-6,1),leg=false)
 
-p[2] = Plots.plot(vec(repmat(tols,1,M)'),vec(ps[..,2]),xscale=:log10,yscale=:log10,linetype=:scatter,ylim=(1e-4,1.1),xlim=(1e-6,1),title="RSwM2",xguide="Absolute Tolerance",guidefont=font(16),titlefont=font(20),tickfont=font(16),leg=false)
+p[2] = Plots.plot(vec(repmat(tols,1,M)'),vec(ps[..,2]),xscale=:log10,yscale=:log10,linetype=:scatter,
+      ylim=(1e-4,1.1),xlim=(1e-6,1),title="RSwM2",xguide="Absolute Tolerance",
+      guidefont=font(16),titlefont=font(20),tickfont=font(16),leg=false)
 
-p[3] = Plots.plot(vec(repmat(tols,1,M)'),vec(ps[..,3]),xscale=:log10,yscale=:log10,linetype=:scatter,ylim=(1e-4,1.1),xlim=(1e-6,1),
+p[3] = Plots.plot(vec(repmat(tols,1,M)'),vec(ps[..,3]),xscale=:log10,yscale=:log10,
+        linetype=:scatter,ylim=(1e-4,1.1),xlim=(1e-6,1),
       title="RSwM3",right_margin=30px,titlefont=font(20),tickfont=font(16),leg=false)
 
 Plots.plot(p[1],p[2],p[3],size=(1200,800),layout=(1,3),link=:y)
