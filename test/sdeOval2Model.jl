@@ -1,5 +1,6 @@
 addprocs(32)
-using DifferentialEquations, Plots, EllipsisNotation, JLD, LaTeXStrings
+using DifferentialEquations, Plots, EllipsisNotation, JLD, LaTeXStrings, ProgressMeter
+@everywhere using Atom
 srand(100)
 prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
 
@@ -26,7 +27,22 @@ gui()
 
 save("Oval2Solution.jld","sol",sol,"prob",prob)
 
+##Progress Bar
 
+@everywhere function durationstring(nsec)
+    days = div(nsec, 60*60*24)
+    r = nsec - 60*60*24*days
+    hours = div(r,60*60)
+    r = r - 60*60*hours
+    minutes = div(r, 60)
+    seconds = r - 60*minutes
+
+    hhmmss = @sprintf "%u:%02u:%02u" hours minutes seconds
+    if days>0
+       return @sprintf "%u days, %s" days hhmmss
+    end
+    hhmmss
+end
 
 ##Adaptivity Necessity Tests
 sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
@@ -37,11 +53,27 @@ js = 18:20
 fails = Array{Int}(length(Δts),2)
 times = Array{Float64}(length(Δts),2)
 numRuns = 100
+
+
+startTime = time()
 for j in eachindex(js)
   println("j = $j")
   numFails = 0
+  complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
   t1 = @elapsed numFails = @parallel (+) for i = 1:numRuns
     sol =solve(prob::SDEProblem,[0;500],Δt=Δts[j],alg="EM")
+    complete[i] = 1
+
+    percentage_complete = 100*(sum(complete)/numRuns)
+    elapsed_time = time() - startTime
+    est_total_time = 100 * elapsed_time / percentage_complete
+    eta_sec = round(Int, est_total_time - elapsed_time )
+    eta = durationstring(eta_sec)
+    println("\% Complete: $percentage_complete. ETA: $eta")
+    flush(STDOUT)
+
+    Main.Atom.progress(sum(complete)/numRuns)
+
     Int(any(isnan,sol.u))
   end
   fails[j,1] = numFails
@@ -50,10 +82,25 @@ for j in eachindex(js)
   numFails = 0
 end
 
+
 for j in js
   numFails = 0
+  complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
+  startTime = time()
   t2 = @elapsed numFails = @parallel (+) for i = 1:numRuns
-    sol =solve(prob::SDEProblem,[0;1],Δt=Δts[j],alg="SRI",adaptive=false)
+    sol =solve(prob::SDEProblem,[0;500],Δt=Δts[j],alg="SRI",adaptive=false)
+    complete[i] = 1
+
+    percentage_complete = 100*(sum(complete)/numRuns)
+    elapsed_time = time() - startTime
+    est_total_time = 100 * elapsed_time / percentage_complete
+    eta_sec = round(Int, est_total_time - elapsed_time )
+    eta = durationstring(eta_sec)
+    println("\% Complete: $percentage_complete. ETA: $eta")
+    flush(STDOUT)
+
+    Main.Atom.progress(sum(complete)/numRuns)
+
     Int(any(isnan,sol.u))
   end
   println("The number of Rossler-SRI Fails is $numFails. Elapsed time was $t2")
@@ -62,12 +109,27 @@ for j in js
   numFails = 0
 end
 
-numFails = 0
-adaptiveTime = @elapsed @progress for i = 1:numRuns
+complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
+startTime = time()
+adaptiveTime = @elapsed numFails = @parallel (+) for i = 1:numRuns
   sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(8),alg="SRI",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
-  numFails+=any(isnan,sol.u)
+  complete[i] = 1
+
+  percentage_complete = 100*(sum(complete)/numRuns)
+  elapsed_time = time() - startTime
+  est_total_time = 100 * elapsed_time / percentage_complete
+  eta_sec = round(Int, est_total_time - elapsed_time )
+  eta = durationstring(eta_sec)
+  println("\% Complete: $percentage_complete. ETA: $eta")
+  flush(STDOUT)
+
+  Main.Atom.progress(sum(complete)/numRuns)
+  Int(any(isnan,sol.u))
 end
 println("The number of Adaptive Fails is $numFails. Elapsed time was $adaptiveTime")
+
+
+
 lw = 3
 
 p1 = plot(Δts,fails,ylim=(0,1000),xscale=:log2,yscale=:log10,guidefont=font(16),tickfont=font(16),yguide="Fails Per 1000 Runs",xguide=L"Chosen $\Delta t$",left_margin=100px,top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
