@@ -45,7 +45,7 @@ for j in eachindex(js)
   end
   fails[j,1] = numFails
   times[j,1] = t1
-  println("The number of Euler-Maruyama Fails is $numFails")
+  println("The number of Euler-Maruyama Fails is $numFails. Elapsed time was $t1")
   numFails = 0
 end
 
@@ -55,7 +55,7 @@ for j in js
     sol =solve(prob::SDEProblem,[0;1],Δt=Δts[j],alg="SRI",adaptive=false)
     Int(any(isnan,sol.u))
   end
-  println("The number of Rossler-SRI Fails is $numFails")
+  println("The number of Rossler-SRI Fails is $numFails. Elapsed time was $t2")
   fails[j,2] = numFails
   times[j,2] = t2
   numFails = 0
@@ -66,7 +66,7 @@ adaptiveTime = @elapsed @progress for i = 1:numRuns
   sol =solve(prob::SDEProblem,[0;1],Δt=1/2^(8),alg="SRI",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
   numFails+=any(isnan,sol.u)
 end
-
+println("The number of Adaptive Fails is $numFails. Elapsed time was $adaptiveTime")
 lw = 3
 
 p1 = plot(Δts,fails,ylim=(0,1000),xscale=:log2,yscale=:log10,guidefont=font(16),tickfont=font(16),yguide="Fails Per 1000 Runs",xguide=L"Chosen $\Delta t$",left_margin=100px,top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
