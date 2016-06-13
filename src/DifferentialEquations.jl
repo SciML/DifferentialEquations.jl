@@ -20,9 +20,8 @@ this package also provides a good sandbox for developing novel numerical schemes
 """ ->
 module DifferentialEquations
 
-using IterativeSolvers, NLsolve, Parameters, Plots, EllipsisNotation, ForwardDiff, JLD, GrowableArrays, ChunkedArrays
+using IterativeSolvers, NLsolve, Parameters, Plots, EllipsisNotation, ForwardDiff, GrowableArrays, ChunkedArrays
 import Base: length, size
-import JLD: load
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem
