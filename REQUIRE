@@ -8,3 +8,4 @@ Plots
 ForwardDiff
 IterativeSolvers
 DataStructures
+Devectorize
