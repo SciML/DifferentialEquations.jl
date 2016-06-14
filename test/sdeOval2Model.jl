@@ -48,13 +48,12 @@ end
 ##Adaptivity Necessity Tests
 sol = solve(prob::SDEProblem,[0;1],Δt=1/2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
 Int(sol.u[1]!=NaN)
+tspan = [0;1]
 js = 18:20
 Δts = 1./2.^(js)
 fails = Array{Int}(length(Δts),2)
 times = Array{Float64}(length(Δts),2)
 numRuns = 10000
-
-
 
 @progress for j in eachindex(js)
   println("j = $j")
@@ -62,7 +61,7 @@ numRuns = 10000
   startTime = time()
   complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
   t1 = @elapsed numFails = @parallel (+) for i = 1:numRuns
-    sol =solve(prob::SDEProblem,[0;500],Δt=Δts[j],alg="EM")
+    sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="EM")
     complete[i] = 1
 
     percentage_complete = 100*(sum(complete)/numRuns)
@@ -87,7 +86,7 @@ end
   complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
   startTime = time()
   t2 = @elapsed numFails = @parallel (+) for i = 1:numRuns
-    sol =solve(prob::SDEProblem,[0;500],Δt=Δts[j],alg="SRI",adaptive=false)
+    sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="SRI",adaptive=false)
     complete[i] = 1
 
     percentage_complete = 100*(sum(complete)/numRuns)
@@ -108,7 +107,7 @@ end
 complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
 startTime = time()
 adaptiveTime = @elapsed numFails = @parallel (+) for i = 1:numRuns
-  sol = solve(prob::SDEProblem,[0;1],Δt=1/2^(8),alg="SRIW1Optimized",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
+  sol = solve(prob::SDEProblem,tspan,Δt=1/2^(8),alg="SRIW1Optimized",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
   complete[i] = 1
 
   percentage_complete = 100*(sum(complete)/numRuns)
