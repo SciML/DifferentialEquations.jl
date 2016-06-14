@@ -7,7 +7,7 @@ prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
 
 
 #Big Run
-sol =solve(prob::SDEProblem,[0;500],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
+@time solve(prob::SDEProblem,[0;10],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
           adaptiveAlg="RSwM3",adaptive=true,progressBar=true,
           saveSteps=100,abstol=1e-5,reltol=1e-3)
 
@@ -126,8 +126,14 @@ println("The number of Adaptive Fails is $numFails. Elapsed time was $adaptiveTi
 
 lw = 3
 
+#=
 p1 = plot(Δts,fails,ylim=(0,1000),xscale=:log2,yscale=:log10,guidefont=font(16),tickfont=font(16),yguide="Fails Per 1000 Runs",xguide=L"Chosen $\Delta t$",left_margin=100px,top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
-p2 = plot(Δts[1:end-1],times,xscale=:log2,yscale=:log10,guidefont=font(16),tickfont=font(14),yguide="Elapsed Time (s)",xguide=L"Chosen $\Delta t$",top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
+p2 = plot(Δts,times,xscale=:log2,yscale=:log10,guidefont=font(16),tickfont=font(14),yguide="Elapsed Time (s)",xguide=L"Chosen $\Delta t$",top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
 plot!(Δts,repmat([adaptiveTime],11),linewidth=lw,line=:dash,lab="ESRK+RSwM3")
 plot(p1,p2,size=(1200,800))
+gui()
+=#
+p2 = plot(Δts,times,xscale=:log2,yscale=:log2,guidefont=font(16),tickfont=font(14),yguide="Elapsed Time (s)",xguide=L"Chosen $\Delta t$",top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
+plot!(Δts,repmat([adaptiveTime],11),linewidth=lw,line=:dash,lab="ESRK+RSwM3",left_margin=75px)
+plot(p2,size=(800,800))
 gui()
