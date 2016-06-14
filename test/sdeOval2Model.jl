@@ -45,9 +45,8 @@ save("Oval2Solution.jld","sol",sol,"prob",prob)
 end
 
 ##Adaptivity Necessity Tests
-sol =solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
+sol = solve(prob::SDEProblem,[0;1],Δt=1//2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
 Int(sol.u[1]!=NaN)
-
 js = 18:20
 Δts = 1./2.^(js)
 fails = Array{Int}(length(Δts),2)
