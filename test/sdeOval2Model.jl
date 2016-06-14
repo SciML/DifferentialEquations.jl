@@ -8,7 +8,7 @@ prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
 
 #Big Run
 @time solve(prob::SDEProblem,[0;10],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
-          adaptiveAlg="RSwM3",adaptive=true,progressBar=false,
+          adaptiveAlg="RSwM3",adaptive=true,progressBar=true,
           saveSteps=100,abstol=1e-5,reltol=1e-3)
 
 #Plots
