@@ -53,7 +53,7 @@ js = 18:20
 Δts = 1./2.^(js)
 fails = Array{Int}(length(Δts),2)
 times = Array{Float64}(length(Δts),2)
-numRuns = 10000
+numRuns = 100
 
 @progress for j in eachindex(js)
   println("j = $j")
@@ -120,6 +120,27 @@ adaptiveTime = @elapsed numFails = @parallel (+) for i = 1:numRuns
 
   Int(any(isnan,sol.u))
 end
+println("The number of Adaptive Fails is $numFails. Elapsed time was $adaptiveTime")
+
+
+
+complete = SharedArray(Int,(numRuns),init=zeros(Int,numRuns))
+startTime = time()
+function runAdaptive(i)
+  sol = solve(prob::SDEProblem,tspan,Δt=1/2^(8),alg="SRIW1Optimized",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
+  complete[i] = 1
+
+  percentage_complete = 100*(sum(complete)/numRuns)
+  elapsed_time = time() - startTime
+  est_total_time = 100 * elapsed_time / percentage_complete
+  eta_sec = round(Int, est_total_time - elapsed_time )
+  eta = durationstring(eta_sec)
+  println("\% Complete: $percentage_complete. ETA: $eta")
+  flush(STDOUT)
+
+  Int(any(isnan,sol.u))
+end
+adaptiveTime = @elapsed numFails = sum(pmap(runAdaptive,1:numRuns)) 
 println("The number of Adaptive Fails is $numFails. Elapsed time was $adaptiveTime")
 
 
