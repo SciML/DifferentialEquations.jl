@@ -60,7 +60,7 @@ gui()
 ## Big Run
 @time sol = solve(prob::SDEProblem,[0;500],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
           adaptiveAlg="RSwM3",adaptive=true,progressBar=true,
-          saveSteps=1,abstol=1e-5,reltol=1e-3)
+          saveSteps=1000,abstol=1e-5,reltol=1e-3)
 
 #Plots
 lw = 2
