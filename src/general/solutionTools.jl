@@ -80,22 +80,23 @@ type SDESolution <: DESolution
   appxTrue::Bool
   fullSave::Bool
   maxStackSize::Int
-  function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing)
+  W
+  function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull == nothing
     trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize))
+    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize,W))
   end
-  function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing)
+  function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull != nothing
     trueKnown = true
     errors = Dict("final"=>abs(u-uTrue))
     if fullSave
       errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize))
+    return(new(u,trueKnown,uTrue,errors,uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.ΔtFull,a.WFull,a.solFull,a.appxTrue,a.fullSave,a.maxStackSize)
+  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.ΔtFull,a.WFull,a.solFull,a.appxTrue,a.fullSave,a.maxStackSize,a.W)
 end
 
 """

@@ -14,6 +14,9 @@ addprocs(CPU_CORES)
   numRuns = 100
 end
 
+
+## Timing Runs
+
 for j in eachindex(js)
   println("j = $j")
   function runEM(i,j)
@@ -47,8 +50,6 @@ end
 adaptiveTime = @elapsed numFails = sum(pmap(runAdaptive,1:numRuns))
 println("The number of Adaptive Fails is $numFails. Elapsed time was $adaptiveTime")
 
-
-
 lw = 3
 p2 = plot(Δts,times,xscale=:log2,yscale=:log2,guidefont=font(16),tickfont=font(14),yguide="Elapsed Time (s)",xguide=L"Chosen $\Delta t$",top_margin=50px,linewidth=lw,lab=["Euler-Maruyama" "SRIW1"],legendfont=font(14))
 plot!(Δts,repmat([adaptiveTime],11),linewidth=lw,line=:dash,lab="ESRK+RSwM3",left_margin=75px)
@@ -56,12 +57,10 @@ plot(p2,size=(800,800))
 gui()
 
 
-
-
-#Big Run
-@time solve(prob::SDEProblem,[0;10],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
+## Big Run
+@time sol = solve(prob::SDEProblem,[0;500],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
           adaptiveAlg="RSwM3",adaptive=true,progressBar=true,
-          saveSteps=100,abstol=1e-5,reltol=1e-3)
+          saveSteps=1,abstol=1e-5,reltol=1e-3)
 
 #Plots
 lw = 2

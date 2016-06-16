@@ -81,9 +81,9 @@ function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8//3,u₀=ones(3),σ₀=1)
   return(SDEProblem(f,σ,u₀))
 end
 
-function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
+function oval2ModelExample(;largeFluctuations=false,useBigs=false,noiseLevel=1)
   #Parameters
-  J1_200=3
+  J1_200=3.
   J1_34=0.15
   J2_200=0.2
   J2_34=0.35
@@ -104,11 +104,11 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
   K3=1.0
   K4=1.0
   K5=1.0
-  KTGF=20
-  Ks=100
+  KTGF=20.
+  Ks=100.
   # TGF0=0
-  TGF_flg=0
-  Timescale=1000
+  TGF_flg=0.
+  Timescale=1000.
   dk_ZR1=0.5
   dk_ZR2=0.5
   dk_ZR3=0.5
@@ -120,23 +120,23 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
   k0_snail=0.0005
   k0_zeb=0.003
   kO=1.2
-  kOp=10
+  kOp=10.
   k_200=0.02
   k_34=0.019
   k_OT=1.1
-  k_SNAIL=16
+  k_SNAIL=16.
   k_TGF=1.5
-  k_ZEB=16
-  k_ecad0=5
-  k_ecad1=15
-  k_ecad2=5
-  k_ncad0=5
-  k_ncad1=2
-  k_ncad2=5
+  k_ZEB=16.
+  k_ecad0=5.
+  k_ecad1=15.
+  k_ecad2=5.
+  k_ncad0=5.
+  k_ncad1=2.
+  k_ncad2=5.
   k_snail=0.05
   k_tgf=0.05
   k_zeb=0.06
-  kdO=1
+  kdO=1.
   kd_200=0.035
   kd_34=0.035
   kd_SNAIL=1.6
@@ -149,7 +149,7 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
   kd_tgf=0.1
   kd_tgfR=1.0
   kd_zeb=0.1
-  kd_Op = 10
+  kd_Op = 10.
   lamda1=0.5
   lamda2=0.5
   lamda3=0.5
@@ -157,10 +157,10 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
   lamda5=0.5
   lamdas=0.5
   lamdatgfR=0.8
-  nO=6
-  nSO=2
-  nzo=2
-  GE = 1
+  nO=6.
+  nSO=2.
+  nzo=2.
+  GE = 1.
   function f(y,t)
     # y(1) = snailt
     # y(2) = SNAIL
@@ -205,22 +205,26 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,α=1)
     return(dy)
   end
 
+  function σ1(y,t)
+    dσ = zeros(19)
+    dσ[1] = noiseLevel*1.5y[1]
+    dσ[18]= noiseLevel*6y[18]
+    return(dσ)
+  end
+
+  function σ2(y,t)
+    dσ = zeros(19)
+    dσ[1] = 0.02y[1]
+    dσ[16]= 0.02y[16]
+    dσ[18]= 0.2y[18]
+    dσ[17]= 0.02y[17]
+    return(dσ)
+  end
+
   if largeFluctuations
-    function σ(y,t)
-      dσ = zeros(19)
-      dσ[1] = α*1.5y[1]
-      dσ[18]= α*6y[18]
-      return(dσ)
-    end
+    σ = σ1
   else
-    function σ(y,t)
-      dσ = zeros(19)
-      dσ[1] = 0.02y[1]
-      dσ[16]= 0.02y[16]
-      dσ[18]= 0.2y[18]
-      dσ[17]= 0.02y[17]
-      return(dσ)
-    end
+    σ = σ2
   end
 
   u₀ = [0.128483;1.256853;0.0030203;0.0027977;0.0101511;0.0422942;0.2391346;0.0008014;0.0001464;2.67e-05;4.8e-6;9e-7;0.0619917;1.2444292;0.0486676;199.9383546;137.4267984;1.5180203;1.5180203] #Fig 9B
