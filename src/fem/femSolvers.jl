@@ -27,7 +27,7 @@ function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",aut
 
   #Unroll some important constants
   @unpack femMesh: Δt,bdNode,node,elem,N,NT,freeNode,Dirichlet,Neumann
-  @unpack prob: f,Du,f,gD,gN,sol,knownSol,isLinear,u₀,numVars,σ,stochastic,noiseType, D
+  @unpack prob: f,Du,f,gD,gN,sol,knownSol,isLinear,u₀,numVars,σ,stochastic,noiseType,D
 
   #Setup f quadrature
   mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
@@ -63,9 +63,9 @@ function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",aut
   if stochastic
     rands = getNoise(u,node,elem,noiseType=noiseType)
     dW = next(rands)
-    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars).*dW
+    rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars).*dW
   else #Not Stochastic
-    rhs(u) = quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars)
+    rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars)
   end
   #Solve
   if isLinear
@@ -83,7 +83,7 @@ function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",aut
       u = u - uc   # Impose integral of u = 0
     end
   else #Nonlinear
-    function rhs!(u,resid)
+    rhs! = (u,resid) -> begin
       u = reshape(u,N,numVars)
       resid = reshape(resid,N,numVars)
       resid[freeNode,:]=D.*(A[freeNode,freeNode]*u[freeNode,:])-rhs(u)[freeNode,:]
