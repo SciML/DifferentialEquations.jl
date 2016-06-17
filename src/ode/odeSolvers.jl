@@ -86,21 +86,23 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
       ks = Array{eltype(u)}(size(u)...,stages)
     end
   elseif alg == "ImplicitEuler"
-    function rhs(u,resid,uOld,t,Δt)
+    function rhsIE(u,resid,uOld,t,Δt)
       u = reshape(u,sizeu...)
       resid = reshape(resid,sizeu...)
       resid[:] = u - uOld - Δt*f(u,t+Δt)
       vec(u)
       vec(resid)
     end
+    rhs = rhsIE
   elseif alg == "Trapezoid"
-    function rhs(u,resid,uOld,t,Δt)
+    function rhsTrap(u,resid,uOld,t,Δt)
       u = reshape(u,sizeu...)
       resid = reshape(resid,sizeu...)
       resid[:] = u - uOld - Δt*(f(u,t+Δt)+f(uOld,t))/2
       u = vec(u)
       resid = vec(resid)
     end
+    rhs = rhsTrap
   elseif alg == "Rosenbrock32"
     if typeof(u) <: AbstractArray
       k₁ = similar(u)
