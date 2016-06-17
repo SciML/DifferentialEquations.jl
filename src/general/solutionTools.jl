@@ -44,13 +44,11 @@ type FEMSolution <: DESolution
   end
 end
 
+
 """
 SDESolution
-
 Holds the data for the solution to a SDE problem.
-
 ### Fields
-
 * `u::Array{Float64}`: The solution (at the final timepoint)
 * `trueKnown::Bool`: Boolean flag for if the true solution is given.
 * `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
@@ -65,7 +63,6 @@ in the solver.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `fullSave::Bool`: True if solver saved the extra timepoints.
 * `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
-
 """
 type SDESolution <: DESolution
   u#::AbstractArrayOrNumber
@@ -80,22 +77,23 @@ type SDESolution <: DESolution
   appxTrue::Bool
   fullSave::Bool
   maxStackSize::Int
-  function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing)
+  W::Float64
+  function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull == nothing
     trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize))
+    return(new(u,trueKnown,nothing,Dict(),uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize,W))
   end
-  function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing)
+  function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull != nothing
     trueKnown = true
     errors = Dict("final"=>abs(u-uTrue))
     if fullSave
       errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize))
+    return(new(u,trueKnown,uTrue,errors,uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.ΔtFull,a.WFull,a.solFull,a.appxTrue,a.fullSave,a.maxStackSize)
+  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.uFull,a.tFull,a.ΔtFull,a.WFull,a.solFull,a.appxTrue,a.fullSave,a.maxStackSize,a.W)
 end
 
 """
