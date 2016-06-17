@@ -22,7 +22,7 @@ module DifferentialEquations
 
 using LaTeXStrings, IterativeSolvers, NLsolve, Parameters, Plots,
         EllipsisNotation, ForwardDiff, GrowableArrays,
-        ChunkedArrays, DataStructures, Devectorize, ResettableStacks
+        ChunkedArrays, DataStructures, ResettableStacks
 import Base: length, size
 import JLD: load
 
