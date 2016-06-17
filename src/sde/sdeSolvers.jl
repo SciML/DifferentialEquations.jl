@@ -252,9 +252,9 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
       if !adaptive
         ΔtFull = Δt*ones(length(t))
       end
-      return(SDESolution(u,uTrue,uFull=uFull,tFull=tFull,ΔtFull=ΔtFull,WFull=WFull,solFull=solFull,maxStackSize=maxStackSize))
+      return(SDESolution(u,uTrue,W=W,uFull=uFull,tFull=tFull,ΔtFull=ΔtFull,WFull=WFull,solFull=solFull,maxStackSize=maxStackSize))
     else
-      return(SDESolution(u,uTrue,maxStackSize=maxStackSize))
+      return(SDESolution(u,uTrue,W=W,maxStackSize=maxStackSize))
     end
   else #No known sol
     if fullSave
@@ -262,9 +262,9 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
         ΔtFull = Δt*ones(length(t))
       end
       uFull = copy(uFull)
-      return(SDESolution(u,uFull=uFull,tFull=tFull,ΔtFull=ΔtFull,maxStackSize=maxStackSize))
+      return(SDESolution(u,uFull=uFull,W=W,tFull=tFull,ΔtFull=ΔtFull,maxStackSize=maxStackSize))
     else
-      return(SDESolution(u,maxStackSize=maxStackSize))
+      return(SDESolution(u,W=W,maxStackSize=maxStackSize))
     end
   end
 end
