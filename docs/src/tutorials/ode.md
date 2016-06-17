@@ -17,6 +17,7 @@ function linearODEExample(;α=1,u₀=1/2)
   sol(u₀,t) = u₀*exp(α*t)
   return(ODEProblem(f,u₀,sol=sol))
 end
+prob = linearODEExample()
 ```
 
 Then we setup some parameters:
