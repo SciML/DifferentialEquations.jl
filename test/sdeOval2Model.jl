@@ -5,7 +5,7 @@ addprocs(CPU_CORES)
   srand(99 + myid())
   prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
   sol = solve(prob::SDEProblem,[0;1],Δt=1/2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
-  Int(sol.u[1]!=NaN)
+  Int(any(isnan,sol.u))
   tspan = [0;500]
   js = 18:24
   Δts = 1./2.^(js)
@@ -21,7 +21,7 @@ for j in eachindex(js)
   println("j = $j")
   DifferentialEquations.sendto(workers(), j=j)
   @everywhere function runEM(i,j)
-    sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="EM")
+    sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="EM",maxIters=Int(1e12))
     Int(any(isnan,sol.u))
   end
   t1 = @elapsed numFails = sum(pmap((i)->runEM(i,j),1:numRuns))
@@ -35,7 +35,7 @@ for j in eachindex(js)
   println("j = $j")
   DifferentialEquations.sendto(workers(), j=j)
   @everywhere function runSRI(i,j)
-    sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="SRIW1Optimized")
+    sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="SRIW1Optimized",maxIters=Int(1e12))
     Int(any(isnan,sol.u))
   end
   t2 = @elapsed numFails = sum(pmap((i)->runSRI(i,j),1:numRuns))
@@ -46,7 +46,7 @@ end
 
 
 @everywhere function runAdaptive(i)
-  sol = solve(prob::SDEProblem,tspan,Δt=1/2^(8),alg="SRIW1Optimized",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3)
+  sol = solve(prob::SDEProblem,tspan,Δt=1/2^(8),alg="SRIW1Optimized",adaptiveAlg="RSwM3",adaptive=true,abstol=1e-5,reltol=1e-3,maxIters=Int(1e12))
   Int(any(isnan,sol.u))
 end
 adaptiveTime = @elapsed numFails = sum(pmap(runAdaptive,1:numRuns))
