@@ -77,7 +77,7 @@ type SDESolution <: DESolution
   appxTrue::Bool
   fullSave::Bool
   maxStackSize::Int
-  W::Float64
+  W#::Float64
   function SDESolution(u;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull == nothing
     trueKnown = false
