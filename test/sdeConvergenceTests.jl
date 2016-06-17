@@ -1,6 +1,6 @@
 @everywhere using DifferentialEquations
 srand(100)
-Δts = 1.//2.^(10:-1:4) #14->7 good plot
+Δts = 1./2.^(10:-1:4) #14->7 good plot
 
 prob = waveSDEExample()
 sim = testConvergence(Δts,prob,numMonte=Int(1e1),alg="EM")

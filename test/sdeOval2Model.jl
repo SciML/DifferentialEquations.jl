@@ -6,8 +6,8 @@ addprocs(CPU_CORES)
   prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
   sol = solve(prob::SDEProblem,[0;1],Δt=1/2^(8),fullSave=true,alg="EM",adaptive=false,progressBar=true,saveSteps=1,abstol=1e-6,reltol=1e-4)
   Int(sol.u[1]!=NaN)
-  tspan = [0;1]
-  js = 18:18
+  tspan = [0;500]
+  js = 18:24
   Δts = 1./2.^(js)
   fails = Array{Int}(length(Δts),2)
   times = Array{Float64}(length(Δts),2)
@@ -19,7 +19,8 @@ end
 
 for j in eachindex(js)
   println("j = $j")
-  function runEM(i,j)
+  DifferentialEquations.sendto(workers(), j=j)
+  @everywhere function runEM(i,j)
     sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="EM")
     Int(any(isnan,sol.u))
   end
@@ -32,7 +33,8 @@ end
 
 for j in eachindex(js)
   println("j = $j")
-  function runSRI(i,j)
+  DifferentialEquations.sendto(workers(), j=j)
+  @everywhere function runSRI(i,j)
     sol =solve(prob::SDEProblem,tspan,Δt=Δts[j],alg="SRIW1Optimized")
     Int(any(isnan,sol.u))
   end
