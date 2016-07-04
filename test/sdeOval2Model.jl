@@ -2,7 +2,6 @@ using DifferentialEquations, Plots, EllipsisNotation, LaTeXStrings
 srand(100)
 prob = oval2ModelExample(largeFluctuations=true,useBigs=false)
 
-
 ## Big Run
 @time sol = solve(prob::SDEProblem,[0;500],Δt=(1/2)^(8),fullSave=true,alg="SRIW1Optimized",
           adaptiveAlg="RSwM3",adaptive=true,progressBar=true,
