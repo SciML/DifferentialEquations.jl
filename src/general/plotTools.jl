@@ -15,8 +15,6 @@ function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
 end
 
 @recipe function f(sol::FEMSolution;plottrue=false,tsLocation=0)
-  plottrue = pop!(d,:plottrue)
-  tsLocation = pop!(d,:tsLocation)
   if tsLocation==0 #Plot solution at end
     out = Any[]
     for i = 1:size(sol.u,2)
@@ -60,7 +58,6 @@ end
       vals = [vals sol.solFull]
     end
   end
-  plottrue = pop!(d,:plottrue)
   #u = Any[sol.uFull];
   #plottrue && push!(u, sol.solFull);
   seriestype --> :path
@@ -90,7 +87,6 @@ end
       vals = [vals sol.solFull]
     end
   end
-  plottrue = pop!(d,:plottrue)
   #u = Any[sol.uFull];
   #plottrue && push!(u, sol.solFull);
   seriestype --> :path
