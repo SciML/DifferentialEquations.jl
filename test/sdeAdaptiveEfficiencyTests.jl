@@ -18,16 +18,18 @@ end
 fullMeans = Vector{Array}(3)
 fullMedians = Vector{Array}(3)
 fullElapsed = Vector{Array}(3)
+fullTols = Vector{Array}(3)
 
 titleFontSize = 24
 guideFontSize = 18
 legendFontSize= 14
 tickFontSize  = 16
-N = 18
+Ns = [17 23 17]
 
 for k in eachindex(probs)
   println("Problem $k")
   ## Setup
+  N = Ns[k]
   prob = probs[k]
   DifferentialEquations.sendto(workers(), prob=prob)
 
@@ -75,24 +77,22 @@ for k in eachindex(probs)
   fullMeans[k] = means
   fullMedians[k] =medians
   fullElapsed[k] = elapsed
+  fullTols[k] = tols
 end
 
-tols = 2.0.^(-(1:N)-1)
 lw=3
 leg=String["RSwM1","RSwM2","RSwM3"]'
 
 for k in eachindex(probs)
-  p1[k] = plot(tols,fullMeans[k],xscale=:log10,yscale=:log10,  xguide="Absolute Tolerance",yguide="Mean Final Error",title="Example $k"  ,linewidth=lw,grid=false,lab=leg,top_margin=50px,left_margin=100px,right_margin=50px,bottom_margin=50px,titlefont=font(titleFontSize),legendfont=font(legendFontSize),tickfont=font(tickFontSize),guidefont=font(guideFontSize))
-  p2[k] = plot(tols,fullMedians[k],xscale=:log10,yscale=:log10,xguide="Absolute Tolerance",yguide="Median Final Error",title="Example $k",linewidth=lw,grid=false,lab=leg,top_margin=50px,left_margin=100px,right_margin=50px,bottom_margin=50px,titlefont=font(titleFontSize),legendfont=font(legendFontSize),tickfont=font(tickFontSize),guidefont=font(guideFontSize))
-  p3[k] = plot(tols,fullElapsed[k],xscale=:log10,yscale=:log10,xguide="Absolute Tolerance",yguide="Elapsed Time",title="Example $k"      ,linewidth=lw,grid=false,lab=leg,top_margin=50px,left_margin=100px,right_margin=50px,bottom_margin=50px,titlefont=font(titleFontSize),legendfont=font(legendFontSize),tickfont=font(tickFontSize),guidefont=font(guideFontSize))
+  p1[k] = plot(fullTols[k],fullMeans[k],xscale=:log10,yscale=:log10,  xguide="Absolute Tolerance",yguide="Mean Final Error",title="Example $k"  ,linewidth=lw,grid=false,lab=leg,top_margin=50px,left_margin=100px,right_margin=50px,bottom_margin=50px,titlefont=font(titleFontSize),legendfont=font(legendFontSize),tickfont=font(tickFontSize),guidefont=font(guideFontSize))
+  p2[k] = plot(fullTols[k],fullMedians[k],xscale=:log10,yscale=:log10,xguide="Absolute Tolerance",yguide="Median Final Error",title="Example $k",linewidth=lw,grid=false,lab=leg,top_margin=50px,left_margin=100px,right_margin=50px,bottom_margin=50px,titlefont=font(titleFontSize),legendfont=font(legendFontSize),tickfont=font(tickFontSize),guidefont=font(guideFontSize))
+  p3[k] = plot(fullTols[k],fullElapsed[k],xscale=:log10,yscale=:log10,xguide="Absolute Tolerance",yguide="Elapsed Time",title="Example $k"      ,linewidth=lw,grid=false,lab=leg,top_margin=50px,left_margin=100px,right_margin=50px,bottom_margin=50px,titlefont=font(titleFontSize),legendfont=font(legendFontSize),tickfont=font(tickFontSize),guidefont=font(guideFontSize))
 end
 
 plot!(p1[1],margin=[20mm 0mm])
 plot(p1[1],p1[2],p1[3],layout=(3,1),size=(1000,800),top_margin=50px,left_margin=100px,right_margin=50px)
 savefig("meanvstol.png")
 savefig("meanvstol.pdf")
-
-
 
 
 plot(p3[1],p3[2],p3[3],layout=(3,1),size=(1000,800),top_margin=50px,left_margin=100px,right_margin=50px)
