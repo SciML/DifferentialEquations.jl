@@ -96,7 +96,7 @@ end
 
 @recipe function f(sim::ConvergenceSimulation)
   if ndims(collect(values(sim.errors))[1])>1 #Monte Carlo
-    vals = [mean(x,1) for x in values(sim.errors)]'
+    vals = [mean(x,1)' for x in values(sim.errors)]
   else #Deterministic
     vals = [x for x in values(sim.errors)]
   end
