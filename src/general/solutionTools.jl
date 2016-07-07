@@ -89,7 +89,7 @@ type SDESolution <: DESolution
   function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull != nothing
     trueKnown = true
-    errors = Dict("final"=>abs(u-uTrue))
+    errors = Dict("final"=>mean(abs(u-uTrue)))
     if fullSave
       errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
     end
