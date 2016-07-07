@@ -15,7 +15,6 @@ function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
 end
 
 @recipe function f(sol::FEMSolution;plottrue=false,tsLocation=0)
-  tsLocation = pop!(d,:tsLocation)
   if tsLocation==0 #Plot solution at end
     out = Any[]
     for i = 1:size(sol.u,2)
@@ -97,7 +96,7 @@ end
 
 @recipe function f(sim::ConvergenceSimulation)
   if ndims(collect(values(sim.errors))[1])>1 #Monte Carlo
-    vals = [mean(x,1) for x in values(sim.errors)]'
+    vals = [mean(x,1)' for x in values(sim.errors)]
   else #Deterministic
     vals = [x for x in values(sim.errors)]
   end
