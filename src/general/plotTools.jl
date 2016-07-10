@@ -101,7 +101,7 @@ end
     vals = [x for x in values(sim.errors)]
   end
   seriestype --> :path
-  label  --> [key for key in keys(sim.errors)]'
+  label  --> [key for key in keys(sim.errors)]
   xguide  --> "Convergence Axis"
   yguide  --> "Error"
   xscale --> :log10
