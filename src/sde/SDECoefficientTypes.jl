@@ -3,7 +3,7 @@ RosslerSRI
 
 Holds the Butcher tableaus for a Rosser SRI method.
 """
-type RosslerSRI
+type RosslerSRI <: Tableau
   c₀
   c₁
   A₀
@@ -22,7 +22,7 @@ RosslerSRA
 
 Holds the Butcher tableaus for a Rosser SRA method.
 """
-type RosslerSRA
+type RosslerSRA <: Tableau
   c₀
   c₁
   A₀
