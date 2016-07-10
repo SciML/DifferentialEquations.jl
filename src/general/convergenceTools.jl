@@ -75,11 +75,11 @@ solved over the given Δts.
 * `saveSteps`: Denotes the steps to save at if `fullSave=true`. Default is 1
 * `alg`: The algorithm to test. Defaults to "EM".
 """
-function testConvergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,fullSave=true,saveSteps=1,alg="EM")
+function testConvergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,fullSave=true,saveSteps=1,alg="EM",tableau= constructSRIW1())
   N = length(Δts)
   #solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave,alg=alg) for j=1:numMonte,i=1:N]
   is = repmat(1:N,1,numMonte)'
-  solutions = pmap((i)->solve(prob,tspan,Δt=Δts[i],fullSave=fullSave,saveSteps=saveSteps,alg=alg),is)
+  solutions = pmap((i)->solve(prob,tspan,Δt=Δts[i],fullSave=fullSave,saveSteps=saveSteps,alg=alg,tableau=tableau),is)
   solutions = convert(Array{SDESolution},solutions)
   solutions = reshape(solutions,numMonte,N)
   auxData = Dict("Δts" =>  Δts)
