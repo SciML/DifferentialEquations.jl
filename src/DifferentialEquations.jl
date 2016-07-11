@@ -32,6 +32,8 @@ abstract DEProblem
 abstract DESolution
 "Mesh: An abstract type which holds a (node,elem) pair and other information for a mesh"
 abstract Mesh
+"Tableau: Holds the information for a Runge-Kutta Tableau"
+abstract Tableau
 typealias String AbstractString
 AbstractArrayOrVoid = Union{AbstractArray,Void}
 NumberOrVoid = Union{Number,Void}
