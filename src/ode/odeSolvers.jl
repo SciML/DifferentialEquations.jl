@@ -220,8 +220,8 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
       u = reshape(nlres.zero,sizeu...)
     elseif alg=="Rosenbrock32" && typeof(u)<:AbstractArray
       # Time derivative
-      dT = derivative((t)->f(u,t),t)
-      J = jacobian((u)->vecf(u,t),vec(u))
+      dT = ForwardDiff.derivative((t)->f(u,t),t)
+      J = ForwardDiff.jacobian((u)->vecf(u,t),vec(u))
       W = one(J)-Δt*d*J
       f₀ = f(u,t)
       k₁[:] = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)

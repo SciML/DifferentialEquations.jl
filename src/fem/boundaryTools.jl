@@ -73,7 +73,7 @@ function setboundary(node::AbstractArray,elem::AbstractArray,bdType)
   bdEdge = [i';j']'
   bdEdgeidx = zeros(Int64,size(bdEdge,1))
   for i = 1:size(bdEdge,1)
-    bdEdgeidx[i] = find(all(totalEdge .== bdEdge[i,:], 2))[1] #Find the edge in totalEdge and save index
+    bdEdgeidx[i] = find(all(totalEdge .== bdEdge[i,:]', 2))[1] #Find the edge in totalEdge and save index
   end
 
   bdFlag = zeros(Int8,Neall)

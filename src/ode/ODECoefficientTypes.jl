@@ -3,7 +3,7 @@ ExplicitRK
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
-type ExplicitRK
+type ExplicitRK <: Tableau
   A#::Array{Float64,2}
   c#::Vector{Float64}
   α#::Vector{Float64}
