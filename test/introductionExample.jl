@@ -5,7 +5,7 @@ using DifferentialEquations, Plots
 ### Setup
 
 #First we have to generate a mesh
-Δx = 1//2^(5)
+Δx = 1//2^(3)
 femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
 #Then we define our problem. To do this, you only need to define the equations for the PDE
 
@@ -31,6 +31,7 @@ A direct solve with \. Returned is a solver object with all the knowledge of the
 The plotting abilities are given by Plots.jl. Since DifferentialEquations.jl
 defines recipes for the solution objects, we can plot the default plot via:
 =#
+gr()
 plot(sol::FEMSolution) #To save the plot, use savefig("plot.png") or "plot.pdf", etc.
 
 ### Test Results
