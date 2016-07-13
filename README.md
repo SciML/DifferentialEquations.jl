@@ -16,7 +16,7 @@ If you have any questions, or just want to chat about solvers/using the package,
 
 ## Note on Compatibility
 
-The v0.0.3 release is the last release targetting Julia v0.4. Future development will be targeting Julia v0.5 and does not guerentee backwards compatibility with v0.4. That said, most of the code should work. The only breaking change may be within the dependency ChunkedArrays which will require a very different method of parallelism in future versions, and thus one should make sure to use the tag for v0.4 in ChunkedArrays.
+The v0.0.3 release is the last release targetting Julia v0.4. Future development will be targeting Julia v0.5 and does not guarantee backwards compatibility with v0.4. That said, most of the code should work. The only breaking change may be within the dependency ChunkedArrays which will require a very different method of parallelism in future versions, and thus one should make sure to use the tag for v0.4 in ChunkedArrays.
 
 # Using the package
 
