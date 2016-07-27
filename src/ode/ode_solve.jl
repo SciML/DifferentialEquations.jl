@@ -90,7 +90,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
     Δt = min(100Δt₀,Δt₁)
   end
 
-  if alg ∈ DifferentialEquationsJL_algorithms
+  if alg ∈ DIFFERENTIALEQUATIONSJL_ALGORITHMS
     if alg==:Euler
       u,t,uFull,tFull = ode_euler(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
     elseif alg==:Midpoint
@@ -106,7 +106,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
     elseif alg==:Rosenbrock32
       u,t,uFull,tFull = ode_rosenbrock32(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
     end
-  elseif alg ∈ ODEInterface_algorithms
+  elseif alg ∈ ODEINTERFACE_ALGORITHMS
     if typeof(u) <: Number
       u = [u]
     end
@@ -148,8 +148,58 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
     else
       u = uFull[end]
     end
+  elseif alg ∈ ODEJL_ALGORITHMS
+    if typeof(u) <: Number
+      u = [u]
+      uFull = GrowableArray(u)
+    end
+    @eval begin
+      import ODE
+      export ODE
+    end
+    ode  = ODE.ExplicitODE(t,u,(t,y,dy)->dy[:]=f(y,t)) #not really inplace
+    opts = Dict(:initstep=>Δt,
+            :tstop=>T,
+            #:tout=>[0.,0.5,1.],
+            #:points=>:specified,
+            :reltol=>reltol,
+            :abstol=>abstol)
+
+    # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
+    FoA = :adaptive
+    if alg==:ode23
+      stepper = ODE.RKIntegrator{FoA,:rk23}
+    elseif alg==:ode45
+      stepper = ODE.RKIntegrator{FoA,:dopri5}
+    elseif alg==:ode78
+      stepper = ODE.RKIntegrator{FoA,:feh78}
+    elseif alg==:ode23s
+      stepper = ODE.ModifiedRosenbrockIntegrator
+    elseif alg==:ode1
+      stepper = ODE.RKIntegratorFixed{:feuler}
+    elseif alg==:ode2_midpoint
+      stepper = ODE.RKIntegratorFixed{:midpoint}
+    elseif alg==:ode2_heun
+      stepper = ODE.RKIntegratorFixed{:heun}
+    elseif alg==:ode4
+      stepper = ODE.RKIntegratorFixed{:rk4}
+    elseif alg==:ode45_fe
+      stepper = ODE.RKIntegrator{FoA,:rk45}
+    end
+    out = ODE.solve(ode,stepper;opts...)
+    for (t,u) in out # iterate over the solution
+      push!(tFull,t)
+      push!(uFull,u)
+    end
+    t = tFull[end]
+    u = uFull[end]
+    uFull = copy(uFull)
   end
 
+  println(tFull)
+  println(uFull)
+  println(u₀)
+  println(t)
   if knownSol
     uTrue = sol(u₀,t)
     if fullSave
@@ -159,8 +209,8 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
       end
       uFull = copy(uFull)
       solFull = copy(solFull)
-      println(uFull)
-      println(solFull)
+      #println(uFull)
+      #println(solFull)
       return(ODESolution(u,uTrue,uFull=uFull,tFull=tFull,solFull=solFull))
     else
       return(ODESolution(u,uTrue))
@@ -175,5 +225,6 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
   end
 end
 
-const DifferentialEquationsJL_algorithms = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ImplicitEuler,:Trapezoid,:Rosenbrock32])
-const ODEInterface_algorithms= Set([:dopri5,:dopri853,:odex,:radau5,:radau,:seulex])
+const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ImplicitEuler,:Trapezoid,:Rosenbrock32])
+const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dopri853,:odex,:radau5,:radau,:seulex])
+const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
