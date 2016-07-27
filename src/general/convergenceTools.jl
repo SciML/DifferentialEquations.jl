@@ -75,7 +75,7 @@ solved over the given Δts.
 * `saveSteps`: Denotes the steps to save at if `fullSave=true`. Default is 1
 * `alg`: The algorithm to test. Defaults to "EM".
 """
-function testConvergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,fullSave=true,saveSteps=1,alg="EM",tableau= constructSRIW1())
+function testConvergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,fullSave=true,saveSteps=1,alg=:EM,tableau= constructSRIW1())
   N = length(Δts)
   #solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,fullSave=fullSave,alg=alg) for j=1:numMonte,i=1:N]
   is = repmat(1:N,1,numMonte)'
@@ -100,7 +100,7 @@ solved over the given Δts.
 * `alg`: The algorithm to test. Defaults to "Euler".
 * `tableau`: The tableau used for generic methods. Defaults to DEFAULT_TABLEAU.
 """
-function testConvergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],fullSave=true,alg="Euler",saveSteps=1,tableau=DEFAULT_TABLEAU)
+function testConvergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],fullSave=true,alg=:Euler,saveSteps=1,tableau=DEFAULT_TABLEAU)
   N = length(Δts)
   solutions = DESolution[solve(prob::ODEProblem,tspan,Δt=Δts[i],fullSave=fullSave,alg=alg,saveSteps=saveSteps,tableau=tableau) for i=1:N]
   auxData = Dict("Δts" =>  Δts)
@@ -120,7 +120,7 @@ axis is the axis along which convergence is calculated. For example, when testin
 * `T`: The final time. Defaults to 1
 * `alg`: The algorithm to test. Default is "Euler".
 """
-function testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,convergenceAxis;T=1,alg="Euler")
+function testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,convergenceAxis;T=1,alg=:Euler)
   if length(Δts)!=length(Δxs) error("Lengths of Δts!=Δxs. Invalid convergence simulation") end
   solutions = DESolution[solve(parabolic_squaremesh([0 1 0 1],Δxs[i],Δts[i],T,"Dirichlet"),prob,alg=alg) for i in eachindex(Δts)]
   auxData = Dict(
@@ -142,7 +142,7 @@ Tests the convergence of the solver algorithm on the given Poisson problem with
 * `solver`: Which solver to use. Default is "Direct".
 """
 function testConvergence(Δxs::AbstractArray,prob::PoissonProblem)
-  solutions = DESolution[solve(notime_squaremesh([0 1 0 1],Δxs[i],"Dirichlet"),prob,solver="Direct") for i in eachindex(Δxs)]
+  solutions = DESolution[solve(notime_squaremesh([0 1 0 1],Δxs[i],"Dirichlet"),prob,solver=:Direct) for i in eachindex(Δxs)]
   auxData = Dict("Δxs" => [sol.femMesh.Δx for sol in solutions])
   return(ConvergenceSimulation(solutions,Δxs,auxData=auxData))
 end

@@ -12,34 +12,34 @@ prob = heatProblemExample_moving() #also try heatProblemExample_pure() or heatPr
 
 #Solve it with a bunch of different algorithms, plot solution
 println("Euler")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 
 Δt = 1//2^(4) #Make faster for tests
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 println("Direct")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="ImplicitEuler",solver="Direct")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,solver=:Direct)
 
 println("LU")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="ImplicitEuler",solver="LU")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,solver=:LU)
 
 println("QR")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="ImplicitEuler",solver="QR")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,solver=:QR)
 
 println("SVD")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="ImplicitEuler",solver="SVD")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,solver=:SVD)
 
 println("Direct")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="Direct")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:CrankNicholson,solver=:Direct)
 
 println("Cholesky")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="Cholesky")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:CrankNicholson,solver=:Cholesky)
 
 #=
 println("CG")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="CG")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:CrankNicholson,solver=:CG)
 
 println("GMRES")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="CrankNicholson",solver="GMRES")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:CrankNicholson,solver=:GMRES)
 =#
 
 #Define another parabolic problem
@@ -51,7 +51,7 @@ prob = heatProblemExample_diffuse() #also try heatProblemExample_pure() or heatP
 
 #Solve it with a bunch of different algorithms, plot solution
 println("Euler")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 
 #Define a different parabolic problem
 T = 1//2^(5)
@@ -62,14 +62,14 @@ prob = heatProblemExample_pure()
 
 #Solve with Euler Method
 println("Euler")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 
 #Choose a finer mesh, solve with Euler, and add this result to the previous as
 #an approximately true solution.
 T = 1//2^(5)
 Δt = 1//2^(11)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
-sol2 = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler")
+sol2 = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 appxTrue!(sol,sol2)
 plot(sol,plottrue=true,cbar=false)
 

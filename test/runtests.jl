@@ -77,8 +77,6 @@ println("DGS Internals Test")
 @time @test include("dgsTest.jl")
 
 #Internals
-println("Meshgrid Tests")
-@time @test include("meshgridTests.jl")
 println("Quadrature Points Tests")
 @time @test include("quadptsTest.jl")
 println("Number of Parameters Calc Tests")

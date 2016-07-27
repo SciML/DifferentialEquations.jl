@@ -11,7 +11,7 @@ T = 2
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
 prob = heatProblemExample_moving()
 
-sim = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true)
+sim = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true)
 
 println("Generating Animation")
 animate(sim::FEMSolution;zlims=(0,.1),cbar=false)
