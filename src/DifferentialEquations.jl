@@ -42,6 +42,7 @@ FunctionOrVoid = Union{Function,Void}
 #Constants
 
 const TEST_FLOPS_CUTOFF = 1e10
+const atomLoaded = isdefined(Main,:Atom)
 
 include("fem/meshTools.jl")
 include("fem/assemblyTools.jl")
@@ -57,10 +58,11 @@ include("examples/exampleMeshes.jl")
 include("fem/femSolvers.jl")
 include("fdm/stokesSolvers.jl")
 include("sde/sdeSolvers.jl")
-include("ode/odeSolvers.jl")
+include("ode/ode_integrators.jl")
+include("ode/ode_solve.jl")
 include("general/plotTools.jl")
 include("sde/SDECoefficientTypes.jl")
-include("ode/ODECoefficientTypes.jl")
+include("ode/ode_tableaus.jl")
 include("general/parallelHelpers.jl")
 
 #Types
