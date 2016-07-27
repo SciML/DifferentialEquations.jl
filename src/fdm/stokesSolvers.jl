@@ -169,7 +169,7 @@ function stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   end
   #Calculate new grids
   Δxs = Δxs*2
-  grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
+  grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
   ux = grids[1][1:end-1,:]
   uy = (grids[2]+Δxs[2]/2)[1:end-1,:]
   vx = (grids[1]+Δxs[1]/2)[:,1:end-1]
@@ -211,7 +211,7 @@ function stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   end
   #Calculate new grids
   Δxs = Δxs/2
-  grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
+  grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
   ux = grids[1][1:end-1,:]
   uy = (grids[2]+Δxs[2]/2)[1:end-1,:]
   vx = (grids[1]+Δxs[1]/2)[:,1:end-1]
@@ -300,7 +300,7 @@ Solves the given stationary Stokes problem on the given finite difference mesh.
 * `coarseSteps`: The number of Gauss-Seidel iterations to do at the coarsegrid. Default is 40.
 * `gsiters`: The number of Gauss-Seidel iterations to do at each step. Default is 20.
 """
-function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,alg="DGS",levels=2,smoothSteps=10,coarseSteps=40,gsiters=20)
+function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,alg=:DGS,levels=2,smoothSteps=10,coarseSteps=40,gsiters=20)
   @unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs
   u = zeros(gridSize[1]-1,gridSize[2])
   v = zeros(gridSize[1],gridSize[2]-1)
@@ -367,9 +367,9 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
       vold[:] = v
       pold[:] = p
     end
-    if alg=="DGS"
+    if alg==:DGS
       @dgs
-    elseif alg=="Multigrid"
+    elseif alg==:Multigrid
       j=1
       while j<levels
         j+=1

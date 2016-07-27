@@ -11,7 +11,7 @@ T = 5
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 prob = heatProblemExample_stochasticbirthdeath()
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true,solver="LU")
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true,solver=:LU)
 
 println("Generating Animation")
 animate(sol::FEMSolution;zlims=(0,3),cbar=false)

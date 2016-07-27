@@ -40,35 +40,35 @@ for k in eachindex(probs)
   tols    = Array{Float64}(N,3)
 
   #Compile
-  alg = "SRIW1Optimized"
-  adaptiveAlg = "RSwM1"
-  monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-1),reltol=0,adaptiveAlg=adaptiveAlg,alg=alg)
+  alg=:SRIW1Optimized
+  adaptivealg=:RSwM1
+  monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
 
   println("RSwM1")
-  adaptiveAlg = "RSwM1"
+  adaptivealg=:RSwM1
   @progress for i=1:N
     tols[i,1] = 2.0^(-i-1)
-    msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptiveAlg=adaptiveAlg,alg=alg)
+    msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
     elapsed[i,1] = msims[i].elapsedTime
     medians[i,1] = msims[i].medians["final"]
     means[i,1]   = msims[i].means["final"]
   end
 
   println("RSwM2")
-  adaptiveAlg = "RSwM2"
+  adaptivealg=:RSwM2
   @progress for i=1:N
     tols[i,2] = 2.0^(-i-1)
-    msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptiveAlg=adaptiveAlg,alg=alg)
+    msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
     elapsed[i,2] = msims[i].elapsedTime
     medians[i,2] = msims[i].medians["final"]
     means[i,2]   = msims[i].means["final"]
   end
 
   println("RSwM3")
-  adaptiveAlg = "RSwM3"
+  adaptivealg=:RSwM3
   @progress for i=1:N
     tols[i,3] = 2.0^(-i-1)
-    msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptiveAlg=adaptiveAlg,alg=alg)
+    msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
     elapsed[i,3] = msims[i].elapsedTime
     medians[i,3] = msims[i].medians["final"]
     means[i,3]   = msims[i].means["final"]

@@ -10,7 +10,7 @@ T = 10
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 prob = heatProblemExample_grayscott(;ρ=.3,k=.62,D=[1e-2 .5e-2])
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg="Euler",fullSave=true,saveSteps=1000)
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true,saveSteps=1000)
 
 plot(sol,plottrue=false,zlim=(0,1),cbar=false)
 gui()

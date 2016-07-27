@@ -1,7 +1,7 @@
 ### ODE Examples
 
 """Example problem with solution ``u(t)=u₀*exp(α*t)``"""
-function linearODEExample(;α=1,u₀=1//2)
+function linearODEExample(;α=1,u₀=1/2)
   f(u,t) = α*u
   sol(u₀,t) = u₀*exp(α*t)
   return(ODEProblem(f,u₀,sol=sol))

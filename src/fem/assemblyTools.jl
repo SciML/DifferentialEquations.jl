@@ -50,7 +50,7 @@ function assemblematrix(node,elem;lumpflag=false,K=[])
 
   # Assemble the mass matrix by the mass lumping
   if lumpflag
-      M = Diagonal(vec(accumarray([elem[:,1];elem[:,2];elem[:,3]],[area;area;area]/3,[N,1])))
+      M = Diagonal(vec(Matlab.accumarray([elem[:,1];elem[:,2];elem[:,3]],[area;area;area]/3,[N,1])))
   end
   return(A,M,area)
 end
@@ -70,16 +70,3 @@ M = Mass Matrix
 area = A vector of the calculated areas for each element.
 """
 assemblematrix(FEMmesh::FEMmesh;lumpflag=false,K=[]) = assemblematrix(FEMmesh.node,FEMmesh.elem,lumpflag=lumpflag,K=K)
-
-"""
-accumarray(subs, val, sz=(maximum(subs),))
-
-See MATLAB's documentation for more details.
-"""
-function accumarray(subs, val, sz=(maximum(subs),))
-    A = zeros(eltype(val), sz...)
-    for i = 1:length(val)
-        @inbounds A[subs[i]] += val[i]
-    end
-    A
-end

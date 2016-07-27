@@ -21,7 +21,7 @@ for the nonlinear solving. By default autodiff is false.
 * `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
 * `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
 """
-function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
+function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
 
@@ -69,16 +69,16 @@ function solve(femMesh::FEMmesh,prob::PoissonProblem;solver::String="Direct",aut
   end
   #Solve
   if isLinear
-    if solver == "Direct"
+    if solver==:Direct
       u[freeNode,:]=D.*(A[freeNode,freeNode]\rhs(u)[freeNode])
-    elseif solver == "CG"
+    elseif solver==:CG
       u[freeNode,:],ch=cg!(u[freeNode,:],A[freeNode,freeNode],rhs(u)[freeNode]) # Needs diffusion constant
-    elseif solver == "GMRES"
+    elseif solver==:GMRES
       u[freeNode,:],ch=gmres!(u[freeNode,:],A[freeNode,freeNode],rhs(u)[freeNode]) # Needs diffusion constants
     end
     #Adjust result
     if isempty(Dirichlet) #isPureNeumann
-      patchArea = accumarray(vec(elem),[area;area;area]/3, [N 1])
+      patchArea = Matlab.accumarray(vec(elem),[area;area;area]/3, [N 1])
       uc = sum(u.*patchArea)/sum(area)
       u = u - uc   # Impose integral of u = 0
     end
@@ -161,8 +161,8 @@ for the nonlinear solving. By default autodiff is false.
 * `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
 * `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
 """
-function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
-  solver::AbstractString="LU",fullSave::Bool = false,saveSteps::Int = 100,
+function solve(femMesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
+  solver::Symbol=:LU,fullSave::Bool = false,saveSteps::Int = 100,
   autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
   A,M,area = assemblematrix(femMesh,lumpflag=true)
@@ -214,8 +214,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
   #Setup for Calculations
   Minv = sparse(inv(M)) #sparse(Minv) needed until update
   if isLinear
-    if alg == "Euler"
-      methodType = "Explicit"
+    if alg==:Euler
+      methodType=:Explicit
       if femMesh.μ>=0.5
         warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
       end
@@ -229,8 +229,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
         rhs(u,i) = K[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "ImplicitEuler"
-      methodType = "Implicit"
+    elseif alg==:ImplicitEuler
+      methodType=:Implicit
       K = eye(N) + Δt*Minv*D*A #D okay since numVar = 1 for linear
       lhs = K[freeNode,freeNode]
       if stochastic
@@ -240,8 +240,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
       else #Deterministic
         rhs(u,i) = u[freeNode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "CrankNicholson"
-      methodType = "Implicit"
+    elseif alg==:CrankNicholson
+      methodType=:Implicit
       Km = eye(N) - Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
       Kp = eye(N) + Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
       lhs = Kp[freeNode,freeNode]
@@ -254,8 +254,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
       end
     end
   else #Nonlinear Algorithms
-    if alg == "Euler"
-      methodType = "Explicit"
+    if alg==:Euler
+      methodType=:Explicit
       if femMesh.μ>=0.5
         warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
       end
@@ -271,8 +271,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
         end
       end
-    elseif alg == "SemiImplicitEuler" #Incorrect for system with different diffusions
-      methodType = "Implicit"
+    elseif alg==:SemiImplicitEuler #Incorrect for system with different diffusions
+      methodType=:Implicit
       Dinv = D.^(-1)
       K = eye(N) + Δt*Minv*A
       lhs = K[freeNode,freeNode]
@@ -285,8 +285,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
         rhs(u,i) = u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "SemiImplicitCrankNicholson" #Incorrect for system with different diffusions
-      methodType = "Implicit"
+    elseif alg==:SemiImplicitCrankNicholson #Incorrect for system with different diffusions
+      methodType=:Implicit
       Km = eye(N) - Δt*Minv*A/2
       Kp = eye(N) + Δt*Minv*A/2
       lhs = Kp[freeNode,freeNode]
@@ -299,8 +299,8 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
         rhs(u,i) = Km[freeNode,freeNode]*u[freeNode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
                     A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,isLinear,numVars))[freeNode,:]
       end
-    elseif alg == "ImplicitEuler"
-      methodType = "NonlinearSolve"
+    elseif alg==:ImplicitEuler
+      methodType=:NonlinearSolve
       if stochastic
         function rhs!(u,resid,dW,uOld,i)
           u = reshape(u,N,numVars)
@@ -324,53 +324,53 @@ function solve(femMesh::FEMmesh,prob::HeatProblem;alg::String = "Euler",
     end
   end
 
-  if methodType == "Implicit"
-    if solver == "Cholesky"
+  if methodType==:Implicit
+    if solver==:Cholesky
       lhs = cholfact(lhs) # Requires positive definite, may be violated
-    elseif solver == "LU"
+    elseif solver==:LU
       lhs = lufact(lhs)
-    elseif solver == "QR"
+    elseif solver==:QR
       lhs = qrfact(lhs) #More stable, slower than LU
-    elseif solver == "SVD"
+    elseif solver==:SVD
       lhs = svdfact(lhs)
     end
   end
   if stochastic
     rands = getNoise(u,node,elem,noiseType=noiseType)
   end
-  if methodType == "NonlinearSolve"
+  if methodType==:NonlinearSolve
     uOld = similar(vec(u))
   end
   #Heat Equation Loop
   for i=1:femMesh.numIters
     t += Δt
-    if methodType == "Implicit"
+    if methodType==:Implicit
       if stochastic
         dW = next(rands)
-        if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
+        if solver==:Direct || solver==:Cholesky || solver==:QR || solver==:LU || solver==:SVD
           u[freeNode,:] = lhs\rhs(u,i,dW)
-        elseif solver == "CG"
+        elseif solver==:CG
           u[freeNode],ch = cg!(u[freeNode],lhs,rhs(u,i,dW)) # Requires Vector, need to change rhs
-        elseif solver == "GMRES"
+        elseif solver==:GMRES
           u[freeNode],ch = gmres!(u[freeNode],lhs,rhs(u,i,dW)) # Requires Vector, need to change rhs
         end
       else #Deterministic
-        if solver == "Direct" || solver == "Cholesky" || solver == "QR" || solver == "LU" || solver == "SVD"
+        if solver==:Direct || solver==:Cholesky || solver==:QR || solver==:LU || solver==:SVD
           u[freeNode,:] = lhs\rhs(u,i)
-        elseif solver == "CG"
+        elseif solver==:CG
           u[freeNode],ch = cg!(u[freeNode],lhs,(u,i)->vec(rhs(u,i))) # Requires Vector, need to change rhs
-        elseif solver == "GMRES"
+        elseif solver==:GMRES
           u[freeNode],ch = gmres!(u[freeNode],lhs,(u,i)->vec(rhs(u,i))) # Requires Vector, need to change rhs
         end
       end
-    elseif methodType == "Explicit"
+    elseif methodType==:Explicit
       if stochastic
         dW = next(rands)
         u[freeNode,:] = rhs(u,i,dW)
       else
         u[freeNode,:] = rhs(u,i)
       end
-    elseif methodType == "NonlinearSolve"
+    elseif methodType==:NonlinearSolve
       u = vec(u)
       uOld = copy(u)
       if stochastic
@@ -428,7 +428,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,is
   end
   b = Array{eltype(bt1)}(N,numVars) #size(bt1,2) == numVars
   for i = 1:numVars
-    b[:,i] = accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
+    b[:,i] = Matlab.accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
   end
 
   if(!isempty(Dirichlet))
@@ -456,7 +456,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdNode,mid,N,Dirichlet,Neumann,is
     ge = ge.*repeat(el,outer=[1,2,numVars]) # tuple in v0.5?
 
     for i=1:numVars
-      b[:,i] = b[:,i] + accumarray(vec(Neumann), vec(ge[:,i]),[N,1])
+      b[:,i] = b[:,i] + Matlab.accumarray(vec(Neumann), vec(ge[:,i]),[N,1])
     end
   end
   if numVars == 1

@@ -16,13 +16,13 @@ topΔx = 7
 
 prob = heatProblemExample_moving()
 
-alg = "Euler"; println(alg)
+alg=:Euler; println(alg)
 sim = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)
 
-alg = "ImplicitEuler"; println(alg)
+alg=:ImplicitEuler; println(alg)
 sim2 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)
 
-alg = "CrankNicholson"; println(alg)
+alg=:CrankNicholson; println(alg)
 sim3 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)
 
 plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,400))

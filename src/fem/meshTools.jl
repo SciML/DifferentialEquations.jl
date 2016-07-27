@@ -129,7 +129,7 @@ Returns the grid in the iFEM form of the two arrays (node,elem)
 function fem_squaremesh(square,h)
   x0 = square[1]; x1= square[2];
   y0 = square[3]; y1= square[4];
-  x,y = meshgrid(x0:h:x1,y0:h:y1)
+  x,y = Matlab.meshgrid(x0:h:x1,y0:h:y1)
   node = [x[:] y[:]];
 
   ni = size(x,1); # number of rows
@@ -140,45 +140,6 @@ function fem_squaremesh(square,h)
   k = t2nidxMap;
   elem = [k+ni k+ni+1 k ; k+1 k k+ni+1];
   return(node,elem)
-end
-
-"""
-meshgrid(vx)
-
-Computes an (x,y)-grid from the vectors (vx,vx).
-For more information, see the MATLAB documentation.
-"""
-meshgrid(v::AbstractVector) = meshgrid(v, v)
-
-"""
-meshgrid(vx,vy)
-
-Computes an (x,y)-grid from the vectors (vx,vy).
-For more information, see the MATLAB documentation.
-"""
-function meshgrid{T}(vx::AbstractVector{T}, vy::AbstractVector{T})
-    m, n = length(vy), length(vx)
-    vx = reshape(vx, 1, n)
-    vy = reshape(vy, m, 1)
-    (repmat(vx, m, 1), repmat(vy, 1, n))
-end
-
-"""
-meshgrid(vx,vy,vz)
-
-Computes an (x,y,z)-grid from the vectors (vx,vy,vz).
-For more information, see the MATLAB documentation.
-"""
-function meshgrid{T}(vx::AbstractVector{T}, vy::AbstractVector{T},
-                     vz::AbstractVector{T})
-    m, n, o = length(vy), length(vx), length(vz)
-    vx = reshape(vx, 1, n, 1)
-    vy = reshape(vy, m, 1, 1)
-    vz = reshape(vz, 1, 1, o)
-    om = ones(Int, m)
-    on = ones(Int, n)
-    oo = ones(Int, o)
-    (vx[om, :, oo], vy[:, on, oo], vz[om, on, :])
 end
 
 """
@@ -231,10 +192,10 @@ type FDMMesh
     if length(mins)!=length(maxs) || length(Δxs)!=length(mins) error("DimensionMismatch") end
     dims = length(mins)
     if buildMesh && dims == 2
-      grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
+      grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
       gridSize = size(grids[1])
     elseif buildMesh && dims == 3
-      grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2],mins[3]:Δxs[3]:maxs[3])
+      grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2],mins[3]:Δxs[3]:maxs[3])
       gridSize = size(grids[1])
     else
       grids = nothing
