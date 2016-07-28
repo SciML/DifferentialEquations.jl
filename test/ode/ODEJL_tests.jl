@@ -34,7 +34,7 @@ sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode45)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode78)
 
-#sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode23s) #Issues
+#sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode23s) #ODE.jl issues
 #plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode2_midpoint)

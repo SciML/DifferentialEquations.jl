@@ -37,6 +37,6 @@ linecolor=:black,background_color_inside=false,background_color_outside=false)
 
 
 plot(p1,p2,p3,p4,size=(1200,800),plot_title="Lorenz Attractors")
-gui()
+#gui()
 
 true
