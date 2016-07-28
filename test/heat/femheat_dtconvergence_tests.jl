@@ -19,11 +19,12 @@ alg=:ImplicitEuler; println(alg)
 sim2 = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
 
 alg=:CrankNicholson; println(alg) #Bound by spatial discretization error at low Δt, decrease Δx for full convergence
+Δxs = 1//2^(4) * ones(Δts) #Run at 2^-7 for best plot
 sim3 = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
 
-plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,400))
+#plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,400))
 #Note: Stabilizes in H1 due to high Δx-error, reduce Δx and it converges further.
 
 #Returns true if ImplicitEuler converges like Δt and
 #CN convergeces like >Δt^2 (approaches Δt^2 as Δt and Δx is smaller
-minimum([abs(sim2.𝒪est["L2"]-1)<.3 sim3.𝒪est["L2"]>2])
+minimum([abs(sim2.𝒪est[:L2]-1)<.3 abs(sim3.𝒪est[:L2]-2)<.1])

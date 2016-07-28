@@ -28,4 +28,4 @@ sim3 = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProble
 plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,400))
 
 #Returns true if all converge approximately Δx^2
-minimum([sim.𝒪est["L2"],sim2.𝒪est["L2"],sim3.𝒪est["L2"]] - 2 .<.1)
+minimum([sim.𝒪est[:L2],sim2.𝒪est[:L2],sim3.𝒪est[:L2]] - 2 .<.1)

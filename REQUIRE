@@ -5,7 +5,5 @@ ChunkedArrays
 EllipsisNotation
 VectorizedRoutines
 IterativeSolvers
-DataStructures
 Plots
-ForwardDiff
-NLsolve
+JLD

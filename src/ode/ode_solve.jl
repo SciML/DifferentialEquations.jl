@@ -71,6 +71,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     else
       Δt = float(Δt)
     end
+    if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
+      initialize_backend(:NLsolve)
+      if o[:autodiff]
+        initialize_backend(:ForwardDiff)
+      end
+    end
     tType=typeof(Δt)
 
     if o[:Δtmax] == nothing
@@ -85,7 +91,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,tableau = o
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
     iter = 0
     if alg==:Euler
       u,t,timeseries,ts = ode_euler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
@@ -96,9 +102,9 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     elseif alg==:ExplicitRK
       u,t,timeseries,ts = ode_explicitrk(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,A,c,α,αEEst,stages,order,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:ImplicitEuler
-      u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
+      u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
     elseif alg==:Trapezoid
-      u,t,timeseries,ts = ode_trapezoid(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
+      u,t,timeseries,ts = ode_trapezoid(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
     elseif alg==:Rosenbrock32
       u,t,timeseries,ts = ode_rosenbrock32(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,γ)
     end

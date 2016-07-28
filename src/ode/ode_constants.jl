@@ -21,6 +21,7 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
                                  :maxiters => round(Int,1e9),
                                  :Δtmax=>nothing,
                                  :Δtmin=>nothing,
+                                 :autodiff=>true,
                                  :internalnorm => 2,
                                  :progressbar=>false,
                                  :progress_steps=>1000)
@@ -62,6 +63,7 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :Trapezoid=>2,
                                                         :Rosenbrock32=>3)
 const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:Rosenbrock32])
+const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32])
 const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
   :LOGIO            => "logio",
   :LOGLEVEL         => "loglevel",

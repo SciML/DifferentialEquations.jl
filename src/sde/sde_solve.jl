@@ -29,6 +29,10 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
 
   if adaptive && alg ∈ SDE_ADAPTIVEALGORITHMS
     tType = Float64
+    initialize_backend(:DataStructures)
+    if adaptivealg == :RSwM3
+      initialize_backend(:ResettableStacks)
+    end
   end
 
   if Δt == 0.0

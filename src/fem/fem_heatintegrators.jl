@@ -4,7 +4,7 @@
     push!(timeseries,u)
     push!(ts,t)
   end
-  atomloaded ? Main.Atom.progress(i/numiters) : nothing #Use Atom's progressbar if loaded
+  (atomloaded && progressbar && i%progress_steps==0) ? Main.Atom.progress(i/numiters) : nothing #Use Atom's progressbar if loaded
 end
 
 @def femheat_deterministicimplicitlinearsolve begin
@@ -44,7 +44,7 @@ end
   u = vec(u)
   uOld = copy(u)
   dW = next(rands)
-  nlres = nlsolve((u,resid)->rhs!(u,resid,dW,uOld,i),uOld,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
+  nlres = NLsolve.nlsolve((u,resid)->rhs!(u,resid,dW,uOld,i),uOld,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
   u = nlres.zero
   if numvars > 1
     u = reshape(u,N,numvars)
@@ -54,7 +54,7 @@ end
 @def femheat_nonlinearsolvedeterministicloop begin
   u = vec(u)
   uOld = copy(u)
-  nlres = nlsolve((u,resid)->rhs!(u,resid,uOld,i),uOld,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
+  nlres = NLsolve.nlsolve((u,resid)->rhs!(u,resid,uOld,i),uOld,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
   u = nlres.zero
   if numvars > 1
     u = reshape(u,N,numvars)
@@ -62,15 +62,19 @@ end
 end
 
 @def femheat_nonlinearsolvepreamble begin
+  initialize_backend(:NLsolve)
+  if autodiff
+    initialize_backend(:ForwardDiff)
+  end
   uOld = similar(vec(u))
 end
 
 @def femheat_deterministicpreamble begin
-  @unpack integrator: N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps
+  @unpack integrator: N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps
 end
 
 @def femheat_stochasticpreamble begin
-  @unpack integrator: N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps
+  @unpack integrator: N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps
   rands = getNoise(u,node,elem,noisetype=noisetype)
 end
 
@@ -109,6 +113,8 @@ type FEMHeatIntegrator{T1,T2,T3}
   show_trace::Bool
   iterations::Int
   timeseries_steps::Int
+  progressbar::Bool
+  progress_steps::Int
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:linear,:Euler,:deterministic})
@@ -293,7 +299,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitCra
   for i=1:numiters
     dW = next(rands)
     t += Δt
-    @femheat_deterministicimplicitlinearsolve
+    @femheat_stochasticimplicitlinearsolve
     @femheat_footer
   end
   u,timeseries,ts

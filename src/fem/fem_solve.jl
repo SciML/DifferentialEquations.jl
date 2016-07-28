@@ -90,8 +90,9 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
       u = vec(u)
       resid = vec(resid)
     end
+    initialize_backend(:NLsolve)
     u = vec(u)
-    nlres = nlsolve(rhs!,u,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
+    nlres = NLsolve.nlsolve(rhs!,u,autodiff=autodiff,method=method,show_trace=show_trace,iterations=iterations)
     u = nlres.zero
     if numvars > 1
       u = reshape(u,N,numvars)
@@ -163,7 +164,8 @@ for the nonlinear solving. By default autodiff is false.
 """
 function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   solver::Symbol=:LU,save_timeseries::Bool = false,timeseries_steps::Int = 100,
-  autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
+  autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000,
+  progress_steps::Int=1000,progressbar::Bool=true)
   #Assemble Matrices
   A,M,area = assemblematrix(fem_mesh,lumpflag=true)
 
@@ -219,7 +221,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   Minv = sparse(inv(M)) #sparse(Minv) needed until update
 
   #Heat Equation Loop
-  u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps))
+  u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
 
   if knownsol #True Solution exists
     if save_timeseries

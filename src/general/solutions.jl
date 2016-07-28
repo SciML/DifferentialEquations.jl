@@ -26,12 +26,12 @@ type FEMSolution <: DESolution
   uTrue::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
   appxTrue::Bool
-  timeSeries#::GrowableArray
+  timeseries#::GrowableArray
   ts::AbstractArrayOrVoid
   prob::DEProblem
   save_timeseries::Bool
   function FEMSolution(fem_mesh::FEMmesh,u,uTrue,sol,Du,timeSeries,ts,prob;save_timeseries=true)
-    errors = Dict("L2"=>getL2error(fem_mesh,sol,u),"H1"=>getH1error(fem_mesh,Du,u),
+    errors = Dict(:L2=>getL2error(fem_mesh,sol,u),:H1=>getH1error(fem_mesh,Du,u),
                   :l∞=> maximum(abs(u-uTrue)), :l2=> norm(u-uTrue,2))
     return(new(fem_mesh,u,true,uTrue,errors,false,timeSeries,ts,prob,true))
   end
@@ -39,8 +39,8 @@ type FEMSolution <: DESolution
   function FEMSolution(fem_mesh::FEMmesh,u::AbstractArray,prob)
     return(FEMSolution(fem_mesh,u,nothing,nothing,prob,save_timeseries=false))
   end
-  function FEMSolution(fem_mesh::FEMmesh,u::AbstractArray,timeSeries,ts,prob;save_timeseries=true)
-    return(new(fem_mesh,u,false,nothing,Dict{String,Float64},false,timeSeries,ts,prob,save_timeseries))
+  function FEMSolution(fem_mesh::FEMmesh,u::AbstractArray,timeseries,ts,prob;save_timeseries=true)
+    return(new(fem_mesh,u,false,nothing,Dict{String,Float64},false,timeseries,ts,prob,save_timeseries))
   end
 end
 

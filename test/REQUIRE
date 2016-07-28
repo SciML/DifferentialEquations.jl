@@ -4,4 +4,7 @@ GR
 Stats
 Distributions
 HypothesisTests
-JLD
+ForwardDiff
+NLsolve
+DataStructures
+ResettableStacks

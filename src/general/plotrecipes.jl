@@ -6,10 +6,10 @@ Plots an animation of the solution. Requires `save_timeseries=true` was enabled 
 function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
   atomloaded = isdefined(Main,:Atom)
   anim = Plots.Animation()
-  for j=1:length(sol.timeSeries[1])
+  for j=1:length(sol.timeseries[1])
     plot(sol,tslocation=j;kw...)
     Plots.frame(anim)
-    atomloaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
+    atomloaded ? Main.Atom.progress(j/length(sol.timeseries[1])) : nothing #Use Atom's progressbar if loaded
   end
   gif(anim,filename,fps=fps)
 end
@@ -28,7 +28,7 @@ end
   else #use timeseries
     out = Any[]
     for i = 1:sol.prob.numvars
-      push!(out,sol.timeSeries[i][tslocation])
+      push!(out,sol.timeseries[i][tslocation])
     end
   end
   seriestype --> :surface

@@ -20,9 +20,8 @@ this package also provides a good sandbox for developing novel numerical schemes
 """
 module DifferentialEquations
 
-using LaTeXStrings, IterativeSolvers, NLsolve, Parameters, Plots,
-        EllipsisNotation, ForwardDiff, GrowableArrays,
-        ChunkedArrays, DataStructures, ResettableStacks, VectorizedRoutines
+using LaTeXStrings, IterativeSolvers, Parameters, Plots,
+      EllipsisNotation, GrowableArrays, ChunkedArrays, VectorizedRoutines
 import Base: length, size
 import JLD: load
 

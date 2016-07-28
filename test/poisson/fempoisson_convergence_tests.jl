@@ -13,4 +13,4 @@ dxstring = L"\Delta x"
 plot(sim,xguide=dxstring)
 
 #Returns true if convergence is like Δx^2 in L2
-sim.𝒪est["L2"]-2 <.1
+sim.𝒪est[:L2]-2 <.1
