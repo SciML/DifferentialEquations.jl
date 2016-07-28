@@ -140,3 +140,6 @@ function checkSRAOrder(SRA;tol=1e-6)
   conditions[8] = abs(dot(β₂,c₁)+1)<tol
   return(conditions)
 end
+
+const SDE_DEFAULT_TABLEAU = constructSRIW1()
+const SDE_ADDITIVE_DEFAULT_TABLEAU = constructSRA1()

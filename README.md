@@ -16,7 +16,7 @@ If you have any questions, or just want to chat about solvers/using the package,
 
 ## Note on Compatibility
 
-The v0.0.3 release is the last release targetting Julia v0.4. Future development will be targeting Julia v0.5 and does not guerentee backwards compatibility with v0.4. That said, most of the code should work. The only breaking change may be within the dependency ChunkedArrays which will require a very different method of parallelism in future versions, and thus one should make sure to use the tag for v0.4 in ChunkedArrays.
+The v0.0.3 release is the last release targetting Julia v0.4. Future development will be targeting Julia v0.5 and does not guarantee  backwards compatibility with v0.4. That said, most of the code should work. The only breaking change may be within the dependency ChunkedArrays which will require a very different method of parallelism in future versions, and thus one should make sure to use the tag for v0.4 in ChunkedArrays.
 
 # Using the package
 
@@ -249,6 +249,23 @@ the solver will use the matrices without error.
     * Implicit Euler
     * Trapezoidal
     * Rosenbrock32
+  * Wrappers for ODEInterface.jl
+    * dorpi5 - Hairer's DP5(4)
+    * dop853 - Hairer's DP8(5,3)
+    * odex - Extrapolation algorithm based on explicit midpoint rule
+    * radau5 - Implicit Runge-Kutta order 5
+    * radau - Implicit Runge-Kutta variable order 5-13
+    * seulex - Extrapolation based on linear implicit Euler
+  * Wrappers for ODE.jl
+    * ode23 - Bogacki-Shampine's method
+    * ode45 - Dormand-Prince  4/5
+    * ode78 - Runge-Kutta-Fuhlberg  7/8
+    * ode23s - Rosenbrock method 2/3
+    * ode1 - Forward Euler
+    * midpoint - Midpoint method
+    * ode2_heun - Huen's method
+    * ode4 - RK4
+    * ode45_fe - Runge-Kutta-Fuhlberg 4/5
 * SODEs
   * Euler-Maruyama
   * Milstein

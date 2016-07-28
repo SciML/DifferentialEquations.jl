@@ -8,7 +8,7 @@ tspan = [0,1] # The timespan. This is the default if not given.
 sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg=:dopri5)
 plot(sol,plottrue=true)
 
-sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),fullSave=true,alg=:dopri853)
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),fullSave=true,alg=:dop853)
 plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),fullSave=true,alg=:odex)
@@ -28,7 +28,7 @@ prob = twoDimlinearODEExample()
 sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg=:dopri5)
 plot(sol,plottrue=true)
 
-sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),fullSave=true,alg=:dopri853)
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),fullSave=true,alg=:dop853)
 plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),fullSave=true,alg=:odex)

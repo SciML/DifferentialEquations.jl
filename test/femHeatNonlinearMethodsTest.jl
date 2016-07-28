@@ -25,7 +25,7 @@ sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitCrankNicholson)
 Δt = 1//2^(4)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 println("Implicit Euler")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=true)
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=TEST_USE_FORWARDDIFF)
 plot(sol)
 
 #Returns true if nonlinear solver is correct
@@ -62,7 +62,7 @@ sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitCrankNicholson,s
 Δt = 1//2^(1)
 femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
 println("Implicit Euler")
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=true)
+sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=TEST_USE_FORWARDDIFF)
 plot(sol)
 
 bool1

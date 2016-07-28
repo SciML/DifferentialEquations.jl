@@ -3,9 +3,9 @@ Parameters
 GrowableArrays
 ChunkedArrays
 EllipsisNotation
-NLsolve
-Plots
-ForwardDiff
+VectorizedRoutines
 IterativeSolvers
 DataStructures
-VectorizedRoutines
+Plots
+ForwardDiff
+NLsolve
