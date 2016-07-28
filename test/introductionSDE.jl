@@ -26,6 +26,7 @@ gui()
 
 ### Extras
 #We can choose a better method as follows:
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg=:SRA)
 sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg=:SRI)
 plot(sol,plottrue=true)
 gui()

@@ -59,6 +59,9 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     end
     o = o2
     Δt = o[:Δt]
+    if Δt==0
+      Δt = ode_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalNorm,f,order)
+    end
     if alg ∉ DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS
       o[:adaptive] = false
     else
@@ -83,9 +86,6 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       @unpack o[:tableau]: A,c,α,αEEst,stages,order
     end
     @materialize maxiters,saveSteps,fullSave,adaptive,progressBar,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,tableau = o
-    if Δt==0
-      Δt = ode_determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
-    end
     iter = 0
     if alg==:Euler
       u,t,uFull,tFull = ode_euler(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
@@ -213,7 +213,7 @@ function buildOptions(o,optionlist,aliases,aliases_reversed)
   merge(dict1,dict2)
 end
 
-function ode_determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
+function ode_determine_initΔt(u₀,t,abstol,reltol,internalNorm,f,order)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalNorm)
   f₀ = f(u₀,t)
   d₁ = norm(f₀./(abstol+u₀*reltol),internalNorm)
