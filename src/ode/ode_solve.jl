@@ -21,18 +21,19 @@ saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
 * γ - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
 * qmax - Defines the maximum value possible for the adaptive q. Default is 10.
 """
-function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
-              fullSave::Bool = false,saveSteps::Int = 1,alg::Symbol=:RK4,
-              tableau=DEFAULT_TABLEAU,adaptive=false,γ=2.0,
-              abstol=nothing,reltol=nothing,qmax=4,maxIters::Int = round(Int,1e9),
-              Δtmax=nothing,Δtmin=nothing,tType=typeof(Δt),internalNorm = 2,
-              progressBar=false,progressSteps=1000)
+function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
   end
 
-  @unpack prob:   f,u₀,knownSol,sol, numVars, sizeu
+  o = KW(kwargs)
+  t = tspan[1]
+  T = tspan[2]
+  o[:t] = t
+  o[:T] = tspan[2]
+  @unpack prob: f,u₀,knownSol,sol,numVars,sizeu
+
 
   if typeof(u₀)<:Number
     uType = typeof(u₀)
@@ -42,129 +43,110 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
     error("u₀ must be a number or an array")
   end
 
-  if Δtmax == nothing
-    Δtmax = tType((tspan[2]-tspan[1])//2)
-  end
-  if Δtmin == nothing
-    Δtmin = tType(1//10^(10))
-  end
-  if abstol == nothing
-    abstol = uType(1//10^8)
-  end
-  if reltol == nothing
-    reltol = uType(1//10^6)
-  end
-
-  T = tType(tspan[2])
-  t = tType(tspan[1])
   u = u₀
 
-  @unpack tableau: A,c,α,αEEst,stages,order
-
-  uFull = GrowableArray(u)
-  tFull = Vector{tType}(0)
-  push!(tFull,t)
-
-  iter = 0
-
-  if Δt == 0
-    d₀ = norm(u₀./(abstol+u*reltol),internalNorm)
-    f₀ = f(u₀,t)
-    d₁ = norm(f₀./(abstol+u*reltol),internalNorm)
-    if d₀ < 1//10^(5) || d₁ < 1//10^(5)
-      Δt₀ = 1//10^(6)
-    else
-      Δt₀ = (d₀/d₁)/100
-    end
-    u₁ = u₀ + Δt₀*f₀
-    f₁ = f(u₁,t+Δt₀)
-    d₂ = norm((f₁-f₀)./(abstol+u*reltol),internalNorm)/Δt₀
-    if max(d₁,d₂)<=1//10^(15)
-      Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
-    else
-      if !isdefined(Main,:order)
-        order = 1 #Convervative choice
-      end
-      Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
-    end
-    Δt = min(100Δt₀,Δt₁)
+  if :alg ∈ keys(o)
+    alg = o[:alg]
+  else
+    alg = :ExplicitRK
   end
 
   if alg ∈ DIFFERENTIALEQUATIONSJL_ALGORITHMS
-    if alg==:Euler
-      u,t,uFull,tFull = ode_euler(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
-    elseif alg==:Midpoint
-      u,t,uFull,tFull = ode_midpoint(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
-    elseif alg==:RK4
-      u,t,uFull,tFull = ode_rk4(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
-    elseif alg==:ExplicitRK
-      u,t,uFull,tFull = ode_explicitrk(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,A,c,α,αEEst,stages,order,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
-    elseif alg==:ImplicitEuler
-      u,t,uFull,tFull = ode_impliciteuler(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
-    elseif alg==:Trapezoid
-      u,t,uFull,tFull = ode_trapezoid(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
-    elseif alg==:Rosenbrock32
-      u,t,uFull,tFull = ode_rosenbrock32(f,u,t,Δt,T,iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+
+    o2 = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
+    for (k,v) in o
+      o2[k]=v
     end
+    o = o2
+    Δt = o[:Δt]
+    if alg ∉ DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS
+      o[:adaptive] = false
+    else
+      Δt = float(Δt)
+    end
+    tType=typeof(Δt)
+
+    if o[:Δtmax] == nothing
+      o[:Δtmax] = tType((tspan[2]-tspan[1])//2)
+    end
+    if o[:Δtmin] == nothing
+      o[:Δtmin] = tType(1//10^(10))
+    end
+
+    T = tType(T)
+    t = tType(t)
+    uFull = GrowableArray(u₀)
+    tFull = Vector{tType}(0)
+    push!(tFull,t)
+    order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
+    if alg==:ExplicitRK
+      @unpack o[:tableau]: A,c,α,αEEst,stages,order
+    end
+    @materialize maxiters,saveSteps,fullSave,adaptive,progressBar,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,tableau = o
+    if Δt==0
+      Δt = determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
+    end
+    iter = 0
+    if alg==:Euler
+      u,t,uFull,tFull = ode_euler(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+    elseif alg==:Midpoint
+      u,t,uFull,tFull = ode_midpoint(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+    elseif alg==:RK4
+      u,t,uFull,tFull = ode_rk4(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+    elseif alg==:ExplicitRK
+      u,t,uFull,tFull = ode_explicitrk(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,A,c,α,αEEst,stages,order,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+    elseif alg==:ImplicitEuler
+      u,t,uFull,tFull = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
+    elseif alg==:Trapezoid
+      u,t,uFull,tFull = ode_trapezoid(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
+    elseif alg==:Rosenbrock32
+      u,t,uFull,tFull = ode_rosenbrock32(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar,γ)
+    end
+
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
+
     if typeof(u) <: Number
       u = [u]
     end
-    @eval begin
-      import ODEInterface
-      export ODEInterface
-      ODEInterface.loadODESolvers()
-    end
-    function outputfcn(reason,told,t,x,eval_sol_func,extra_data)
-      #(progressBar && atomLoaded && iter%progressSteps==0) ? Main.Atom.progress(t/T) : nothing
-      #println("outputfcn called with reason=$reason, told=$told, t=$t, x=$x")
-      return ODEInterface.OUTPUTFCN_RET_CONTINUE
-    end
-    opt=ODEInterface.OptionsODE(
-      ODEInterface.OPT_RTOL       => reltol,
-      ODEInterface.OPT_ATOL       => abstol,
-      ODEInterface.OPT_OUTPUTFCN  => outputfcn,
-      ODEInterface.OPT_OUTPUTMODE => ODEInterface.OUTPUTFCN_WODENSE,
-      ODEInterface.OPT_MAXSTEPS   => maxIters,
-      ODEInterface.OPT_MAXSS      => Δtmax
-      )
+    initialize_backend(:ODEInterface)
+    dict = buildOptions(o,ODEINTERFACE_OPTION_LIST,ODEINTERFACE_ALIASES,ODEINTERFACE_ALIASES_REVERSED)
+    opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
     if alg==:dopri5
-      tFull,uFull,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opt)
+      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:dopri853
-      tFull,uFull,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opt)
+      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:odex
-      tFull,uFull,retcode,stats = ODEInterface.odecall(ODEInterface.odex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opt)
+      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.odex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:seulex
-      tFull,uFull,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opt)
+      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:radau
-      tFull,uFull,retcode,stats = ODEInterface.odecall(ODEInterface.radau,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opt)
+      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.radau,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:radau5
-      tFull,uFull,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opt)
+      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     end
     t = tFull[end]
-    uFull = reshape(uFull,(length(tFull),sizeu...))
     if typeof(u₀)<:AbstractArray
-      u[:] = vec(uFull[end,:,:]) #Quick hack
+      uFull = GrowableArray(u₀;initvalue=false)
+      for i=1:size(vecuFull,1)
+        push!(uFull,reshape(vecuFull[i,:]',sizeu))
+      end
     else
-      u = uFull[end]
+      uFull = vecuFull
     end
+    u = uFull[end]
+
   elseif alg ∈ ODEJL_ALGORITHMS
     if typeof(u) <: Number
       u = [u]
-      uFull = GrowableArray(u)
     end
-    @eval begin
-      import ODE
-      export ODE
-    end
-    ode  = ODE.ExplicitODE(t,u,(t,y,dy)->dy[:]=f(y,t)) #not really inplace
-    opts = Dict(:initstep=>Δt,
-            :tstop=>T,
-            #:tout=>[0.,0.5,1.],
-            #:points=>:specified,
-            :reltol=>reltol,
-            :abstol=>abstol)
+    # Needs robustness
+    o[:T] = float(o[:T])
+    o[:t] = float(o[:t])
+    t = o[:t]
+    initialize_backend(:ODEJL)
+    opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
 
+    ode  = ODE.ExplicitODE(t,u,(t,y,dy)->dy[:]=f(y,t)) #not really inplace
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
     if alg==:ode23
@@ -186,37 +168,37 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,
     elseif alg==:ode45_fe
       stepper = ODE.RKIntegrator{FoA,:rk45}
     end
-    out = ODE.solve(ode,stepper;opts...)
-    for (t,u) in out # iterate over the solution
+    out = collect(ODE.solve(ode,stepper;opts...))
+    uFull = GrowableArray(u₀)
+    tFull = Vector{typeof(out[1][1])}(0)
+    push!(tFull,t)
+    for (t,u,du) in out
       push!(tFull,t)
-      push!(uFull,u)
+      if typeof(u₀) <: AbstractArray
+        push!(uFull,u)
+      else
+        push!(uFull,u[1])
+      end
     end
     t = tFull[end]
     u = uFull[end]
-    uFull = copy(uFull)
   end
 
-  println(tFull)
-  println(uFull)
-  println(u₀)
-  println(t)
   if knownSol
     uTrue = sol(u₀,t)
-    if fullSave
+    if o[:fullSave]
       solFull = GrowableArray(sol(u₀,tFull[1]))
       for i in 2:size(uFull,1)
         push!(solFull,sol(u₀,tFull[i]))
       end
       uFull = copy(uFull)
       solFull = copy(solFull)
-      #println(uFull)
-      #println(solFull)
       return(ODESolution(u,uTrue,uFull=uFull,tFull=tFull,solFull=solFull))
     else
       return(ODESolution(u,uTrue))
     end
   else #No known sol
-    if fullSave
+    if o[:fullSave]
       uFull = copy(uFull)
       return(ODESolution(u,uFull=uFull,tFull=tFull))
     else
@@ -228,3 +210,153 @@ end
 const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ImplicitEuler,:Trapezoid,:Rosenbrock32])
 const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dopri853,:odex,:radau5,:radau,:seulex])
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
+
+const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
+                                 :fullSave => false,
+                                 :saveSteps => 1,
+                                 :tableau => DifferentialEquations.DEFAULT_TABLEAU,
+                                 :adaptive => true,
+                                 :γ=>2.0,
+                                 :abstol=>1//10^8,
+                                 :reltol=>1//10^6,
+                                 :qmax=>4,
+                                 :maxiters => round(Int,1e9),
+                                 :Δtmax=>nothing,
+                                 :Δtmin=>nothing,
+                                 :internalNorm => 2,
+                                 :progressBar=>false,
+                                 :progressSteps=>1000)
+
+const ODEJL_OPTION_LIST = Set([:tout,:tstop,:reltol,:abstol,:minstep,:maxstep,:initstep,:norm,:maxiters,:isoutofdomain])
+const ODEJL_ALIASES = Dict{Symbol,Symbol}(:minstep=>:Δtmin,:maxstep=>:Δtmax,:initstep=>:Δt,:tstop=>:T)
+const ODEJL_ALIASES_REVERSED = Dict{Symbol,Symbol}([(v,k) for (k,v) in ODEJL_ALIASES])
+const ODEINTERFACE_OPTION_LIST = Set([:RTOL,:ATOL,:OUTPUTFCN,:OUTPUTMODE,
+                                :MAXSTEPS,:STEST,:EPS,:RHO,:SSMINSEL,
+                                :SSMAXSEL,:SSBETA,:MAXSS,:INITIALSS,
+                                :MAXEXCOLUMN,:STEPSIZESEQUENCE,:MAXSTABCHECKS,
+                                :MAXSTABCHECKLINE,:DENSEOUTPUTWOEE,:INTERPOLDEGRE,
+                                :SSREDUCTION,:SSSELECTPAR1,:SSSELECTPAR2,
+                                :ORDERDECFRAC,:ORDERINCFRAC,:OPT_RHO,:OPT_RHO2,
+                                :RHSAUTONOMOUS,:M1,:M2,:LAMBDADENSE,:TRANSJTOH,
+                                :STEPSIZESEQUENCE,:JACRECOMPFACTOR,:MASSMATRIX,
+                                :JACOBIMATRIX,:JACOBIBANDSSTRUCT,:WORKFORRHS,
+                                :WORKFORJAC,:WORKFORDEC,:WORKFORSOL,:MAXNEWTONITER,
+                                :NEWTONSTARTZERO,:NEWTONSTOPCRIT,:DIMFIND1VAR,
+                                :MAXSTAGES,:MINSTAGES,:INITSTAGES,:STEPSIZESTRATEGY,
+                                :FREEZESSLEFT,:FREEZESSRIGHT,:ORDERDECFACTOR,
+                                :ORDERINCFACTOR,:ORDERDECCSTEPFAC1,:ORDERDECSTEPFAC2
+                                ])
+
+const ODEINTERFACE_ALIASES = Dict{Symbol,Symbol}(:RTOL=>:reltol,
+                                                 :ATOL=>:abstol,
+                                                 :MAXSTEPS=> :maxiters,
+                                                 :MAXSS=>:Δtmax,
+                                                 :INITIALSS=>:Δt,
+                                                 #:SSMINSEL=>:qmin,
+                                                 :SSMAXSEL=>:qmax)
+const ODEINTERFACE_ALIASES_REVERSED = Dict{Symbol,Symbol}([(v,k) for (k,v) in ODEINTERFACE_ALIASES])
+
+const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
+                                                        :Midpoint=>2,
+                                                        :RK4=>4,
+                                                        :ExplicitRK=>4, #Gets overwritten
+                                                        :ImplicitEuler=>1,
+                                                        :Trapezoid=>2,
+                                                        :Rosenbrock32=>3)
+const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:Rosenbrock32])
+const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
+  :LOGIO            => "logio",
+  :LOGLEVEL         => "loglevel",
+  :RHS_CALLMODE     => "RightHandSideCallMode",
+
+  :RTOL             => "RelTol",
+  :ATOL             => "AbsTol",
+  :MAXSTEPS         => "MaxNumberOfSteps",
+  :EPS              => "eps",
+
+  :OUTPUTFCN        => "OutputFcn",
+  :OUTPUTMODE       => "OutputFcnMode",
+
+  :STEST            => "StiffTestAfterStep",
+  :RHO              => "rho",
+  :SSMINSEL         => "StepSizeMinSelection",
+  :SSMAXSEL         => "StepSizeMaxSelection",
+  :SSBETA           => "StepSizeBeta",
+  :MAXSS            => "MaxStep",
+  :INITIALSS        => "InitialStep",
+
+
+  :MAXEXCOLUMN      => "MaxExtrapolationColumn",
+  :MAXSTABCHECKS    => "MaxNumberOfStabilityChecks",
+  :MAXSTABCHECKLINE => "MaxLineForStabilityCheck",
+  :INTERPOLDEGREE   => "DegreeOfInterpolation",
+  :ORDERDECFRAC     => "OrderDecreaseFraction",
+  :ORDERINCFRAC     => "OrderIncreaseFraction",
+  :STEPSIZESEQUENCE => "StepSizeSequence",
+  :SSREDUCTION      => "StepSizeReduction",
+  :SSSELECTPAR1     => "StepSizeSelectionParam1",
+  :SSSELECTPAR2     => "StepSizeSelectionParam2",
+  :RHO2             => "rho2",
+  :DENSEOUTPUTWOEE  => "DeactivateErrorEstInDenseOutput",
+
+  :TRANSJTOH        => "TransfromJACtoHess",
+  :MAXNEWTONITER    => "MaxNewtonIterations",
+  :NEWTONSTARTZERO  => "StartNewtonWithZeros",
+  :DIMOFIND1VAR     => "DimensionOfIndex1Vars",
+  :DIMOFIND2VAR     => "DimensionOfIndex2Vars",
+  :DIMOFIND3VAR     => "DimensionOfIndex3Vars",
+  :STEPSIZESTRATEGY => "StepSizeStrategy",
+  :M1               => "M1",
+  :M2               => "M2",
+  :JACRECOMPFACTOR  => "RecomputeJACFactor",
+  :NEWTONSTOPCRIT   => "NewtonStopCriterion",
+  :FREEZESSLEFT     => "FreezeStepSizeLeftBound",
+  :FREEZESSRIGHT    => "FreezeStepSizeRightBound",
+  :MASSMATRIX       => "MassMatrix",
+  :JACOBIMATRIX     => "JacobiMatrix",
+  :JACOBIBANDSTRUCT => "JacobiBandStructure",
+
+  :MAXSTAGES        => "MaximalNumberOfStages",
+  :MINSTAGES        => "MinimalNumberOfStages",
+  :INITSTAGES       => "InitialNumberOfStages",
+  :ORDERINCFACTOR   => "OrderIncreaseFactor",
+  :ORDERDECFACTOR   => "OrderDecreaseFactor",
+  :ORDERDECSTEPFAC1 => "OrderDecreaseStepFactor1",
+  :ORDERDECSTEPFAC2 => "OrderDecreaseStepFactor2",
+
+  :RHSAUTONOMOUS    => "AutonomousRHS",
+  :LAMBDADENSE      => "LambdaForDenseOutput",
+  :WORKFORRHS       => "WorkForRightHandSide",
+  :WORKFORJAC       => "WorkForJacobimatrix",
+  :WORKFORDEC       => "WorkForLuDecomposition",
+  :WORKFORSOL       => "WorkForSubstitution",
+
+  :BVPCLASS         => "BoundaryValueProblemClass",
+  :SOLMETHOD        => "SolutionMethod",
+  :IVPOPT           => "OptionsForIVPsolver")
+
+function buildOptions(o,optionlist,aliases,aliases_reversed)
+  dict1 = Dict{Symbol,Any}([Pair(k,o[k]) for k in (keys(o) ∩ optionlist)])
+  dict2 = Dict([Pair(aliases_reversed[k],o[k]) for k in (keys(o) ∩ values(aliases))])
+  merge(dict1,dict2)
+end
+
+function determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
+  d₀ = norm(u₀./(abstol+u₀*reltol),internalNorm)
+  f₀ = f(u₀,t)
+  d₁ = norm(f₀./(abstol+u₀*reltol),internalNorm)
+  if d₀ < 1//10^(5) || d₁ < 1//10^(5)
+    Δt₀ = 1//10^(6)
+  else
+    Δt₀ = (d₀/d₁)/100
+  end
+  u₁ = u₀ + Δt₀*f₀
+  f₁ = f(u₁,t+Δt₀)
+  d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalNorm)/Δt₀
+  if max(d₁,d₂)<=1//10^(15)
+    Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
+  else
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+  end
+  Δt = min(100Δt₀,Δt₁)
+end

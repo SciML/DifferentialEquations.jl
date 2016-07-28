@@ -70,19 +70,23 @@ function CG2(u,A,b;tol=1e-6)
 end
 =#
 
-#=
 """
-Slower than accumarray
+splats keys from a dict into variables
+
+```
+@materialize a, b, c = dict
+```
+
 """
-function accumarray2(subs, val, fun=sum, fillval=0; sz=maximum(subs,1), issparse=false)
-   counts = Dict()
-   for i = 1:size(subs,1)
-        counts[subs[i,:]]=[get(counts,subs[i,:],[]);val[i...]]
-   end
-   A = fillval*ones(sz...)
-   for j = keys(counts)
-        A[j...] = fun(counts[j])
-   end
-   issparse ? sparse(A) : A
+macro materialize(dict_splat)
+    keynames, dict = dict_splat.args
+    keynames = isa(keynames, Symbol) ? [keynames] : keynames.args
+    dict_instance = gensym()
+    kd = [:($key = $dict_instance[$(Expr(:quote, key))]) for key in keynames]
+    kdblock = Expr(:block, kd...)
+    expr = quote
+        $dict_instance = $dict # handle if dict is not a variable but an expression
+        $kdblock
+    end
+    esc(expr)
 end
-=#

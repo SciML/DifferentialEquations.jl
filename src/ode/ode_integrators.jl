@@ -1,6 +1,6 @@
 @def ode_loopheader begin
   iter += 1
-  if iter > maxIters
+  if iter > maxiters
     warn("Max Iters Reached. Aborting")
     # u = map((x)->oftype(x,NaN),u)
     break
@@ -36,7 +36,7 @@ end
   (progressBar && atomLoaded && iter%progressSteps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 end
 
-function ode_euler(f::Function,u,t,Δt,T,iter,maxIters,
+function ode_euler(f::Function,u,t,Δt,T,iter,maxiters,
                     uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
   while t < T
     @ode_loopheader
@@ -47,7 +47,7 @@ function ode_euler(f::Function,u,t,Δt,T,iter,maxIters,
 end
 
 function ode_midpoint(f::Function,u::Number,t,Δt,T,iter,
-                      maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                      maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
   halfΔt = Δt/2
   while t < T
     @ode_loopheader
@@ -58,7 +58,7 @@ function ode_midpoint(f::Function,u::Number,t,Δt,T,iter,
 end
 
 function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
-                      maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                      maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
   halfΔt = Δt/2
   utilde = similar(u)
   while t < T
@@ -70,7 +70,7 @@ function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
   return u,t,uFull,tFull
 end
 
-function ode_rk4(f::Function,u::Number,t,Δt,T,iter,maxIters,
+function ode_rk4(f::Function,u::Number,t,Δt,T,iter,maxiters,
                 uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
   halfΔt = Δt/2
   while t < T
@@ -87,7 +87,7 @@ function ode_rk4(f::Function,u::Number,t,Δt,T,iter,maxIters,
 end
 
 function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
-                iter,maxIters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
   halfΔt = Δt/2
   k₁ = similar(u)
   k₂ = similar(u)
@@ -106,8 +106,8 @@ function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
   return u,t,uFull,tFull
 end
 
-function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxIters,uFull,tFull,
-                        saveSteps,fullSave,A,c,α,αEEst,stages,order,adaptive,
+function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxiters,uFull,tFull,
+                        saveSteps,fullSave,A,c,α,αEEst,stages,order,γ,adaptive,
                         abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
   ks = Array{typeof(u)}(stages)
   while t < T
@@ -139,8 +139,8 @@ function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxIters,uFull,tFull,
 end
 
 function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
-                        maxIters,uFull,tFull,saveSteps,fullSave,
-                        A,c,α,αEEst,stages,order,adaptive,
+                        maxiters,uFull,tFull,saveSteps,fullSave,
+                        A,c,α,αEEst,stages,order,γ,adaptive,
                         abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
   ks = Array{eltype(u)}(size(u)...,stages)
   while t < T
@@ -171,7 +171,7 @@ function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
   return u,t,uFull,tFull
 end
 
-function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxIters,
+function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxiters,
                             uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
   function rhsIE(u,resid,uOld,t,Δt)
     u = reshape(u,sizeu...)
@@ -191,7 +191,7 @@ function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxIters,
   return u,t,uFull,tFull
 end
 
-function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxIters,
+function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxiters,
                       uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
   function rhsTrap(u,resid,uOld,t,Δt)
     u = reshape(u,sizeu...)
@@ -212,8 +212,9 @@ function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxIters,
 end
 
 function ode_rosenbrock32(f::Function,u::AbstractArray,t,Δt,T,iter,
-                          maxIters,uFull,tFull,saveSteps,fullSave,adaptive,
-                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+                          maxiters,uFull,tFull,saveSteps,fullSave,adaptive,
+                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar,γ)
+  order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
   k₁ = similar(u)
@@ -246,8 +247,9 @@ function ode_rosenbrock32(f::Function,u::AbstractArray,t,Δt,T,iter,
 end
 
 function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
-                          maxIters,uFull,tFull,saveSteps,fullSave,adaptive,
-                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+                          maxiters,uFull,tFull,saveSteps,fullSave,adaptive,
+                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar,γ)
+  order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
   function vecf(u,t)

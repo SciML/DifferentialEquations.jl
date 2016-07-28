@@ -19,6 +19,10 @@ println("ODE Adaptive Tests")
 @time @test include("odeAdaptiveTests.jl")
 println("ODE Lorenz Attractor")
 @time @test include("odeLorenzAttractor.jl")
+println("ODEInterface Tests")
+@time @test include("odeInterfaceTests.jl")
+println("ODE.jl Tests")
+@time @test include("odeODEJLTests.jl")
 
 #SDE
 println("Linear SDE Tests")

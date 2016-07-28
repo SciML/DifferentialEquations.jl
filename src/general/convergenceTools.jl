@@ -100,10 +100,10 @@ solved over the given Δts.
 * `alg`: The algorithm to test. Defaults to "Euler".
 * `tableau`: The tableau used for generic methods. Defaults to DEFAULT_TABLEAU.
 """
-function testConvergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],fullSave=true,alg=:Euler,saveSteps=1,tableau=DEFAULT_TABLEAU)
+function testConvergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],fullSave=true,adaptive=false,kwargs...)
   N = length(Δts)
-  solutions = DESolution[solve(prob::ODEProblem,tspan,Δt=Δts[i],fullSave=fullSave,alg=alg,saveSteps=saveSteps,tableau=tableau) for i=1:N]
-  auxData = Dict("Δts" =>  Δts)
+  solutions = DESolution[solve(prob::ODEProblem,tspan;Δt=Δts[i],fullSave=true,adaptive=false,kwargs...) for i=1:N]
+  auxData = Dict(:Δts =>  Δts)
   ConvergenceSimulation(solutions,Δts,auxData=auxData)
 end
 
