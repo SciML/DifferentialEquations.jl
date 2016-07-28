@@ -24,3 +24,13 @@ init_package(b::backend{:ODEJL}) = @eval begin
       import ODE
       export ODE
     end
+
+init_package(b::backend{:ForwardDiff}) = @eval begin
+      import ForwardDiff
+      export ForwardDiff
+    end
+
+init_package(b::backend{:NLSolve}) = @eval begin
+      import NLSolve
+      export NLSolve
+    end

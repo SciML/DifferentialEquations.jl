@@ -6,7 +6,7 @@ using DifferentialEquations,LaTeXStrings
 Δxs = 1.//2.^(4:-1:2) # 4 for testing, use 7 for good graph
 prob = poissonProblemExample_wave()
 
-sim = testConvergence(Δxs::AbstractArray,prob::PoissonProblem)
+sim = test_convergence(Δxs::AbstractArray,prob::PoissonProblem)
 
 #Plot Result
 dxstring = L"\Delta x"

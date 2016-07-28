@@ -6,21 +6,21 @@ If not given, tspan defaults to [0,1]. If
 
 ### Keyword Arguments
 
-* fullSave: Saves the result at every saveSteps steps. Default is false.
-saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
+* save_timeseries: Saves the result at every timeseries_steps steps. Default is false.
+timeseries_steps: If save_timeseries is true, then the output is saved every timeseries_steps steps.
 * alg: String which defines the solver algorithm. Defult is "SRI". Possibilities are:
   * "EM"- The Euler-Maruyama method.
   * "RKMil" - An explicit Runge-Kutta discretization of the strong Order 1.0 Milstein method.
   * "SRA" - The strong Order 1.5 method for additive SDEs due to Rossler.
   * "SRI" - The strong Order 1.5 method for diagonal/scalar SDEs due to Rossler. Most efficient.
 """
-function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSave::Bool = false,
-              saveSteps::Int = 1,alg::Symbol=:SRI,adaptive=false,γ=2.0,
+function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_timeseries::Bool = false,
+              timeseries_steps::Int = 1,alg::Symbol=:SRI,adaptive=false,γ=2.0,
               abstol=1e-3,reltol=1e-2,qmax=1.125,δ=1/6,maxiters::Int = round(Int,1e15),
-              Δtmax=nothing,Δtmin=nothing,progressSteps=1000,internalNorm=2,
-              discardLength=1e-15,adaptivealg::Symbol=:RSwM3,progressBar=false,tType=typeof(Δt),tableau = constructSRIW1())
+              Δtmax=nothing,Δtmin=nothing,progress_steps=1000,internalnorm=2,
+              discard_length=1e-15,adaptivealg::Symbol=:RSwM3,progressbar=false,tType=typeof(Δt),tableau = nothing)
 
-  @unpack prob: f,σ,u₀,knownSol,sol, numVars, sizeu
+  @unpack prob: f,σ,u₀,knownsol,sol, numvars, sizeu
 
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
@@ -39,7 +39,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
     else
       order = 1.5
     end
-    Δt = sde_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalNorm,f,σ,order)
+    Δt = sde_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalnorm,f,σ,order)
     tType=typeof(Δt)
   end
 
@@ -56,7 +56,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
   T = tType(tspan[2])
   t = tType(tspan[1])
   u = u₀
-  if numVars == 1
+  if numvars == 1
     W = 0.0
     Z = 0.0
   else
@@ -66,18 +66,19 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
 
 
 
-  uFull = GrowableArray(u)
-  tFull = Vector{tType}(0)
-  WFull = GrowableArray(W)
-  push!(tFull,t)
+  timeseries = GrowableArray(u)
+  ts = Vector{tType}(0)
+  Ws = GrowableArray(W)
+  push!(ts,t)
 
   #PreProcess
-
-  if alg==:SRA
-    SRA = constructSRA1()
+  if alg==:SRA && tableau == nothing
+    tableau = constructSRA1()
+  elseif alg==:SRI && tableau == nothing
+    tableau = constructSRIW1()
   end
 
-  if numVars == 1
+  if numvars == 1
     rands = ChunkedArray(randn)
   else
     rands = ChunkedArray(randn,u)
@@ -90,41 +91,43 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,fullSav
   maxStackSize = 0
   #EEst = 0
 
+  # This part is a mess. Needs cleaning.
   if alg==:EM
-    u,t,W,uFull,tFull,WFull = sde_eulermaruyama(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,progressBar,rands,sqΔt,W)
+    u,t,W,timeseries,ts,Ws = sde_eulermaruyama(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,rands,sqΔt,W)
   elseif alg==:RKMil
-    u,t,W,uFull,tFull,WFull = sde_rkmil(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,progressBar,rands,sqΔt,W)
+    u,t,W,timeseries,ts,Ws = sde_rkmil(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,rands,sqΔt,W)
   elseif alg==:SRI
-    u,t,W,uFull,tFull,WFull,maxStackSize,maxStackSize2 = sde_sri(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,numVars,sizeu,discardLength,progressBar,rands,sqΔt,W,Z,tableau,)
+    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =            sde_sri(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   elseif alg==:SRIW1Optimized
-    u,t,W,uFull,tFull,WFull,maxStackSize,maxStackSize2 = sde_sriw1optimized(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,numVars,sizeu,discardLength,progressBar,rands,sqΔt,W,Z,tableau)
+    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 = sde_sriw1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   elseif alg==:SRIVectorized
-    u,t,W,uFull,tFull,WFull,maxStackSize,maxStackSize2 = sde_srivectorized(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,numVars,sizeu,discardLength,progressBar,rands,sqΔt,W,Z,tableau)
+    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_srivectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   elseif alg==:SRAVectorized
-    u,t,W,uFull,tFull,WFull,maxStackSize,maxStackSize2 = sde_sravectorized(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,numVars,sizeu,discardLength,progressBar,rands,sqΔt,W,Z,tableau)
+    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sravectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   elseif alg==:SRA1Optimized || alg==:SRA # Need a devectorized form
-    u,t,W,uFull,tFull,WFull,maxStackSize,maxStackSize2 = sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,uFull,WFull,tFull,saveSteps,fullSave,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,numVars,sizeu,discardLength,progressBar,rands,sqΔt,W,Z,tableau)
+    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   end
-  (atomLoaded && progressBar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
-  if knownSol
+  (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+
+  if knownsol
     uTrue = sol(u₀,t,W)
-    if fullSave
-      solFull = GrowableArray(sol(u₀,tFull[1],WFull[1]))
-      for i in 2:size(WFull,1)
-        push!(solFull,sol(u₀,tFull[i],WFull[i]))
+    if save_timeseries
+      sols = GrowableArray(sol(u₀,ts[1],Ws[1]))
+      for i in 2:size(Ws,1)
+        push!(sols,sol(u₀,ts[i],Ws[i]))
       end
-      WFull = copy(WFull)
-      uFull = copy(uFull)
-      solFull = copy(solFull)
-      return(SDESolution(u,uTrue,W=W,uFull=uFull,tFull=tFull,WFull=WFull,solFull=solFull,maxStackSize=maxStackSize))
+      Ws = copy(Ws)
+      timeseries = copy(timeseries)
+      sols = copy(sols)
+      return(SDESolution(u,uTrue,W=W,timeseries=timeseries,ts=ts,Ws=Ws,sols=sols,maxStackSize=maxStackSize))
     else
       return(SDESolution(u,uTrue,W=W,maxStackSize=maxStackSize))
     end
   else #No known sol
-    if fullSave
-      uFull = copy(uFull)
-      return(SDESolution(u,uFull=uFull,W=W,tFull=tFull,maxStackSize=maxStackSize))
+    if save_timeseries
+      timeseries = copy(timeseries)
+      return(SDESolution(u,timeseries=timeseries,W=W,ts=ts,maxStackSize=maxStackSize))
     else
       return(SDESolution(u,W=W,maxStackSize=maxStackSize))
     end
@@ -133,7 +136,7 @@ end
 
 const SDE_ADAPTIVEALGORITHMS = Set([:SRI,:SRIW1Optimized,:SRIVectorized,:SRAVectorized,:SRA1Optimized,:SRA])
 
-function sde_determine_initΔt(u₀,t,abstol,reltol,internalNorm,f,σ,order)
+function sde_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,σ,order)
   d₀ = norm(u₀./(abstol+u₀*reltol),2)
   f₀ = f(u₀,t)
   σ₀ = 3σ(u₀,t)

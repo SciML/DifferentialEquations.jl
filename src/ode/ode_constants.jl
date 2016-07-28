@@ -10,8 +10,8 @@ const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seule
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 
 const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
-                                 :fullSave => false,
-                                 :saveSteps => 1,
+                                 :save_timeseries => false,
+                                 :timeseries_steps => 1,
                                  :tableau => DifferentialEquations.ODE_DEFAULT_TABLEAU,
                                  :adaptive => true,
                                  :γ=>2.0,
@@ -21,9 +21,9 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
                                  :maxiters => round(Int,1e9),
                                  :Δtmax=>nothing,
                                  :Δtmin=>nothing,
-                                 :internalNorm => 2,
-                                 :progressBar=>false,
-                                 :progressSteps=>1000)
+                                 :internalnorm => 2,
+                                 :progressbar=>false,
+                                 :progress_steps=>1000)
 
 const ODEJL_OPTION_LIST = Set([:tout,:tstop,:reltol,:abstol,:minstep,:maxstep,:initstep,:norm,:maxiters,:isoutofdomain])
 const ODEJL_ALIASES = Dict{Symbol,Symbol}(:minstep=>:Δtmin,:maxstep=>:Δtmax,:initstep=>:Δt,:tstop=>:T)

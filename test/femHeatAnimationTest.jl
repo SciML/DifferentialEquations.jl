@@ -8,10 +8,10 @@ using DifferentialEquations, Plots, ImageMagick
 T = 2
 Δx = 1//2^(3)
 Δt = 1//2^(9)
-femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Dirichlet")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:dirichlet)
 prob = heatProblemExample_moving()
 
-sim = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true)
+sim = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true)
 
 println("Generating Animation")
 animate(sim::FEMSolution;zlims=(0,.1),cbar=false)

@@ -7,15 +7,15 @@ using DifferentialEquations, Plots
 T = .5
 Δx = 1//2^(4)
 Δt = 1//2^(4)
-femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 prob = heatProblemExample_diffusionconstants()
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,fullSave=true,saveSteps=1)
+sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,save_timeseries=true,timeseries_steps=1)
 
 plot(sol,plottrue=false,zlim=(0,1),cbar=false)
 gui()
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true,saveSteps=1)
+sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,timeseries_steps=1)
 
 plot(sol,plottrue=false,zlim=(0,1),cbar=false)
 gui()

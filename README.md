@@ -79,7 +79,7 @@ tspan = [0,1] # The timespan. This is the default if not given.
 We then send these items to the solver.
 
 ```julia
-sol =solve(prob::ODEProblem,tspan,Δt=Δt,fullSave=true,alg="Euler")
+sol =solve(prob::ODEProblem,tspan,Δt=Δt,save_timeseries=true,alg="Euler")
 ```
 
 Plotting commands are provided via a recipe to Plots.jl. To plot the solution
@@ -122,7 +122,7 @@ and then we pass this information to the solver and plot:
 
 ```julia
 #We can solve using the classic Euler-Maruyama algorithm:
-sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="EM")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,save_timeseries=true,alg="EM")
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
 gui()
@@ -132,7 +132,7 @@ We can choose a very state of the art high Strong order solver as well:
 
 ```julia
 #We can choose a better method as follows:
-sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="SRI")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,save_timeseries=true,alg="SRI")
 plot(sol,plottrue=true)
 gui()
 ```
@@ -152,19 +152,19 @@ end
 prob = poissonProblemExample_wave()
 ```
 
-Note that in this case since the solution is known, the Dirichlet boundary condition `gD` is automatically set to match the true solution. If the solution is unknown, one would instead define a PoissonProblem via `PoissonProblem(f,gD=gD,gN=gN)` where `gD` are the Dirichlet boundary conditions and `gN` are the Neumann boundary conditions. If the boundary conditions are unspecified, they default to zero. The code for other example problems can be found in [src/examples/exampleProblems.jl](src/examples/exampleProblems.jl).
+Note that in this case since the solution is known, the dirichlet boundary condition `gD` is automatically set to match the true solution. If the solution is unknown, one would instead define a PoissonProblem via `PoissonProblem(f,gD=gD,gN=gN)` where `gD` are the dirichlet boundary conditions and `gN` are the neumann boundary conditions. If the boundary conditions are unspecified, they default to zero. The code for other example problems can be found in [src/examples/exampleProblems.jl](src/examples/exampleProblems.jl).
 
 To solve the problem we specified, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
 
 ```julia
 Δx = 1//2^(5)
-femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
+fem_mesh = notime_squaremesh([0 1 0 1],Δx,"dirichlet")
 ```
 
-Note that by specifying "Dirichlet" our boundary conditions is set on all boundaries to Dirichlet. This gives an FEMmesh object which stores a finite element mesh in the same layout as [iFEM](http://www.math.uci.edu/~chenlong/programming.html). Notice this code shows that the package supports the use of rationals in meshes. Other numbers such as floating point and integers can be used as well. Finally, to solve the equation we use
+Note that by specifying "dirichlet" our boundary conditions is set on all boundaries to dirichlet. This gives an FEMmesh object which stores a finite element mesh in the same layout as [iFEM](http://www.math.uci.edu/~chenlong/programming.html). Notice this code shows that the package supports the use of rationals in meshes. Other numbers such as floating point and integers can be used as well. Finally, to solve the equation we use
 
 ```julia
-sol = solve(femMesh::FEMmesh,prob::PoissonProblem,solver="GMRES")
+sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem,solver="GMRES")
 ```
 
 solve takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This returns a FEMSolution object which holds data about the solution, such as the solution values (u), the true solution (uTrue), error estimates, etc. To plot the solution, we use the command
@@ -198,10 +198,10 @@ As shown in [femStochasticHeatAnimationTest.jl](/test/femStochasticHeatAnimation
 T = 5
 Δx = 1//2^(4)
 Δt = 1//2^(12)
-femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"neumann")
 pdeProb = heatProblemExample_stochasticbirthdeath()
 
-res = fem_solveheat(femMesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",fullSave=true)
+res = fem_solveheat(fem_mesh::FEMmesh,pdeProb::HeatProblem,alg="Euler",save_timeseries=true)
 solplot_animation(res::FEMSolution;zlim=(0,2),cbar=false)
 ```
 

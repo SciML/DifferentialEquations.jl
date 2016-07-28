@@ -24,13 +24,13 @@ hold all of the details for the solution.
 With the solution object, you do the analysis as you please! For some result `sol`,
 the field `sol.u` returns the final solution, and if you give a true solution,
 `sol.uTrue` is the true solution at the final time. If you specified to the solver
-`fullSave=true`, then `sol.uFull` and `sol.tFull` will be outputted which hold the
-solution/time at every `saveSteps` (default set to 100, meaning it saves an output
+`save_timeseries=true`, then `sol.timeseries` and `sol.ts` will be outputted which hold the
+solution/time at every `timeseries_steps` (default set to 100, meaning it saves an output
 every 100 steps).
 
 Plotting functionality is provided by a recipe to Plots.jl. To
 use plot solutions, simply call the `plot(type)` and the plotter will generate
-appropriate plots. If `fullSave` was used, the plotters can
+appropriate plots. If `save_timeseries` was used, the plotters can
 generate animations of the solutions to evolution equations.
 Plots can be customized using all of the keyword arguments
 provided by Plots.jl. Please see Plots.jl's documentation for more information.

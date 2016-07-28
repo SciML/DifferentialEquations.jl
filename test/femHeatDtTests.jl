@@ -13,13 +13,13 @@ prob = heatProblemExample_moving() #also try heatProblemExample_pure() or heatPr
 
 
 alg=:Euler; println(alg) #Unstable due to μ
-sim = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
+sim = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
 
 alg=:ImplicitEuler; println(alg)
-sim2 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
+sim2 = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
 
 alg=:CrankNicholson; println(alg) #Bound by spatial discretization error at low Δt, decrease Δx for full convergence
-sim3 = testConvergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
+sim3 = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δts;alg=alg)
 
 plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,400))
 #Note: Stabilizes in H1 due to high Δx-error, reduce Δx and it converges further.

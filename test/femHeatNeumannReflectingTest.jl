@@ -7,10 +7,10 @@ using DifferentialEquations, Plots
 T = 100
 Δx = 1//2^(3)
 Δt = 1//2^(9)
-femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 prob = heatProblemExample_diffusionconstants(max=100)
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true,saveSteps=100)
+sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,timeseries_steps=100)
 
 plot(sol,plottrue=false,zlim=(0,3),cbar=false)
 gui()

@@ -1,21 +1,21 @@
 """
 animate(sol::FEMSolution)
 
-Plots an animation of the solution. Requires `fullSave=true` was enabled in the solver.
+Plots an animation of the solution. Requires `save_timeseries=true` was enabled in the solver.
 """
 function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
-  atomLoaded = isdefined(Main,:Atom)
+  atomloaded = isdefined(Main,:Atom)
   anim = Plots.Animation()
   for j=1:length(sol.timeSeries[1])
-    plot(sol,tsLocation=j;kw...)
+    plot(sol,tslocation=j;kw...)
     Plots.frame(anim)
-    atomLoaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
+    atomloaded ? Main.Atom.progress(j/length(sol.timeSeries[1])) : nothing #Use Atom's progressbar if loaded
   end
   gif(anim,filename,fps=fps)
 end
 
-@recipe function f(sol::FEMSolution;plottrue=false,tsLocation=0)
-  if tsLocation==0 #Plot solution at end
+@recipe function f(sol::FEMSolution;plottrue=false,tslocation=0)
+  if tslocation==0 #Plot solution at end
     out = Any[]
     for i = 1:size(sol.u,2)
       push!(out,sol.u[:,i])
@@ -27,71 +27,71 @@ end
     end
   else #use timeseries
     out = Any[]
-    for i = 1:sol.prob.numVars
-      push!(out,sol.timeSeries[i][tsLocation])
+    for i = 1:sol.prob.numvars
+      push!(out,sol.timeSeries[i][tslocation])
     end
   end
   seriestype --> :surface
   layout --> length(out)
-  sol.femMesh.node[:,1], sol.femMesh.node[:,2], out
+  sol.fem_mesh.node[:,1], sol.fem_mesh.node[:,2], out
 end
 
 @recipe function f(sol::SDESolution;plottrue=false)
-  if ndims(sol.uFull) > 2
+  if ndims(sol.timeseries) > 2
     totaldims = 1
-    for i=2:ndims(sol.uFull)
-      totaldims *= size(sol.uFull,i)
+    for i=2:ndims(sol.timeseries)
+      totaldims *= size(sol.timeseries,i)
     end
     #println(totaldims)
-    vals = reshape(sol.uFull,size(sol.uFull,1),totaldims)
+    vals = reshape(sol.timeseries,size(sol.timeseries,1),totaldims)
   else
-    vals = sol.uFull
+    vals = sol.timeseries
   end
   if plottrue
-    if ndims(sol.solFull) > 2
+    if ndims(sol.sols) > 2
       totaldims = 1
-      for i=2:ndims(sol.uFull)
-        totaldims *= size(sol.solFull,i)
+      for i=2:ndims(sol.timeseries)
+        totaldims *= size(sol.sols,i)
       end
-      vals = [vals reshape(sol.solFull,size(sol.solFull,1),totaldims)]
+      vals = [vals reshape(sol.sols,size(sol.sols,1),totaldims)]
     else
-      vals = [vals sol.solFull]
+      vals = [vals sol.sols]
     end
   end
-  #u = Any[sol.uFull];
-  #plottrue && push!(u, sol.solFull);
+  #u = Any[sol.timeseries];
+  #plottrue && push!(u, sol.sols);
   seriestype --> :path
   #layout --> length(u)
-  map(Float64,sol.tFull), map(Float64,vals) #Remove when Tom commits
+  map(Float64,sol.ts), map(Float64,vals) #Remove when Tom commits
 end
 
 @recipe function f(sol::ODESolution;plottrue=false)
-  if ndims(sol.uFull) > 2
+  if ndims(sol.timeseries) > 2
     totaldims = 1
-    for i=2:ndims(sol.uFull)
-      totaldims *= size(sol.uFull,i)
+    for i=2:ndims(sol.timeseries)
+      totaldims *= size(sol.timeseries,i)
     end
     #println(totaldims)
-    vals = reshape(sol.uFull,size(sol.uFull,1),totaldims)
+    vals = reshape(sol.timeseries,size(sol.timeseries,1),totaldims)
   else
-    vals = sol.uFull
+    vals = sol.timeseries
   end
   if plottrue
-    if ndims(sol.solFull) > 2
+    if ndims(sol.sols) > 2
       totaldims = 1
-      for i=2:ndims(sol.uFull)
-        totaldims *= size(sol.solFull,i)
+      for i=2:ndims(sol.timeseries)
+        totaldims *= size(sol.sols,i)
       end
-      vals = [vals reshape(sol.solFull,size(sol.solFull,1),totaldims)]
+      vals = [vals reshape(sol.sols,size(sol.sols,1),totaldims)]
     else
-      vals = [vals sol.solFull]
+      vals = [vals sol.sols]
     end
   end
-  #u = Any[sol.uFull];
-  #plottrue && push!(u, sol.solFull);
+  #u = Any[sol.timeseries];
+  #plottrue && push!(u, sol.sols);
   seriestype --> :path
   #layout --> length(u)
-  sol.tFull, vals
+  sol.ts, vals
 end
 
 @recipe function f(sim::ConvergenceSimulation)
@@ -106,7 +106,7 @@ end
   yguide  --> "Error"
   xscale --> :log10
   yscale --> :log10
-  sim.convergenceAxis, vals
+  sim.convergence_axis, vals
 end
 
 

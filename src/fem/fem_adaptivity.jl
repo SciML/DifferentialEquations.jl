@@ -48,14 +48,14 @@ function mark(elem,η,thη;method="L2")
 end
 
 """
-bisect(node,elem;markedElem= 1:size(elem,1),bdFlag)
+bisect(node,elem;markedElem= 1:size(elem,1),bdflag)
 """
-function bisect(node,elem;markedElem=1:size(elem,1),bdFlag=[])
+function bisect(node,elem;markedElem=1:size(elem,1),bdflag=[])
   # BISECT bisect a 2-D triangulation.
 
   # Set up
   HB = []; tree = []
-  if isempty(markedElem) return(node,elem,bdFlag,HB,tree) end
+  if isempty(markedElem) return(node,elem,bdflag,HB,tree) end
   if markedElem == "all" markedElem = 1:size(elem,1) end
   if isa(markedElem,Array{Bool}) markedElem = convert(Int64,markedElem) end
 
@@ -91,12 +91,12 @@ function bisect(node,elem;markedElem=1:size(elem,1),bdFlag=[])
       p4 = edge2newNode(elem2edge(t,1))
       elem[L,:] = [p4 p1 p2]
       elem[R,:] = [p4 p3 p1]
-    if nargin==4 && ~isempty(bdFlag) # Refine boundary edges
-     		#bdFlag[R [1 3]] = bdFlag[t [2 1]]
-     		#bdFlag[L [1 2]] = bdFlag[t [3 1]]
-          bdFlag[L,3] = 0
+    if nargin==4 && ~isempty(bdflag) # Refine boundary edges
+     		#bdflag[R [1 3]] = bdflag[t [2 1]]
+     		#bdflag[L [1 2]] = bdflag[t [3 1]]
+          bdflag[L,3] = 0
       else
-          bdFlag = []
+          bdflag = []
   	end
       tree[Nb+1:Nb+newNT,1] = L
       tree[Nb+1:Nb+newNT,2] = L
@@ -106,5 +106,5 @@ function bisect(node,elem;markedElem=1:size(elem,1),bdFlag=[])
       NT = NT + newNT; Nb = Nb + newNT
   end
   tree = tree[1:Nb,:]
-  return(node,elem,bdFlag,HB,tree)
+  return(node,elem,bdflag,HB,tree)
 end

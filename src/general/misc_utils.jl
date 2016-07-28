@@ -10,10 +10,10 @@ end
 
 #=
 """
-quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
+quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdnode)
 Slightly slower than quadfbasis, easier to extend to higher order quadrature
 """
-function quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
+function quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdnode)
   nQuad = size(lambda,1)
   bt = zeros(NT,3)
   for p = 1:nQuad
@@ -27,17 +27,17 @@ function quadfbasis2(f,gD,A,node,elem,lambda,phi,weight,N,NT,area,bdNode)
   end
   bt = bt.*repmat(area,1,3)
   b = vec(accumarray(vec(elem),vec(bt),[N 1]))
-  if(!isempty(Dirichlet))
+  if(!isempty(dirichlet))
     uz = zeros(N)
-    uz[bdNode] = gD(node[bdNode,:])
+    uz[bdnode] = gD(node[bdnode,:])
     b = b-A*uz
-    if(!isempty(Neumann))
-      Nve = node[Neumann[:,1],:] - node[Neumann[:,2],:]
+    if(!isempty(neumann))
+      Nve = node[neumann[:,1],:] - node[neumann[:,2],:]
       edgeLength = sqrt(sum(Nve.^2,2))
-      mid = (node[Neumann[:,1],:] + node[Neumann[:,2],:])/2
-      b = b + accumarray(int([vec(Neumann),ones(2*size(Neumann,1),1)]), repmat(edgeLength.*g_N(mid)/2,2,1),[N,1])
+      mid = (node[neumann[:,1],:] + node[neumann[:,2],:])/2
+      b = b + accumarray(int([vec(neumann),ones(2*size(neumann,1),1)]), repmat(edgeLength.*g_N(mid)/2,2,1),[N,1])
     end
-  else #Pure Neumann
+  else #Pure neumann
     b = b-mean(b) #Compatibility condition: sum(b)=0
     b[1] = 0 #Fix 1 point
   end
@@ -89,4 +89,26 @@ macro materialize(dict_splat)
         $kdblock
     end
     esc(expr)
+end
+
+function shapeResult(res)
+  #Input is a vector of tuples
+  #Output the "columns" as vectors
+  out = cell(length(res[1]))
+  for i = 1:length(res[1])
+    out[i] = Vector{typeof(res[1][i])}(length(res))
+  end
+  for i = 1:length(res), j = 1:length(out)
+    out[j][i] = res[i][j]
+  end
+  return tuple(out...)
+end
+
+function monteCarlo(func::Function,args...)
+  res = pmap(func,args...)
+  if length(res[1])==1
+    return res
+  else
+    return shapeResult(res)
+  end
 end

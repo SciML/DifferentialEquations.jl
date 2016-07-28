@@ -346,8 +346,8 @@ end
 "Example problem for nonlinear Poisson equation. Uses ``f(u)=1-u/2``."
 function poissonProblemExample_birthdeath()
   f(u,x)  = ones(size(x,1)) - .5u
-  numVars = 1
-  return(PoissonProblem(f,numVars=numVars))
+  numvars = 1
+  return(PoissonProblem(f,numvars=numvars))
 end
 
 "Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=1-v``"
