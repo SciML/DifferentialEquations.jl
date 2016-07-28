@@ -73,4 +73,4 @@ sol2 = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 appxTrue!(sol,sol2)
 plot(sol,plottrue=true,cbar=false)
 
-sol.errors["l2"]<.005 #Returns true if res solution is near the apprxTrue res2 solution
+sol.errors[:l2]<.005 #Returns true if res solution is near the apprxTrue res2 solution

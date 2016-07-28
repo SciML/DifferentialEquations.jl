@@ -9,9 +9,9 @@ prob = homogeneousStokesExample()
 #DGS Convergence
 @time sol = solve(prob,mesh,converrors=true,maxiters=200,alg=:DGS)
 
-err1 = sol.converrors["rul∞"]
-err2 = sol.converrors["rvl∞"]
-err3 = sol.converrors["rpl∞"]
+err1 = sol.converrors[:rul∞]
+err2 = sol.converrors[:rvl∞]
+err3 = sol.converrors[:rpl∞]
 
 plot([1:length(err1) 1:length(err2) 1:length(err3)],[err1 err2 err3],yscale=:log10,xguide="Error",yguide="Iterations",title=L"DGS Convergence, $\Delta t = 2^{-3}$",label=["u" "v" "p"])
 
@@ -19,9 +19,9 @@ plot([1:length(err1) 1:length(err2) 1:length(err3)],[err1 err2 err3],yscale=:log
 @time sol = solve(prob,mesh,converrors=true,maxiters=20,alg=:Multigrid,levels=4)
 
 
-err1 = sol.converrors["rresul2"]
-err2 = sol.converrors["rresvl2"]
-err3 = sol.converrors["rrespl2"]
+err1 = sol.converrors[:rresul2]
+err2 = sol.converrors[:rresvl2]
+err3 = sol.converrors[:rrespl2]
 plot([1:length(err1) 1:length(err2) 1:length(err3)],[err1 err2 err3],yscale=:log10,xguide="Error",yguide="Iterations",title=L"Multigrid Relative Residual Convergence, $\Delta t = 2^{-3}$",label=["u" "v" "p"])
 
 err1[end] < 1e-12

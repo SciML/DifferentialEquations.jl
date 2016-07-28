@@ -32,7 +32,7 @@ type FEMSolution <: DESolution
   fullSave::Bool
   function FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,timeSeries,tFull,prob;fullSave=true)
     errors = Dict("L2"=>getL2error(femMesh,sol,u),"H1"=>getH1error(femMesh,Du,u),
-                  "l∞"=> maximum(abs(u-uTrue)), "l2"=> norm(u-uTrue,2))
+                  :l∞=> maximum(abs(u-uTrue)), :l2=> norm(u-uTrue,2))
     return(new(femMesh,u,true,uTrue,errors,false,timeSeries,tFull,prob,true))
   end
   FEMSolution(femMesh,u,uTrue,sol,Du,prob) = FEMSolution(femMesh::FEMmesh,u,uTrue,sol,Du,nothing,nothing,prob,fullSave=false)
@@ -89,9 +89,9 @@ type SDESolution <: DESolution
   function SDESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing,ΔtFull=nothing,WFull=nothing,maxStackSize=nothing,W=nothing)
     fullSave = uFull != nothing
     trueKnown = true
-    errors = Dict("final"=>mean(abs(u-uTrue)))
+    errors = Dict(:final=>mean(abs(u-uTrue)))
     if fullSave
-      errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
+      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(uFull-solFull)),:l2=>sqrt(mean((uFull-solFull).^2)))
     end
     return(new(u,trueKnown,uTrue,errors,uFull,tFull,ΔtFull,WFull,solFull,false,fullSave,maxStackSize,W))
   end
@@ -138,9 +138,9 @@ type ODESolution <: DESolution
   function ODESolution(u,uTrue;uFull=nothing,solFull=nothing,tFull=nothing)
     fullSave = uFull != nothing
     trueKnown = true
-    errors = Dict("final"=>mean(abs(u-uTrue)))
+    errors = Dict(:final=>mean(abs(u-uTrue)))
     if fullSave
-      errors = Dict("final"=>mean(abs(u-uTrue)),"l∞"=>maximum(abs(uFull-solFull)),"l2"=>sqrt(mean((uFull-solFull).^2)))
+      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(uFull-solFull)),:l2=>sqrt(mean((uFull-solFull).^2)))
     end
     return(new(u,trueKnown,uTrue,errors,uFull,tFull,solFull,false,fullSave))
   end
@@ -189,7 +189,7 @@ that solution as the "true" solution
 """
 function appxTrue!(res::FEMSolution,res2::FEMSolution)
   res.uTrue = res2.u
-  res.errors = Dict("l∞"=>maximum(abs(res.u-res.uTrue)),"l2"=>norm(res.u-res.uTrue,2))
+  res.errors = Dict(:l∞=>maximum(abs(res.u-res.uTrue)),:l2=>norm(res.u-res.uTrue,2))
   res.appxTrue = true
 end
 

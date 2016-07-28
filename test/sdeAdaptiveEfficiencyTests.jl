@@ -50,8 +50,8 @@ for k in eachindex(probs)
     tols[i,1] = 2.0^(-i-1)
     msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
     elapsed[i,1] = msims[i].elapsedTime
-    medians[i,1] = msims[i].medians["final"]
-    means[i,1]   = msims[i].means["final"]
+    medians[i,1] = msims[i].medians[:final]
+    means[i,1]   = msims[i].means[:final]
   end
 
   println("RSwM2")
@@ -60,8 +60,8 @@ for k in eachindex(probs)
     tols[i,2] = 2.0^(-i-1)
     msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
     elapsed[i,2] = msims[i].elapsedTime
-    medians[i,2] = msims[i].medians["final"]
-    means[i,2]   = msims[i].means["final"]
+    medians[i,2] = msims[i].medians[:final]
+    means[i,2]   = msims[i].means[:final]
   end
 
   println("RSwM3")
@@ -70,8 +70,8 @@ for k in eachindex(probs)
     tols[i,3] = 2.0^(-i-1)
     msims[i] = monteCarloSim(prob::SDEProblem,Δt=1/2^(4),adaptive=true,numMonte=1000,abstol=2.0^(-i-1),reltol=0,adaptivealg=adaptivealg,alg=alg)
     elapsed[i,3] = msims[i].elapsedTime
-    medians[i,3] = msims[i].medians["final"]
-    means[i,3]   = msims[i].means["final"]
+    medians[i,3] = msims[i].medians[:final]
+    means[i,3]   = msims[i].means[:final]
   end
 
   fullMeans[k] = means

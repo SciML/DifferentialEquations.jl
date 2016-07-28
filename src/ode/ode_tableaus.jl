@@ -166,9 +166,3 @@ function constructDormandPrince8()
    c =  [0;1//18;1//12;1//8;5//16;3//8;59//400;93//200;5490023248//9719169821;13//20;1201146811//1299019798;1;1]
    return(ExplicitRK(A,c,α,8,αEEst=αEEst))
 end
-"""
-DEFAULT_TABLEAU
-
-Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
-"""
-DEFAULT_TABLEAU = constructDormandPrince()
