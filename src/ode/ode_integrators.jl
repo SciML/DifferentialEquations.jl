@@ -172,7 +172,7 @@ function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
 end
 
 function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxiters,
-                            timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
+                            timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
   function rhsIE(u,resid,uOld,t,Δt)
     u = reshape(u,sizeu...)
     resid = reshape(resid,sizeu...)
@@ -184,7 +184,7 @@ function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxiters,
     @ode_loopheader
     uOld = copy(u)
     u = vec(u)
-    nlres = nlsolve((u,resid)->rhsIE(u,resid,uOld,t,Δt),u)
+    nlres = NLsolve.nlsolve((u,resid)->rhsIE(u,resid,uOld,t,Δt),u,autodiff=autodiff)
     u = reshape(nlres.zero,sizeu...)
     @ode_loopfooter
   end
@@ -192,7 +192,7 @@ function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxiters,
 end
 
 function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxiters,
-                      timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
+                      timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
   function rhsTrap(u,resid,uOld,t,Δt)
     u = reshape(u,sizeu...)
     resid = reshape(resid,sizeu...)
@@ -204,7 +204,7 @@ function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxiters,
     @ode_loopheader
     uOld = copy(u)
     u = vec(u)
-    nlres = nlsolve((u,resid)->rhsTrap(u,resid,uOld,t,Δt),u)
+    nlres = NLsolve.nlsolve((u,resid)->rhsTrap(u,resid,uOld,t,Δt),u,autodiff=autodiff)
     u = reshape(nlres.zero,sizeu...)
     @ode_loopfooter
   end

@@ -30,7 +30,17 @@ init_package(b::backend{:ForwardDiff}) = @eval begin
       export ForwardDiff
     end
 
-init_package(b::backend{:NLSolve}) = @eval begin
-      import NLSolve
-      export NLSolve
+init_package(b::backend{:NLsolve}) = @eval begin
+      import NLsolve
+      export NLsolve
+    end
+
+init_package(b::backend{:ResettableStacks}) = @eval begin
+      import ResettableStacks
+      export ResettableStacks
+    end
+
+init_package(b::backend{:DataStructures}) = @eval begin
+      import DataStructures
+      export DataStructures
     end
