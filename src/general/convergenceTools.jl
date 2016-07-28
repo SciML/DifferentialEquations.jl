@@ -98,7 +98,7 @@ solved over the given Δts.
 * `fullSave`: Denotes whether to save at every saveSteps steps. Default is true.
 * `saveSteps`: Denotes the steps to save at if `fullSave=true`. Default is 1
 * `alg`: The algorithm to test. Defaults to "Euler".
-* `tableau`: The tableau used for generic methods. Defaults to DEFAULT_TABLEAU.
+* `tableau`: The tableau used for generic methods. Defaults to ODE_DEFAULT_TABLEAU.
 """
 function testConvergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],fullSave=true,adaptive=false,kwargs...)
   N = length(Δts)

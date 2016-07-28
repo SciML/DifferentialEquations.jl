@@ -416,28 +416,28 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
 
   #Generate and return solution type
   if trueKnown
-    errors = Dict("ul∞"=>maximum(abs(u-uTrue)),"vl∞"=>maximum(abs(v-vTrue)),
-                  "pl∞"=>maximum(abs(p-pTrue)),"ul2"=>norm(u-uTrue,2),
-                  "vl2"=>norm(v-vTrue,2),"pl2"=>norm(p-pTrue,2),
-                  "rul∞"=>maximum(abs(u-uTrue))/maximum(abs(u)),
-                  "rvl∞"=>maximum(abs(v-vTrue))/maximum(abs(v)),
-                  "rpl∞"=>maximum(abs(p-pTrue))/maximum(abs(p)),
-                  "rul2"=>norm(u-uTrue,2)/norm(u,2),
-                  "rvl2"=>norm(v-vTrue,2)/norm(v,2),
-                  "rpl2"=>norm(p-pTrue,2)/norm(p,2),
+    errors = Dict(:ul∞=>maximum(abs(u-uTrue)),:vl∞=>maximum(abs(v-vTrue)),
+                  :pl∞=>maximum(abs(p-pTrue)),:ul2=>norm(u-uTrue,2),
+                  :vl2=>norm(v-vTrue,2),:pl2=>norm(p-pTrue,2),
+                  :rul∞=>maximum(abs(u-uTrue))/maximum(abs(u)),
+                  :rvl∞=>maximum(abs(v-vTrue))/maximum(abs(v)),
+                  :rpl∞=>maximum(abs(p-pTrue))/maximum(abs(p)),
+                  :rul2=>norm(u-uTrue,2)/norm(u,2),
+                  :rvl2=>norm(v-vTrue,2)/norm(v,2),
+                  :rpl2=>norm(p-pTrue,2)/norm(p,2),
     )
   else
     error = nothing
   end
   if converrors
-    converrors = Dict("ul∞"=>converror_maxu,"vl∞"=>converror_maxv,
-    "pl∞"=>converror_maxp,"ul2"=>converror_l2u,
-    "vl2"=>converror_l2v,"pl2"=>converror_l2p,
-    "rul∞"=>converror_relmaxu,"rvl∞"=>converror_relmaxv,
-    "rpl∞"=>converror_relmaxp,"rul2"=>converror_rell2u,
-    "rvl2"=>converror_rell2v,"rpl2"=>converror_rell2p,
-    "rresul2"=>converror_relresl2u,
-    "rresvl2"=>converror_relresl2v,"rrespl2"=>converror_relresl2p,
+    converrors = Dict(:ul∞=>converror_maxu,:vl∞=>converror_maxv,
+    :pl∞=>converror_maxp,:ul2=>converror_l2u,
+    :vl2=>converror_l2v,:pl2=>converror_l2p,
+    :rul∞=>converror_relmaxu,:rvl∞=>converror_relmaxv,
+    :rpl∞=>converror_relmaxp,:rul2=>converror_rell2u,
+    :rvl2=>converror_rell2v,:rpl2=>converror_rell2p,
+    :rresul2=>converror_relresl2u,
+    :rresvl2=>converror_relresl2v,:rrespl2=>converror_relresl2p,
     )
   else
     converrors = nothing

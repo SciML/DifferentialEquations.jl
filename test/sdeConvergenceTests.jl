@@ -7,14 +7,14 @@ sim = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:EM)
 sim2 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:RKMil)
 sim3 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRI)
 sim4 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRIW1Optimized)
-bool1 = abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5) + abs(sim4.𝒪est["final"]-1.5) <.5 #High tolerance since low Δts for testing!
+bool1 = abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5) + abs(sim4.𝒪est[:final]-1.5) <.5 #High tolerance since low Δts for testing!
 
 prob = cubicSDEExample()
 sim = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:EM)
 sim2 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:RKMil)
 sim3 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRI)
 sim4 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRIW1Optimized)
-bool2 = abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5) + abs(sim4.𝒪est["final"]-1.5) <.6 #High tolerance since low Δts for testing!
+bool2 = abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5) + abs(sim4.𝒪est[:final]-1.5) <.6 #High tolerance since low Δts for testing!
 
 ## Convergence Testing
 prob = additiveSDEExample()
@@ -24,6 +24,6 @@ sim3 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRI)
 sim4 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRA)
 sim5 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRA1Optimized)
 sim6 = testConvergence(Δts,prob,numMonte=Int(1e1),alg=:SRIW1Optimized)
-bool3 = abs(sim.𝒪est["l2"]-1) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-2) + abs(sim4.𝒪est["final"]-2) + abs(sim5.𝒪est["final"]-2) + abs(sim6.𝒪est["final"]-2) <.4 #High tolerance since low Δts for testing!
+bool3 = abs(sim.𝒪est[:l2]-1) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-2) + abs(sim4.𝒪est[:final]-2) + abs(sim5.𝒪est[:final]-2) + abs(sim6.𝒪est[:final]-2) <.4 #High tolerance since low Δts for testing!
 
 bool1 && bool2 && bool3

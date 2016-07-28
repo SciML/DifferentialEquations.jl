@@ -27,4 +27,4 @@ sim2 = testConvergence(Δts,prob,numMonte=Int(1e2),alg=:RKMil)
 sim3 = testConvergence(Δts,prob,numMonte=Int(1e2),alg=:SRI)
 end)
 
-abs(sim.𝒪est["l2"]-.5) + abs(sim2.𝒪est["l∞"]-1) + abs(sim3.𝒪est["final"]-1.5)<.4 #High tolerance since low Δts for testing!
+abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5)<.4 #High tolerance since low Δts for testing!
