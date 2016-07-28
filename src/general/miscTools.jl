@@ -71,7 +71,7 @@ end
 =#
 
 """
-splats keys from a dict into variables
+Splats keys from a dict into variables
 
 ```
 @materialize a, b, c = dict
