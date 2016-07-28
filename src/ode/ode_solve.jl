@@ -59,8 +59,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     end
     o = o2
     Δt = o[:Δt]
+    order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
+    if alg==:ExplicitRK
+      @unpack o[:tableau]: A,c,α,αEEst,stages,order
+    end
     if Δt==0
-      Δt = ode_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalnorm,f,order)
+      Δt = ode_determine_initΔt(u₀,float(tspan[1]),o[:abstol],o[:reltol],o[:internalnorm],f,order)
     end
     if alg ∉ DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS
       o[:adaptive] = false
@@ -81,10 +85,6 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
-    order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
-    if alg==:ExplicitRK
-      @unpack o[:tableau]: A,c,α,αEEst,stages,order
-    end
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,tableau = o
     iter = 0
     if alg==:Euler

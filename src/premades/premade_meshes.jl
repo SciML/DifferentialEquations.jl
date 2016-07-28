@@ -1,7 +1,7 @@
 
 ###Example Meshes
 pkgdir = Pkg.dir("DifferentialEquations")
-meshes_location = "src/examples/premade_meshes.jld"
+meshes_location = "src/premades/premade_meshes.jld"
 "meshExample_bunny() : Returns a 3D SimpleMesh."
 meshExample_bunny() = Main.JLD.load("$pkgdir/$meshes_location","bunny")
 
