@@ -84,7 +84,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     end
     @materialize maxiters,saveSteps,fullSave,adaptive,progressBar,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,tableau = o
     if Δt==0
-      Δt = determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
+      Δt = ode_determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
     end
     iter = 0
     if alg==:Euler
@@ -113,7 +113,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
     if alg==:dopri5
       tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
-    elseif alg==:dopri853
+    elseif alg==:dop853
       tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:odex
       tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.odex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
@@ -213,7 +213,7 @@ function buildOptions(o,optionlist,aliases,aliases_reversed)
   merge(dict1,dict2)
 end
 
-function determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
+function ode_determine_initΔt(u₀,abstol,reltol,internalNorm,f,order)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalNorm)
   f₀ = f(u₀,t)
   d₁ = norm(f₀./(abstol+u₀*reltol),internalNorm)

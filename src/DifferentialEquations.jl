@@ -67,7 +67,6 @@ include("ode/ode_integrators.jl")
 include("ode/ode_solve.jl")
 include("general/plotTools.jl")
 include("sde/SDECoefficientTypes.jl")
-
 include("general/parallelHelpers.jl")
 
 #Types
