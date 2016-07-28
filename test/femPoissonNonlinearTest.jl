@@ -4,10 +4,10 @@
 using DifferentialEquations
 
 Δx = 1//2^(3)
-femMesh = notime_squaremesh([0 1 0 1],Δx,"Neumann")
+fem_mesh = notime_squaremesh([0 1 0 1],Δx,:neumann)
 prob = poissonProblemExample_birthdeath()
 
-sol = solve(femMesh::FEMmesh,prob::PoissonProblem)
+sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 
 plot(sol,plottrue=false,zlim=(0,2))
 

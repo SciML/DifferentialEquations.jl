@@ -6,7 +6,7 @@ into a more useful manner and provide plotting functionality. Convergence estima
 are also given by pair-wise estimates.
 
 `ConvergenceSimulation`s can either be created by passing the constructor the
-approrpiate solution array or by using one of the provided `testConvergence` functions.
+approrpiate solution array or by using one of the provided `test_convergence` functions.
 
 ## The ConvergenceSimulation Type
 
@@ -33,5 +33,5 @@ be used in this command. Please see the Plots.jl documentation for more informat
 Base.length(::ConvergenceSimulation)
 DifferentialEquations.conv_ests
 DifferentialEquations.calc𝒪estimates
-DifferentialEquations.testConvergence
+DifferentialEquations.test_convergence
 ```

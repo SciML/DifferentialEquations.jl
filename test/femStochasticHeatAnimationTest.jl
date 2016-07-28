@@ -8,10 +8,10 @@ using DifferentialEquations, Plots, ImageMagick
 T = 5
 Δx = 1//2^(3)
 Δt = 1//2^(11)
-femMesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"Neumann")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 prob = heatProblemExample_stochasticbirthdeath()
 
-sol = solve(femMesh::FEMmesh,prob::HeatProblem,alg=:Euler,fullSave=true,solver=:LU)
+sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,solver=:LU)
 
 println("Generating Animation")
 animate(sol::FEMSolution;zlims=(0,3),cbar=false)

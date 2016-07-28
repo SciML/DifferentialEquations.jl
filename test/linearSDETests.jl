@@ -4,7 +4,7 @@ prob = linearSDEExample()
 
 ## Solve and plot
 println("Solve and Plot")
-sol =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),fullSave=true,alg=:SRI)
+sol =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),save_timeseries=true,alg=:SRI)
 
 plot(sol)
 
@@ -12,11 +12,11 @@ plot(sol)
 println("Convergence Test on Linear")
 Δts = 1.//2.^(11:-1:4) #14->7 good plot with higher num Monte
 
-sim = testConvergence(Δts,prob,numMonte=Int(1e2),alg=:EM)
+sim = test_convergence(Δts,prob,numMonte=Int(1e2),alg=:EM)
 
-sim2 = testConvergence(Δts,prob,numMonte=Int(1e2),alg=:RKMil)
+sim2 = test_convergence(Δts,prob,numMonte=Int(1e2),alg=:RKMil)
 
-sim3 = testConvergence(Δts,prob,numMonte=Int(1e2),alg=:SRI)
+sim3 = test_convergence(Δts,prob,numMonte=Int(1e2),alg=:SRI)
 
 plot(plot(sim),plot(sim2),plot(sim3),layout=@layout([a b c]),size=(1200,600))
 

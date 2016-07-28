@@ -7,7 +7,7 @@ function GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
   inti = 2:size(u,1)-1; intj = 2:size(u,2)-1 # Coordinates for interior
   fh₁ = Δxs[1]*Δxs[2]*f₁(ux,uy) # Get f values plus ghosts, include left/right boundary
 
-  # Now solve, Dirichlet boundary conditions pre-imposed on verticals
+  # Now solve, dirichlet boundary conditions pre-imposed on verticals
   for j in intj #Top boundary
     bval = fh₁[1,j] + (8/3)*ugD(grids[1][1,j],grids[2][1,j])
     u[1,j]  = (bval + (4/3)*u[2,j] + u[1,j-1] + u[1,j+1] - Δxs[1]*(p[1,j]-p[1,j-1]))/6
@@ -31,7 +31,7 @@ function GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
   inti = 2:size(v,1)-1; intj = 2:size(v,2)-1 # Coordinates for interior
   fh₂   = Δxs[1]*Δxs[2]*f₂(vx,vy) # Get f values plus ghosts, include top/bottom boundary
 
-  # Now solve, Dirichlet boundary conditions pre-imposed on horizontals
+  # Now solve, dirichlet boundary conditions pre-imposed on horizontals
   for i in inti #Left boundary
     bval = fh₂[i,1] + (8/3)*vgD(grids[1][i,1],grids[2][i,1])
     v[i,1]  = (bval + (4/3)*v[i,2] + v[i-1,1] + v[i+1,1] - Δxs[2]*(p[i,1]-p[i-1,1]))/6
@@ -335,7 +335,7 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   v[end,:] = vgD(vx[end,:],vy[end,:])
 
   #Note if Atom is loaded for progress
-  atomLoaded = isdefined(Main,:Atom)
+  atomloaded = isdefined(Main,:Atom)
 
   if converrors
     if !trueKnown
@@ -411,7 +411,7 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
       push!(converror_relresl2v,norm(v-vold,2)/norm(v,2))
       push!(converror_relresl2p,norm(p-pold,2)/norm(p,2))
     end
-    atomLoaded ? Main.Atom.progress(i/maxiters) : nothing
+    atomloaded ? Main.Atom.progress(i/maxiters) : nothing
   end
 
   #Generate and return solution type

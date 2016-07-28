@@ -28,7 +28,7 @@ and then we pass this information to the solver and plot:
 
 ```julia
 #We can plot using the classic Euler-Maruyama algorithm as follows:
-sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="EM")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,save_timeseries=true,alg="EM")
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
 gui()
@@ -38,7 +38,7 @@ We can choose a better solver as well:
 
 ```julia
 #We can choose a better method as follows:
-sol =solve(prob::SDEProblem,tspan,Δt=Δt,fullSave=true,alg="SRI")
+sol =solve(prob::SDEProblem,tspan,Δt=Δt,save_timeseries=true,alg="SRI")
 plot(sol,plottrue=true)
 gui()
 ```

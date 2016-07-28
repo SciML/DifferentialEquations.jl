@@ -8,9 +8,9 @@
 end
 
 @def ode_savevalues begin
-  if fullSave && iter%saveSteps==0
-    push!(uFull,u)
-    push!(tFull,t)
+  if save_timeseries && iter%timeseries_steps==0
+    push!(timeseries,u)
+    push!(ts,t)
   end
 end
 
@@ -33,32 +33,32 @@ end
     t = t + Δt
     @ode_savevalues
   end
-  (progressBar && atomLoaded && iter%progressSteps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 end
 
 function ode_euler(f::Function,u,t,Δt,T,iter,maxiters,
-                    uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                    timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   while t < T
     @ode_loopheader
     u = u + Δt.*f(u,t)
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_midpoint(f::Function,u::Number,t,Δt,T,iter,
-                      maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                      maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
   while t < T
     @ode_loopheader
     u = u + Δt.*f(u+halfΔt.*f(u,t),t+halfΔt)
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
-                      maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                      maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
   utilde = similar(u)
   while t < T
@@ -67,11 +67,11 @@ function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
     u = u + Δt.*f(utilde,t+halfΔt)
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_rk4(f::Function,u::Number,t,Δt,T,iter,maxiters,
-                uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
   while t < T
     @ode_loopheader
@@ -83,11 +83,11 @@ function ode_rk4(f::Function,u::Number,t,Δt,T,iter,maxiters,
     u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
-                iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+                iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
   k₁ = similar(u)
   k₂ = similar(u)
@@ -103,12 +103,12 @@ function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
     u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
-function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxiters,uFull,tFull,
-                        saveSteps,fullSave,A,c,α,αEEst,stages,order,γ,adaptive,
-                        abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxiters,timeseries,ts,
+                        timeseries_steps,save_timeseries,A,c,α,αEEst,stages,order,γ,adaptive,
+                        abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
   ks = Array{typeof(u)}(stages)
   while t < T
     @ode_loopheader
@@ -129,19 +129,19 @@ function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxiters,uFull,tFull,
       for i = 2:stages
         uEEst += αEEst[i]*ks[i]
       end
-      EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalNorm)
+      EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*utilde
     end
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
-                        maxiters,uFull,tFull,saveSteps,fullSave,
+                        maxiters,timeseries,ts,timeseries_steps,save_timeseries,
                         A,c,α,αEEst,stages,order,γ,adaptive,
-                        abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+                        abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
   ks = Array{eltype(u)}(size(u)...,stages)
   while t < T
     @ode_loopheader
@@ -162,17 +162,17 @@ function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
       for i = 2:stages
         uEEst += αEEst[i]*ks[..,i]
       end
-      EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalNorm)
+      EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*utilde
     end
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxiters,
-                            uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
+                            timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
   function rhsIE(u,resid,uOld,t,Δt)
     u = reshape(u,sizeu...)
     resid = reshape(resid,sizeu...)
@@ -188,11 +188,11 @@ function ode_impliciteuler(f::Function,u,t,Δt,T,iter,maxiters,
     u = reshape(nlres.zero,sizeu...)
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxiters,
-                      uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
+                      timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
   function rhsTrap(u,resid,uOld,t,Δt)
     u = reshape(u,sizeu...)
     resid = reshape(resid,sizeu...)
@@ -208,12 +208,12 @@ function ode_trapezoid(f::Function,u,t,Δt,T,iter,maxiters,
     u = reshape(nlres.zero,sizeu...)
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_rosenbrock32(f::Function,u::AbstractArray,t,Δt,T,iter,
-                          maxiters,uFull,tFull,saveSteps,fullSave,adaptive,
-                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar,γ)
+                          maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,
+                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,γ)
   order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
@@ -237,18 +237,18 @@ function ode_rosenbrock32(f::Function,u::AbstractArray,t,Δt,T,iter,
       utmp = u + Δt*k₂
       f₂ = f(utmp,t+Δt)
       k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
-      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalNorm)
+      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*k₂
     end
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end
 
 function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
-                          maxiters,uFull,tFull,saveSteps,fullSave,adaptive,
-                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar,γ)
+                          maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,
+                          sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,γ)
   order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
@@ -269,11 +269,11 @@ function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
       utmp = u + Δt*k₂
       f₂ = f(utmp,t+Δt)
       k₃ = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
-      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalNorm)
+      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*k₂
     end
     @ode_loopfooter
   end
-  return u,t,uFull,tFull
+  return u,t,timeseries,ts
 end

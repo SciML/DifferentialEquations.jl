@@ -13,17 +13,17 @@ end
 prob = poissonProblemExample_wave()
 ```
 
-Note that in this case since the solution is known, the Dirichlet boundary condition `gD` is automatically set to match the true solution. The code for other example problems can be found in [src/examples/exampleProblems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/exampleProblems.jl). To solve this problem, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
+Note that in this case since the solution is known, the dirichlet boundary condition `gD` is automatically set to match the true solution. The code for other example problems can be found in [src/examples/exampleProblems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/examples/exampleProblems.jl). To solve this problem, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
 
 ```julia
 Δx = 1//2^(5)
-femMesh = notime_squaremesh([0 1 0 1],Δx,"Dirichlet")
+fem_mesh = notime_squaremesh([0 1 0 1],Δx,"dirichlet")
 ```
 
-Note that by specifying "Dirichlet" our boundary conditions is set on all boundaries to Dirichlet. This gives an FEMmesh object which stores a finite element mesh in the same layout as [iFEM](http://www.math.uci.edu/~chenlong/programming.html). Notice this code shows that the package supports the use of rationals in meshes. Other numbers such as floating point and integers can be used as well. Finally, to solve the equation we use
+Note that by specifying "dirichlet" our boundary conditions is set on all boundaries to dirichlet. This gives an FEMmesh object which stores a finite element mesh in the same layout as [iFEM](http://www.math.uci.edu/~chenlong/programming.html). Notice this code shows that the package supports the use of rationals in meshes. Other numbers such as floating point and integers can be used as well. Finally, to solve the equation we use
 
 ```julia
-sol = solve(femMesh,pdeProb)
+sol = solve(fem_mesh,pdeProb)
 ```
 
 fem_solvepoisson takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This reurns a FEMSolution object which holds data about the solution, such as the solution values (u), the true solution (uTrue), error estimates, etc. To plot the solution, we use the command

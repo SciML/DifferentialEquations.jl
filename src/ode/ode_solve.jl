@@ -5,8 +5,8 @@ Solves the ODE defined by prob with initial Δt on the time interval [0,T].
 
 ### Keyword Arguments
 
-* fullSave: Saves the result at every saveSteps steps. Default is false.
-saveSteps: If fullSave is true, then the output is saved every saveSteps steps.
+* save_timeseries: Saves the result at every timeseries_steps steps. Default is false.
+timeseries_steps: If save_timeseries is true, then the output is saved every timeseries_steps steps.
 * alg: String which defines the solver algorithm. Defult is "RK4". Possibilities are:
   * "Euler" - The canonical forward Euler method.
   * "Midpoint" - The second order midpoint method.
@@ -32,7 +32,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   T = tspan[2]
   o[:t] = t
   o[:T] = tspan[2]
-  @unpack prob: f,u₀,knownSol,sol,numVars,sizeu
+  @unpack prob: f,u₀,knownsol,sol,numvars,sizeu
 
 
   if typeof(u₀)<:Number
@@ -60,7 +60,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     o = o2
     Δt = o[:Δt]
     if Δt==0
-      Δt = ode_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalNorm,f,order)
+      Δt = ode_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalnorm,f,order)
     end
     if alg ∉ DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS
       o[:adaptive] = false
@@ -78,29 +78,29 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
 
     T = tType(T)
     t = tType(t)
-    uFull = GrowableArray(u₀)
-    tFull = Vector{tType}(0)
-    push!(tFull,t)
+    timeseries = GrowableArray(u₀)
+    ts = Vector{tType}(0)
+    push!(ts,t)
     order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
     if alg==:ExplicitRK
       @unpack o[:tableau]: A,c,α,αEEst,stages,order
     end
-    @materialize maxiters,saveSteps,fullSave,adaptive,progressBar,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,tableau = o
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,tableau = o
     iter = 0
     if alg==:Euler
-      u,t,uFull,tFull = ode_euler(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+      u,t,timeseries,ts = ode_euler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
     elseif alg==:Midpoint
-      u,t,uFull,tFull = ode_midpoint(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+      u,t,timeseries,ts = ode_midpoint(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
     elseif alg==:RK4
-      u,t,uFull,tFull = ode_rk4(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,progressBar)
+      u,t,timeseries,ts = ode_rk4(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
     elseif alg==:ExplicitRK
-      u,t,uFull,tFull = ode_explicitrk(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,A,c,α,αEEst,stages,order,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar)
+      u,t,timeseries,ts = ode_explicitrk(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,A,c,α,αEEst,stages,order,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:ImplicitEuler
-      u,t,uFull,tFull = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
+      u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
     elseif alg==:Trapezoid
-      u,t,uFull,tFull = ode_trapezoid(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,progressBar)
+      u,t,timeseries,ts = ode_trapezoid(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar)
     elseif alg==:Rosenbrock32
-      u,t,uFull,tFull = ode_rosenbrock32(f,u,t,Δt,T,iter,maxiters,uFull,tFull,saveSteps,fullSave,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalNorm,progressBar,γ)
+      u,t,timeseries,ts = ode_rosenbrock32(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,γ)
     end
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
@@ -112,28 +112,28 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     dict = buildOptions(o,ODEINTERFACE_OPTION_LIST,ODEINTERFACE_ALIASES,ODEINTERFACE_ALIASES_REVERSED)
     opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
     if alg==:dopri5
-      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:dop853
-      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:odex
-      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.odex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.odex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:seulex
-      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:radau
-      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.radau,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     elseif alg==:radau5
-      tFull,vecuFull,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
     end
-    t = tFull[end]
+    t = ts[end]
     if typeof(u₀)<:AbstractArray
-      uFull = GrowableArray(u₀;initvalue=false)
-      for i=1:size(vecuFull,1)
-        push!(uFull,reshape(vecuFull[i,:]',sizeu))
+      timeseries = GrowableArray(u₀;initvalue=false)
+      for i=1:size(vectimeseries,1)
+        push!(timeseries,reshape(vectimeseries[i,:]',sizeu))
       end
     else
-      uFull = vecuFull
+      timeseries = vectimeseries
     end
-    u = uFull[end]
+    u = timeseries[end]
 
   elseif alg ∈ ODEJL_ALGORITHMS
     if typeof(u) <: Number
@@ -169,38 +169,38 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       stepper = ODE.RKIntegrator{FoA,:rk45}
     end
     out = collect(ODE.solve(ode,stepper;opts...))
-    uFull = GrowableArray(u₀)
-    tFull = Vector{typeof(out[1][1])}(0)
-    push!(tFull,t)
+    timeseries = GrowableArray(u₀)
+    ts = Vector{typeof(out[1][1])}(0)
+    push!(ts,t)
     for (t,u,du) in out
-      push!(tFull,t)
+      push!(ts,t)
       if typeof(u₀) <: AbstractArray
-        push!(uFull,u)
+        push!(timeseries,u)
       else
-        push!(uFull,u[1])
+        push!(timeseries,u[1])
       end
     end
-    t = tFull[end]
-    u = uFull[end]
+    t = ts[end]
+    u = timeseries[end]
   end
 
-  if knownSol
+  if knownsol
     uTrue = sol(u₀,t)
-    if o[:fullSave]
-      solFull = GrowableArray(sol(u₀,tFull[1]))
-      for i in 2:size(uFull,1)
-        push!(solFull,sol(u₀,tFull[i]))
+    if o[:save_timeseries]
+      sols = GrowableArray(sol(u₀,ts[1]))
+      for i in 2:size(timeseries,1)
+        push!(sols,sol(u₀,ts[i]))
       end
-      uFull = copy(uFull)
-      solFull = copy(solFull)
-      return(ODESolution(u,uTrue,uFull=uFull,tFull=tFull,solFull=solFull))
+      timeseries = copy(timeseries)
+      sols = copy(sols)
+      return(ODESolution(u,uTrue,timeseries=timeseries,ts=ts,sols=sols))
     else
       return(ODESolution(u,uTrue))
     end
   else #No known sol
-    if o[:fullSave]
-      uFull = copy(uFull)
-      return(ODESolution(u,uFull=uFull,tFull=tFull))
+    if o[:save_timeseries]
+      timeseries = copy(timeseries)
+      return(ODESolution(u,timeseries=timeseries,ts=ts))
     else
       return(ODESolution(u))
     end
@@ -213,10 +213,10 @@ function buildOptions(o,optionlist,aliases,aliases_reversed)
   merge(dict1,dict2)
 end
 
-function ode_determine_initΔt(u₀,t,abstol,reltol,internalNorm,f,order)
-  d₀ = norm(u₀./(abstol+u₀*reltol),internalNorm)
+function ode_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,order)
+  d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
   f₀ = f(u₀,t)
-  d₁ = norm(f₀./(abstol+u₀*reltol),internalNorm)
+  d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
   if d₀ < 1//10^(5) || d₁ < 1//10^(5)
     Δt₀ = 1//10^(6)
   else
@@ -224,7 +224,7 @@ function ode_determine_initΔt(u₀,t,abstol,reltol,internalNorm,f,order)
   end
   u₁ = u₀ + Δt₀*f₀
   f₁ = f(u₁,t+Δt₀)
-  d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalNorm)/Δt₀
+  d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
   else

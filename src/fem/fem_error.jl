@@ -1,7 +1,7 @@
 """
 getL2error(node,elem,uexact,uh,quad𝒪=[])
 
-getL2error(femMesh::FEMmesh,sol,u)
+getL2error(fem_mesh::FEMmesh,sol,u)
 
 Estimates the L2 error between uexact and uh on the mesh (node,elem). It
 reads the mesh to estimate the element type and uses this to choose a
@@ -341,7 +341,7 @@ end
 """
 function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
 
-getH1error(femMesh::FEMmesh,Du,u)
+getH1error(fem_mesh::FEMmesh,Du,u)
 
 Estimates the H1 error between uexact and uh on the mesh (node,elem). It
 reads the mesh to estimate the element type and uses this to choose a
@@ -506,18 +506,18 @@ function ∇basis(node,elem)
   return(Dλ,area,elemSign)
 end
 
-function getL2error(femMesh::FEMmesh,sol,u)
-  if femMesh.evolutionEq
-    return(getL2error(femMesh.node,femMesh.elem,x->sol(x,femMesh.T),u))
+function getL2error(fem_mesh::FEMmesh,sol,u)
+  if fem_mesh.evolutionEq
+    return(getL2error(fem_mesh.node,fem_mesh.elem,x->sol(x,fem_mesh.T),u))
   else
-    return(getL2error(femMesh.node,femMesh.elem,sol,u))
+    return(getL2error(fem_mesh.node,fem_mesh.elem,sol,u))
   end
 end
 
-function getH1error(femMesh::FEMmesh,Du,u)
-  if femMesh.evolutionEq
-    return(getH1error(femMesh.node,femMesh.elem,x->Du(x,femMesh.T),u))
+function getH1error(fem_mesh::FEMmesh,Du,u)
+  if fem_mesh.evolutionEq
+    return(getH1error(fem_mesh.node,fem_mesh.elem,x->Du(x,fem_mesh.T),u))
   else
-    return(getH1error(femMesh.node,femMesh.elem,Du,u))
+    return(getH1error(fem_mesh.node,fem_mesh.elem,Du,u))
   end
 end

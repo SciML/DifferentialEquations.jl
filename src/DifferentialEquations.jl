@@ -43,32 +43,32 @@ FunctionOrVoid = Union{Function,Void}
 #Constants
 
 const TEST_FLOPS_CUTOFF = 1e10
-const atomLoaded = isdefined(Main,:Atom)
+const atomloaded = isdefined(Main,:Atom)
 const initialized_backends = Set{Symbol}()
 
 include("general/backends.jl")
-include("fem/meshTools.jl")
-include("fem/assemblyTools.jl")
-include("fem/boundaryTools.jl")
-include("fem/errorTools.jl")
-include("general/problemTools.jl")
-include("general/solutionTools.jl")
-include("general/stochasticTools.jl")
-include("general/miscTools.jl")
-include("general/convergenceTools.jl")
-include("examples/exampleProblems.jl")
-include("examples/exampleMeshes.jl")
-include("fem/femSolvers.jl")
-include("fdm/stokesSolvers.jl")
+include("general/misc_utils.jl")
+include("fem/fem_heatintegrators.jl")
+include("fem/meshes.jl")
+include("fem/fem_assembly.jl")
+include("fem/fem_boundary.jl")
+include("fem/fem_error.jl")
+include("general/problems.jl")
+include("general/solutions.jl")
+include("general/stochastic_utils.jl")
+include("general/convergence.jl")
+include("examples/example_problems.jl")
+include("examples/example_meshes.jl")
+include("fem/fem_solve.jl")
+include("fdm/stokes_solve.jl")
 include("sde/sde_solve.jl")
 include("sde/sde_integrators.jl")
 include("ode/ode_tableaus.jl")
 include("ode/ode_constants.jl")
 include("ode/ode_integrators.jl")
 include("ode/ode_solve.jl")
-include("general/plotTools.jl")
+include("general/plotrecipes.jl")
 include("sde/sde_tableaus.jl")
-include("general/parallelHelpers.jl")
 
 #Types
 export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
@@ -100,7 +100,7 @@ export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemes
 export  plot, animate
 
 #General Functions
-export conv_ests, appxTrue!, accumarray, solve, testConvergence, monteCarloSim
+export conv_ests, appxTrue!, accumarray, solve, test_convergence, monteCarloSim
 
 #FEM Functions
 export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,

@@ -4,7 +4,7 @@
 
 Plotting functionality is provided by a recipe to Plots.jl. To
 use plot solutions, simply call the `plot(type)` and the plotter will generate
-appropriate plots. If `fullSave` was used, the plotters can
+appropriate plots. If `save_timeseries` was used, the plotters can
 generate animations of the solutions to evolution equations.
 Plots can be customized using all of the keyword arguments
 provided by Plots.jl. Please see Plots.jl's documentation for more information.
