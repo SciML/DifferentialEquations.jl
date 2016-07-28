@@ -35,6 +35,7 @@ abstract Mesh
 "Tableau: Holds the information for a Runge-Kutta Tableau"
 abstract Tableau
 typealias String AbstractString
+typealias KW Dict{Symbol,Any}
 AbstractArrayOrVoid = Union{AbstractArray,Void}
 NumberOrVoid = Union{Number,Void}
 FunctionOrVoid = Union{Function,Void}
@@ -43,7 +44,9 @@ FunctionOrVoid = Union{Function,Void}
 
 const TEST_FLOPS_CUTOFF = 1e10
 const atomLoaded = isdefined(Main,:Atom)
+const initialized_backends = Set{Symbol}()
 
+include("general/backends.jl")
 include("fem/meshTools.jl")
 include("fem/assemblyTools.jl")
 include("fem/boundaryTools.jl")
@@ -58,11 +61,12 @@ include("examples/exampleMeshes.jl")
 include("fem/femSolvers.jl")
 include("fdm/stokesSolvers.jl")
 include("sde/sdeSolvers.jl")
+include("ode/ode_tableaus.jl")
 include("ode/ode_integrators.jl")
 include("ode/ode_solve.jl")
 include("general/plotTools.jl")
 include("sde/SDECoefficientTypes.jl")
-include("ode/ode_tableaus.jl")
+
 include("general/parallelHelpers.jl")
 
 #Types
