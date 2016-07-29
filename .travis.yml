@@ -15,7 +15,7 @@ notifications:
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone(pwd())'
-  - julia -e 'ENV["PYTHON"]=""; Pkg.add("PyCall"); Pkg.add("PyPlot"); using PyPlot; Pkg.test("DifferentialEquations",coverage=true)'
+  - julia -e 'Pkg.test("DifferentialEquations",coverage=true)'
 after_success:
   - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))'
