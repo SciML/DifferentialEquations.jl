@@ -57,6 +57,11 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
     end
   end
 
+  if adaptive
+    warn("SDE adaptivity is currently disabled")
+    adaptive = false
+  end
+  
   if Δt == 0.0
     if alg==:Euler
       order = 0.5
