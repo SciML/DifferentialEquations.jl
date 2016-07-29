@@ -6,7 +6,7 @@ Solves the ODE defined by prob with initial Δt on the time interval [0,T].
 ### Keyword Arguments
 
 * `Δt`: Sets the initial stepsize. Defaults to an automatic choice.
-* `save_timeseries`: Saves the result at every timeseries_steps steps. Default is false.
+* `save_timeseries`: Saves the result at every timeseries_steps steps. Default is true.
 * `timeseries_steps`: Denotes how many steps between saving a value for the timeseries. Defaults to 1.
 * `tableau`: The tableau for an `:ExplicitRK` algorithm. Defaults to a Dormand-Prince 4/5 method.
 * `adaptive` - Turns on adaptive timestepping for appropriate methods. Default is true.
@@ -78,6 +78,9 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   o[:T] = tspan[2]
   @unpack prob: f,u₀,knownsol,sol,numvars,sizeu
 
+  command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
+  # Get the control variables
+  @materialize progress_steps, progressbar, adaptive, save_timeseries = command_opts
 
   if typeof(u₀)<:Number
     uType = typeof(u₀)
@@ -236,7 +239,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
 
   if knownsol
     uTrue = sol(u₀,t)
-    if o[:save_timeseries]
+    if save_timeseries
       sols = GrowableArray(sol(u₀,ts[1]))
       for i in 2:size(timeseries,1)
         push!(sols,sol(u₀,ts[i]))
@@ -248,7 +251,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       return(ODESolution(u,uTrue))
     end
   else #No known sol
-    if o[:save_timeseries]
+    if save_timeseries
       timeseries = copy(timeseries)
       return(ODESolution(u,timeseries=timeseries,ts=ts))
     else

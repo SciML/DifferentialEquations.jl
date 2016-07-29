@@ -234,8 +234,8 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
     end
   else #No true solution
     if save_timeseries
-      timeSeries = FEMSolutionTS(timeseries,numvars)
-      return(FEMSolution(fem_mesh,u,timeSeries,ts,prob))
+      timeseries = FEMSolutionTS(timeseries,numvars)
+      return(FEMSolution(fem_mesh,u,timeseries,ts,prob))
     else
       return(FEMSolution(fem_mesh,u,prob))
     end
