@@ -1,18 +1,13 @@
 # DifferentialEquations.jl Documentation
 
-This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations.
+This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. It includes algorithms free very recent research, as well as algorithms optimized for HPC applications. It integrates with the Julia package sphere, for example
+using Juno's progress meter, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
 
-All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests  are included in the [test/](test/) folder if you're interested.
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](test/) folder if you're interested.
 The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. If you find any equation where there seems
 to be an error, please open an issue.
 
-This package is for efficient and parallel implementations of research-level algorithms, many of which are quite recent. These algorithms aim to be optimized for HPC applications, including the use of GPUs, Xeon Phis, and multi-node parallelism. With the easy to use plot/convergence testing algorithms, this package also provides a good sandbox for developing novel numerical schemes. Since this package is designed for long computations, one of the features of this package is the existence of tools for inspecting a long calculation. These include optional printing and, if the user is using Juno, a progress meter (with time estimates once implemented on Juno's end).
-
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
-
-## Note on Compatibility
-
-The v0.0.3 release is the last release targetting Julia v0.4. Future development will be targeting Julia v0.5 and does not guerentee backwards compatibility with v0.4. That said, most of the code should work. The only breaking change may be within the dependency ChunkedArrays which will require a very different method of parallelism in future versions, and thus one should make sure to use the tag for v0.4 in ChunkedArrays.
 
 ## Using the Package
 
@@ -33,13 +28,106 @@ To load the package, use the command:
 using DifferentialEquations
 ```
 
-To understand the package in more detail, check out the following tutorials. Example
-codes for the latest features can be found in [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test). Note that for many of
-the examples in the test folder, you may wish to run them at lower Δx or Δt.
-These values were taken to be large in order make unit tests run faster!
+To understand the package in more detail, check out the following tutorials in the manual. Examples
+IJulia notebooks using DifferentialEquations can be found [in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/examples).
+Codes for the latest features can be found in [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test).
 
 For the most up to date on using the package information, please contact me [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl)
 or [read the latest documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
+
+# Supported Equations
+
+For PDEs, one can optionally specify a noise equation. The solvers currently have
+stochastic variants for handling Gaussian Space-time white noise SPDEs.
+
+* ODEs
+* SODEs
+* (Stochastic) PDEs
+    * Linear Poisson Equation
+    * Semi-linear Poisson Equation
+    * Linear Heat Equation
+    * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
+    * Stationary Stokes Equation
+
+# Implemented Solvers
+
+For PDEs, [method] denotes an additional version for handling stochastic partial
+differential equations. SDE solvers and ODE solvers take in general sized inputs.
+For example, if u₀ is a matrix (and your problem functions are designed to work
+with matrices), then the solver will use the matrices without error.
+
+* ODEs
+  * Optimized Explicit Solvers
+    * Euler
+    * Midpoint Method
+    * RK4
+  * General Explicit (Adaptive) Runge-Kutta Methods
+    * Huen's Method
+    * Cash-Karp
+    * Runge-Kutta-Fuhlberg (RKF) 4/5
+    * Ralston's Method
+    * Bogaki-Shampine
+    * Dormand-Prince 4/5
+    * Runge-Kutta-Fuhlberg (RKF) 7/8
+    * Dormand-Prince 7/8
+  * Stiff Solvers
+    * Implicit Euler
+    * Trapezoidal
+    * Rosenbrock32
+  * Wrappers for ODEInterface.jl
+    * dorpi5 - Hairer's DP5(4)
+    * dop853 - Hairer's DP8(5,3)
+    * odex - Extrapolation algorithm based on explicit midpoint rule
+    * radau5 - Implicit Runge-Kutta order 5
+    * radau - Implicit Runge-Kutta variable order 5-13
+    * seulex - Extrapolation based on linear implicit Euler
+  * Wrappers for ODE.jl
+    * ode23 - Bogacki-Shampine's method
+    * ode45 - Dormand-Prince  4/5
+    * ode78 - Runge-Kutta-Fuhlberg  7/8
+    * ode23s - Rosenbrock method 2/3
+    * ode1 - Forward Euler
+    * midpoint - Midpoint method
+    * ode2_heun - Huen's method
+    * ode4 - RK4
+    * ode45_fe - Runge-Kutta-Fuhlberg 4/5
+* SODEs
+  * Euler-Maruyama
+  * Milstein
+  * Rossler-SRK
+* (Stochastic) PDEs
+  * Finite Element Solvers
+    * Semilinear Poisson Equation
+      * See implicit solvers
+    * Semilinear Heat Equation (Reaction-Diffusion)
+      * Forward Euler [Maruyama]
+      * Backward Euler [Maruyama]
+      * Semi-implicit Crank-Nicholson [Maruyama]
+      * Semi-implicit Backward Euler [Maruyama]
+    * Linear Heat Equation
+      * Forward Euler [Maruyama]
+      * Backward Euler [Maruyama]
+      * Crank-Nicholson [Maruyama]
+* Implicit Solvers
+  * Direct
+  * Factorizations (LU, Cholesky, QR, SVD)
+  * Conjugate-Gradient
+  * GMRES
+
+
+# Roadmap
+
+* SODE Solvers
+  * Adaptive-SRK
+* (Stochastic) PDE Solvers
+  * Finite difference solvers:
+    * Semi-linear Heat Equation (Reaction-Diffusion Equation)
+    * Semi-linear Poisson Equation
+    * Wave Equation
+    * Transport Equation
+    * Stokes Equation
+    * Implicit Integration Factor (IIF) Maruyama
+    * Implicit Integration Factor (IIF) Milstein
 
 ## Tutorials
 
@@ -56,6 +144,21 @@ Pages = [
 Depth = 2
 ```
 
+## Solver Options
+
+These pages describe the options available in the solvers.
+
+```@contents
+Pages = [
+  "solvers/ode_solve.md"
+  "solvers/sde_solve.md"
+  "solvers/fempoisson_solve.md"
+  "solvers/femheat_solve.md"
+  "solvers/fdmstokes_solve.md"
+]
+Depth = 2
+```
+
 ## Manual
 
 ```@contents
@@ -66,7 +169,6 @@ Pages = [
     "man/femProblem.md",
     "man/stokesProblem.md",
     "man/mesh.md",
-    "man/solvers.md",
     "man/solution.md",
     "man/plot.md",
     "man/convergence.md",

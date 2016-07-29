@@ -19,17 +19,14 @@ We can solve the same PDE as in the Poisson Tutorial except as the stochastic PD
 "Example problem with deterministic solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
 function poissonProblemExample_noisyWave()
   f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
-  sol(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
-  Du(x) = [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
   σ(x) = 5 #Additive noise
-  return(PoissonProblem(f,sol,Du,σ=σ))
+  return(PoissonProblem(f,σ=σ))
 end
 ```
 
-using the same solving commands as shown in [femStochasticPoissonSolo.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticPoissonSolo.jl).
 This gives the following plot:
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/src/examples/introductionStochasticExample.png" width="750" align="middle" />
+<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introductionStochasticExample.png" width="750" align="middle" />
 
 ## Finite Element Stochastic Heat Equation
 
@@ -49,18 +46,17 @@ function heatProblemExample_stochasticbirthdeath()
 end
 ```
 
-As shown in [femStochasticHeatAnimationTest.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/test/femStochasticHeatAnimationTest.jl),
-we use the following code create an animation of the solution:
+We use the following code create an animation of the solution:
 
 ```julia
 T = 5
 Δx = 1//2^(3)
 Δt = 1//2^(11)
-fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"neumann")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 prob = heatProblemExample_stochasticbirthdeath()
 
-sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg="Euler",save_timeseries=true,solver="LU")
+sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,solver=:LU)
 animate(sol::FEMSolution;zlim=(0,3),cbar=false)
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/src/examples/stochasticHeatAnimation.gif" width="750" align="middle" />
+<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/stochasticHeatAnimation.gif" width="750" align="middle" />

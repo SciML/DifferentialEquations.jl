@@ -6,7 +6,7 @@ into a more useful manner and provide plotting functionality. Convergence estima
 are also given by pair-wise estimates.
 
 `ConvergenceSimulation`s can either be created by passing the constructor the
-approrpiate solution array or by using one of the provided `test_convergence` functions.
+appropriate solution array or by using one of the provided `test_convergence` functions.
 
 ## The ConvergenceSimulation Type
 
