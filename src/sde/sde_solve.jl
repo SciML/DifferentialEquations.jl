@@ -6,17 +6,39 @@ If not given, tspan defaults to [0,1]. If
 
 ### Keyword Arguments
 
-* save_timeseries: Saves the result at every timeseries_steps steps. Default is false.
-timeseries_steps: If save_timeseries is true, then the output is saved every timeseries_steps steps.
-* alg: String which defines the solver algorithm. Defult is "SRI". Possibilities are:
-  * "EM"- The Euler-Maruyama method.
-  * "RKMil" - An explicit Runge-Kutta discretization of the strong Order 1.0 Milstein method.
-  * "SRA" - The strong Order 1.5 method for additive SDEs due to Rossler.
-  * "SRI" - The strong Order 1.5 method for diagonal/scalar SDEs due to Rossler. Most efficient.
+* `Δt`: Sets the initial stepsize. Defaults to an automatic choice.
+* `save_timeseries`: Saves the result at every timeseries_steps steps. Default is false.
+* `timeseries_steps`: Denotes how many steps between saving a value for the timeseries. Defaults to 1.
+* `adaptive` - Turns on adaptive timestepping for appropriate methods. Default is false.
+* `γ` - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
+* `qmax` - Defines the maximum value possible for the adaptive q. Default is 1.125.
+* `δ` - The weight-factor in the error estimate. Default is 1/6.
+* `ablstol` - Absolute tolerance in adaptive timestepping. Defaults to 1e-3.
+* `reltol` - Relative tolerance in adaptive timestepping. Defaults to 1e-6.
+* `maxiters` - Maximum number of iterations before stopping. Defaults to 1e9.
+* `Δtmax` - Maximum Δt for adaptive timestepping. Defaults to half the timespan.
+* `Δtmin` - Minimum Δt for adaptive timestepping. Defaults to 1e-10.
+* `internalnorm` - The norm for which error estimates are calculated. Default is 2.
+* `progressbar` - Turns on/off the Juno progressbar. Defualt is false.
+* `progress_steps` - Numbers of steps between updates of the progress bar. Default is 1000.
+* `discard_length` - Size at which to discard future information in adaptive. Default is 1e-15.
+* `tableau`: The tableau for an `:SRA` or `:SRI` algorithm. Defaults to SRIW1 or SRA1.
+* `adaptivealg`: The adaptive timestepping algorithm. Default is `:RSwm3`.
+* `alg`: String which defines the solver algorithm. Defult is "SRIW1Optimized". Possibilities are:
+  * `:EM`- The Euler-Maruyama method.
+  * `:RKMil` - An explicit Runge-Kutta discretization of the strong Order 1.0 Milstein method.
+  * `:SRA` - The strong Order 2.0 methods for additive SDEs due to Rossler. Not yet implemented.
+  Default tableau is for SRA1.
+  * `:SRI` - The strong Order 1.5 methods for diagonal/scalar SDEs due to Rossler. 
+  Default tableau is for SRIW1.
+  * `:SRIW1Optimized` - An optimized version of SRIW1. Strong Order 1.5.
+  * `:SRA1Optimized` - An optimized version of SRIA1. Strong Order 2.0.
+  * `:SRAVectorized` - A vectorized implementation of SRA algorithms. Requires 1-dimensional problem.
+  * `:SRIVectorized` - A vectorized implementation of SRI algorithms. Requires 1-dimensional problem.
 """
 function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_timeseries::Bool = false,
-              timeseries_steps::Int = 1,alg::Symbol=:SRI,adaptive=false,γ=2.0,
-              abstol=1e-3,reltol=1e-2,qmax=1.125,δ=1/6,maxiters::Int = round(Int,1e15),
+              timeseries_steps::Int = 1,alg::Symbol=:SRIW1Optimzed,adaptive=false,γ=2.0,
+              abstol=1e-3,reltol=1e-6,qmax=1.125,δ=1/6,maxiters::Int = round(Int,1e9),
               Δtmax=nothing,Δtmin=nothing,progress_steps=1000,internalnorm=2,
               discard_length=1e-15,adaptivealg::Symbol=:RSwM3,progressbar=false,tType=typeof(Δt),tableau = nothing)
 

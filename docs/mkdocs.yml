@@ -23,11 +23,11 @@ docs_dir: 'build'
 pages:
 - Introduction: index.md
 - Tutorial:
-  - Ordinary Differential Equation Example: tutorials/ode.md
-  - Stochastic Differential Equation Example: tutorials/sde.md
-  - Poisson Equation Finite Element Method Example: tutorials/femPoisson.md
-  - Heat Equation Finite Element Method Example: tutorials/femHeat.md
-  - Stochastic Finite Element Examples: tutorials/femStochastic.md
+  - Ordinary Differential Equation Example: tutorials/ode_example.md
+  - Stochastic Differential Equation Example: tutorials/sde_example.md
+  - Poisson Equation Finite Element Method Example: tutorials/fempoisson_example.md
+  - Heat Equation Finite Element Method Example: tutorials/femheat_example.md
+  - Stochastic Finite Element Examples: tutorials/femstochastic_example.md
 - Solver Options:
   - Ordinary Differential Equation Solvers: solvers/ode_solve.md
   - Stochastic Differential Equation Solvers: solvers/sde_solve.md
@@ -36,15 +36,16 @@ pages:
   - Stationary Stokes Equation Finite Difference Method Solvers: solvers/fdmstokes_solve.md
 - Manual:
   - Overview of DifferentialEquations.jl Usage: man/overview.md
-  - Defining an ODE Problem: man/odeProblem.md
-  - Defining an SDE Problem: man/sdeProblem.md
-  - Defining a Finite Element Problem: man/femProblem.md
-  - Defining a Stokes Problem: man/stokesProblem.md
+  - Defining an ODE Problem: man/ODEProblem.md
+  - Defining an SDE Problem: man/SDEProblem.md
+  - Defining a Finite Element Problem: man/FEMProblem.md
+  - Defining a Stokes Problem: man/StokesProblem.md
   - Meshes: man/mesh.md
   - The Solution Type: man/solution.md
   - Plot Functions: man/plot.md
   - Convergence Simuations: man/convergence.md
 - Internal Documentation:
-  - Internal Finite Element Tools: internals/femTools.md
+  - Contributor's Guide: internals/contributors_guide.md
+  - Internal Finite Element Tools: internals/fem_tools.md
   - Extra Functions: internals/extras.md
-  - Solver Helpers: internals/solverHelpers.md
+  - Solver Helpers: internals/solver_helpers.md
