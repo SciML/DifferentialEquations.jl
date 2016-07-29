@@ -42,7 +42,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
               Δtmax=nothing,Δtmin=nothing,progress_steps=1000,internalnorm=2,
               discard_length=1e-15,adaptivealg::Symbol=:RSwM3,progressbar=false,tType=typeof(Δt),tableau = nothing)
 
-  @unpack prob: f,σ,u₀,knownsol,sol, numvars, sizeu
+  @unpack prob: f,σ,u₀,knownanalytic,analytic, numvars, sizeu
 
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
@@ -136,21 +136,21 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
 
   (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
-  if knownsol
-    uTrue = sol(u₀,t,W)
+  if knownanalytic
+    uTrue = analytic(u₀,t,W)
     if save_timeseries
-      sols = GrowableArray(sol(u₀,ts[1],Ws[1]))
+      analytics = GrowableArray(analytic(u₀,ts[1],Ws[1]))
       for i in 2:size(Ws,1)
-        push!(sols,sol(u₀,ts[i],Ws[i]))
+        push!(analytics,analytic(u₀,ts[i],Ws[i]))
       end
       Ws = copy(Ws)
       timeseries = copy(timeseries)
-      sols = copy(sols)
-      return(SDESolution(u,uTrue,W=W,timeseries=timeseries,ts=ts,Ws=Ws,sols=sols,maxStackSize=maxStackSize))
+      analytics = copy(analytics)
+      return(SDESolution(u,uTrue,W=W,timeseries=timeseries,ts=ts,Ws=Ws,analytics=analytics,maxStackSize=maxStackSize))
     else
       return(SDESolution(u,uTrue,W=W,maxStackSize=maxStackSize))
     end
-  else #No known sol
+  else #No known analytic
     if save_timeseries
       timeseries = copy(timeseries)
       return(SDESolution(u,timeseries=timeseries,W=W,ts=ts,maxStackSize=maxStackSize))

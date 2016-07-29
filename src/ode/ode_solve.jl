@@ -76,7 +76,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   T = tspan[2]
   o[:t] = t
   o[:T] = tspan[2]
-  @unpack prob: f,u₀,knownsol,sol,numvars,sizeu
+  @unpack prob: f,u₀,knownanalytic,analytic,numvars,sizeu
 
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   # Get the control variables
@@ -116,7 +116,9 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     if alg ∉ DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS
       o[:adaptive] = false
     else
-      Δt = float(Δt)
+      if o[:adaptive] == true
+        Δt = float(Δt)
+      end
     end
     if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
       initialize_backend(:NLsolve)
@@ -237,20 +239,20 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     u = timeseries[end]
   end
 
-  if knownsol
-    uTrue = sol(u₀,t)
+  if knownanalytic
+    uTrue = analytic(u₀,t)
     if save_timeseries
-      sols = GrowableArray(sol(u₀,ts[1]))
+      analytics = GrowableArray(analytic(u₀,ts[1]))
       for i in 2:size(timeseries,1)
-        push!(sols,sol(u₀,ts[i]))
+        push!(analytics,analytic(u₀,ts[i]))
       end
       timeseries = copy(timeseries)
-      sols = copy(sols)
-      return(ODESolution(u,uTrue,timeseries=timeseries,ts=ts,sols=sols))
+      analytics = copy(analytics)
+      return(ODESolution(u,uTrue,timeseries=timeseries,ts=ts,analytics=analytics))
     else
       return(ODESolution(u,uTrue))
     end
-  else #No known sol
+  else #No known analytic
     if save_timeseries
       timeseries = copy(timeseries)
       return(ODESolution(u,timeseries=timeseries,ts=ts))

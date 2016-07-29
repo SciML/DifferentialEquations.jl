@@ -3,7 +3,7 @@ prob = lorenzAttractorODEExample()
 
 ## Solve and plot
 println("Solve and Plot")
-sol =solve(prob::ODEProblem,[0,100];Δt=1/2^(4),save_timeseries=true,alg=:ExplicitRK,adaptive=true)
+sol =solve(prob::ODEProblem,[0,100];Δt=1/2^(4),alg=:ExplicitRK,abstol=1e-8)
 
 #First index is the sime, so sol.timeseries[1,..] is the initial condition
 #Last indices are the indexes of the variables. Since our initial condition

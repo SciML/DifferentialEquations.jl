@@ -61,7 +61,7 @@ is specified in the solver.
 is specified in the solver.
 * `Ws`: All of the W's in the solution. Only saved if `save_timeseries=true` is specified
 in the solver.
-* `sols`: If `save_timeseries=true`, saves the solution at each save point.
+* `analytics`: If `save_timeseries=true`, saves the solution at each save point.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
 * `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
@@ -76,27 +76,27 @@ type SDESolution <: DESolution
   ts::AbstractArrayOrVoid
   Δts::AbstractArrayOrVoid
   Ws::AbstractArrayOrVoid
-  sols::AbstractArrayOrVoid
+  analytics::AbstractArrayOrVoid
   appxTrue::Bool
   save_timeseries::Bool
   maxStackSize::Int
   W
-  function SDESolution(u;timeseries=nothing,sols=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
+  function SDESolution(u;timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
     save_timeseries = timeseries == nothing
     trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),timeseries,ts,Δts,Ws,sols,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueKnown,nothing,Dict(),timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
   end
-  function SDESolution(u,uTrue;timeseries=nothing,sols=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
+  function SDESolution(u,uTrue;timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
     save_timeseries = timeseries != nothing
     trueKnown = true
     errors = Dict(:final=>mean(abs(u-uTrue)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(timeseries-sols)),:l2=>sqrt(mean((timeseries-sols).^2)))
+      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,timeseries,ts,Δts,Ws,sols,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueKnown,uTrue,errors,timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.timeseries,a.ts,a.Δts,a.Ws,a.sols,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
+  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.timeseries,a.ts,a.Δts,a.Ws,a.analytics,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
 end
 
 """
@@ -114,7 +114,7 @@ Holds the data for the solution to an ODE problem.
 is specified in the solver.
 * `ts::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
 is specified in the solver.
-* `sols`: If `save_timeseries=true`, saves the solution at each timestep.
+* `analytics`: If `save_timeseries=true`, saves the solution at each timestep.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
 * `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
@@ -127,22 +127,22 @@ type ODESolution <: DESolution
   errors#::Dict{}
   timeseries::AbstractArrayOrVoid
   ts::AbstractArrayOrVoid
-  sols::AbstractArrayOrVoid
+  analytics::AbstractArrayOrVoid
   appxTrue::Bool
   save_timeseries::Bool
-  function ODESolution(u;timeseries=nothing,sols=nothing,ts=nothing)
+  function ODESolution(u;timeseries=nothing,analytics=nothing,ts=nothing)
     save_timeseries = timeseries == nothing
     trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),timeseries,ts,sols,false,save_timeseries))
+    return(new(u,trueKnown,nothing,Dict(),timeseries,ts,analytics,false,save_timeseries))
   end
-  function ODESolution(u,uTrue;timeseries=nothing,sols=nothing,ts=nothing)
+  function ODESolution(u,uTrue;timeseries=nothing,analytics=nothing,ts=nothing)
     save_timeseries = timeseries != nothing
     trueKnown = true
     errors = Dict(:final=>mean(abs(u-uTrue)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(timeseries-sols)),:l2=>sqrt(mean((timeseries-sols).^2)))
+      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,timeseries,ts,sols,false,save_timeseries))
+    return(new(u,trueKnown,uTrue,errors,timeseries,ts,analytics,false,save_timeseries))
   end
 end
 

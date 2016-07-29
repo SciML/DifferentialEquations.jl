@@ -4,7 +4,16 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ChrisRackauckas.github.io/DifferentialEquations.jl/stable)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChrisRackauckas.github.io/DifferentialEquations.jl/latest)
 
-This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. It includes algorithms free very recent research, as well as algorithms optimized for HPC applications. It integrates with the Julia package sphere, for example
+This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include (but are not limited to):
+
+- Ordinary differential equations (ODEs)
+- Stochastic ordinary differential equations (SODEs or SDEs)
+- Stochastic partial differential equations (SPDEs)
+- Partial differential equations (with both finite difference and finite element methods)
+- Algebraic differential equations
+- Differential delay equations.
+
+It includes algorithms from very recent research, as well as algorithms optimized for HPC applications. It integrates with the Julia package sphere, for example
 using Juno's progress meter, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
 
 For information on using the package, [see the documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/).

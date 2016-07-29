@@ -316,12 +316,12 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   px = grids[1][1:end-1,1:end-1]+Δxs[1]/2
   py = grids[2][1:end-1,1:end-1]+Δxs[2]/2
   #prob = dirichletzeroStokesExample()
-  @unpack prob: f₁,f₂,ugD,vgD,usol,vsol,psol,g,trueKnown
+  @unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueKnown
 
   if trueKnown
-    uTrue = float(usol(ux,uy))
-    vTrue = float(vsol(vx,vy))
-    pTrue = float(psol(px,py))
+    uTrue = float(uanalytic(ux,uy))
+    vTrue = float(vanalytic(vx,vy))
+    pTrue = float(panalytic(px,py))
   else
     uTrue = nothing
     vTrue = nothing
@@ -342,9 +342,9 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
       error("True not known. Cannot calculate errors. Abandoning convergence calculations")
       converrors = false
     end
-    uold = float(usol(ux,uy))
-    vold = float(vsol(vx,vy))
-    pold = float(psol(px,py))
+    uold = float(uanalytic(ux,uy))
+    vold = float(vanalytic(vx,vy))
+    pold = float(panalytic(px,py))
     converror_maxu    = Vector{Float64}(0)
     converror_maxv    = Vector{Float64}(0)
     converror_maxp    = Vector{Float64}(0)

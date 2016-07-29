@@ -48,18 +48,18 @@ end
     vals = sol.timeseries
   end
   if plottrue
-    if ndims(sol.sols) > 2
+    if ndims(sol.analytics) > 2
       totaldims = 1
       for i=2:ndims(sol.timeseries)
-        totaldims *= size(sol.sols,i)
+        totaldims *= size(sol.analytics,i)
       end
-      vals = [vals reshape(sol.sols,size(sol.sols,1),totaldims)]
+      vals = [vals reshape(sol.analytics,size(sol.analytics,1),totaldims)]
     else
-      vals = [vals sol.sols]
+      vals = [vals sol.analytics]
     end
   end
   #u = Any[sol.timeseries];
-  #plottrue && push!(u, sol.sols);
+  #plottrue && push!(u, sol.analytics);
   seriestype --> :path
   #layout --> length(u)
   map(Float64,sol.ts), map(Float64,vals) #Remove when Tom commits
@@ -77,18 +77,18 @@ end
     vals = sol.timeseries
   end
   if plottrue
-    if ndims(sol.sols) > 2
+    if ndims(sol.analytics) > 2
       totaldims = 1
       for i=2:ndims(sol.timeseries)
-        totaldims *= size(sol.sols,i)
+        totaldims *= size(sol.analytics,i)
       end
-      vals = [vals reshape(sol.sols,size(sol.sols,1),totaldims)]
+      vals = [vals reshape(sol.analytics,size(sol.analytics,1),totaldims)]
     else
-      vals = [vals sol.sols]
+      vals = [vals sol.analytics]
     end
   end
   #u = Any[sol.timeseries];
-  #plottrue && push!(u, sol.sols);
+  #plottrue && push!(u, sol.analytics);
   seriestype --> :path
   #layout --> length(u)
   sol.ts, vals
