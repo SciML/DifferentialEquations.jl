@@ -1,9 +1,7 @@
 # Ordinary Differential Equation Solvers
 
-## ODE
-
 ```@docs
-solve(::ODEProblem,::Number,::Number)
+solve(::ODEProblem,::AbstractArray)
 ```
 
 ## Pros and Cons of Different Methods
@@ -12,11 +10,13 @@ solve(::ODEProblem,::Number,::Number)
 
 ```@docs
 DifferentialEquations.ExplicitRK
-DifferentialEquations.DEFAULT_TABLEAU
+DifferentialEquations.ODE_DEFAULT_TABLEAU
 DifferentialEquations.constructCashKarp
 DifferentialEquations.constructRalston
 DifferentialEquations.constructDormandPrince
+DifferentialEquations.constructDormandPrince8
 DifferentialEquations.constructBogakiShampine
 DifferentialEquations.constructHuen
 DifferentialEquations.constructRKF
 DifferentialEquations.constructRKF8
+```

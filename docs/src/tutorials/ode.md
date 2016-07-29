@@ -44,7 +44,6 @@ Plots.gui()
 
 ### Other Algorithms
 
-More keyword arguments can be found in the Plots.jl documentation.
 We can choose a better algorithm by specifying:
 
 ```julia

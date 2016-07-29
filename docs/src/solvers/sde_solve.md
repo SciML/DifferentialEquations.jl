@@ -1,12 +1,10 @@
 # Stochastic Differential Equation Solvers
 
-### SDE
-
 ```@docs
-solve(::SDEProblem,::Number,::Number)
+solve(::SDEProblem,::AbstractArray)
 ```
 
-#### SDE Solver Extras
+## SDE Solver Extras
 
 ```@docs
 DifferentialEquations.monteCarloSim
