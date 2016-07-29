@@ -27,7 +27,7 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
 
   #Unroll some important constants
   @unpack fem_mesh: Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
-  @unpack prob: f,Du,f,gD,gN,sol,knownsol,islinear,u₀,numvars,σ,stochastic,noisetype,D
+  @unpack prob: f,Du,f,gD,gN,analytic,knownanalytic,islinear,u₀,numvars,σ,stochastic,noisetype,D
 
   #Setup f quadrature
   mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
@@ -100,8 +100,8 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
   end
 
   #Return
-  if knownsol # True solution exists
-    return(FEMSolution(fem_mesh,u,sol(node),sol,Du,prob))
+  if knownanalytic # True solution exists
+    return(FEMSolution(fem_mesh,u,analytic(node),analytic,Du,prob))
   else #No true solution
     return(FEMSolution(fem_mesh,u,prob))
   end
@@ -173,7 +173,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 
   #Unroll some important constants
   @unpack fem_mesh: Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
-  @unpack prob: f,u₀,Du,gD,gN,sol,knownsol,islinear,numvars,σ,stochastic,noisetype,D
+  @unpack prob: f,u₀,Du,gD,gN,analytic,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D
 
   #Note if Atom is loaded for progress
   atomloaded = isdefined(Main,:Atom)
@@ -225,12 +225,12 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   #Heat Equation Loop
   u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
 
-  if knownsol #True Solution exists
+  if knownanalytic #True Solution exists
     if save_timeseries
       timeSeries = FEMSolutionTS(timeseries,numvars)
-      return(FEMSolution(fem_mesh,u,sol(node,fem_mesh.T),sol,Du,timeSeries,ts,prob))
+      return(FEMSolution(fem_mesh,u,analytic(node,fem_mesh.T),analytic,Du,timeSeries,ts,prob))
     else
-      return(FEMSolution(fem_mesh,u,sol(node,fem_mesh.T),sol,Du,prob))
+      return(FEMSolution(fem_mesh,u,analytic(node,fem_mesh.T),analytic,Du,prob))
     end
   else #No true solution
     if save_timeseries

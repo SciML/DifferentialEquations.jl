@@ -19,11 +19,11 @@ vy = grids[2][:,1:end-1]
 px = grids[1][1:end-1,1:end-1]+Δxs[1]/2
 py = grids[2][1:end-1,1:end-1]+Δxs[2]/2
 #prob = dirichletzeroStokesExample()
-@unpack prob: f₁,f₂,ugD,vgD,usol,vsol,psol,g,trueKnown
+@unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueKnown
 
-uTrue = float(usol(ux,uy))
-vTrue = float(vsol(vx,vy))
-pTrue = float(psol(px,py))
+uTrue = float(uanalytic(ux,uy))
+vTrue = float(vanalytic(vx,vy))
+pTrue = float(panalytic(px,py))
 
 # Impose boundary conditions, cut out ghost points
 u[:,1]   = ugD(ux[:,1]  ,uy[:,1])

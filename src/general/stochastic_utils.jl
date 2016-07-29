@@ -24,7 +24,7 @@ Returns a vector of solution objects.
 function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,save_timeseries=false,alg=:SRIW1Optimized,adaptive=false,abstol=1e-3,reltol=1e-2,adaptivealg=:RSwM3,qmax=4)
   elapsedTime = @elapsed solutions = pmap((i)->solve(prob,tspan,Δt=Δt,save_timeseries=save_timeseries,alg=alg,adaptive=adaptive,abstol=abstol,reltol=reltol,adaptivealg=adaptivealg,qmax=qmax),1:numMonte)
   solutions = convert(Array{SDESolution},solutions)
-  if prob.knownsol
+  if prob.knownanalytic
     N = size(solutions,1)
     errors = Dict() #Should add type information
     means  = Dict()

@@ -19,7 +19,7 @@ u_t = Δu + f + σdW_t
 
 ###Constructors
 
-* `HeatProblem(sol,Du,f)`: Defines the dirichlet problem with solution `sol`,
+* `HeatProblem(analytic,Du,f)`: Defines the dirichlet problem with solution `analytic`,
 solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
 
 * `HeatProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and `f`.
@@ -55,10 +55,10 @@ type HeatProblem <: DEProblem
   gD#::Function
   "gN: neumann boundary data"
   gN#::Function
-  "sol: Solution to the heat problem"
-  sol::Function
-  "knownsol: Boolean which states whether the solution function is given"
-  knownsol::Bool
+  "analytic: Solution to the heat problem"
+  analytic::Function
+  "knownanalytic: Boolean which states whether the solution function is given"
+  knownanalytic::Bool
   "islinear: Boolean which states whether the problem is linear or nonlinear"
   islinear::Bool
   numvars::Int
@@ -66,14 +66,14 @@ type HeatProblem <: DEProblem
   stochastic::Bool
   noisetype::Symbol
   D#AbstractArray
-  function HeatProblem(sol,Du,f;gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
+  function HeatProblem(analytic,Du,f;gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     islinear = numparameters(f)==2
-    knownsol = true
-    u₀(x) = sol(x,0)
+    knownanalytic = true
+    u₀(x) = analytic(x,0)
     numvars = size(u₀([0 0
                        0 0
                        0 0]),2)
-    gD = sol
+    gD = analytic
     if gN == nothing
       gN=(x,t)->zeros(size(x,1),numvars)
     end
@@ -90,7 +90,7 @@ type HeatProblem <: DEProblem
         D = ones(1,numvars)
       end
     end
-    return(new(u₀,Du,f,gD,gN,sol,knownsol,islinear,numvars,σ,stochastic,noisetype,D))
+    return(new(u₀,Du,f,gD,gN,analytic,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D))
   end
   function HeatProblem(u₀,f;gD=nothing,gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     if σ==nothing
@@ -100,7 +100,7 @@ type HeatProblem <: DEProblem
       stochastic=true
     end
     islinear = numparameters(f)==2
-    knownsol = false
+    knownanalytic = false
     if islinear
       if u₀==nothing
         u₀=(x)->zeros(size(x,1))
@@ -145,7 +145,7 @@ type HeatProblem <: DEProblem
         numvars=0 #Placeholder, update gD and gN in solver
       end
     end
-    return(new(u₀,(x)->0,f,gD,gN,(x)->0,knownsol,islinear,numvars,σ,stochastic,noisetype,D))
+    return(new(u₀,(x)->0,f,gD,gN,(x)->0,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D))
   end
 end
 
@@ -170,7 +170,7 @@ If they keyword `σ` is given, then this wraps the data that define a 2D stochas
 
 ###Constructors
 
-PoissonProblem(f,sol,Du): Defines the dirichlet problem with solution `sol`, solution gradient `Du = [u_x,u_y]`,
+PoissonProblem(f,analytic,Du): Defines the dirichlet problem with analytical solution `analytic`, solution gradient `Du = [u_x,u_y]`,
 and forcing function `f`
 
 PoissonProblem(u₀,f): Defines the problem with initial value `u₀` (as a function) and f.
@@ -199,16 +199,16 @@ for nonlinear problems (with the boundary conditions still (x,t))
 type PoissonProblem <: DEProblem
   "f: Forcing function in the Poisson problem"
   f::Function
-  "sol: Solution to the Poisson problem"
-  sol::Function
+  "analytic: Solution to the Poisson problem"
+  analytic::Function
   "Du: Gradient of the solution to the Poisson problem"
   Du::Function
   "gD: dirichlet Boundary Data"
   gD#::Nullable{Function}
   "gN: neumann Boundary Data"
   gN#::Nullable{Function}
-  "knownsol: Boolean which states whether the solution function is given"
-  knownsol::Bool
+  "knownanalytic: Boolean which states whether the solution function is given"
+  knownanalytic::Bool
   "islinear: Boolean which states whether the problem is linear or nonlinear"
   islinear::Bool
   u₀::Function
@@ -217,9 +217,9 @@ type PoissonProblem <: DEProblem
   stochastic::Bool
   noisetype::Symbol
   D#::AbstractArray
-  function PoissonProblem(f,sol,Du;gN=nothing,σ=nothing,u₀=nothing,noisetype=:White,numvars=nothing,D=nothing)
-    gD = sol
-    numvars = size(sol([0 0
+  function PoissonProblem(f,analytic,Du;gN=nothing,σ=nothing,u₀=nothing,noisetype=:White,numvars=nothing,D=nothing)
+    gD = analytic
+    numvars = size(analytic([0 0
                         0 0
                         0 0]),2)
     islinear = numparameters(f)==1
@@ -242,7 +242,7 @@ type PoissonProblem <: DEProblem
     else
       stochastic=true
     end
-    return(new(f,sol,Du,sol,gN,true,islinear,u₀,numvars,σ,stochastic,noisetype,D))
+    return(new(f,analytic,Du,analytic,gN,true,islinear,u₀,numvars,σ,stochastic,noisetype,D))
   end
   function PoissonProblem(f;gD=nothing,gN=nothing,u₀=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     if σ==nothing
@@ -314,31 +314,31 @@ with initial condition u₀.
 * `f`: The drift function in the SDE.
 * `σ`: The noise function in the SDE.
 * `u₀`: The initial condition.
-* `sol`: A function which describes the solution.
-* `knownsol`: True if the solution is given.
+* `analytic`: A function which describes the solution.
+* `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
 * `sizeu`: The size of the initial condition (and thus `u`)
 
 ### Constructors
 
-SDEProblem(f,σ,u₀;sol=nothing) : Defines the SDE with the specified functions and
-defines the solution if sol is given.
+SDEProblem(f,σ,u₀;analytic=nothing) : Defines the SDE with the specified functions and
+defines the solution if analytic is given.
 
 """
 type SDEProblem <: DEProblem
   f::Function
   σ::Function
   u₀#::AbstractArray
-  sol::Function
-  knownsol::Bool
+  analytic::Function
+  knownanalytic::Bool
   numvars::Int
   sizeu#::Tuple
-  function SDEProblem(f,σ,u₀;sol=nothing)
-    if sol==nothing
-      knownsol = false
-      sol=(u,t,W)->0
+  function SDEProblem(f,σ,u₀;analytic=nothing)
+    if analytic==nothing
+      knownanalytic = false
+      analytic=(u,t,W)->0
     else
-      knownsol = true
+      knownanalytic = true
     end
     if typeof(u₀) <: Number
       sizeu = (1,)
@@ -347,7 +347,7 @@ type SDEProblem <: DEProblem
       sizeu = size(u₀)
       numvars = size(u₀)[end]
     end
-    new(f,σ,u₀,sol,knownsol,numvars,sizeu)
+    new(f,σ,u₀,analytic,knownanalytic,numvars,sizeu)
   end
 end
 
@@ -366,30 +366,30 @@ with initial condition u₀.
 
 * `f`: The drift function in the ODE.
 * `u₀`: The initial condition.
-* `sol`: A function which describes the solution.
-* `knownsol`: True if the solution is given.
+* `analytic`: A function which describes the solution.
+* `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
 * `sizeu`: The size of the initial condition (and thus `u`)
 
 ### Constructors
 
-ODEProblem(f,u₀;sol=nothing) : Defines the SDE with the specified functions and
-defines the solution if sol is given.
+ODEProblem(f,u₀;analytic=nothing) : Defines the SDE with the specified functions and
+defines the solution if analytic is given.
 
 """
 type ODEProblem <: DEProblem
   f::Function
   u₀#::AbstractArray
-  sol::Function
-  knownsol::Bool
+  analytic::Function
+  knownanalytic::Bool
   numvars::Int
   sizeu#::Tuple
-  function ODEProblem(f,u₀;sol=nothing)
-    if sol==nothing
-      knownsol = false
-      sol=(u,t)->0
+  function ODEProblem(f,u₀;analytic=nothing)
+    if analytic==nothing
+      knownanalytic = false
+      analytic=(u,t)->0
     else
-      knownsol = true
+      knownanalytic = true
     end
     if typeof(u₀) <: Number
       sizeu = (1,)
@@ -398,7 +398,7 @@ type ODEProblem <: DEProblem
       sizeu = size(u₀)
       numvars = size(u₀)[end]
     end
-    new(f,u₀,sol,knownsol,numvars,sizeu)
+    new(f,u₀,analytic,knownanalytic,numvars,sizeu)
   end
 end
 
@@ -418,14 +418,14 @@ Defines the solution to a stationary Stokes problem:
 * `g::Function`
 * `ugD::Function`
 * `vgD::Function`
-* `usol::Function`
-* `vsol::Function`
-* `psol::Function`
+* `uanalytic::Function`
+* `vanalytic::Function`
+* `panalytic::Function`
 * `trueKnown::Bool`
 
 ### Constructors
 
-`StokesProblem(f₁,f₂,g,usol,vsol,psol)`
+`StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic)`
 
 `StokesProblem(f₁,f₂,g,ugD,vgD)`
 """
@@ -435,11 +435,11 @@ type StokesProblem
   g::Function
   ugD::Function
   vgD::Function
-  usol::Function
-  vsol::Function
-  psol::Function
+  uanalytic::Function
+  vanalytic::Function
+  panalytic::Function
   trueKnown::Bool
-  StokesProblem(f₁,f₂,g,usol,vsol,psol) = new(f₁,f₂,g,usol,vsol,usol,vsol,psol,true)
+  StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic) = new(f₁,f₂,g,uanalytic,vanalytic,uanalytic,vanalytic,panalytic,true)
   StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
 end
 
