@@ -1,6 +1,6 @@
 __precompile__()
 
-@doc """
+"""
 ###DifferentialEquations
 
 This is a package for solving numerically solving differential equations in Julia

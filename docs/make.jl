@@ -1,7 +1,6 @@
 using Documenter, DifferentialEquations
 
-makedocs(modules=[DifferentialEquations],
-        doctest=true)
+makedocs(modules=[DifferentialEquations],doctest=false)
 
 deploydocs(deps   = Deps.pip("mkdocs", "python-markdown-math"),
     repo = "github.com/ChrisRackauckas/DifferentialEquations.jl.git",

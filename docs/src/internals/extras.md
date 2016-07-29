@@ -3,6 +3,7 @@
 ```@docs
 DifferentialEquations.getNoise
 DifferentialEquations.numparameters
+DifferentialEquations.Tableau
 ```
 
 ## Making Build Work
@@ -10,4 +11,5 @@ DifferentialEquations.numparameters
 DifferentialEquations.solve
 Base.size
 Base.length
+DifferentialEquations.@materialize
 ```
