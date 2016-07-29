@@ -37,21 +37,22 @@ println("Rossler Order Tests")
 @time @test include("sde/sde_rosslerorder_tests.jl")
 println("SDE Convergence Tests")
 @time @test include("sde/sde_convergence_tests.jl")
-println("SDE Autostepsize Test")
-@time @test include("sde/sde_autostepsize_test.jl")
 println("SDE Number Type Tests")
 @time @test include("sde/sde_numbertype_tests.jl")
 
 #Adaptive SDE
+#=
 println("Adaptive SDE Linear Tests")
 @time @test include("sde/sde_linearadaptive_tests.jl")
 println("Adaptive SDE Distribution Test")
 @time @test include("sde/sde_adaptivedistribution_tests.jl")
 println("Multiple Dimension Linear Adaptive Test")
 @time @test include("sde/sde_twodimlinearadaptive_tests.jl")
+println("SDE Autostepsize Test")
+@time @test include("sde/sde_autostepsize_test.jl")
 println("SDE Additive Lorenz Attractor Test")
 @time @test include("sde/sde_lorenzattractor_tests.jl")
-
+=#
 
 #Finite Element
 #Heat
