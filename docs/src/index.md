@@ -7,7 +7,7 @@ All of the algorithms are thoroughly tested to ensure accuracy. Convergence test
 [can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/examples). If you find any equation where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](/internals/contributors_guide)
 
 ## Using the Package
 
@@ -150,10 +150,10 @@ These pages describe the options available in the solvers.
 
 ```@contents
 Pages = [
-  "solvers/ode_solve.md"
-  "solvers/sde_solve.md"
-  "solvers/fempoisson_solve.md"
-  "solvers/femheat_solve.md"
+  "solvers/ode_solve.md",
+  "solvers/sde_solve.md",
+  "solvers/fempoisson_solve.md",
+  "solvers/femheat_solve.md",
   "solvers/fdmstokes_solve.md"
 ]
 Depth = 2
@@ -180,6 +180,7 @@ Depth = 2
 
 ```@contents
 Pages = [
+  "internals/contributors_guide",
   "internals/fem_tools.md",
   "internals/extras.md",
   "internals/solver_helpers.md"
