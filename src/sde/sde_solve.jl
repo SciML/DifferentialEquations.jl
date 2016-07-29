@@ -7,7 +7,7 @@ If not given, tspan defaults to [0,1]. If
 ### Keyword Arguments
 
 * `Δt`: Sets the initial stepsize. Defaults to an automatic choice.
-* `save_timeseries`: Saves the result at every timeseries_steps steps. Default is false.
+* `save_timeseries`: Saves the result at every timeseries_steps steps. Default is true.
 * `timeseries_steps`: Denotes how many steps between saving a value for the timeseries. Defaults to 1.
 * `adaptive` - Turns on adaptive timestepping for appropriate methods. Default is false.
 * `γ` - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
@@ -36,7 +36,7 @@ If not given, tspan defaults to [0,1]. If
     - `:SRAVectorized` - A vectorized implementation of SRA algorithms. Requires 1-dimensional problem.
     - `:SRIVectorized` - A vectorized implementation of SRI algorithms. Requires 1-dimensional problem.
 """
-function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_timeseries::Bool = false,
+function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_timeseries::Bool = true,
               timeseries_steps::Int = 1,alg::Symbol=:SRIW1Optimzed,adaptive=false,γ=2.0,
               abstol=1e-3,reltol=1e-6,qmax=1.125,δ=1/6,maxiters::Int = round(Int,1e9),
               Δtmax=nothing,Δtmin=nothing,progress_steps=1000,internalnorm=2,

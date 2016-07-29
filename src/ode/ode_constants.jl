@@ -10,7 +10,7 @@ const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seule
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 
 const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
-                                 :save_timeseries => false,
+                                 :save_timeseries => true,
                                  :timeseries_steps => 1,
                                  :tableau => DifferentialEquations.ODE_DEFAULT_TABLEAU,
                                  :adaptive => true,
