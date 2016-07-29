@@ -3,8 +3,8 @@
 This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), and differential delay equations. It includes algorithms free very recent research, as well as algorithms optimized for HPC applications. It integrates with the Julia package sphere, for example
 using Juno's progress meter, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
 
-All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](test/) folder if you're interested.
-The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. If you find any equation where there seems
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
+[can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/examples). If you find any equation where there seems
 to be an error, please open an issue.
 
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue.
