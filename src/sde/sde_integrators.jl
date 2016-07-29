@@ -30,6 +30,8 @@ end
 end
 
 @def sde_adaptiveprelim begin
+maxStackSize = 0
+maxStackSize2 = 0
 end
 
 function sde_eulermaruyama(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,rands,sqΔt,W)
