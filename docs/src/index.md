@@ -135,11 +135,11 @@ The following tutorials will introduce you to the functionality of DifferentialE
 
 ```@contents
 Pages = [
-    "tutorials/ode.md",
-    "tutorials/sde.md",
-    "tutorials/femPoisson.md",
-    "tutorials/femHeat.md",
-    "tutorials/femStochastic.md"
+    "tutorials/ode_example.md",
+    "tutorials/sde_example.md",
+    "tutorials/fempoisson_example.md",
+    "tutorials/femheat_example.md",
+    "tutorials/femstochastic_example.md"
     ]
 Depth = 2
 ```
@@ -164,10 +164,10 @@ Depth = 2
 ```@contents
 Pages = [
     "man/overview.md",
-    "man/odeProblem.md",
-    "man/sdeProblem.md",
-    "man/femProblem.md",
-    "man/stokesProblem.md",
+    "man/ODEProblem.md",
+    "man/SDEProblem.md",
+    "man/FEMProblem.md",
+    "man/StokesProblem.md",
     "man/mesh.md",
     "man/solution.md",
     "man/plot.md",
@@ -180,9 +180,9 @@ Depth = 2
 
 ```@contents
 Pages = [
-  "internals/femTools.md",
+  "internals/fem_tools.md",
   "internals/extras.md",
-  "internals/solverHelpers.md"
+  "internals/solver_helpers.md"
 ]
 Depth = 2
 ```
