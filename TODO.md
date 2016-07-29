@@ -1,8 +1,5 @@
 # TODO List
 
-## General
-* Upgrade to v0.5
-
 ## Algorithms
 * Finite difference solvers:
   * Semi-linear Heat Equation (Reaction-Diffusion Equation)

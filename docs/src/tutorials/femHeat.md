@@ -28,13 +28,13 @@ to 1, the domain is the unit square. To generate this mesh, we use the command
 T = 1
 Δx = 1//2^(3)
 Δt = 1//2^(7)
-fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,"neumann")
+fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 ```  
 
 We then call the solver
 
 ```julia
-sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg="Euler")
+sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 ```
 
 Here we have chosen to use the Euler algorithm to solve the equation. Other algorithms

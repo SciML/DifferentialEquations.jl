@@ -35,7 +35,13 @@ generate animations of the solutions to evolution equations.
 Plots can be customized using all of the keyword arguments
 provided by Plots.jl. Please see Plots.jl's documentation for more information.
 
+# Extras for Developers and Researchers
+
 DifferentialEquations.jl also provides some helper functionality to assist
-with general forms of analysis. An array of solutions
-can be made into a `ConvergenceSimulation` which then generates all of the
-convergence test results and allows for plotting (great for developing new methods!).
+with general forms of analysis. The problem types allow one to optionally
+specify the true solution. When this is given to the solver, the solution
+object returns with many error calculations. An array of solutions
+can be made into a `ConvergenceSimulation` (or the test_convergence functions
+can be used) which then generates all of the convergence test results and
+allows for plotting (great for developing new methods!). Lastly, `BenchmarkSimulations`
+allows one to compare between methods and easily plot the results.

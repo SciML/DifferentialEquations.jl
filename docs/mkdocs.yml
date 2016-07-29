@@ -28,6 +28,12 @@ pages:
   - Poisson Equation Finite Element Method Example: tutorials/femPoisson.md
   - Heat Equation Finite Element Method Example: tutorials/femHeat.md
   - Stochastic Finite Element Examples: tutorials/femStochastic.md
+- Solver Options:
+  - Ordinary Differential Equation Solvers: solvers/ode_solve.md
+  - Stochastic Differential Equation Solvers: solvers/sde_solve.md
+  - Poisson Equation Finite Element Method Solvers: solvers/fempoisson_solve.md
+  - Heat Equation Finite Element Method Solvers: solvers/femheat_solve.md
+  - Stationary Stokes Equation Finite Difference Method Solvers: solvers/fdmstokes_solve.md
 - Manual:
   - Overview of DifferentialEquations.jl Usage: man/overview.md
   - Defining an ODE Problem: man/odeProblem.md
@@ -35,7 +41,6 @@ pages:
   - Defining a Finite Element Problem: man/femProblem.md
   - Defining a Stokes Problem: man/stokesProblem.md
   - Meshes: man/mesh.md
-  - Information on Solvers: man/solvers.md
   - The Solution Type: man/solution.md
   - Plot Functions: man/plot.md
   - Convergence Simuations: man/convergence.md
