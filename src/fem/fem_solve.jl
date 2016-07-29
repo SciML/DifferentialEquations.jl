@@ -11,9 +11,9 @@ solves the stochastic Poisson equation ``-Δu = f + σdW``.
 
 * `solver` = Linear solver algorithm. This is the algorithm which is chosen for solving
 the implicit equation `Ax=b`. The default is `LU`. The choices are:
-  * `Direct` = Solves `Ax=b` using `\`
-  * `CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
-  * `GMRES` = GMRES. Best when the space is very large and ``I ± ΔtM⁻¹A`` is not positive definite.
+  * `:Direct` = Solves `Ax=b` using `\`
+  * `:CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
+  * `:GMRES` = GMRES. Best when the space is very large and ``I ± ΔtM⁻¹A`` is not positive definite.
 * `timeseries_steps` = If `save_timeseries=true`, then this is the number of steps between the saves.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
 for the nonlinear solving. By default autodiff is false.
@@ -121,17 +121,17 @@ solves the stochastic heat equation ``u_t = Δu + f + σdW_t``.
 
 ### Keyword Arguments
 
-* `alg` = Solution algorithm. Default is Euler. The choices are:
+* `alg` = Solution algorithm. Default is :Euler. The choices are:
   * Linear
-    * Euler (Explicit)
-    * Implicit Euler (Implicit)
-    * Crank-Nicholson (Implicit)
+    * `:Euler` (Explicit)
+    * `:ImplicitEuler` (Implicit)
+    * `:CrankNicholson` (Implicit)
   * Nonlinear
-    * Euler (Explicit)
-    * Implicit Euler (Nonlinear Solve)
-    * Crank-Nicholson (Nonlinear Solve)
-    * Semi-Implicit Euler (Implicit)
-    * Semi-Implicit Crank-Nicholson (Implicit)
+    * `:Euler` (Explicit)
+    * `:ImplicitEuler` (Nonlinear Solve)
+    * `:CrankNicholson` (Nonlinear Solve)
+    * `:SemiImplicitEuler` (Implicit)
+    * `:SemiImplicitCrankNicholson` (Implicit)
 
 Explicit algorithms only require solving matrix multiplications `Au`. Implicit algorithms
 require solving the linear equation `Ax=b` where `x` is the unknown. Nonlinear Solve algorithms
@@ -145,14 +145,14 @@ at the cost of some stability (though still vastly better at stability than expl
 
 * `solver` = Linear solver algorithm. This is the algorithm which is chosen for solving
 the implicit equation `Ax=b`. The default is `LU`. The choices are:
-  * `Direct` = Solves using `\` (no factorization). Not recommended.
-  * `Cholesky` = Cholsky decomposition. Only stable of ``I ± ΔtM⁻¹A`` is positive definite.
+  * `:Direct` = Solves using `\` (no factorization). Not recommended.
+  * `:Cholesky` = Cholsky decomposition. Only stable of ``I ± ΔtM⁻¹A`` is positive definite.
     This means that this works best when Δt is small. When applicable, this is the fastest.
-  * `LU` = LU-Decomposition. A good mix between fast and stable.
-  * `QR` = QR-Decomposition. Less numerical roundoff error than `LU`, but slightly slower.
-  * `SVD` = SVD-Decomposition. By far the slowest, but the most robust to roundoff error.
-  * `CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
-  * `GMRES` = GMRES. Best when the space is very large and ``I ± ΔtM⁻¹A`` is not positive definite.
+  * `:LU` = LU-Decomposition. A good mix between fast and stable.
+  * `:QR` = QR-Decomposition. Less numerical roundoff error than `LU`, but slightly slower.
+  * `:SVD` = SVD-Decomposition. By far the slowest, but the most robust to roundoff error.
+  * `:CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
+  * `:GMRES` = GMRES. Best when the space is very large and ``I ± ΔtM⁻¹A`` is not positive definite.
 * `save_timeseries` = Makes the algorithm save the output at every `timeseries_steps` timesteps.
 By default save_timeseries is false.
 * `timeseries_steps` = If `save_timeseries=true`, then this is the number of steps between the saves.
@@ -161,6 +161,8 @@ for the nonlinear solving. By default autodiff is false.
 * `method` = Method the nonlinear solver uses. Defaults to `:trust_region`.
 * `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
 * `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
+* `progress_steps` = The number of steps between updates of the progress bar. Defaults to 1000.
+* `progressbar` = Turns on/off use of the Juno progress bar. Defaults to true. Requires Juno.
 """
 function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   solver::Symbol=:LU,save_timeseries::Bool = false,timeseries_steps::Int = 100,
