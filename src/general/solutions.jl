@@ -227,10 +227,14 @@ function print(io::IO, sol::DESolution)
   else
     str="No analytical solution is known."
   end
-  println("$(typeof(sol)) with $(length(sol)) timesteps. $str")
-  println("u: $(sol.u)")
-  sol.trueknown && println("errors: $(sol.errors)")
-  println("ts: $(sol.ts)")
-  sol. println("timeseries: $(sol.timeseries)")
-  sol.trueknown && println("timeseries_analytic: $(sol.timeseries_analytic)")
+  println(io,"$(typeof(sol)) with $(length(sol)) timesteps. $str")
+  println(io,"u: $(sol.u)")
+  sol.trueknown && println(io,"errors: $(sol.errors)")
+  println(io,"ts: $(sol.ts)")
+  println(io,"timeseries: $(sol.timeseries)")
+  sol.trueknown && println(io,"timeseries_analytic: $(sol.timeseries_analytic)")
+end
+
+function show(io::IO,sol::DESolution)
+  print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol.u)")
 end
