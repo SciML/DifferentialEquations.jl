@@ -6,7 +6,7 @@ All of the algorithms are thoroughly tested to ensure accuracy. Convergence test
 [can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples). If you find any example where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](/internals/contributors_guide).
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](/internals/contributors_guide).
 
 ## Using the Package
 
@@ -75,13 +75,13 @@ with matrices), then the solver will use the matrices without error.
     * Runge-Kutta-Fuhlberg (RKF) 7/8
     * Dormand-Prince 7/8
 
-  * Stiff Solvers
+  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl) and optionally [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl). See [Conditional Dependencies](/man/conditional_dependencies).
 
     * Implicit Euler
     * Trapezoidal
     * Rosenbrock32
 
-  * Wrappers for ODEInterface.jl
+  * Wrappers for ODEInterface.jl. See [Conditional Dependencies](/man/conditional_dependencies).
 
     * dorpi5 - Hairer's DP5(4)
     * dop853 - Hairer's DP8(5,3)
@@ -90,7 +90,7 @@ with matrices), then the solver will use the matrices without error.
     * radau - Implicit Runge-Kutta variable order 5-13
     * seulex - Extrapolation based on linear implicit Euler
 
-  * Wrappers for ODE.jl
+  * Wrappers for ODE.jl. See [Conditional Dependencies](/man/conditional_dependencies).
 
     * ode23 - Bogacki-Shampine's method
     * ode45 - Dormand-Prince  4/5
@@ -134,7 +134,7 @@ with matrices), then the solver will use the matrices without error.
 
   * Direct
   * Factorizations (LU, Cholesky, QR, SVD)
-  * Conjugate-Gradient
+  * Conjugate-Gradient (CG)
   * GMRES
 
 # Roadmap
@@ -199,6 +199,7 @@ Pages = [
     "man/solution.md",
     "man/plot.md",
     "man/convergence.md",
+    "man/conditional_dependencies.md"
 ]
 Depth = 2
 ```
@@ -207,7 +208,7 @@ Depth = 2
 
 ```@contents
 Pages = [
-  "internals/contributors_guide",
+  "internals/contributors_guide.md",
   "internals/fem_tools.md",
   "internals/extras.md",
   "internals/solver_helpers.md"
