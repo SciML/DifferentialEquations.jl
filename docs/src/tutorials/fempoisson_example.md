@@ -4,7 +4,7 @@ This tutorial will introduce you to the functionality for solving a PDE. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
 folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
 
-In this example we will solve the Poisson Equation ``Δu=f``. For our example, we will take the linear equation where ``f(x,y) = sin(2π.*x).*cos(2π.*y)``. For this equation we know that solution is ``u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)`` with gradient ``Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]``. Thus, we define a PoissonProblem as follows:
+In this example we will solve the Poisson Equation ``Δu=f``. For our example, we will take the linear equation where ``f(x,y) = sin(2πx)cos(2πy)``. For this equation we know that solution is ``u(x,y,t)= sin(2πx)cos(2πy)/(8π^2)`` with gradient ``Du(x,y) = [cos(2πx).*cos(2πy)./(4π) -sin(2π.*x).*sin(2πy)./(4π)]``. Thus, we define a PoissonProblem as follows:
 
 ```julia
 f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
