@@ -154,6 +154,20 @@ with matrices), then the solver will use the matrices without error.
   * Implicit Integration Factor (IIF) Maruyama
   * Implicit Integration Factor (IIF) Milstein
 
+## IJulia Notebook Tutorials
+
+If you have [IJulia](https://github.com/JuliaLang/IJulia.jl) installed, you can access
+extra tutorials in the supplied IJulia notebooks via:
+
+```julia
+using IJulia
+cd(Pkg.dir("DifferentialEquations")*"/examples")
+notebook()
+```
+
+Otherwise, these notebooks can be viewed [via the Github repository](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples)
+(note that Github renders them slightly incorrectly, so it will look better in IJulia!).
+
 ## Tutorials
 
 The following tutorials will introduce you to the functionality of DifferentialEquations.jl
