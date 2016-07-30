@@ -144,14 +144,14 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   if knownanalytic
     u_analytic = analytic(u₀,t,W)
     if save_timeseries
-      analytics = GrowableArray(analytic(u₀,ts[1],Ws[1]))
+      timeseries_analytic = GrowableArray(analytic(u₀,ts[1],Ws[1]))
       for i in 2:size(Ws,1)
-        push!(analytics,analytic(u₀,ts[i],Ws[i]))
+        push!(timeseries_analytic,analytic(u₀,ts[i],Ws[i]))
       end
       Ws = copy(Ws)
       timeseries = copy(timeseries)
-      analytics = copy(analytics)
-      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,ts=ts,Ws=Ws,analytics=analytics,maxStackSize=maxStackSize))
+      timeseries_analytic = copy(timeseries_analytic)
+      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,ts=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxStackSize=maxStackSize))
     else
       return(SDESolution(u,u_analytic,W=W,maxStackSize=maxStackSize))
     end
