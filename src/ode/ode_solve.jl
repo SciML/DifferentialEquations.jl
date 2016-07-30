@@ -35,8 +35,8 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:Midpoint` - The second order midpoint method.
     - `:RK4` - The canonical Runge-Kutta Order 4 method.
     - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
-    are specified via the keyword argument `tab=tableau`. The default tableau is
-    for Dormand-Prine 4/5. Other supplied tableaus include:
+      are specified via the keyword argument `tab=tableau`. The default tableau is
+      for Dormand-Prine 4/5. Other supplied tableaus include:
 
       * `constructRalston()` - Returns a tableau for Ralston's method
       * `constructRKF()` - Returns a tableau for Runge-Kutta-Fuhlberg 4/5
