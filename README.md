@@ -18,8 +18,8 @@ using Juno's progress meter, and wraps other differential equation solvers so th
 
 For information on using the package, [see the documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/).
 
-All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
-[can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/examples). If you find any equation where there seems
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
+[can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples). If you find any equation where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](/internals/contributors_guide).
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the Gitter channel. For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/internals/contributors_guide/).
