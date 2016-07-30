@@ -12,7 +12,7 @@ solves the stochastic Poisson equation ``-Δu = f + σdW``.
 * `solver` = Linear solver algorithm. This is the algorithm which is chosen for solving
   the implicit equation `Ax=b`. The default is `LU`. The choices are:
 
-    - `:Direct` = Solves `Ax=b` using `\`
+    - `:Direct` = Solves `Ax=b` using `\\`
     - `:CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
     - `:GMRES` = GMRES. Best when the space is very large and ``I ± ΔtM⁻¹A`` is not positive definite.
 
@@ -152,7 +152,7 @@ at the cost of some stability (though still vastly better at stability than expl
 * `solver` = Linear solver algorithm. This is the algorithm which is chosen for solving
   the implicit equation `Ax=b`. The default is `LU`. The choices are:
 
-    - `:Direct` = Solves using `\` (no factorization). Not recommended.
+    - `:Direct` = Solves using `\\` (no factorization). Not recommended.
     - `:Cholesky` = Cholsky decomposition. Only stable of ``I ± ΔtM⁻¹A`` is positive definite.
       This means that this works best when Δt is small. When applicable, this is the fastest.
     - `:LU` = LU-Decomposition. A good mix between fast and stable.
