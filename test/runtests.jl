@@ -4,9 +4,8 @@ const CPU_FLOPS = peakflops()
 const TEST_USE_FORWARDDIFF = false
 const TEST_PLOT = false
 #Start Test Script
-using DifferentialEquations, Plots
+using DifferentialEquations, Compat
 using Base.Test
-gr()
 
 # Run tests
 
@@ -21,9 +20,7 @@ println("ODE Adaptive Tests")
 println("ODE Lorenz Attractor")
 @time @test include("ode/ode_lorenzattractor_tests.jl")
 println("ODEInterface Tests")
-@compat !is_windows() @time @test include("ode/ODEInterface_tests.jl")
-println("ODEInterface Tests")
-@time @test include("ode/ODEInterface_tests.jl")
+@compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
 println("ODE.jl Tests")
 @time @test include("ode/ODEJL_tests.jl")
 println("ODE Number Type Tests")
