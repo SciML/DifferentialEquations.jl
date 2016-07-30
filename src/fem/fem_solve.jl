@@ -78,7 +78,7 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
     end
     #Adjust result
     if isempty(dirichlet) #isPureneumann
-      patchArea = Matlab.accumarray(vec(elem),[area;area;area]/3, [N 1])
+      patchArea = accumarray(vec(elem),[area;area;area]/3, [N 1])
       uc = sum(u.*patchArea)/sum(area)
       u = u - uc   # Impose integral of u = 0
     end
@@ -262,7 +262,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,is
   end
   b = Array{eltype(bt1)}(N,numvars) #size(bt1,2) == numvars
   for i = 1:numvars
-    b[:,i] = Matlab.accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
+    b[:,i] = accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
   end
 
   if(!isempty(dirichlet))
@@ -290,7 +290,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,is
     ge = ge.*repeat(el,outer=[1,2,numvars]) # tuple in v0.5?
 
     for i=1:numvars
-      b[:,i] = b[:,i] + Matlab.accumarray(vec(neumann), vec(ge[:,i]),[N,1])
+      b[:,i] = b[:,i] + accumarray(vec(neumann), vec(ge[:,i]),[N,1])
     end
   end
   if numvars == 1

@@ -1,6 +1,10 @@
 # Stochastic Finite Element Examples
 
-For most problem types, we can additionally specify them as a stochastic
+This tutorial will introduce you to the functionality for solving SPDEs. Other
+introductions can be found by [checking out the IJulia notebooks in the examples
+folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+
+For most PDE problem types, we can additionally specify them as a stochastic
 problem by giving the appropriate optional arguments to the constructor. These
 arguments are a function σ which is the function multiplied to the Brownian
 increments ``dW``, and stochastic, a boolean which we put as true for when the equation
@@ -16,12 +20,9 @@ We can solve the same PDE as in the Poisson Tutorial except as the stochastic PD
  ``-Δu=f+gdW``, with additive space-time white noise by specifying the problem as:
 
 ```julia
-"Example problem with deterministic solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
-function poissonProblemExample_noisyWave()
-  f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
-  σ(x) = 5 #Additive noise
-  return(PoissonProblem(f,σ=σ))
-end
+f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
+σ(x) = 5 #Additive noise
+prob = PoissonProblem(f,σ=σ)
 ```
 
 This gives the following plot:
@@ -37,13 +38,10 @@ it due to 1st order "Milstein" effects), gaining more noise as it increases.
 This is specified as follows:
 
 ```julia
-"Example problem which starts with 0 and solves with ``f(u)=1-u/2`` with noise ``σ(u)=10u^2``"
-function heatProblemExample_stochasticbirthdeath()
-  f(u,x,t)  = ones(size(x,1)) - .5u
-  u₀(x) = zeros(size(x,1))
-  σ(u,x,t) = 1u.^2
-  return(HeatProblem(u₀,f,σ=σ))
-end
+f(u,x,t)  = ones(size(x,1)) - .5u
+u₀(x) = zeros(size(x,1))
+σ(u,x,t) = 1u.^2
+prob = HeatProblem(u₀,f,σ=σ)
 ```
 
 We use the following code create an animation of the solution:
@@ -53,7 +51,6 @@ T = 5
 Δx = 1//2^(3)
 Δt = 1//2^(11)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
-prob = heatProblemExample_stochasticbirthdeath()
 
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,solver=:LU)
 animate(sol::FEMSolution;zlim=(0,3),cbar=false)

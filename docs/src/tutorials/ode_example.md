@@ -1,5 +1,9 @@
 # Ordinary Differential Equation (ODE) Example
 
+This tutorial will introduce you to the functionality for solving ODEs. Other
+introductions can be found by [checking out the IJulia notebooks in the examples
+folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+
 In this example we will solve the equation
 
 ```math
@@ -11,12 +15,10 @@ where ``f(u,t)=αu``. We know via Calculus that the solution to this equation is
 giving it the equation and the initial condition:
 
 ```julia
-"""Example problem with solution ``u(t)=u₀*exp(α*t)``"""
-function linearODEExample(;α=1,u₀=1/2)
-  f(u,t) = α*u
-  return(ODEProblem(f,u₀))
-end
-prob = linearODEExample()
+α=1
+u₀=1/2
+f(u,t) = u
+prob = ODEProblem(f,u₀)
 ```
 
 Then we setup some parameters:
@@ -74,14 +76,10 @@ takes in a matrix and outputs a matrix. We can define a matrix of linear ODEs
 as follows:
 
 ```julia
-"""Example problem of 8 linear ODEs (as a 4x2 matrix) with
-solution ``u(t)=exp(α.*t)`` and random initial conditions"""
-function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
-  f(u,t) = α.*u
-  sol(u₀,t) = u₀.*exp(α.*t)
-  return(ODEProblem(f,u₀))
-end
-prob = twoDimlinearODEExample()
+u₀=rand(4,2).*ones(4,2)/2
+α=ones(4,2)
+f(u,t) = α.*u
+prob = ODEProblem(f,u₀)
 ```
 
 Here our ODE is on a 4x2 matrix. Since we are using .\*, this is 8 independent

@@ -1,5 +1,9 @@
 # Stochastic Differential Equation (SDE) Example
 
+This tutorial will introduce you to the functionality for solving SDE. Other
+introductions can be found by [checking out the IJulia notebooks in the examples
+folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+
 In this example we will solve the equation
 
 ```math
@@ -12,13 +16,12 @@ numerically, we define a problem type by giving it the equation and the initial
 condition:
 
 ```julia
-"""Example problem with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
-function linearSDEExample(;α=1,β=1,u₀=1/2)
-  f(u,t) = α*u
-  σ(u,t) = β*u
-  return(SDEProblem(f,σ,u₀))
-end
-prob = linearSDEExample()
+α=1
+β=1
+u₀=1/2
+f(u,t) = α*u
+σ(u,t) = β*u
+prob = SDEProblem(f,σ,u₀)
 Δt = 1//2^(4) #The initial timestepping size. It will automatically assigned if not given.
 tspan = [0,1] # The timespan. This is the default if not given.
 ```

@@ -1,17 +1,17 @@
 # Heat Equation Finite Element Method Example
 
+This tutorial will introduce you to the functionality for solving a PDE. Other
+introductions can be found by [checking out the IJulia notebooks in the examples
+folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+
 In this example we will solve the heat equation ``u_t=Δu+f``. To do this, we define
 a HeatProblem which contains the function ``f`` and the boundary conditions. We
 specify one as follows:
 
 ```julia
-"Example problem which starts with 0 and solves with ``f(u)=1-u/2``"
-function heatProblemExample_birthdeath()
-  f(u,x,t)  = ones(size(x,1)) - .5u
-  u₀(x) = zeros(size(x,1))
-  return(HeatProblem(u₀,f))
-end
-prob = heatProblemExample_birthdeath()
+f(u,x,t)  = ones(size(x,1)) - .5u
+u₀(x) = zeros(size(x,1))
+prob = HeatProblem(u₀,f)
 ```
 
 Here the equation we chose was nonlinear since ``f`` depends on the variable ``u``.
