@@ -50,7 +50,7 @@ function assemblematrix(node,elem;lumpflag=false,K=[])
 
   # Assemble the mass matrix by the mass lumping
   if lumpflag
-      M = Diagonal(vec(Matlab.accumarray([elem[:,1];elem[:,2];elem[:,3]],[area;area;area]/3,[N,1])))
+      M = Diagonal(vec(accumarray([elem[:,1];elem[:,2];elem[:,3]],[area;area;area]/3,[N,1])))
   end
   return(A,M,area)
 end
