@@ -169,7 +169,7 @@ function stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   end
   #Calculate new grids
   Δxs = Δxs*2
-  grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
+  grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
   ux = grids[1][1:end-1,:]
   uy = (grids[2]+Δxs[2]/2)[1:end-1,:]
   vx = (grids[1]+Δxs[1]/2)[:,1:end-1]
@@ -211,7 +211,7 @@ function stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
   end
   #Calculate new grids
   Δxs = Δxs/2
-  grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
+  grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
   ux = grids[1][1:end-1,:]
   uy = (grids[2]+Δxs[2]/2)[1:end-1,:]
   vx = (grids[1]+Δxs[1]/2)[:,1:end-1]

@@ -1,15 +1,15 @@
 # Poisson Equation Finite Element Method Example
 
+This tutorial will introduce you to the functionality for solving a PDE. Other
+introductions can be found by [checking out the IJulia notebooks in the examples
+folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+
 In this example we will solve the Poisson Equation ``Δu=f``. For our example, we will take the linear equation where ``f(x,y) = sin(2π.*x).*cos(2π.*y)``. For this equation we know that solution is ``u(x,y,t)= sin(2π.*x).*cos(2π.*y)/(8π*π)`` with gradient ``Du(x,y) = [cos(2*pi.*x).*cos(2*pi.*y)./(4*pi) -sin(2π.*x).*sin(2π.*y)./(4π)]``. Thus, we define a PoissonProblem as follows:
 
 ```julia
-"Example problem with solution: ``u(x,y)= sin(2π.*x).*cos(2π.*y)/(8π*π)``"
-function poissonProblemExample_wave()
-  f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
-  gD(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
-  return(PoissonProblem(f,gD))
-end
-prob = poissonProblemExample_wave()
+f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
+gD(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
+prob = PoissonProblem(f,gD)
 ```
 
 Here we chose the dirichlet boundary condition `gD` to give the theoretical solution.  Other example problems can be found in [src/examples/exampleProblems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/premades/premade_problems.jl). To solve this problem, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:

@@ -130,6 +130,8 @@ with matrices), then the solver will use the matrices without error.
 ## Tutorials
 
 The following tutorials will introduce you to the functionality of DifferentialEquations.jl
+More examples can be found by [checking out the IJulia notebooks in the examples
+folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
 
 ```@contents
 Pages = [
