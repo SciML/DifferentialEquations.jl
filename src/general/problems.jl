@@ -357,7 +357,7 @@ ODEProblem
 Wraps the data which defines an SDE problem
 
 ```math
-uₜ = f(uₜ,t)dt
+du/dt = f(u,t)
 ```
 
 with initial condition u₀.

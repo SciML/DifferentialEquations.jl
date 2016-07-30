@@ -319,11 +319,11 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   @unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueKnown
 
   if trueKnown
-    uTrue = float(uanalytic(ux,uy))
+    u_analytic = float(uanalytic(ux,uy))
     vTrue = float(vanalytic(vx,vy))
     pTrue = float(panalytic(px,py))
   else
-    uTrue = nothing
+    u_analytic = nothing
     vTrue = nothing
     pTrue = nothing
   end
@@ -395,16 +395,16 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
       end
     end
     if converrors
-      push!(converror_maxu,maximum(abs(u-uTrue)))
+      push!(converror_maxu,maximum(abs(u-u_analytic)))
       push!(converror_maxv,maximum(abs(v-vTrue)))
       push!(converror_maxp,maximum(abs(p-pTrue)))
-      push!(converror_l2u,norm(u-uTrue,2))
+      push!(converror_l2u,norm(u-u_analytic,2))
       push!(converror_l2v,norm(v-vTrue,2))
       push!(converror_l2p,norm(p-pTrue,2))
-      push!(converror_relmaxu,maximum(abs(u-uTrue))/maximum(abs(u)))
+      push!(converror_relmaxu,maximum(abs(u-u_analytic))/maximum(abs(u)))
       push!(converror_relmaxv,maximum(abs(v-vTrue))/maximum(abs(v)))
       push!(converror_relmaxp,maximum(abs(p-pTrue))/maximum(abs(p)))
-      push!(converror_rell2u,norm(u-uTrue,2)/norm(u,2))
+      push!(converror_rell2u,norm(u-u_analytic,2)/norm(u,2))
       push!(converror_rell2v,norm(v-vTrue,2)/norm(v,2))
       push!(converror_rell2p,norm(p-pTrue,2)/norm(p,2))
       push!(converror_relresl2u,norm(u-uold,2)/norm(u,2))
@@ -416,13 +416,13 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
 
   #Generate and return solution type
   if trueKnown
-    errors = Dict(:ul∞=>maximum(abs(u-uTrue)),:vl∞=>maximum(abs(v-vTrue)),
-                  :pl∞=>maximum(abs(p-pTrue)),:ul2=>norm(u-uTrue,2),
+    errors = Dict(:ul∞=>maximum(abs(u-u_analytic)),:vl∞=>maximum(abs(v-vTrue)),
+                  :pl∞=>maximum(abs(p-pTrue)),:ul2=>norm(u-u_analytic,2),
                   :vl2=>norm(v-vTrue,2),:pl2=>norm(p-pTrue,2),
-                  :rul∞=>maximum(abs(u-uTrue))/maximum(abs(u)),
+                  :rul∞=>maximum(abs(u-u_analytic))/maximum(abs(u)),
                   :rvl∞=>maximum(abs(v-vTrue))/maximum(abs(v)),
                   :rpl∞=>maximum(abs(p-pTrue))/maximum(abs(p)),
-                  :rul2=>norm(u-uTrue,2)/norm(u,2),
+                  :rul2=>norm(u-u_analytic,2)/norm(u,2),
                   :rvl2=>norm(v-vTrue,2)/norm(v,2),
                   :rpl2=>norm(p-pTrue,2)/norm(p,2),
     )
@@ -443,5 +443,5 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
     converrors = nothing
   end
 
-  return(StokesSolution(u,v,p,uTrue,vTrue,pTrue,mesh,trueKnown;errors=errors,converrors=converrors))
+  return(StokesSolution(u,v,p,u_analytic,vTrue,pTrue,mesh,trueKnown;errors=errors,converrors=converrors))
 end

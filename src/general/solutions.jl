@@ -8,9 +8,9 @@ Holds the data for the solution to a finite element problem.
 * `fem_mesh::FEMmesh`: The finite element mesh the problem was solved on.
 * `u::Array{Float64}`: The solution (at the final timepoint)
 * `trueKnown::Bool`: Boolean flag for if the true solution is given.
-* `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
+* `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
-* `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
+* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
 is specified in the solver.
 * `ts::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
@@ -23,19 +23,19 @@ type FEMSolution <: DESolution
   fem_mesh::FEMmesh
   u#::Array{Number}
   trueKnown::Bool
-  uTrue::AbstractArrayOrVoid
+  u_analytic::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
   appxTrue::Bool
   timeseries#::GrowableArray
   ts::AbstractArrayOrVoid
   prob::DEProblem
   save_timeseries::Bool
-  function FEMSolution(fem_mesh::FEMmesh,u,uTrue,sol,Du,timeSeries,ts,prob;save_timeseries=true)
+  function FEMSolution(fem_mesh::FEMmesh,u,u_analytic,sol,Du,timeSeries,ts,prob;save_timeseries=true)
     errors = Dict(:L2=>getL2error(fem_mesh,sol,u),:H1=>getH1error(fem_mesh,Du,u),
-                  :l∞=> maximum(abs(u-uTrue)), :l2=> norm(u-uTrue,2))
-    return(new(fem_mesh,u,true,uTrue,errors,false,timeSeries,ts,prob,true))
+                  :l∞=> maximum(abs(u-u_analytic)), :l2=> norm(u-u_analytic,2))
+    return(new(fem_mesh,u,true,u_analytic,errors,false,timeSeries,ts,prob,true))
   end
-  FEMSolution(fem_mesh,u,uTrue,sol,Du,prob) = FEMSolution(fem_mesh::FEMmesh,u,uTrue,sol,Du,nothing,nothing,prob,save_timeseries=false)
+  FEMSolution(fem_mesh,u,u_analytic,sol,Du,prob) = FEMSolution(fem_mesh::FEMmesh,u,u_analytic,sol,Du,nothing,nothing,prob,save_timeseries=false)
   function FEMSolution(fem_mesh::FEMmesh,u::AbstractArray,prob)
     return(FEMSolution(fem_mesh,u,nothing,nothing,prob,save_timeseries=false))
   end
@@ -53,7 +53,7 @@ Holds the data for the solution to a SDE problem.
 
 * `u::Array{Float64}`: The solution (at the final timepoint)
 * `trueKnown::Bool`: Boolean flag for if the true solution is given.
-* `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
+* `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
 is specified in the solver.
@@ -64,13 +64,13 @@ in the solver.
 * `analytics`: If `save_timeseries=true`, saves the solution at each save point.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
-* `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
+* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
 
 """
 type SDESolution <: DESolution
   u#::AbstractArrayOrNumber
   trueKnown::Bool
-  uTrue#::AbstractArrayOrNumber
+  u_analytic#::AbstractArrayOrNumber
   errors#::Dict{}
   timeseries::AbstractArrayOrVoid
   ts::AbstractArrayOrVoid
@@ -86,17 +86,17 @@ type SDESolution <: DESolution
     trueKnown = false
     return(new(u,trueKnown,nothing,Dict(),timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
   end
-  function SDESolution(u,uTrue;timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
+  function SDESolution(u,u_analytic;timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
     save_timeseries = timeseries != nothing
     trueKnown = true
-    errors = Dict(:final=>mean(abs(u-uTrue)))
+    errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueKnown,u_analytic,errors,timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueKnown,a.uTrue,a.errors,a.timeseries,a.ts,a.Δts,a.Ws,a.analytics,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
+  SDESolution(a::Any) = new(a.u,a.trueKnown,a.u_analytic,a.errors,a.timeseries,a.ts,a.Δts,a.Ws,a.analytics,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
 end
 
 """
@@ -108,7 +108,7 @@ Holds the data for the solution to an ODE problem.
 
 * `u::Array{Float64}`: The solution (at the final timepoint)
 * `trueKnown::Bool`: Boolean flag for if the true solution is given.
-* `uTrue::AbstractArrayOrVoid`: The true solution at the final timepoint.
+* `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
 is specified in the solver.
@@ -117,13 +117,13 @@ is specified in the solver.
 * `analytics`: If `save_timeseries=true`, saves the solution at each timestep.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
-* `appxTrue::Bool`: Boolean flag for if uTrue was an approximation.
+* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
 
 """
 type ODESolution <: DESolution
   u#::AbstractArrayOrNumber
   trueKnown::Bool
-  uTrue#::AbstractArrayOrNumber
+  u_analytic#::AbstractArrayOrNumber
   errors#::Dict{}
   timeseries::AbstractArrayOrVoid
   ts::AbstractArrayOrVoid
@@ -135,14 +135,14 @@ type ODESolution <: DESolution
     trueKnown = false
     return(new(u,trueKnown,nothing,Dict(),timeseries,ts,analytics,false,save_timeseries))
   end
-  function ODESolution(u,uTrue;timeseries=nothing,analytics=nothing,ts=nothing)
+  function ODESolution(u,u_analytic;timeseries=nothing,analytics=nothing,ts=nothing)
     save_timeseries = timeseries != nothing
     trueKnown = true
-    errors = Dict(:final=>mean(abs(u-uTrue)))
+    errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-uTrue)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
     end
-    return(new(u,trueKnown,uTrue,errors,timeseries,ts,analytics,false,save_timeseries))
+    return(new(u,trueKnown,u_analytic,errors,timeseries,ts,analytics,false,save_timeseries))
   end
 end
 
@@ -156,7 +156,7 @@ Holds the data for the solution to a Stokes problem.
 * u
 * v
 * p
-* uTrue
+* u_analytic
 * vTrue
 * pTrue
 * mesh
@@ -169,14 +169,14 @@ type StokesSolution <: DESolution
   u
   v
   p
-  uTrue
+  u_analytic
   vTrue
   pTrue
   mesh::FDMMesh
   trueKnown::Bool
   errors
   converrors
-  StokesSolution(u,v,p,uTrue,vTrue,pTrue,mesh,trueKnown;errors=nothing,converrors=nothing) = new(u,v,p,uTrue,vTrue,pTrue,mesh,trueKnown,errors,converrors)
+  StokesSolution(u,v,p,u_analytic,vTrue,pTrue,mesh,trueKnown;errors=nothing,converrors=nothing) = new(u,v,p,u_analytic,vTrue,pTrue,mesh,trueKnown,errors,converrors)
 end
 
 """
@@ -188,8 +188,8 @@ computing once at a very small time/space step and taking
 that solution as the "true" solution
 """
 function appxTrue!(res::FEMSolution,res2::FEMSolution)
-  res.uTrue = res2.u
-  res.errors = Dict(:l∞=>maximum(abs(res.u-res.uTrue)),:l2=>norm(res.u-res.uTrue,2))
+  res.u_analytic = res2.u
+  res.errors = Dict(:l∞=>maximum(abs(res.u-res.u_analytic)),:l2=>norm(res.u-res.u_analytic,2))
   res.appxTrue = true
 end
 

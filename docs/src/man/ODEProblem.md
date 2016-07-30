@@ -4,7 +4,7 @@ To define an ODE Problem, you simply need to give the function ``f`` and the ini
 condition ``u₀`` which define an ODE
 
 ```math
-du/dt = f(u,t)dt
+du/dt = f(u,t)
 ```
 
 `f` should be specified as `f(u,t)` and `u₀` should be an AbstractArray whose

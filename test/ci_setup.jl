@@ -1,5 +1,3 @@
-#Pkg.clone("https://github.com/ChrisRackauckas/VectorizedRoutines.jl")
-#Pkg.clone("https://github.com/ChrisRackauckas/ResettableStacks.jl")
 Pkg.clone("https://github.com/JuliaODE/ODE.jl")
 Pkg.checkout("ODE","dev")
 Pkg.checkout("GrowableArrays")

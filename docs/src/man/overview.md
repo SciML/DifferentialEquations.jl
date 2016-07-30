@@ -11,7 +11,7 @@ Problems are specified via a type interface. For example, for the Poisson equati
 ``Δu = f``, one defines a type which holds `f` and the boundary condition functions.
 
 Next, one generates a mesh. For example, if one wants to solve the Heat equation
-in the parabolic cylinder of the unit square, i.e. [0,1]^2 x [0,T], then one
+in the parabolic cylinder of the unit square, i.e. ``[0,1]^2 \times [0,T]``, then one
 has to discretize this. Tools within the package will generate meshes from
 general characteristics. For example, most tools require only specifying the
 general shape, Δx, Δt, and T and will generate the mesh.
@@ -23,7 +23,7 @@ hold all of the details for the solution.
 
 With the solution object, you do the analysis as you please! For some result `sol`,
 the field `sol.u` returns the final solution, and if you give a true solution,
-`sol.uTrue` is the true solution at the final time. If you specified to the solver
+`sol.u_analytic` is the true solution at the final time. If you specified to the solver
 `save_timeseries=true`, then `sol.timeseries` and `sol.ts` will be outputted which hold the
 solution/time at every `timeseries_steps` (default set to 100, meaning it saves an output
 every 100 steps).

@@ -22,7 +22,7 @@ end
     end
     if plottrue
       for i = 1:size(sol.u,2)
-        push!(out,sol.uTrue[:,i])
+        push!(out,sol.u_analytic[:,i])
       end
     end
   else #use timeseries
