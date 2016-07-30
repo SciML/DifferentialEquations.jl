@@ -7,6 +7,5 @@ HypothesisTests
 ForwardDiff
 NLsolve
 DataStructures
-ResettableStacks
 ODEInterface
 ODE
