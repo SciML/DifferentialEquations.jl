@@ -4,7 +4,7 @@ module DifferentialEquations
 
 using IterativeSolvers, Parameters, Plots,
       EllipsisNotation, GrowableArrays, ChunkedArrays
-import Base: length, size
+import Base: length, size, getindex, endof
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem

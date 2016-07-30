@@ -214,3 +214,9 @@ function FEMSolutionTS(timeseries::GrowableArray,numvars::Int)
   end
   return(ts)
 end
+
+Base.length(sol::DESolution) = length(sol.ts)
+Base.size(sol::DESolution) = (length(sol.ts),size(sol.u))
+Base.endof(sol::DESolution) = length(sol)
+Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i,..]
+Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i,I...]

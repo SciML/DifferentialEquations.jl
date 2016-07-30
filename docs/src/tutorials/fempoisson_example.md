@@ -29,6 +29,7 @@ fem_solvepoisson takes in a mesh and a PoissonProblem and uses the solver to com
 
 ```julia
 plot(sol::FEMSolution)
+Plots.gui()
 ```
 
 Here is the plot shown against the analytical solution to show the accuracy:

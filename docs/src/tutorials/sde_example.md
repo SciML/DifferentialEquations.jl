@@ -33,7 +33,7 @@ and then we pass this information to the solver and plot:
 sol =solve(prob::SDEProblem,tspan,Δt=Δt,save_timeseries=true,alg=:EM)
 plot(sol,plottrue=true)
 #Use Plots.jl's gui() command to display the plot.
-gui()
+Plots.gui()
 ```
 
 We can choose a better solver as well:
@@ -42,5 +42,5 @@ We can choose a better solver as well:
 #We can choose a better method as follows:
 sol =solve(prob::SDEProblem,tspan,Δt=Δt,save_timeseries=true,alg=:SRI)
 plot(sol,plottrue=true)
-gui()
+Plots.gui()
 ```
