@@ -17,7 +17,7 @@ script:
   - julia -e 'Pkg.clone(pwd())'
   - julia -e 'include(Pkg.dir("DifferentialEquations")*"/test/ci_setup.jl"); Pkg.test("DifferentialEquations",coverage=true)'
 after_success:
-  - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
+  - julia -e 'Pkg.add("Documenter")'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
