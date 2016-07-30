@@ -4,8 +4,7 @@ prob = twoDimlinearSDEExample()
 
 ## Solve and plot
 println("Solve and Plot")
-sol =solve(prob::SDEProblem,Δt=1//2^(4),save_timeseries=true,alg=:SRI)
-sol =solve(prob::SDEProblem,[0,1],Δt=0,save_timeseries=true,alg=:SRIW1Optimized)
+sol =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),save_timeseries=true,alg=:SRIW1Optimized)
 
 #Now do the simulation 10000 times in parallel. Return an array
 solArr = monteCarloSim(prob::SDEProblem,Δt=1//2^(4))
@@ -18,7 +17,7 @@ TEST_PLOT && plot(sol,plottrue=true)
 
 ## Convergence Testing
 println("Convergence Test on 2D Linear")
-Δts = 1.//2.^(8:-1:4) #14->7 good plot
+Δts = 1.//2.^(7:-1:4) #14->7 good plot
 
 sim = test_convergence(Δts,prob,numMonte=5,alg=:EM)
 
