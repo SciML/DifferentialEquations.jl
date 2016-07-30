@@ -1,8 +1,7 @@
 """
-solve(prob::SDEProblem,tspan=[0,1];Δt=0)
+`solve(prob::SDEProblem,tspan)``
 
-Solves the SDE as defined by prob with initial Δt on the time interval tspan.
-If not given, tspan defaults to [0,1]. If
+Solves the SDE as defined by prob on the time interval tspan. If not given, tspan defaults to [0,1].
 
 ### Keyword Arguments
 

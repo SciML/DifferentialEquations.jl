@@ -1,7 +1,7 @@
 """
-solve(prob::ODEProblem,Δt,T)
+`solve(prob::ODEProblem,tspan)`
 
-Solves the ODE defined by prob with initial Δt on the time interval [0,T].
+Solves the ODE defined by prob on the interval tspan. If not given, tspan defaults to [0,1].
 
 ### Keyword Arguments
 
@@ -18,59 +18,58 @@ Solves the ODE defined by prob with initial Δt on the time interval [0,T].
 * `Δtmax` - Maximum Δt for adaptive timestepping. Defaults to half the timespan.
 * `Δtmin` - Minimum Δt for adaptive timestepping. Defaults to 1e-10.
 * `autodiff` - Turns on/off the use of autodifferentiation (via ForwardDiff) in the
-implicit solvers which use `NLsolve`. Default is true.
+  implicit solvers which use `NLsolve`. Default is true.
 * `internalnorm` - The norm for which error estimates are calculated. Default is 2.
 * `progressbar` - Turns on/off the Juno progressbar. Defualt is false.
 * `progress_steps` - Numbers of steps between updates of the progress bar. Default is 1000.
 
 * `alg`: String which defines the solver algorithm. Defult is `:ExplicitRK`. Note that any keyword
-argument available in the external solvers are accessible via keyword arguemnts. For example,
-for the ODEInterface.jl algorithms, one can specify `SSBETA=0.03` as a keyword argument and it will
-do as it states in the ODEInterface.jl documentation. Common options such as `MAXSS` (max stepsize)
-are aliased to one can use the DifferentialEquations.jl syntax `Δtmax` or `MAXSS`.
+  argument available in the external solvers are accessible via keyword arguemnts. For example,
+  for the ODEInterface.jl algorithms, one can specify `SSBETA=0.03` as a keyword argument and it will
+  do as it states in the ODEInterface.jl documentation. Common options such as `MAXSS` (max stepsize)
+  are aliased to one can use the DifferentialEquations.jl syntax `Δtmax` or `MAXSS`. The possibilities for the solvers are:
 
-The possibilities for the solvers are:
   * DifferentialEquations.jl
 
-      - `:Euler`- The canonical forward Euler method.
-      - `:Midpoint` - The second order midpoint method.
-      - `:RK4` - The canonical Runge-Kutta Order 4 method.
-      - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
-        are specified via the keyword argument `tab=tableau`. The default tableau is
-        for Dormand-Prine 4/5. Other supplied tableaus include:
+    - `:Euler`- The canonical forward Euler method.
+    - `:Midpoint` - The second order midpoint method.
+    - `:RK4` - The canonical Runge-Kutta Order 4 method.
+    - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
+    are specified via the keyword argument `tab=tableau`. The default tableau is
+    for Dormand-Prine 4/5. Other supplied tableaus include:
 
-          * `constructRalston()` - Returns a tableau for Ralston's method
-          * `constructRKF()` - Returns a tableau for Runge-Kutta-Fuhlberg 4/5
-          * `constructBogakiShampine()` - Returns a tableau for Bogakai-Shampine's 2/3 method.
-          * `constructCashKarp()` - Returns a tableau for the Cash-Karp method 4/5.
-          * `constructDormandPrince()` - Returns a tableau for Dormand-Prince 4/5.
-          * `constructRKF8()` - Returns a tableau for Runge-Kutta-Fuhlberg Order 7/8 method.
-          * `constructDormandPrice8()` - Returns a tableau for the Dormand-Prince Order 7/8 method.
+      * `constructRalston()` - Returns a tableau for Ralston's method
+      * `constructRKF()` - Returns a tableau for Runge-Kutta-Fuhlberg 4/5
+      * `constructBogakiShampine()` - Returns a tableau for Bogakai-Shampine's 2/3 method.
+      * `constructCashKarp()` - Returns a tableau for the Cash-Karp method 4/5.
+      * `constructDormandPrince()` - Returns a tableau for Dormand-Prince 4/5.
+      * `constructRKF8()` - Returns a tableau for Runge-Kutta-Fuhlberg Order 7/8 method.
+      * `constructDormandPrice8()` - Returns a tableau for the Dormand-Prince Order 7/8 method.
 
-      - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
-      - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
-      - `:Rosenbrock32` - A fast solver which is good for stiff equations.
+    - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
+    - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
+    - `:Rosenbrock32` - A fast solver which is good for stiff equations.
 
   * ODEInterface.jl
 
-      - `:dopri5` - Hairer's classic implementation of the Dormand-Prince 4/5 method.
-      - `:dop853` - Explicit Runge-Kutta 8(5,3) by Dormand-Prince
-      - `:odex` - GBS extrapolation-algorithm based on the midpoint rule
-      - `:seulex` - extrapolation-algorithm bsed on the linear implicit Euler method
-      - `:radau` - implicit Runge-Kutta (Rdau IIA) of variable order between 5 and 13
-      - `:radau5` - implicit Runge-Kutta method (Radau IIA) of order 5
+    - `:dopri5` - Hairer's classic implementation of the Dormand-Prince 4/5 method.
+    - `:dop853` - Explicit Runge-Kutta 8(5,3) by Dormand-Prince
+    - `:odex` - GBS extrapolation-algorithm based on the midpoint rule
+    - `:seulex` - extrapolation-algorithm bsed on the linear implicit Euler method
+    - `:radau` - implicit Runge-Kutta (Rdau IIA) of variable order between 5 and 13
+    - `:radau5` - implicit Runge-Kutta method (Radau IIA) of order 5
 
   * ODE.jl
 
-      - `:ode23` - Bogakai-Shampine's 2/3 method
-      - `:ode45` - Dormand-Prince's 4/5 method
-      - `:ode78` - Runge-Kutta-Fuhlberg 7/8 method
-      - `:ode23s` - Rosenbrock's 2/3 method
-      - `:ode1` - Forward Euler
-      - `:ode2_midpoint` - Midpoint Method
-      - `:ode2_heun` - Heun's Method
-      - `:ode4` - RK4
-      - `:ode45_fe` - Runge-Kutta-Fuhlberg 4/5 method
+    - `:ode23` - Bogakai-Shampine's 2/3 method
+    - `:ode45` - Dormand-Prince's 4/5 method
+    - `:ode78` - Runge-Kutta-Fuhlberg 7/8 method
+    - `:ode23s` - Rosenbrock's 2/3 method
+    - `:ode1` - Forward Euler
+    - `:ode2_midpoint` - Midpoint Method
+    - `:ode2_heun` - Heun's Method
+    - `:ode4` - RK4
+    - `:ode45_fe` - Runge-Kutta-Fuhlberg 4/5 method
 """
 function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   tspan = vec(tspan)

@@ -22,7 +22,7 @@ docs_dir: 'build'
 
 pages:
 - Introduction: index.md
-- Tutorial:
+- Tutorials:
   - Ordinary Differential Equation Example: tutorials/ode_example.md
   - Stochastic Differential Equation Example: tutorials/sde_example.md
   - Poisson Equation Finite Element Method Example: tutorials/fempoisson_example.md

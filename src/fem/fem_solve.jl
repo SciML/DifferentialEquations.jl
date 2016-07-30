@@ -1,7 +1,7 @@
 """
 ## Finite Element Poisson Equation Solver
 
-solve(fem_mesh::FEMmesh,pdeProb::PoissonProblem)
+`solve(fem_mesh::FEMmesh,pdeProb::PoissonProblem)`
 
 Takes in a definition for the heat equation ``-Δu = f`` on `fem_mesh` with
 functions as defined in `pdeProb`. If `σ` is specified in `pdeProb`, then this
@@ -10,7 +10,7 @@ solves the stochastic Poisson equation ``-Δu = f + σdW``.
 ### Keyword Arguments
 
 * `solver` = Linear solver algorithm. This is the algorithm which is chosen for solving
-the implicit equation `Ax=b`. The default is `LU`. The choices are:
+  the implicit equation `Ax=b`. The default is `LU`. The choices are:
 
     - `:Direct` = Solves `Ax=b` using `\`
     - `:CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
@@ -18,7 +18,7 @@ the implicit equation `Ax=b`. The default is `LU`. The choices are:
 
 * `timeseries_steps` = If `save_timeseries=true`, then this is the number of steps between the saves.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
-for the nonlinear solving. By default autodiff is false.
+  for the nonlinear solving. By default autodiff is false.
 * `method` = Method the nonlinear solver uses. Defaults to `:trust_region`.
 * `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
 * `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
@@ -150,7 +150,7 @@ part explicit in order to allow for the algorithm to not require a nonlinear sol
 at the cost of some stability (though still vastly better at stability than explicit algorithms).
 
 * `solver` = Linear solver algorithm. This is the algorithm which is chosen for solving
-the implicit equation `Ax=b`. The default is `LU`. The choices are:
+  the implicit equation `Ax=b`. The default is `LU`. The choices are:
 
     - `:Direct` = Solves using `\` (no factorization). Not recommended.
     - `:Cholesky` = Cholsky decomposition. Only stable of ``I ± ΔtM⁻¹A`` is positive definite.
@@ -160,12 +160,12 @@ the implicit equation `Ax=b`. The default is `LU`. The choices are:
     - `:SVD` = SVD-Decomposition. By far the slowest, but the most robust to roundoff error.
     - `:CG` = Conjugate-Gradient. Best when the space is very large and ``I ± ΔtM⁻¹A`` is positive definite.
     - `:GMRES` = GMRES. Best when the space is very large and ``I ± ΔtM⁻¹A`` is not positive definite.
-    
+
 * `save_timeseries` = Makes the algorithm save the output at every `timeseries_steps` timesteps.
-By default save_timeseries is false.
+  By default save_timeseries is false.
 * `timeseries_steps` = If `save_timeseries=true`, then this is the number of steps between the saves.
 * `autodiff` = Whether or not autodifferentiation (as provided by AutoDiff.jl) is used
-for the nonlinear solving. By default autodiff is false.
+  for the nonlinear solving. By default autodiff is false.
 * `method` = Method the nonlinear solver uses. Defaults to `:trust_region`.
 * `show_trace` = Whether to show the output of the nonlinear solver. Defaults to false.
 * `iterations` = Maximum numer of iterations in the nonlinear solver. Defaults to 1000.
