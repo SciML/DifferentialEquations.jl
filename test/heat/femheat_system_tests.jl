@@ -12,11 +12,11 @@ prob = heatProblemExample_birthdeathinteractingsystem()
 
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitEuler)
 
-TEST_PLOT && plot(sol,plottrue=false,zlim=(0,2),cbar=false)
+TEST_PLOT && plot(sol,plot_analytic=false,zlim=(0,2),cbar=false)
 
 prob = heatProblemExample_birthdeathsystem()
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,iterations=1000,autodiff=true)
 
-TEST_PLOT && plot(sol,plottrue=false,zlim=(0,2),cbar=false)
+TEST_PLOT && plot(sol,plot_analytic=false,zlim=(0,2),cbar=false)
 
 true

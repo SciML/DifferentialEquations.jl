@@ -254,14 +254,14 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       end
       timeseries = copy(timeseries)
       timeseries_analytic = copy(timeseries_analytic)
-      return(ODESolution(u,u_analytic,timeseries=timeseries,ts=ts,timeseries_analytic=timeseries_analytic))
+      return(ODESolution(u,u_analytic,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic))
     else
       return(ODESolution(u,u_analytic))
     end
   else #No known analytic
     if save_timeseries
       timeseries = copy(timeseries)
-      return(ODESolution(u,timeseries=timeseries,ts=ts))
+      return(ODESolution(u,timeseries=timeseries,t=ts))
     else
       return(ODESolution(u))
     end
