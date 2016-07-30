@@ -24,6 +24,8 @@ println("Assembly Tests")
 #@time @test include("internals/mesh_examples_tests.jl")
 println("Simple Mesh Tests")
 @time @test include("internals/mesh_SimpleMesh_tests.jl")
+println("Solver Interface Tests")
+@time @test include("internals/solution_get_tests.jl")
 
 #ODE
 println("Linear ODE Tests")
