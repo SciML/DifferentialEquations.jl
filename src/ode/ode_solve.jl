@@ -248,13 +248,13 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   if knownanalytic
     u_analytic = analytic(u₀,t)
     if save_timeseries
-      analytics = GrowableArray(analytic(u₀,ts[1]))
+      timeseries_analytic = GrowableArray(analytic(u₀,ts[1]))
       for i in 2:size(timeseries,1)
-        push!(analytics,analytic(u₀,ts[i]))
+        push!(timeseries_analytic,analytic(u₀,ts[i]))
       end
       timeseries = copy(timeseries)
-      analytics = copy(analytics)
-      return(ODESolution(u,u_analytic,timeseries=timeseries,ts=ts,analytics=analytics))
+      timeseries_analytic = copy(timeseries_analytic)
+      return(ODESolution(u,u_analytic,timeseries=timeseries,ts=ts,timeseries_analytic=timeseries_analytic))
     else
       return(ODESolution(u,u_analytic))
     end
