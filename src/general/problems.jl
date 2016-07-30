@@ -421,7 +421,7 @@ Defines the solution to a stationary Stokes problem:
 * `uanalytic::Function`
 * `vanalytic::Function`
 * `panalytic::Function`
-* `trueKnown::Bool`
+* `trueknown::Bool`
 
 ### Constructors
 
@@ -438,7 +438,7 @@ type StokesProblem
   uanalytic::Function
   vanalytic::Function
   panalytic::Function
-  trueKnown::Bool
+  trueknown::Bool
   StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic) = new(f₁,f₂,g,uanalytic,vanalytic,uanalytic,vanalytic,panalytic,true)
   StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
 end
