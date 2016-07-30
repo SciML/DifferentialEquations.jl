@@ -14,13 +14,13 @@ function animate(sol::FEMSolution;filename="tmp.gif",fps=15,kw...)
   gif(anim,filename,fps=fps)
 end
 
-@recipe function f(sol::FEMSolution;plottrue=false,tslocation=0)
+@recipe function f(sol::FEMSolution;plot_analytic=false,tslocation=0)
   if tslocation==0 #Plot solution at end
     out = Any[]
     for i = 1:size(sol.u,2)
       push!(out,sol.u[:,i])
     end
-    if plottrue
+    if plot_analytic
       for i = 1:size(sol.u,2)
         push!(out,sol.u_analytic[:,i])
       end
@@ -36,7 +36,7 @@ end
   sol.fem_mesh.node[:,1], sol.fem_mesh.node[:,2], out
 end
 
-@recipe function f(sol::SDESolution;plottrue=false)
+@recipe function f(sol::SDESolution;plot_analytic=false)
   if ndims(sol.timeseries) > 2
     totaldims = 1
     for i=2:ndims(sol.timeseries)
@@ -47,7 +47,7 @@ end
   else
     vals = sol.timeseries
   end
-  if plottrue
+  if plot_analytic
     if ndims(sol.timeseries_analytic) > 2
       totaldims = 1
       for i=2:ndims(sol.timeseries)
@@ -59,13 +59,13 @@ end
     end
   end
   #u = Any[sol.timeseries];
-  #plottrue && push!(u, sol.timeseries_analytic);
+  #plot_analytic && push!(u, sol.timeseries_analytic);
   seriestype --> :path
   #layout --> length(u)
-  map(Float64,sol.ts), map(Float64,vals) #Remove when Tom commits
+  map(Float64,sol.t), map(Float64,vals) #Remove when Tom commits
 end
 
-@recipe function f(sol::ODESolution;plottrue=false)
+@recipe function f(sol::ODESolution;plot_analytic=false)
   if ndims(sol.timeseries) > 2
     totaldims = 1
     for i=2:ndims(sol.timeseries)
@@ -76,7 +76,7 @@ end
   else
     vals = sol.timeseries
   end
-  if plottrue
+  if plot_analytic
     if ndims(sol.timeseries_analytic) > 2
       totaldims = 1
       for i=2:ndims(sol.timeseries)
@@ -88,10 +88,10 @@ end
     end
   end
   #u = Any[sol.timeseries];
-  #plottrue && push!(u, sol.timeseries_analytic);
+  #plot_analytic && push!(u, sol.timeseries_analytic);
   seriestype --> :path
   #layout --> length(u)
-  sol.ts, vals
+  sol.t, vals
 end
 
 @recipe function f(sim::ConvergenceSimulation)

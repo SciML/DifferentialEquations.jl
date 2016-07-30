@@ -151,14 +151,14 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
       Ws = copy(Ws)
       timeseries = copy(timeseries)
       timeseries_analytic = copy(timeseries_analytic)
-      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,ts=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,t=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxStackSize=maxStackSize))
     else
       return(SDESolution(u,u_analytic,W=W,maxStackSize=maxStackSize))
     end
   else #No known analytic
     if save_timeseries
       timeseries = copy(timeseries)
-      return(SDESolution(u,timeseries=timeseries,W=W,ts=ts,maxStackSize=maxStackSize))
+      return(SDESolution(u,timeseries=timeseries,W=W,t=ts,maxStackSize=maxStackSize))
     else
       return(SDESolution(u,W=W,maxStackSize=maxStackSize))
     end

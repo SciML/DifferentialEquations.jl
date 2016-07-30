@@ -44,6 +44,10 @@ require [NLsolve.jl](https://github.com/EconForge/NLsolve.jl), and can optionall
 use [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) for increased
 performance. Also, the `load` function for the premade meshes requires [JLD.jl](https://github.com/JuliaIO/JLD.jl).
 
+Lastly, there is a special conditional dependency for [Juno](http://junolab.org/). If
+you are using Juno, then the progress bar functionality is works. If you're not
+using Juno, then it won't do anything.
+
 The other conditional dependencies are external solvers wrapped by DifferentialEquations.jl
 Currently these include:
 

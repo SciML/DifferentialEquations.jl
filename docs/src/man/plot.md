@@ -11,7 +11,7 @@ provided by Plots.jl](https://juliaplots.github.io/supported/). Please see [Plot
 
 A few extra arguments are provided addition to the Plots.jl keyword arguments. They are as follows:
 
-* plottrue: Specifies whether the true solution (if known) should be plotted alongside
+* plot_analytic: Specifies whether the true solution (if known) should be plotted alongside
   the numerically approximated solution. Default is false.
 * filename: Specifies the filename to save an animation. Only applies to the `animate` function.
 * fps: Determines the fps in an animation. Only applies to the `animate` function.

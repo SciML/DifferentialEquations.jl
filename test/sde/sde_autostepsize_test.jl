@@ -7,7 +7,7 @@ println("Solve and Plot")
 #Let the solver determine the initial stepsize for you!
 sol =solve(prob::SDEProblem,save_timeseries=true,alg=:SRI,adaptive=true)
 
-TEST_PLOT && plot(sol,plottrue=true)
+TEST_PLOT && plot(sol,plot_analytic=true)
 #gui()
 
 #Make sure it does a good job

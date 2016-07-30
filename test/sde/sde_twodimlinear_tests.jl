@@ -13,7 +13,7 @@ solArr = monteCarloSim(prob::SDEProblem,Δt=1//2^(3),numMonte=5)
 #Last indices are the indexes of the variables. Since our initial condition
 #Has 4 rows and two columns, sol.timeseries[..,1] returns the time series for the
 #first row, and sol.timeseries[..,2] returns the time series for the second.
-TEST_PLOT && plot(sol,plottrue=true)
+TEST_PLOT && plot(sol,plot_analytic=true)
 
 ## Convergence Testing
 println("Convergence Test on 2D Linear")
