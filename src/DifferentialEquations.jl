@@ -2,7 +2,7 @@ __precompile__()
 
 module DifferentialEquations
 
-using LaTeXStrings, IterativeSolvers, Parameters, Plots,
+using IterativeSolvers, Parameters, Plots,
       EllipsisNotation, GrowableArrays, ChunkedArrays
 import Base: length, size
 import JLD: load
