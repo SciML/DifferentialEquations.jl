@@ -81,7 +81,7 @@ type SDESolution <: DESolution
   save_timeseries::Bool
   maxStackSize::Int
   W
-  function SDESolution(u;timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
+  function SDESolution(u::Union{AbstractArray,Number};timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
     save_timeseries = timeseries == nothing
     trueKnown = false
     return(new(u,trueKnown,nothing,Dict(),timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))

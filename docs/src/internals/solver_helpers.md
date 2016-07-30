@@ -3,10 +3,32 @@
 This package includes the documentation for the helper functions for the various
 solvers.
 
-## ODE
+## ODE Solver Extras
 
 ```@docs
 Base.length(::ExplicitRK)
+DifferentialEquations.ExplicitRK
+DifferentialEquations.ODE_DEFAULT_TABLEAU
+DifferentialEquations.constructCashKarp
+DifferentialEquations.constructRalston
+DifferentialEquations.constructDormandPrince
+DifferentialEquations.constructDormandPrince8
+DifferentialEquations.constructBogakiShampine
+DifferentialEquations.constructHuen
+DifferentialEquations.constructRKF
+DifferentialEquations.constructRKF8
+```
+
+## SDE Solver Extras
+
+```@docs
+DifferentialEquations.monteCarloSim
+DifferentialEquations.RosslerSRI
+DifferentialEquations.RosslerSRA
+DifferentialEquations.constructSRA1
+DifferentialEquations.constructSRIW1
+DifferentialEquations.checkSRAOrder
+DifferentialEquations.checkSRIOrder
 ```
 
 ## Stationary Stokes
