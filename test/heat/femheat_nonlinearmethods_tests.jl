@@ -26,7 +26,7 @@ sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitCrankNicholson)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 println("Implicit Euler")
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=TEST_USE_FORWARDDIFF)
-plot(sol)
+TEST_PLOT && plot(sol)
 
 #Returns true if nonlinear solver is correct
 bool1 = maximum(abs(sol.u - .777))<.01
@@ -63,6 +63,6 @@ sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitCrankNicholson,
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 println("Implicit Euler")
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=TEST_USE_FORWARDDIFF)
-plot(sol)
+TEST_PLOT && plot(sol)
 
 bool1

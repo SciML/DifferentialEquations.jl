@@ -9,6 +9,6 @@ prob = poissonProblemExample_noisyWave()
 
 sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)#,solver=:CG) #TODO Fix CG and switch back
 
-plot(sol,title=["True Deterministic Solution" "Stochastic Solution"],plottrue=true)
+TEST_PLOT && plot(sol,title=["True Deterministic Solution" "Stochastic Solution"],plottrue=true)
 #This condition should be true with really high probability
 var(sol.u) < 8e-4

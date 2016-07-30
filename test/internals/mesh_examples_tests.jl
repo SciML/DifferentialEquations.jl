@@ -18,6 +18,6 @@ mesh = meshExample_wavymesh()
 
 mesh = meshExample_wavyperturbmesh()
 
-plot(mesh)
+TEST_PLOT && plot(mesh)
 
 true

@@ -5,7 +5,7 @@ prob = linearODEExample()
 tspan = [0,1] # The timespan. This is the default if not given.
 
 sol =solve(prob::ODEProblem,tspan;Δt=Δt,save_timeseries=true,alg=:ode1)
-plot(sol,plottrue=true)
+TEST_PLOT && plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,tspan,Δt=Δt,save_timeseries=true,alg=:ode23)
 
@@ -26,7 +26,7 @@ sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode45_fe)
 prob = twoDimlinearODEExample()
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode1)
-plot(sol,plottrue=true)
+TEST_PLOT && plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,tspan,Δt=Δt,save_timeseries=true,alg=:ode23)
 
@@ -35,7 +35,7 @@ sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode45)
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode78)
 
 #sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode23s) #ODE.jl issues
-#plot(sol,plottrue=true)
+#TEST_PLOT && plot(sol,plottrue=true)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode2_midpoint)
 

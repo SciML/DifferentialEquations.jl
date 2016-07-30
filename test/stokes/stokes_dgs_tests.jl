@@ -44,7 +44,7 @@ for j = 1:100
 end
 
 #Should Converge
-plot(1:100,[err1 err2],yscale=:log10)
+TEST_PLOT && plot(1:100,[err1 err2],yscale=:log10)
 
 #Now test rp
 err1 = Vector{Float64}(0)
