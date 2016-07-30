@@ -316,9 +316,9 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   px = grids[1][1:end-1,1:end-1]+Δxs[1]/2
   py = grids[2][1:end-1,1:end-1]+Δxs[2]/2
   #prob = dirichletzeroStokesExample()
-  @unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueKnown
+  @unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueknown
 
-  if trueKnown
+  if trueknown
     u_analytic = float(uanalytic(ux,uy))
     vTrue = float(vanalytic(vx,vy))
     pTrue = float(panalytic(px,py))
@@ -338,7 +338,7 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   atomloaded = isdefined(Main,:Atom)
 
   if converrors
-    if !trueKnown
+    if !trueknown
       error("True not known. Cannot calculate errors. Abandoning convergence calculations")
       converrors = false
     end
@@ -415,7 +415,7 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   end
 
   #Generate and return solution type
-  if trueKnown
+  if trueknown
     errors = Dict(:ul∞=>maximum(abs(u-u_analytic)),:vl∞=>maximum(abs(v-vTrue)),
                   :pl∞=>maximum(abs(p-pTrue)),:ul2=>norm(u-u_analytic,2),
                   :vl2=>norm(v-vTrue,2),:pl2=>norm(p-pTrue,2),
@@ -443,5 +443,5 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
     converrors = nothing
   end
 
-  return(StokesSolution(u,v,p,u_analytic,vTrue,pTrue,mesh,trueKnown;errors=errors,converrors=converrors))
+  return(StokesSolution(u,v,p,u_analytic,vTrue,pTrue,mesh,trueknown;errors=errors,converrors=converrors))
 end

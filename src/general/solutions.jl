@@ -7,7 +7,7 @@ Holds the data for the solution to a finite element problem.
 
 * `fem_mesh::FEMmesh`: The finite element mesh the problem was solved on.
 * `u::Array{Float64}`: The solution (at the final timepoint)
-* `trueKnown::Bool`: Boolean flag for if the true solution is given.
+* `trueknown::Bool`: Boolean flag for if the true solution is given.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
@@ -22,7 +22,7 @@ is specified in the solver.
 type FEMSolution <: DESolution
   fem_mesh::FEMmesh
   u#::Array{Number}
-  trueKnown::Bool
+  trueknown::Bool
   u_analytic::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
   appxTrue::Bool
@@ -52,7 +52,7 @@ Holds the data for the solution to a SDE problem.
 ### Fields
 
 * `u::Array{Float64}`: The solution (at the final timepoint)
-* `trueKnown::Bool`: Boolean flag for if the true solution is given.
+* `trueknown::Bool`: Boolean flag for if the true solution is given.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
@@ -69,7 +69,7 @@ in the solver.
 """
 type SDESolution <: DESolution
   u#::AbstractArrayOrNumber
-  trueKnown::Bool
+  trueknown::Bool
   u_analytic#::AbstractArrayOrNumber
   errors#::Dict{}
   timeseries::AbstractArrayOrVoid
@@ -83,20 +83,20 @@ type SDESolution <: DESolution
   W
   function SDESolution(u::Union{AbstractArray,Number};timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
     save_timeseries = timeseries == nothing
-    trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
+    trueknown = false
+    return(new(u,trueknown,nothing,Dict(),timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
   end
   function SDESolution(u,u_analytic;timeseries=nothing,analytics=nothing,ts=nothing,Δts=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
     save_timeseries = timeseries != nothing
-    trueKnown = true
+    trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
       errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
     end
-    return(new(u,trueKnown,u_analytic,errors,timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueknown,u_analytic,errors,timeseries,ts,Δts,Ws,analytics,false,save_timeseries,maxStackSize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueKnown,a.u_analytic,a.errors,a.timeseries,a.ts,a.Δts,a.Ws,a.analytics,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
+  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.ts,a.Δts,a.Ws,a.analytics,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
 end
 
 """
@@ -107,7 +107,7 @@ Holds the data for the solution to an ODE problem.
 ### Fields
 
 * `u::Array{Float64}`: The solution (at the final timepoint)
-* `trueKnown::Bool`: Boolean flag for if the true solution is given.
+* `trueknown::Bool`: Boolean flag for if the true solution is given.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
@@ -122,7 +122,7 @@ is specified in the solver.
 """
 type ODESolution <: DESolution
   u#::AbstractArrayOrNumber
-  trueKnown::Bool
+  trueknown::Bool
   u_analytic#::AbstractArrayOrNumber
   errors#::Dict{}
   timeseries::AbstractArrayOrVoid
@@ -132,17 +132,17 @@ type ODESolution <: DESolution
   save_timeseries::Bool
   function ODESolution(u;timeseries=nothing,analytics=nothing,ts=nothing)
     save_timeseries = timeseries == nothing
-    trueKnown = false
-    return(new(u,trueKnown,nothing,Dict(),timeseries,ts,analytics,false,save_timeseries))
+    trueknown = false
+    return(new(u,trueknown,nothing,Dict(),timeseries,ts,analytics,false,save_timeseries))
   end
   function ODESolution(u,u_analytic;timeseries=nothing,analytics=nothing,ts=nothing)
     save_timeseries = timeseries != nothing
-    trueKnown = true
+    trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
       errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-analytics)),:l2=>sqrt(mean((timeseries-analytics).^2)))
     end
-    return(new(u,trueKnown,u_analytic,errors,timeseries,ts,analytics,false,save_timeseries))
+    return(new(u,trueknown,u_analytic,errors,timeseries,ts,analytics,false,save_timeseries))
   end
 end
 
@@ -160,7 +160,7 @@ Holds the data for the solution to a Stokes problem.
 * vTrue
 * pTrue
 * mesh
-* trueKnown
+* trueknown
 * errors
 * converrors
 
@@ -173,10 +173,10 @@ type StokesSolution <: DESolution
   vTrue
   pTrue
   mesh::FDMMesh
-  trueKnown::Bool
+  trueknown::Bool
   errors
   converrors
-  StokesSolution(u,v,p,u_analytic,vTrue,pTrue,mesh,trueKnown;errors=nothing,converrors=nothing) = new(u,v,p,u_analytic,vTrue,pTrue,mesh,trueKnown,errors,converrors)
+  StokesSolution(u,v,p,u_analytic,vTrue,pTrue,mesh,trueknown;errors=nothing,converrors=nothing) = new(u,v,p,u_analytic,vTrue,pTrue,mesh,trueknown,errors,converrors)
 end
 
 """
@@ -220,3 +220,15 @@ Base.size(sol::DESolution) = (length(sol.ts),size(sol.u))
 Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i,..]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i,I...]
+
+function print(io::IO, sol::DESolution)
+  if sol.trueknown
+    str="Analytical solution is known"
+  else
+    str="No analytical solution is known"
+  end
+  println("$(typeof(sol)) with $(length(sol)) timesteps. $str")
+  sol.trueknown && println("errors: $(sol.errors)")
+  println("ts: $(sol.ts)")
+  println("timeseries: $(sol.timeseries)")
+end
