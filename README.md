@@ -14,7 +14,7 @@ This is a package for solving numerically solving differential equations in Juli
 - Differential delay equations.
 
 It includes algorithms from very recent research, as well as algorithms optimized for HPC applications. It integrates with the Julia package sphere, for example
-using Juno's progress meter, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
+using Juno's progress meter, and wraps other differential equation solvers (ODE.jl, ODEInterface.jl) so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
 
 For information on using the package, [see the documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/).
 
