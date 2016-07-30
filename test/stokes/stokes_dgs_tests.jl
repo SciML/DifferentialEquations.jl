@@ -21,7 +21,7 @@ py = grids[2][1:end-1,1:end-1]+Δxs[2]/2
 #prob = dirichletzeroStokesExample()
 @unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueKnown
 
-uTrue = float(uanalytic(ux,uy))
+u_analytic = float(uanalytic(ux,uy))
 vTrue = float(vanalytic(vx,vy))
 pTrue = float(panalytic(px,py))
 
@@ -39,7 +39,7 @@ DifferentialEquations.GSv!(v,f₂,Δxs,pTrue,vgD,grids,vx,vy) # Inplace v => vha
 for j = 1:100
   DifferentialEquations.GSu!(u,f₁,Δxs,pTrue,ugD,grids,ux,uy) # Inplace u => uhalf
   DifferentialEquations.GSv!(v,f₂,Δxs,pTrue,vgD,grids,vx,vy) # Inplace v => vhalf
-  DifferentialEquations.push!(err1,maximum(u-uTrue))
+  DifferentialEquations.push!(err1,maximum(u-u_analytic))
   DifferentialEquations.push!(err2,maximum(v-vTrue))
 end
 
@@ -50,7 +50,7 @@ TEST_PLOT && plot(1:100,[err1 err2],yscale=:log10)
 err1 = Vector{Float64}(0)
 val  = Vector{Float64}(0)
 
-DifferentialEquations.calc_rp!(rp,uTrue,vTrue,Δxs,g,px,py)
+DifferentialEquations.calc_rp!(rp,u_analytic,vTrue,Δxs,g,px,py)
 
 #Should be close to zero with true values.
 maximum(rp) < 1e-2

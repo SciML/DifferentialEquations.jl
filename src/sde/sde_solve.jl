@@ -142,7 +142,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
   if knownanalytic
-    uTrue = analytic(u₀,t,W)
+    u_analytic = analytic(u₀,t,W)
     if save_timeseries
       analytics = GrowableArray(analytic(u₀,ts[1],Ws[1]))
       for i in 2:size(Ws,1)
@@ -151,9 +151,9 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
       Ws = copy(Ws)
       timeseries = copy(timeseries)
       analytics = copy(analytics)
-      return(SDESolution(u,uTrue,W=W,timeseries=timeseries,ts=ts,Ws=Ws,analytics=analytics,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,ts=ts,Ws=Ws,analytics=analytics,maxStackSize=maxStackSize))
     else
-      return(SDESolution(u,uTrue,W=W,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,maxStackSize=maxStackSize))
     end
   else #No known analytic
     if save_timeseries
