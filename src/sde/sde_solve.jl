@@ -49,6 +49,11 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
   end
 
+  if adaptive
+    warn("SDE adaptivity is currently disabled")
+    adaptive = false
+  end
+  
   if adaptive && alg ∈ SDE_ADAPTIVEALGORITHMS
     tType = Float64
     initialize_backend(:DataStructures)
@@ -57,11 +62,6 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
     end
   end
 
-  if adaptive
-    warn("SDE adaptivity is currently disabled")
-    adaptive = false
-  end
-  
   if Δt == 0.0
     if alg==:Euler
       order = 0.5
