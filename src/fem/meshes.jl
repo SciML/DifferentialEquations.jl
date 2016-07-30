@@ -129,7 +129,7 @@ Returns the grid in the iFEM form of the two arrays (node,elem)
 function fem_squaremesh(square,h)
   x0 = square[1]; x1= square[2];
   y0 = square[3]; y1= square[4];
-  x,y = Matlab.meshgrid(x0:h:x1,y0:h:y1)
+  x,y = meshgrid(x0:h:x1,y0:h:y1)
   node = [x[:] y[:]];
 
   ni = size(x,1); # number of rows
@@ -192,10 +192,10 @@ type FDMMesh
     if length(mins)!=length(maxs) || length(Δxs)!=length(mins) error("DimensionMismatch") end
     dims = length(mins)
     if buildMesh && dims == 2
-      grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
+      grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2])
       gridSize = size(grids[1])
     elseif buildMesh && dims == 3
-      grids = Matlab.meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2],mins[3]:Δxs[3]:maxs[3])
+      grids = meshgrid(mins[1]:Δxs[1]:maxs[1],mins[2]:Δxs[2]:maxs[2],mins[3]:Δxs[3]:maxs[3])
       gridSize = size(grids[1])
     else
       grids = nothing
