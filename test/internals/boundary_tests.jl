@@ -1,6 +1,6 @@
 ##Boundary Setting Tests
 
-using DifferentialEquations
+using DifferentialEquations, JLD
 
 mesh = meshExample_lakemesh()
 
