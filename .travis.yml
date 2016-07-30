@@ -21,3 +21,7 @@ after_success:
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); include(joinpath("docs", "make.jl"))'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
   - julia -e 'cd(Pkg.dir("DifferentialEquations")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+addons:
+  apt:
+    packages:
+      - gfortran

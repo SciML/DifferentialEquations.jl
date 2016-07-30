@@ -3,7 +3,6 @@ Parameters
 GrowableArrays
 ChunkedArrays
 EllipsisNotation
-VectorizedRoutines
 IterativeSolvers
 Plots
 JLD
