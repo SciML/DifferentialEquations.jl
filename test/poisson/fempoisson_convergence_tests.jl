@@ -10,7 +10,7 @@ sim = test_convergence(Δxs::AbstractArray,prob::PoissonProblem)
 
 #Plot Result
 dxstring = L"\Delta x"
-plot(sim,xguide=dxstring)
+TEST_PLOT && plot(sim,xguide=dxstring)
 
 #Returns true if convergence is like Δx^2 in L2
 sim.𝒪est[:L2]-2 <.1

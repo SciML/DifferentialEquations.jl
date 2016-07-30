@@ -1,6 +1,5 @@
 LaTeXStrings
 ImageMagick
-GR
 Stats
 Distributions
 HypothesisTests
@@ -8,4 +7,3 @@ ForwardDiff
 NLsolve
 DataStructures
 ODEInterface
-ODE

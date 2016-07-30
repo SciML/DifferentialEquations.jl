@@ -32,7 +32,7 @@ The plotting abilities are given by Plots.jl. Since DifferentialEquations.jl
 defines recipes for the solution objects, we can plot the default plot via:
 =#
 gr()
-plot(sol::FEMSolution) #To save the plot, use savefig("plot.png") or "plot.pdf", etc.
+TEST_PLOT && plot(sol::FEMSolution) #To save the plot, use savefig("plot.png") or "plot.pdf", etc.
 
 ### Test Results
 

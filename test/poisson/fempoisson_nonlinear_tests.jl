@@ -9,7 +9,7 @@ prob = poissonProblemExample_birthdeath()
 
 sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 
-plot(sol,plottrue=false,zlim=(0,2))
+TEST_PLOT && plot(sol,plottrue=false,zlim=(0,2))
 
 #Returns true if computed solution is homogenous near 2
 maximum(abs(sol.u - 2))< 1e-9
