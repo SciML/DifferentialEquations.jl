@@ -10,6 +10,21 @@ using Base.Test
 # Run tests
 
 tic()
+
+#Internals
+println("Quadrature Points Tests")
+@time @test include("internals/quadpts_test.jl")
+println("Number of Parameters Calc Tests")
+@time @test include("internals/numparameters_test.jl")
+println("Assembly Tests")
+@time @test include("internals/assembly_tests.jl")
+println("Boundary Tests")
+@time @test include("internals/boundary_tests.jl")
+println("Example Mesh Tests")
+@time @test include("internals/mesh_examples_tests.jl")
+println("Simple Mesh Tests")
+@time @test include("internals/mesh_SimpleMesh_tests.jl")
+
 #ODE
 println("Linear ODE Tests")
 @time @test include("ode/ode_twodimlinear_tests.jl")
@@ -89,19 +104,5 @@ println("Stokes Tests")
 @time @test include("stokes/stokes_tests.jl")
 println("DGS Internals Test")
 @time @test include("stokes/stokes_dgs_tests.jl")
-
-#Internals
-println("Quadrature Points Tests")
-@time @test include("internals/quadpts_test.jl")
-println("Number of Parameters Calc Tests")
-@time @test include("internals/numparameters_test.jl")
-println("Assembly Tests")
-@time @test include("internals/assembly_tests.jl")
-println("Boundary Tests")
-@time @test include("internals/boundary_tests.jl")
-println("Example Mesh Tests")
-@time @test include("internals/mesh_examples_tests.jl")
-println("Simple Mesh Tests")
-@time @test include("internals/mesh_SimpleMesh_tests.jl")
 
 toc()

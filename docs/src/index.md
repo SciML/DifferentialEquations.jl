@@ -42,11 +42,12 @@ stochastic variants for handling Gaussian Space-time white noise SPDEs.
 * ODEs
 * SODEs
 * (Stochastic) PDEs
-    * Linear Poisson Equation
-    * Semi-linear Poisson Equation
-    * Linear Heat Equation
-    * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
-    * Stationary Stokes Equation
+
+  * Linear Poisson Equation
+  * Semi-linear Poisson Equation
+  * Linear Heat Equation
+  * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
+  * Stationary Stokes Equation
 
 # Implemented Solvers
 
@@ -56,76 +57,102 @@ For example, if u₀ is a matrix (and your problem functions are designed to wor
 with matrices), then the solver will use the matrices without error.
 
 * ODEs
-    - Optimized Explicit Solvers
-        * Euler
-        * Midpoint Method
-        * RK4
-    - General Explicit (Adaptive) Runge-Kutta Methods
-        * Huen's Method
-        * Cash-Karp
-        * Runge-Kutta-Fuhlberg (RKF) 4/5
-        * Ralston's Method
-        * Bogaki-Shampine
-        * Dormand-Prince 4/5
-        * Runge-Kutta-Fuhlberg (RKF) 7/8
-        * Dormand-Prince 7/8
-    - Stiff Solvers
-        * Implicit Euler
-        * Trapezoidal
-        * Rosenbrock32
-    - Wrappers for ODEInterface.jl
-        * dorpi5 - Hairer's DP5(4)
-        * dop853 - Hairer's DP8(5,3)
-        * odex - Extrapolation algorithm based on explicit midpoint rule
-        * radau5 - Implicit Runge-Kutta order 5
-        * radau - Implicit Runge-Kutta variable order 5-13
-        * seulex - Extrapolation based on linear implicit Euler
-    - Wrappers for ODE.jl
-        * ode23 - Bogacki-Shampine's method
-        * ode45 - Dormand-Prince  4/5
-        * ode78 - Runge-Kutta-Fuhlberg  7/8
-        * ode23s - Rosenbrock method 2/3
-        * ode1 - Forward Euler
-        * midpoint - Midpoint method
-        * ode2_heun - Huen's method
-        * ode4 - RK4
-        * ode45_fe - Runge-Kutta-Fuhlberg 4/5
+
+  * Optimized Explicit Solvers
+
+    * Euler
+    * Midpoint Method
+    * RK4
+
+  * General Explicit (Adaptive) Runge-Kutta Methods
+
+    * Huen's Method
+    * Cash-Karp
+    * Runge-Kutta-Fuhlberg (RKF) 4/5
+    * Ralston's Method
+    * Bogaki-Shampine
+    * Dormand-Prince 4/5
+    * Runge-Kutta-Fuhlberg (RKF) 7/8
+    * Dormand-Prince 7/8
+
+  * Stiff Solvers
+
+    * Implicit Euler
+    * Trapezoidal
+    * Rosenbrock32
+
+  * Wrappers for ODEInterface.jl
+
+    * dorpi5 - Hairer's DP5(4)
+    * dop853 - Hairer's DP8(5,3)
+    * odex - Extrapolation algorithm based on explicit midpoint rule
+    * radau5 - Implicit Runge-Kutta order 5
+    * radau - Implicit Runge-Kutta variable order 5-13
+    * seulex - Extrapolation based on linear implicit Euler
+
+  * Wrappers for ODE.jl
+
+    * ode23 - Bogacki-Shampine's method
+    * ode45 - Dormand-Prince  4/5
+    * ode78 - Runge-Kutta-Fuhlberg  7/8
+    * ode23s - Rosenbrock method 2/3
+    * ode1 - Forward Euler
+    * midpoint - Midpoint method
+    * ode2_heun - Huen's method
+    * ode4 - RK4
+    * ode45_fe - Runge-Kutta-Fuhlberg 4/5
+
+
 * SODEs
-    - Euler-Maruyama
-    - Milstein
-    - Rossler-SRK
-* (Stochastic) PDEs
-    - Finite Element Solvers
-        * Semilinear Poisson Equation
-            * See implicit solvers
-    - Semilinear Heat Equation (Reaction-Diffusion)
-        * Forward Euler [Maruyama]
-        * Backward Euler [Maruyama]
-        * Semi-implicit Crank-Nicholson [Maruyama]
-        * Semi-implicit Backward Euler [Maruyama]
-    - Linear Heat Equation
-        * Forward Euler [Maruyama]
-        * Backward Euler [Maruyama]
-        * Crank-Nicholson [Maruyama]
+
+  * Euler-Maruyama
+  * Milstein
+  * Rossler-SRK
+
+
+* Finite Element Solvers (Stochastic) PDEs
+
+  * Semilinear Poisson Equation
+
+    * See implicit solvers
+
+  * Semilinear Heat Equation (Reaction-Diffusion)
+
+    * Forward Euler [Maruyama]
+    * Backward Euler [Maruyama]
+    * Semi-implicit Crank-Nicholson [Maruyama]
+    * Semi-implicit Backward Euler [Maruyama]
+
+  * Linear Heat Equation
+
+    * Forward Euler [Maruyama]
+    * Backward Euler [Maruyama]
+    * Crank-Nicholson [Maruyama]
+
+
 * Implicit Solvers
-    - Direct
-    - Factorizations (LU, Cholesky, QR, SVD)
-    - Conjugate-Gradient
-    - GMRES
+
+  * Direct
+  * Factorizations (LU, Cholesky, QR, SVD)
+  * Conjugate-Gradient
+  * GMRES
 
 # Roadmap
 
 * SODE Solvers
-    - Adaptive-SRK
-* (Stochastic) PDE Solvers
-    - Finite difference solvers:
-      * Semi-linear Heat Equation (Reaction-Diffusion Equation)
-      * Semi-linear Poisson Equation
-      * Wave Equation
-      * Transport Equation
-      * Stokes Equation
-      * Implicit Integration Factor (IIF) Maruyama
-      * Implicit Integration Factor (IIF) Milstein
+
+  * Adaptive-SRK
+
+
+* Finite difference solvers (Stochastic) PDE Solvers
+
+  * Semi-linear Heat Equation (Reaction-Diffusion Equation)
+  * Semi-linear Poisson Equation
+  * Wave Equation
+  * Transport Equation
+  * Stokes Equation
+  * Implicit Integration Factor (IIF) Maruyama
+  * Implicit Integration Factor (IIF) Milstein
 
 ## Tutorials
 
