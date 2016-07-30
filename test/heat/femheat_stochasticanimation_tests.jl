@@ -14,7 +14,7 @@ prob = heatProblemExample_stochasticbirthdeath()
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitCrankNicholson,save_timeseries=true,solver=:LU)
 
 println("Generating Animation")
-animate(sol::FEMSolution;zlims=(0,3),cbar=false)
+TEST_PLOT && animate(sol::FEMSolution;zlims=(0,3),cbar=false)
 
 # Returns true if nothing error'd
 true
