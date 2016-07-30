@@ -31,12 +31,14 @@ are aliased to one can use the DifferentialEquations.jl syntax `Δtmax` or `MAXS
 
 The possibilities for the solvers are:
   * DifferentialEquations.jl
+
       - `:Euler`- The canonical forward Euler method.
       - `:Midpoint` - The second order midpoint method.
       - `:RK4` - The canonical Runge-Kutta Order 4 method.
       - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
-    are specified via the keyword argument `tab=tableau`. The default tableau is
-    for Dormand-Prine 4/5. Other supplied tableaus include:
+        are specified via the keyword argument `tab=tableau`. The default tableau is
+        for Dormand-Prine 4/5. Other supplied tableaus include:
+
           * `constructRalston()` - Returns a tableau for Ralston's method
           * `constructRKF()` - Returns a tableau for Runge-Kutta-Fuhlberg 4/5
           * `constructBogakiShampine()` - Returns a tableau for Bogakai-Shampine's 2/3 method.
@@ -44,17 +46,22 @@ The possibilities for the solvers are:
           * `constructDormandPrince()` - Returns a tableau for Dormand-Prince 4/5.
           * `constructRKF8()` - Returns a tableau for Runge-Kutta-Fuhlberg Order 7/8 method.
           * `constructDormandPrice8()` - Returns a tableau for the Dormand-Prince Order 7/8 method.
+
       - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
       - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
       - `:Rosenbrock32` - A fast solver which is good for stiff equations.
+
   * ODEInterface.jl
+
       - `:dopri5` - Hairer's classic implementation of the Dormand-Prince 4/5 method.
       - `:dop853` - Explicit Runge-Kutta 8(5,3) by Dormand-Prince
       - `:odex` - GBS extrapolation-algorithm based on the midpoint rule
       - `:seulex` - extrapolation-algorithm bsed on the linear implicit Euler method
       - `:radau` - implicit Runge-Kutta (Rdau IIA) of variable order between 5 and 13
       - `:radau5` - implicit Runge-Kutta method (Radau IIA) of order 5
+
   * ODE.jl
+
       - `:ode23` - Bogakai-Shampine's 2/3 method
       - `:ode45` - Dormand-Prince's 4/5 method
       - `:ode78` - Runge-Kutta-Fuhlberg 7/8 method

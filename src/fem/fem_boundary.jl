@@ -73,7 +73,11 @@ function setboundary(node::AbstractArray,elem::AbstractArray,bdtype)
   bdedge = [i';j']'
   bdedgeidx = zeros(Int64,size(bdedge,1))
   for i = 1:size(bdedge,1)
-    bdedgeidx[i] = find(all(totaledge .== bdedge[i,:], 2))[1] #Find the edge in totaledge and save index
+    if VERSION < v"0.5-"
+      bdedgeidx[i] = find(all(totaledge .== bdedge[i,:], 2))[1] #Find the edge in totaledge and save index
+    else
+      bdedgeidx[i] = find(all(totaledge .== bdedge[i,:]', 2))[1] #Find the edge in totaledge and save index
+    end
   end
 
   bdflag = zeros(Int8,Neall)
