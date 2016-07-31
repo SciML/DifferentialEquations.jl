@@ -9,7 +9,7 @@ end
 
 @def ode_savevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,u)
+    push!(timeseries,copy(u))
     push!(ts,t)
   end
 end
@@ -177,9 +177,6 @@ function ode_feagin10(f::Function,u::AbstractArray,t,Δt,T,iter,order,
   a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b,c = constructFeagin10(eltype(u))
   k = Vector{typeof(u)}(17)
   sumIdx = [collect(1:3);5;7;collect(9:17)]
-  if adaptive
-    utmp = similar(u)
-  end
   while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
@@ -200,18 +197,11 @@ function ode_feagin10(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     k[16] = Δt*f(u + a1500*k[1]              + a1502*k[3]                                                                                                                                                     + a1514*k[15],t + c[15]*Δt)
     k[17] = Δt*f(u + a1600*k[1] + a1601*k[2] + a1602*k[3]              + a1604*k[5] + a1605*k[6] + a1606*k[7] + a1607*k[8] + a1608*k[9] + a1609*k[10] + a1610*k[11] + a1611*k[12] + a1612*k[13] + a1613*k[14] + a1614*k[15] + a1615*k[16],t + c[16]*Δt)
     if adaptive
-      utmp = copy(u)
-      for i=sumIdx
-        utmp += b[i]*k[i]
-      end
+      utmp = u + b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5] + b[7]*k[7] + b[9]*k[9] + b[10]*k[10] + b[11]*k[11] + b[12]*k[12] + b[13]*k[13] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16] + b[17]*k[17]
       EEst = norm(((k[2] - k[16]) / 360)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
       #=
-      for i=1:17
-        u[:]+=vec(b[i]*k[i])
-      end
-      =#
-      #=
+      #why doesn't this work?
       for i in eachindex(u)
         u[i] = u[i] + b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[9]*k[9][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[12]*k[12][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[17]*k[17][i]
       end
@@ -230,10 +220,7 @@ function ode_feagin12(f::Function,u::AbstractArray,t,Δt,T,iter,order,
   k = Vector{typeof(u)}(25)
   sumIdx = [collect(1:3);5;7;collect(9:17)]
   adaptiveConst = 49/640
-  if adaptive
-    utmp = similar(u)
-  end
-  while t < T
+   while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
     k[2]  = Δt*f(u + a0100*k[1],t + c[1]*Δt)
@@ -262,10 +249,7 @@ function ode_feagin12(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     k[25] = Δt*f(u + a2400*k[1] + a2401*k[2] + a2402*k[3]              + a2404*k[5]              + a2406*k[7] + a2407*k[8] + a2408*k[9] + a2409*k[10] + a2410*k[11] + a2411*k[12] + a2412*k[13] + a2413*k[14] + a2414*k[15] + a2415*k[16] + a2416*k[17] + a2417*k[18] + a2418*k[19] + a2419*k[20] + a2420*k[21] + a2421*k[22] + a2422*k[23] + a2423*k[24],t + c[24]*Δt)
 
     if adaptive
-      utmp = copy(u)
-      for i=sumIdx
-        utmp += b[i]*k[i]
-      end
+      utmp = u + b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5] + b[7]*k[7] + b[8]*k[8] + b[10]*k[10] + b[11]*k[11] + b[13]*k[13] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16] + b[17]*k[17] + b[18]*k[18] + b[19]*k[19] + b[20]*k[20] + b[21]*k[21] + b[22]*k[22] + b[23]*k[23] + b[24]*k[24] + b[25]*k[25]
       EEst = norm(((k[1] - k[23]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
       #=
@@ -292,9 +276,6 @@ function ode_feagin14(f::Function,u::AbstractArray,t,Δt,T,iter,order,
   k = Vector{typeof(u)}(35)
   sumIdx = [collect(1:3);5;7;collect(9:17)]
   adaptiveConst = 1/1000
-  if adaptive
-    utmp = similar(u)
-  end
   while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
@@ -333,10 +314,7 @@ function ode_feagin14(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     k[34] = Δt*f(u + a3300*k[1]              + a3302*k[3]                                                                                                                                                                                                                                                                                                                                                                                                                 + a3332*k[33],t + c[33]*Δt)
     k[35] = Δt*f(u + a3400*k[1] + a3401*k[2] + a3402*k[3]              + a3404*k[5]              + a3406*k[7] + a3407*k[8]              + a3409*k[10] + a3410*k[11] + a3411*k[12] + a3412*k[13] + a3413*k[14] + a3414*k[15] + a3415*k[16] + a3416*k[17] + a3417*k[18] + a3418*k[19] + a3419*k[20] + a3420*k[21] + a3421*k[22] + a3422*k[23] + a3423*k[24] + a3424*k[25] + a3425*k[26] + a3426*k[27] + a3427*k[28] + a3428*k[29] + a3429*k[30] + a3430*k[31] + a3431*k[32] + a3432*k[33] + a3433*k[34],t + c[34]*Δt)
     if adaptive
-      utmp = copy(u)
-      for i=sumIdx
-        utmp += b[i]*k[i]
-      end
+      utmp = u + b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5] + b[7]*k[7] + b[8]*k[8] + b[10]*k[10] + b[11]*k[11] + b[12]*k[12] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16] + b[18]*k[18] + b[19]*k[19] + b[20]*k[20] + b[21]*k[21] + b[22]*k[22] + b[23]*k[23] + b[24]*k[24] + b[25]*k[25] + b[26]*k[26] + b[27]*k[27] + b[28]*k[28] + b[29]*k[29] + b[30]*k[30] + b[31]*k[31] + b[32]*k[32] + b[33]*k[33] + b[34]*k[34] + b[35]*k[35]
       EEst = norm(((k[1] - k[33]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
       #=
