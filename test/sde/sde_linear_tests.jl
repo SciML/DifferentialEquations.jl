@@ -4,7 +4,7 @@ prob = linearSDEExample()
 
 ## Solve and plot
 println("Solve and Plot")
-sol =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),save_timeseries=true,alg=:SRI)
+sol =solve(prob::SDEProblem,[0,1],Δt=1//2^(4),alg=:SRI)
 
 TEST_PLOT && plot(sol)
 
