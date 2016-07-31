@@ -49,6 +49,9 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
     - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
     - `:Rosenbrock32` - A fast solver which is good for stiff equations.
+    - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
+    - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
+    - `:Feagin14` - Feagin's 14th-order Runge-Kutta method.
 
   * ODEInterface.jl
 
