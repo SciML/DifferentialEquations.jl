@@ -8,8 +8,7 @@ This is a package for solving numerically solving differential equations in Juli
 
 - Ordinary differential equations (ODEs)
 - Stochastic ordinary differential equations (SODEs or SDEs)
-- Stochastic partial differential equations (SPDEs)
-- Partial differential equations (with both finite difference and finite element methods)
+- (Stochastic) partial differential equations ((S)PDEs) (with both finite difference and finite element methods)
 - Algebraic differential equations
 - Differential delay equations.
 
