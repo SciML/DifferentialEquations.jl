@@ -44,6 +44,8 @@ println("ODE Number Type Tests")
 @time @test include("ode/ode_numbertype_tests.jl")
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
+println("ODE Feagin Tests")
+@time @test include("ode/ode_feagin_tests.jl")
 
 #SDE
 println("Linear SDE Tests")
