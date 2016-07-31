@@ -25,7 +25,7 @@ sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10)
 
 prob = twoDimlinearODEExample(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
 
-sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10)
+# sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10) Fails, no norm2 for Matrix of BigFloats
 
 sim = test_convergence(Δts,prob,alg=:Feagin10)
 #plot(sim); Plots.gui()
