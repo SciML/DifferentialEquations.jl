@@ -37,7 +37,8 @@ using the `@def` macro (they essentially copy-paste the code from the line which
 says `@def ode_loopheader begin ... end`). Note that the loopfooter code takes
 care of the code for doing the adaptive timestepping. All that is required for
 the adaptivity is that the algorithm computes an error estimate `EEst` each time,
-and that the algorithm's symbol is added to the dictionary `ODE_DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS`
+save the value `utmp` to be what will replace `u` if the step is not rejected,
+and add the algorithm's symbol is added to the dictionary `ODE_DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS`
 in `ode_constants.jl`. If implicit solving is needed (via NLsolve),
 add the algorithm's symbol to `DIFFERENTIALEQUATIONSJL_IMPLICITALGS` and the
 conditional dependency will be supplied. Note that you may need more function
