@@ -84,6 +84,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   o[:T] = tspan[2]
   @unpack prob: f,u₀,knownanalytic,analytic,numvars,sizeu
 
+
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   # Get the control variables
   @materialize progress_steps, progressbar, adaptive, save_timeseries = command_opts
@@ -105,7 +106,6 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   end
 
   if alg ∈ DIFFERENTIALEQUATIONSJL_ALGORITHMS
-
     o2 = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
     for (k,v) in o
       o2[k]=v
@@ -156,6 +156,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       u,t,timeseries,ts = ode_rk4(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
     elseif alg==:ExplicitRK
       u,t,timeseries,ts = ode_explicitrk(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,A,c,α,αEEst,stages,order,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin10
+      u,t,timeseries,ts = ode_feagin10(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin12
+      u,t,timeseries,ts = ode_feagin12(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin14
+      u,t,timeseries,ts = ode_feagin14(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:ImplicitEuler
       u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
     elseif alg==:Trapezoid

@@ -102,7 +102,7 @@ solved over the given Δts.
 """
 function test_convergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],save_timeseries=true,adaptive=false,kwargs...)
   N = length(Δts)
-  solutions = DESolution[solve(prob::ODEProblem,tspan;Δt=Δts[i],save_timeseries=true,adaptive=false,kwargs...) for i=1:N]
+  solutions = DESolution[solve(prob::ODEProblem,tspan;Δt=Δts[i],save_timeseries=save_timeseries,adaptive=adaptive,kwargs...) for i=1:N]
   auxdata = Dict(:Δts =>  Δts)
   ConvergenceSimulation(solutions,Δts,auxdata=auxdata)
 end
@@ -147,12 +147,7 @@ function test_convergence(Δxs::AbstractArray,prob::PoissonProblem)
   return(ConvergenceSimulation(solutions,Δxs,auxdata=auxdata))
 end
 
-"""
-length(simres::ConvergenceSimulation)
 
-Returns the number of simultations in the Convergence Simulation
-"""
-Base.length(simres::ConvergenceSimulation) = simres.N
 
 """
 conv_ests(error::Vector{Number})
@@ -191,4 +186,34 @@ function conv_ests(error::AbstractArray{Float64})
     S[i,j] = log2(error[i+1,j]/error[i,j])
   end
   return(abs(mean(S)))
+end
+
+"""
+length(simres::ConvergenceSimulation)
+
+Returns the number of simultations in the Convergence Simulation
+"""
+Base.length(sim::ConvergenceSimulation) = sim.N
+Base.endof( sim::ConvergenceSimulation) = length(sim)
+Base.getindex(sim::ConvergenceSimulation,i::Int) = sim.solutions[i]
+Base.getindex(sim::ConvergenceSimulation,i::Int,I::Int...) = sim.solutions[i][I]
+
+function print(io::IO, sim::ConvergenceSimulation)
+  println(io,"$(typeof(sim)) of length $(length(sim)).")
+  print(io,"Convergence Estimates:")
+  for (k,v) in sim.𝒪est
+    print(" ($k,$v)")
+  end
+  println(io,"\n-----------Errors-----------")
+  for (k,v) in sim.errors
+    println(io,"$k: $v")
+  end
+end
+
+function show(io::IO,sim::ConvergenceSimulation)
+  println(io,"$(typeof(sim)) of length $(length(sim)).")
+  print(io,"Convergence Estimates:")
+  for (k,v) in sim.𝒪est
+    print(io," ($k,$v)")
+  end
 end
