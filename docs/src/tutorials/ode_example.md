@@ -7,11 +7,11 @@ folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/
 In this example we will solve the equation
 
 ```math
-du/dt = f(u,t)
+\frac{du}{dt} = f(u,t)
 ```
 
 where ``f(u,t)=αu``. We know via Calculus that the solution to this equation is
-``u(t)=u₀*exp(α*t)``. To solve this numerically, we define a problem type by
+``u(t)=u₀\exp(αt)``. To solve this numerically, we define a problem type by
 giving it the equation and the initial condition:
 
 ```julia
