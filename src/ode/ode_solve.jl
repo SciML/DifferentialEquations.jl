@@ -34,6 +34,9 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:Euler`- The canonical forward Euler method.
     - `:Midpoint` - The second order midpoint method.
     - `:RK4` - The canonical Runge-Kutta Order 4 method.
+    - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
+    - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
+    - `:Feagin14` - Feagin's 14th-order Runge-Kutta method.
     - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
       are specified via the keyword argument `tab=tableau`. The default tableau is
       for Dormand-Prine 4/5. Other supplied tableaus include:
@@ -49,9 +52,6 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
     - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
     - `:Rosenbrock32` - A fast solver which is good for stiff equations.
-    - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
-    - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
-    - `:Feagin14` - Feagin's 14th-order Runge-Kutta method.
 
   * ODEInterface.jl
 
@@ -100,7 +100,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     error("u₀ must be a number or an array")
   end
 
-  u = u₀
+  u = copy(u₀)
 
   if :alg ∈ keys(o)
     alg = o[:alg]
