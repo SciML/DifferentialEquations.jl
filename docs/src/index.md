@@ -63,6 +63,9 @@ with matrices), then the solver will use the matrices without error.
     * Euler
     * Midpoint Method
     * RK4
+    * Feagin's Order 10/8 Method
+    * Feagin's Order 12/10 Method
+    * Feagin's Order 14/12 Method
 
   * General Explicit (Adaptive) Runge-Kutta Methods
 
