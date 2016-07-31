@@ -38,7 +38,7 @@ sim = test_convergence(Δts,prob,alg=:Feagin12)
 bool5 = abs(sim.𝒪est[:final]-12) < testTol
 
 sim = test_convergence(Δts,prob,alg=:Feagin14)
-TEST_PLOT && plot(sim)
+#TEST_PLOT && plot(sim)
 #sim = test_convergence(Δts,prob,alg=:RK4)
 bool6 = abs(sim.𝒪est[:final]-15) < testTol #Upped to 15 for test
 
