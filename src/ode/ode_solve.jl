@@ -42,11 +42,11 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
       for Dormand-Prine 4/5. Other supplied tableaus include:
 
       * `constructRalston()` - Returns a tableau for Ralston's method
-      * `constructRKF()` - Returns a tableau for Runge-Kutta-Fuhlberg 4/5
+      * `constructRKF()` - Returns a tableau for Runge-Kutta-Fehlberg 4/5
       * `constructBogakiShampine()` - Returns a tableau for Bogakai-Shampine's 2/3 method.
       * `constructCashKarp()` - Returns a tableau for the Cash-Karp method 4/5.
       * `constructDormandPrince()` - Returns a tableau for Dormand-Prince 4/5.
-      * `constructRKF8()` - Returns a tableau for Runge-Kutta-Fuhlberg Order 7/8 method.
+      * `constructRKF8()` - Returns a tableau for Runge-Kutta-Fehlberg Order 7/8 method.
       * `constructDormandPrice8()` - Returns a tableau for the Dormand-Prince Order 7/8 method.
 
     - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
@@ -66,13 +66,13 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 
     - `:ode23` - Bogakai-Shampine's 2/3 method
     - `:ode45` - Dormand-Prince's 4/5 method
-    - `:ode78` - Runge-Kutta-Fuhlberg 7/8 method
+    - `:ode78` - Runge-Kutta-Fehlberg 7/8 method
     - `:ode23s` - Rosenbrock's 2/3 method
     - `:ode1` - Forward Euler
     - `:ode2_midpoint` - Midpoint Method
     - `:ode2_heun` - Heun's Method
     - `:ode4` - RK4
-    - `:ode45_fe` - Runge-Kutta-Fuhlberg 4/5 method
+    - `:ode45_fe` - Runge-Kutta-Fehlberg 4/5 method
 """
 function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   tspan = vec(tspan)

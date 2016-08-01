@@ -71,11 +71,11 @@ with matrices), then the solver will use the matrices without error.
 
     * Huen's Method
     * Cash-Karp
-    * Runge-Kutta-Fuhlberg (RKF) 4/5
+    * Runge-Kutta-Fehlberg (RKF) 4/5
     * Ralston's Method
     * Bogaki-Shampine
     * Dormand-Prince 4/5
-    * Runge-Kutta-Fuhlberg (RKF) 7/8
+    * Runge-Kutta-Fehlberg (RKF) 7/8
     * Dormand-Prince 7/8
 
   * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl) and optionally [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl). See [Conditional Dependencies](/man/conditional_dependencies).
@@ -97,13 +97,13 @@ with matrices), then the solver will use the matrices without error.
 
     * ode23 - Bogacki-Shampine's method
     * ode45 - Dormand-Prince  4/5
-    * ode78 - Runge-Kutta-Fuhlberg  7/8
+    * ode78 - Runge-Kutta-Fehlberg  7/8
     * ode23s - Rosenbrock method 2/3
     * ode1 - Forward Euler
     * midpoint - Midpoint method
     * ode2_heun - Huen's method
     * ode4 - RK4
-    * ode45_fe - Runge-Kutta-Fuhlberg 4/5
+    * ode45_fe - Runge-Kutta-Fehlberg 4/5
 
 
 * SODEs
