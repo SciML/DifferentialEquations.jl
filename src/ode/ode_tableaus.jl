@@ -49,7 +49,7 @@ end
 """
 constructRKF()
 
-Constructs the tableau object for the Runge-Kutta-Fuhlberg Order 4/5 method.
+Constructs the tableau object for the Runge-Kutta-Fehlberg Order 4/5 method.
 """
 function constructRKF()
   A = [0 0 0 0 0 0
@@ -120,7 +120,7 @@ end
 """
 constructRKF8()
 
-Constructs the tableau object for the Runge-Kutta-Fuhlberg Order 7/8 method.
+Constructs the tableau object for the Runge-Kutta-Fehlberg Order 7/8 method.
 """
 function constructRKF8()
   A =[0 0 0 0 0 0 0 0 0 0 0 0 0
