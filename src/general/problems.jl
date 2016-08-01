@@ -37,14 +37,14 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
 * `gN` = neumann boundary function
 
-* `σ` = The function which multiplies the noise dW. By default σ is 0.
+* `σ` = The function which multiplies the noise dW. By default `σ=0`.
 
 * `noisetype` = A string which specifies the type of noise to be generated. By default
-  noisetype is :White for Gaussian Spacetime White Noise.
+  `noisetype=:White` for Gaussian Spacetime White Noise.
 
 * `numvars` = Number of variables in the system. Automatically calculated from u₀ in most cases.
 
-* `D` = Array which defines the diffusion coefficients. Defaults to 1's.
+* `D` = Array which defines the diffusion coefficients. Default is `D=ones(1,numvars)`.
 """
 type HeatProblem <: DEProblem
   "u₀: Initial value function"
@@ -190,14 +190,14 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
 * `gN` = neumann boundary function
 
-* `σ` = The function which multiplies the noise ``dW``. By default `σ` is 0.
+* `σ` = The function which multiplies the noise ``dW``. By default `σ=0`.
 
 * `noisetype` = A string which specifies the type of noise to be generated. By default
-  `noisetype` is :White for Gaussian Spacetime White Noise.
+  `noisetype=:White` for Gaussian Spacetime White Noise.
 
 * `numvars` = The number of variables in the Poisson system. Automatically calculated in many cases.
 
-* `D` = Vector of diffusion coefficients. Defaults to ones.
+* `D` = Vector of diffusion coefficients. Defaults is `D=ones(1,numvars)`.
 
 """
 type PoissonProblem <: DEProblem
