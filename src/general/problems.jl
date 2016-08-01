@@ -1,5 +1,5 @@
 """
-HeatProblem
+`HeatProblem`
 
 Wraps the data that define a 2D heat equation problem:
 
@@ -9,7 +9,7 @@ u_t = Δu + f
 
 with bounday conditions `gD` on the dirichlet boundary and gN on the neumann boundary.
 Linearity is determined by whether the forcing function `f` is a function of two
-variables (x,t) or three (u,x,t) (with x=[:,1] and y=[:,2]).
+variables `(x,t)` or three `(u,x,t)` (with `x=[:,1]` and `y=[:,2]`).
 
 If they keyword `σ` is given, then this wraps the data that define a 2D stochastic heat equation
 
@@ -23,11 +23,13 @@ u_t = Δu + f + σdW_t
 solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
 
 * `HeatProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and `f`.
-If your initial data is a vector, wrap it as u₀(x) = vector.
+If your initial data is a vector, wrap it as `u₀(x) = vector`.
 
-Note: If all functions are of (x,t), then the program assumes it's linear. Write
-your functions using x = x[:,1] and y = x[:,2].  Use f=f(u,x,t) and σ=σ(u,x,t) (if specified)
-for nonlinear problems (with the boundary conditions still (x,t))
+Note: If all functions are of `(x,t)`, then the program assumes it's linear. Write
+your functions using the math to program syntrax translation: ``x`` `= x[:,1]` and ``y`` `= x[:,2]`.
+Use `f=f(u,x,t)` and `σ=σ(u,x,t)` (if specified) for nonlinear problems
+(with the boundary conditions still (x,t)). Systems of equations can be specified
+with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
 ###Keyword Arguments
 
@@ -159,8 +161,8 @@ Wraps the data that define a 2D linear Poisson equation problem:
 ```
 
 with bounday conditions `gD` on the dirichlet boundary and gN on the neumann boundary.
-Linearity is determined by whether the forcing function `f` is a function of two
-variables (x,t) or three (u,x,t) (with x=[:,1] and y=[:,2]).
+Linearity is determined by whether the forcing function `f` is a function of one
+variable `(x)` or two `(u,x)` (with `x=[:,1]` and `y=[:,2]`).
 
 If they keyword `σ` is given, then this wraps the data that define a 2D stochastic heat equation
 
@@ -170,15 +172,17 @@ If they keyword `σ` is given, then this wraps the data that define a 2D stochas
 
 ###Constructors
 
-PoissonProblem(f,analytic,Du): Defines the dirichlet problem with analytical solution `analytic`, solution gradient `Du = [u_x,u_y]`,
+`PoissonProblem(f,analytic,Du)`: Defines the dirichlet problem with analytical solution `analytic`, solution gradient `Du = [u_x,u_y]`,
 and forcing function `f`
 
-PoissonProblem(u₀,f): Defines the problem with initial value `u₀` (as a function) and f.
-If your initial data is a vector, wrap it as u₀(x) = vector.
+`PoissonProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and f.
+If your initial data is a vector, wrap it as `u₀(x) = vector`.
 
-Note: If all functions are of (x,t), then the program assumes it's linear. Write
-your functions using x = x[:,1] and y = x[:,2].  Use f=f(u,x,t) and σ=σ(u,x,t) (if specified)
-for nonlinear problems (with the boundary conditions still (x,t))
+Note: If all functions are of `(x)`, then the program assumes it's linear. Write
+your functions using the math to program syntrax translation: ``x`` `= x[:,1]` and ``y`` `= x[:,2]`.
+Use `f=f(u,x)` and `σ=σ(u,x)` (if specified) for nonlinear problems
+(with the boundary conditions still (x)). Systems of equations can be specified
+with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
 ###Keyword Arguments
 
@@ -307,7 +311,12 @@ Wraps the data which defines an SDE problem
 u = f(u,t)dt + Σσᵢ(u,t)dWⁱ
 ```
 
-with initial condition u₀.
+with initial condition ``u₀``.
+
+### Constructors
+
+`SDEProblem(f,σ,u₀;analytic=nothing)` : Defines the SDE with the specified functions and
+defines the solution if analytic is given.
 
 ### Fields
 
@@ -318,11 +327,6 @@ with initial condition u₀.
 * `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
 * `sizeu`: The size of the initial condition (and thus `u`)
-
-### Constructors
-
-SDEProblem(f,σ,u₀;analytic=nothing) : Defines the SDE with the specified functions and
-defines the solution if analytic is given.
 
 """
 type SDEProblem <: DEProblem
@@ -360,7 +364,12 @@ Wraps the data which defines an SDE problem
 du/dt = f(u,t)
 ```
 
-with initial condition u₀.
+with initial condition ``u₀``.
+
+### Constructors
+
+`ODEProblem(f,u₀;analytic=nothing)` : Defines the SDE with the specified functions and
+defines the solution if analytic is given.
 
 ### Fields
 
@@ -370,11 +379,6 @@ with initial condition u₀.
 * `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
 * `sizeu`: The size of the initial condition (and thus `u`)
-
-### Constructors
-
-ODEProblem(f,u₀;analytic=nothing) : Defines the SDE with the specified functions and
-defines the solution if analytic is given.
 
 """
 type ODEProblem <: DEProblem
@@ -411,6 +415,12 @@ Defines the solution to a stationary Stokes problem:
 
 ```
 
+### Constructors
+
+`StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic)`
+
+`StokesProblem(f₁,f₂,g,ugD,vgD)`
+
 ### Fields
 
 * `f₁::Function`
@@ -422,12 +432,6 @@ Defines the solution to a stationary Stokes problem:
 * `vanalytic::Function`
 * `panalytic::Function`
 * `trueknown::Bool`
-
-### Constructors
-
-`StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic)`
-
-`StokesProblem(f₁,f₂,g,ugD,vgD)`
 """
 type StokesProblem
   f₁::Function

@@ -5,6 +5,12 @@ from a group of simulations. This object will automatically assemble error vecto
 into a more useful manner and provide plotting functionality. Convergence estimates
 are also given by pair-wise estimates.
 
+One can automatically have DifferentialEquations.jl perform the error analysis by
+passing a `ConvergenceSimulation` a vector of solutions, or using one of the provided
+`test_convergence` functions. These will give order of convergence estimates and
+provide plotting functionality. This requires that the true solution was provided
+in the problem definition.
+
 `ConvergenceSimulation`s can either be created by passing the constructor the
 appropriate solution array or by using one of the provided `test_convergence` functions.
 
