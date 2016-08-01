@@ -20,10 +20,10 @@ u_t = Δu + f + σdW_t
 ###Constructors
 
 * `HeatProblem(analytic,Du,f)`: Defines the dirichlet problem with solution `analytic`,
-solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
+  solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
 
 * `HeatProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and `f`.
-If your initial data is a vector, wrap it as `u₀(x) = vector`.
+  If your initial data is a vector, wrap it as `u₀(x) = vector`.
 
 Note: If all functions are of `(x,t)`, then the program assumes it's linear. Write
 your functions using the math to program syntrax translation: ``x`` `= x[:,1]` and ``y`` `= x[:,2]`.
@@ -40,7 +40,7 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 * `σ` = The function which multiplies the noise dW. By default σ is 0.
 
 * `noisetype` = A string which specifies the type of noise to be generated. By default
-noisetype is :White for Gaussian Spacetime White Noise.
+  noisetype is :White for Gaussian Spacetime White Noise.
 
 * `numvars` = Number of variables in the system. Automatically calculated from u₀ in most cases.
 
@@ -193,7 +193,7 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 * `σ` = The function which multiplies the noise ``dW``. By default `σ` is 0.
 
 * `noisetype` = A string which specifies the type of noise to be generated. By default
-`noisetype` is :White for Gaussian Spacetime White Noise.
+  `noisetype` is :White for Gaussian Spacetime White Noise.
 
 * `numvars` = The number of variables in the Poisson system. Automatically calculated in many cases.
 
