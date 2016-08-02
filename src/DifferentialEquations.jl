@@ -2,7 +2,7 @@ __precompile__()
 
 module DifferentialEquations
 
-using IterativeSolvers, Parameters, Plots,
+using IterativeSolvers, Parameters, Plots, GenericSVD,
       EllipsisNotation, GrowableArrays, ChunkedArrays
 import Base: length, size, getindex, endof, show, print
 

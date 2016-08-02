@@ -6,6 +6,14 @@ macro def(name, definition)
     end
 end
 
+#=
+function cg!(x::AbstractMatrix, A, b, Pl=1; tol::Real=size(A,2)*eps(), maxiter::Int=size(A,2))
+  for i=1:size(x,2)
+    cg!(x[i,:],A,B,Pl,tol=tol,maxiter=maxiter)
+  end
+end
+=#
+
 ## Unused other versions of Functions
 
 #=
