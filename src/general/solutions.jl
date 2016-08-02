@@ -35,9 +35,9 @@ type FEMSolution <: DESolution
                   :l∞=> maximum(abs(u-u_analytic)), :l2=> norm(u-u_analytic,2))
     return(new(fem_mesh,u,true,u_analytic,errors,false,timeSeries,t,prob,true))
   end
-  FEMSolution(fem_mesh,u,u_analytic,sol,Du,prob) = FEMSolution(fem_mesh::FEMmesh,u,u_analytic,sol,Du,nothing,nothing,prob,save_timeseries=false)
+  FEMSolution(fem_mesh,u,u_analytic,sol,Du,prob) = FEMSolution(fem_mesh::FEMmesh,u,u_analytic,sol,Du,[],[],prob,save_timeseries=false)
   function FEMSolution(fem_mesh::FEMmesh,u::AbstractArray,prob)
-    return(FEMSolution(fem_mesh,u,nothing,nothing,prob,save_timeseries=false))
+    return(FEMSolution(fem_mesh,u,[],[],prob,save_timeseries=false))
   end
   function FEMSolution(fem_mesh::FEMmesh,u::AbstractArray,timeseries,t,prob;save_timeseries=true)
     return(new(fem_mesh,u,false,nothing,Dict{String,Float64},false,timeseries,t,prob,save_timeseries))
@@ -230,9 +230,9 @@ function print(io::IO, sol::DESolution)
   println(io,"$(typeof(sol)) with $(length(sol)) timesteps. $str")
   println(io,"u: $(sol.u)")
   sol.trueknown && println(io,"errors: $(sol.errors)")
-  println(io,"t: $(sol.t)")
-  println(io,"timeseries: $(sol.timeseries)")
-  sol.trueknown && println(io,"timeseries_analytic: $(sol.timeseries_analytic)")
+  sol.t!=[] && println(io,"t: $(sol.t)")
+  sol.timeseries!=[] && println(io,"timeseries: $(sol.timeseries)")
+  sol.trueknown && sol.timeseries_analytic!=[] && println(io,"timeseries_analytic: $(sol.timeseries_analytic)")
   nothing
 end
 
