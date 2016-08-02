@@ -220,6 +220,7 @@ Base.size(sol::DESolution) = (length(sol.t),size(sol.u))
 Base.endof(sol::DESolution) = length(sol)
 Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i,..]
 Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i,I...]
+Base.getindex(sol::DESolution,::Colon) = sol.timeseries
 
 function print(io::IO, sol::DESolution)
   if sol.trueknown
