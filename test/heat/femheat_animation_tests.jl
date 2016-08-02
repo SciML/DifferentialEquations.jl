@@ -17,4 +17,4 @@ println("Generating Animation")
 TEST_PLOT && animate(sol::FEMSolution;zlims=(0,.1),cbar=false)
 
 ## Should have moved off the frame.
-maximum(sim.u) .< 1e-6
+maximum(sol.u) .< 1e-6

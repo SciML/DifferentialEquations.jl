@@ -9,26 +9,35 @@ end
 
 @def femheat_deterministicimplicitlinearsolve begin
   if solver==:Direct || solver==:Cholesky || solver==:QR || solver==:LU || solver==:SVD
-    u[freenode,:] = lhs\rhs(u,i)
+    u[freenode,:] = lhs\(Dinv.*rhs(u,i))
   elseif solver==:CG
-    u[freenode],ch = cg!(u[freenode],lhs,(u,i)->vec(rhs(u,i))) # Requires Vector, need to change rhs
+    for i=1:size(u,2)
+      u[freenode,i],ch = cg!(u[freenode,i],lhs,Dinv.*rhs(u,i)[:,i]) # Requires Vector, need to change rhs
+    end
   elseif solver==:GMRES
-    u[freenode],ch = gmres!(u[freenode],lhs,(u,i)->vec(rhs(u,i))) # Requires Vector, need to change rhs
+    for i=1:size(u,2)
+      u[freenode,i],ch = gmres!(u[freenode,i],lhs,Dinv.*rhs(u,i)[:,i]) # Requires Vector, need to change rhs
+    end
   end
 end
 
 @def femheat_stochasticimplicitlinearsolve begin
   dW = next(rands)
   if solver==:Direct || solver==:Cholesky || solver==:QR || solver==:LU || solver==:SVD
-    u[freenode,:] = lhs\rhs(u,i,dW)
+    u[freenode,:] = lhs\(Dinv.*rhs(u,i,dW))
   elseif solver==:CG
-    u[freenode],ch = cg!(u[freenode],lhs,rhs(u,i,dW)) # Requires Vector, need to change rhs
+    for i=1:size(u,2)
+      u[freenode,i],ch = cg!(u[freenode,i],lhs,Dinv.*rhs(u,i,dW)) # Requires Vector, need to change rhs
+    end
   elseif solver==:GMRES
-    u[freenode],ch = gmres!(u[freenode],lhs,rhs(u,i,dW)) # Requires Vector, need to change rhs
+    for i=1:size(u,2)
+      u[freenode,i],ch = gmres!(u[freenode,i],lhs,Dinv.*rhs(u,i,dW)) # Requires Vector, need to change rhs
+    end
   end
 end
 
 @def femheat_implicitpreamble begin
+  Dinv = D.^(-1)
   if solver==:Cholesky
     lhs = cholfact(lhs) # Requires positive definite, may be violated
   elseif solver==:LU

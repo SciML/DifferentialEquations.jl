@@ -69,14 +69,19 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
   else #Not Stochastic
     rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars)
   end
+  Dinv = D.^(-1)
   #Solve
   if islinear
     if solver==:Direct
       u[freenode,:]=D.*(A[freenode,freenode]\rhs(u)[freenode])
     elseif solver==:CG
-      u[freenode,:],ch=cg!(u[freenode,:],A[freenode,freenode],rhs(u)[freenode]) # Needs diffusion constant
+      for i = 1:size(u,2)
+        u[freenode,i],ch=cg!(u[freenode,i],A[freenode,freenode],Dinv.*rhs(u)[freenode,i]) # Needs diffusion constant
+      end
     elseif solver==:GMRES
-      u[freenode,:],ch=gmres!(u[freenode,:],A[freenode,freenode],rhs(u)[freenode]) # Needs diffusion constants
+      for i = 1:size(u,2)
+        u[freenode,i],ch=gmres!(u[freenode,i],A[freenode,freenode],Dinv.*rhs(u)[freenode,i]) # Needs diffusion constants
+      end
     end
     #Adjust result
     if isempty(dirichlet) #isPureneumann
