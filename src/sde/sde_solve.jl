@@ -1,5 +1,5 @@
 """
-`solve(prob::SDEProblem,tspan)``
+`solve(prob::SDEProblem,tspan)`
 
 Solves the SDE as defined by prob on the time interval tspan. If not given, tspan defaults to [0,1].
 
