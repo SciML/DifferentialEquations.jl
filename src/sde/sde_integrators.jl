@@ -13,7 +13,7 @@ end
 
 @def sde_savevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,copy(u))
+    push!(timeseries,u)
     push!(ts,t)
     push!(Ws,W)
   end
@@ -125,7 +125,6 @@ function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseri
   mσ₁ = similar(u)
   E₁ = similar(u)
   E₂ = similar(u)
-  update = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -161,14 +160,8 @@ function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseri
       mσ₁[i] = -σ₁[i]
       E₁[i] = fH01[i]+fH02[i]
       E₂[i] = chi2[i]*(2σ₁[i] - Fσ₂o3[i] - Tσ₃o3[i]) + chi3[i]*(2mσ₁[i] + 5σ₂o3[i] - Tσ₃o3[i] + σ₄[i])
-      update[i] = (fH01[i] + 2fH02[i])/3 + ΔW[i]*(mσ₁[i] + Fσ₂o3[i] + Tσ₃o3[i]) + chi1[i]*(mσ₁[i] + Fσ₂o3[i] - σ₃o3[i]) + E₂[i]
+      u[i] = u[i] +  (fH01[i] + 2fH02[i])/3 + ΔW[i]*(mσ₁[i] + Fσ₂o3[i] + Tσ₃o3[i]) + chi1[i]*(mσ₁[i] + Fσ₂o3[i] - σ₃o3[i]) + E₂[i]
     end
-    #=
-    for i in eachindex(u)
-      u[i] = u[i] + update[i]
-    end
-    =#
-    u = u + update
 
     @sde_loopfooter
   end
@@ -182,7 +175,7 @@ function sde_sriw1optimized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,t
   H0 = Array{eltype(u)}(size(u)...,4)
   H1 = Array{eltype(u)}(size(u)...,4)
   @sde_adaptiveprelim
-  while t<T
+  @inbounds while t<T
     @sde_loopheader
 
     chi1 = (ΔW.^2 - Δt)/2sqΔt #I_(1,1)/sqrt(h)
@@ -358,7 +351,6 @@ function sde_sra1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeserie
   tmp1 = similar(u)
   E₁ = similar(u)
   E₂ = similar(u)
-  update = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -374,11 +366,8 @@ function sde_sra1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeserie
     for i in eachindex(u)
       E₁[i] = k₁[i] + k₂[i]
       E₂[i] = chi2[i]*(σt[i]-σpΔt[i]) #Only for additive!
-      update[i] = k₁[i]/3 + 2k₂[i]/3 + E₂[i] + ΔW[i]*σpΔt[i]
+      u[i] = u[i] + k₁[i]/3 + 2k₂[i]/3 + E₂[i] + ΔW[i]*σpΔt[i]
     end
-
-    u = u + update
-
     @sde_loopfooter
   end
   u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2

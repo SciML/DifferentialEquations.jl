@@ -9,7 +9,7 @@ end
 
 @def ode_savevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,copy(u))
+    push!(timeseries,u)
     push!(ts,t)
   end
 end
