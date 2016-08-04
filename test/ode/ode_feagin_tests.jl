@@ -43,7 +43,15 @@ sim = test_convergence(Δts,prob,alg=:Feagin14)
 bool6 = abs(sim.𝒪est[:final]-15) < testTol #Upped to 15 for test
 
 prob = linearODEExample(α=BigFloat(1)/BigFloat(4),u₀=BigFloat(1)/BigFloat(2))
-@time sim = test_convergence(Δts,prob,alg=:Feagin14)
-bool6 = abs(sim.𝒪est[:final]-16) < testTol #Upped to 15 for test
+@time sim = test_convergence(Δts,prob,alg=:Feagin10)
+bool7 = abs(sim.𝒪est[:final]-10) < testTol #Upped to 15 for test
 
-bool1 && bool2 && bool3 && bool4 && bool5 && bool6
+@time sim = test_convergence(Δts,prob,alg=:Feagin12)
+bool8 = abs(sim.𝒪est[:final]-12) < testTol #Upped to 15 for test
+
+@time sim = test_convergence(Δts,prob,alg=:Feagin14)
+bool9 = abs(sim.𝒪est[:final]-16) < testTol #Upped to 15 for test
+
+
+
+bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9
