@@ -87,7 +87,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
 
   T = tType(tspan[2])
   t = tType(tspan[1])
-  u = u₀
+  u = copy(u₀)
   if numvars == 1
     W = 0.0
     Z = 0.0
