@@ -57,6 +57,10 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   H0 = Array{eltype(u)}(size(u)...,length(α))
   H1 = Array{eltype(u)}(size(u)...,length(α))
+  A0temp = similar(u); A1temp = similar(u)
+  B0temp = similar(u); B1temp = similar(u)
+  atemp = similar(u); btemp = similar(u)
+  E₂ = similar(u); E₁temp = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -68,10 +72,10 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
     H0[:]=zeros(size(u)...,length(α))
     H1[:]=zeros(size(u)...,length(α))
     for i = 1:length(α)
-      A0temp = zeros(size(u))
-      B0temp = zeros(size(u))
-      A1temp = zeros(size(u))
-      B1temp = zeros(size(u))
+      A0temp[:]=zero(eltype(A0temp))
+      B0temp[:]=zero(eltype(B0temp))
+      A1temp[:]=zero(eltype(A1temp))
+      B1temp[:]=zero(eltype(B1temp))
       for j = 1:i-1
         A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
         B0temp += B₀[i,j]*σ(H1[..,j],t + c₁[j]*Δt)
@@ -81,10 +85,10 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
       H0[..,i] = u + A0temp*Δt + B0temp.*chi2
       H1[..,i] = u + A1temp*Δt + B1temp*sqΔt
     end
-    atemp = zeros(size(u))
-    btemp = zeros(size(u))
-    E₂    = zeros(size(u))
-    E₁temp= zeros(size(u))
+    atemp[:]=zero(eltype(atemp))
+    btemp[:]=zero(eltype(btemp))
+    E₂[:]=zero(eltype(E₂))
+    E₁temp[:]=zero(eltype(E₁temp))
     for i = 1:length(α)
       ftemp = f(H0[..,i],t+c₀[i]*Δt)
       atemp += α[i]*ftemp
