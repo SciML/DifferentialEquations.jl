@@ -67,7 +67,7 @@ end
 
 function ode_euler(f::Function,u::Number,t,Δt,T,iter,maxiters,
                     timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     u = u + Δt.*f(u,t)
     @ode_loopfooter
@@ -78,10 +78,12 @@ end
 function ode_euler(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
                     timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   du = similar(u)
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     f(du,u,t)
-    u = u + Δt.*du
+    for i in eachindex(u)
+      u[i] = u[i] + Δt*du[i]
+    end
     @ode_loopfooter
   end
   return u,t,timeseries,ts
@@ -90,7 +92,7 @@ end
 function ode_midpoint(f::Function,u::Number,t,Δt,T,iter,
                       maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     u = u + Δt.*f(u+halfΔt.*f(u,t),t+halfΔt)
     @ode_loopfooter
@@ -104,12 +106,16 @@ function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
   utilde = similar(u)
   du1 = similar(u)
   du2 = similar(u)
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     f(du1,u,t)
-    utilde[:] = u+halfΔt.*du1
+    for i in eachindex(u)
+      utilde[i] = u[i]+halfΔt*du1[i]
+    end
     f(du2,utilde,t+halfΔt)
-    u = u + Δt.*du2
+    for i in eachindex(u)
+      u[i] = u[i] + Δt*du2[i]
+    end
     @ode_loopfooter
   end
   return u,t,timeseries,ts
@@ -118,7 +124,7 @@ end
 function ode_rk4(f::Function,u::Number,t,Δt,T,iter,maxiters,
                 timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     k₁ = f(u,t)
     ttmp = t+halfΔt
@@ -142,14 +148,28 @@ function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
   du2 = similar(u)
   du3 = similar(u)
   du4 = similar(u)
-  while t < T
+  tmp = similar(u)
+  tmp2 = similar(u)
+  tmp3 = similar(u)
+  @inbounds while t < T
     @ode_loopheader
     f(k₁,u,t)
     ttmp = t+halfΔt
-    f(k₂,u+halfΔt*k₁,ttmp)
-    f(k₃,u+halfΔt*k₂,ttmp)
-    f(k₄,u+Δt*k₃,t+Δt)
-    u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
+    for i in eachindex(u)
+      tmp[i] = u[i]+halfΔt*k₁[i]
+    end
+    f(k₂,tmp,ttmp)
+    for i in eachindex(u)
+      tmp2[i] = u[i]+halfΔt*k₂[i]
+    end
+    f(k₃,tmp2,ttmp)
+    for i in eachindex(u)
+      tmp3[i] = u[i]+Δt*k₃[i]
+    end
+    f(k₄,tmp3,t+Δt)
+    for i in eachindex(u)
+      u[i] = u[i] + Δt*(k₁[i] + 2k₂[i] + 2k₃[i] + k₄[i])/6
+    end
     @ode_loopfooter
   end
   return u,t,timeseries,ts
@@ -159,7 +179,7 @@ function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxiters,timeseries,t
                         timeseries_steps,save_timeseries,A,c,α,αEEst,stages,order,γ,adaptive,
                         abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
   ks = Array{typeof(u)}(stages)
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     for i = 1:stages
       utilde = 0
@@ -195,28 +215,45 @@ function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
   for i = 1:stages-1
     push!(ks,similar(u))
   end
-  while t < T
+  utilde = similar(u)
+  tmp = similar(u)
+  utmp = similar(u)
+  uEEst = similar(u)
+  @inbounds while t < T
     @ode_loopheader
     for i = 1:stages
-      utilde = zeros(u)
+      utilde[:] = zero(eltype(u))
       for j = 1:i-1
-        utilde += A[i,j]*ks[..,j]
+        for k in eachindex(u)
+          utilde[k] += A[i,j]*ks[j][k]
+        end
       end
-      f(ks[i],u+Δt*utilde,t+c[i]*Δt)
+      for k in eachindex(u)
+        tmp[k] = u[k]+Δt*utilde[k]
+      end
+      f(ks[i],tmp,t+c[i]*Δt)
     end
-    utilde = α[1]*ks[1]
+    utilde[:] = α[1]*ks[1]
     for i = 2:stages
-      utilde += α[i]*ks[i]
+      for k in eachindex(u)
+        utilde[k] += α[i]*ks[i][k]
+      end
     end
     if adaptive
-      utmp = u + Δt*utilde
-      uEEst = αEEst[1]*ks[1]
+      for i in eachindex(u)
+        utmp[i] = u[i] + Δt*utilde[i]
+      end
+      uEEst[:] = αEEst[1]*ks[1]
       for i = 2:stages
-        uEEst += αEEst[i]*ks[i]
+        for j in eachindex(u)
+          uEEst[j] += αEEst[i]*ks[i][j]
+        end
       end
       EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalnorm)
     else
-      u = u + Δt*utilde
+      for i in eachindex(u)
+        u[i] = u[i] + Δt*utilde[i]
+      end
     end
     @ode_loopfooter
   end
@@ -232,7 +269,8 @@ function ode_feagin10(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     push!(k,similar(u))
   end
   update = similar(u)
-  while t < T
+  utmp = similar(u)
+  @inbounds while t < T
     @ode_loopheader
     f(k[1],u,t); k[1]*=Δt
     f(k[2],u + a0100*k[1],t + c[1]*Δt); k[2]*=Δt
@@ -255,7 +293,9 @@ function ode_feagin10(f::Function,u::AbstractArray,t,Δt,T,iter,order,
       update[i] = b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[9]*k[9][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[12]*k[12][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[17]*k[17][i]
     end
     if adaptive
-      utmp = u + update
+      for i in eachindex(u)
+        utmp[i] = u[i] + update[i]
+      end
       EEst = norm(((k[2] - k[16]) / 360)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
       for i in eachindex(u)
@@ -273,7 +313,7 @@ function ode_feagin10(f::Function,u::Number,t,Δt,T,iter,order,
   a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b,c = constructFeagin10(eltype(u))
   k = Vector{typeof(u)}(17)
   sumIdx = [collect(1:3);5;7;collect(9:17)]
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
     k[2]  = Δt*f(u + a0100*k[1],t + c[1]*Δt)
@@ -313,8 +353,9 @@ function ode_feagin12(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     push!(k,similar(u))
   end
   update = similar(u)
+  utmp = similar(u)
   adaptiveConst = 49/640
-   while t < T
+  @inbounds while t < T
     @ode_loopheader
     f(k[1] ,u,t); k[1]*=Δt
     f(k[2] ,u + a0100*k[1],t + c[1]*Δt); k[2]*=Δt
@@ -346,7 +387,9 @@ function ode_feagin12(f::Function,u::AbstractArray,t,Δt,T,iter,order,
       update[i] = b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[17]*k[17][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i]
     end
     if adaptive
-      utmp = u + update
+      for i in eachindex(u)
+        utmp[i] = u[i] + update[i]
+      end
       EEst = norm(((k[1] - k[23]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting so in-place
       for i in eachindex(u)
@@ -364,7 +407,7 @@ function ode_feagin12(f::Function,u::Number,t,Δt,T,iter,order,
   a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1208,a1209,a1210,a1211,a1300,a1308,a1309,a1310,a1311,a1312,a1400,a1408,a1409,a1410,a1411,a1412,a1413,a1500,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1600,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,a1700,a1705,a1706,a1707,a1708,a1709,a1710,a1711,a1712,a1713,a1714,a1715,a1716,a1800,a1805,a1806,a1807,a1808,a1809,a1810,a1811,a1812,a1813,a1814,a1815,a1816,a1817,a1900,a1904,a1905,a1906,a1908,a1909,a1910,a1911,a1912,a1913,a1914,a1915,a1916,a1917,a1918,a2000,a2003,a2004,a2005,a2007,a2009,a2010,a2017,a2018,a2019,a2100,a2102,a2103,a2106,a2107,a2109,a2110,a2117,a2118,a2119,a2120,a2200,a2201,a2204,a2206,a2220,a2221,a2300,a2302,a2322,a2400,a2401,a2402,a2404,a2406,a2407,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2416,a2417,a2418,a2419,a2420,a2421,a2422,a2423,b,c = constructFeagin12(eltype(u))
   k = Vector{typeof(u)}(25)
   adaptiveConst = 49/640
-   while t < T
+  @inbounds while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
     k[2]  = Δt*f(u + a0100*k[1],t + c[1]*Δt)
@@ -413,8 +456,9 @@ function ode_feagin14(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     push!(k,similar(u))
   end
   update = similar(u)
+  utmp = similar(u)
   adaptiveConst = 1/1000
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     f(k[1] ,u,t); k[1]*=Δt
     f(k[2] ,u + a0100*k[1],t + c[1]*Δt); k[2]*=Δt
@@ -455,7 +499,9 @@ function ode_feagin14(f::Function,u::AbstractArray,t,Δt,T,iter,order,
       update[i] =b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[12]*k[12][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i] + b[26]*k[26][i] + b[27]*k[27][i] + b[28]*k[28][i] + b[29]*k[29][i] + b[30]*k[30][i] + b[31]*k[31][i] + b[32]*k[32][i] + b[33]*k[33][i] + b[34]*k[34][i] + b[35]*k[35][i]
     end
     if adaptive
-      utmp = u + update
+      for i in eachindex(u)
+        utmp[i] = u[i] + update[i]
+      end
       EEst = norm(((k[1] - k[33]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
       for i in eachindex(u)
@@ -473,7 +519,7 @@ function ode_feagin14(f::Function,u::Number,t,Δt,T,iter,order,
   a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1208,a1209,a1210,a1211,a1300,a1308,a1309,a1310,a1311,a1312,a1400,a1408,a1409,a1410,a1411,a1412,a1413,a1500,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1600,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,a1700,a1712,a1713,a1714,a1715,a1716,a1800,a1812,a1813,a1814,a1815,a1816,a1817,a1900,a1912,a1913,a1914,a1915,a1916,a1917,a1918,a2000,a2012,a2013,a2014,a2015,a2016,a2017,a2018,a2019,a2100,a2112,a2113,a2114,a2115,a2116,a2117,a2118,a2119,a2120,a2200,a2212,a2213,a2214,a2215,a2216,a2217,a2218,a2219,a2220,a2221,a2300,a2308,a2309,a2310,a2311,a2312,a2313,a2314,a2315,a2316,a2317,a2318,a2319,a2320,a2321,a2322,a2400,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2416,a2417,a2418,a2419,a2420,a2421,a2422,a2423,a2500,a2508,a2509,a2510,a2511,a2512,a2513,a2514,a2515,a2516,a2517,a2518,a2519,a2520,a2521,a2522,a2523,a2524,a2600,a2605,a2606,a2607,a2608,a2609,a2610,a2612,a2613,a2614,a2615,a2616,a2617,a2618,a2619,a2620,a2621,a2622,a2623,a2624,a2625,a2700,a2705,a2706,a2707,a2708,a2709,a2711,a2712,a2713,a2714,a2715,a2716,a2717,a2718,a2719,a2720,a2721,a2722,a2723,a2724,a2725,a2726,a2800,a2805,a2806,a2807,a2808,a2810,a2811,a2813,a2814,a2815,a2823,a2824,a2825,a2826,a2827,a2900,a2904,a2905,a2906,a2909,a2910,a2911,a2913,a2914,a2915,a2923,a2924,a2925,a2926,a2927,a2928,a3000,a3003,a3004,a3005,a3007,a3009,a3010,a3013,a3014,a3015,a3023,a3024,a3025,a3027,a3028,a3029,a3100,a3102,a3103,a3106,a3107,a3109,a3110,a3113,a3114,a3115,a3123,a3124,a3125,a3127,a3128,a3129,a3130,a3200,a3201,a3204,a3206,a3230,a3231,a3300,a3302,a3332,a3400,a3401,a3402,a3404,a3406,a3407,a3409,a3410,a3411,a3412,a3413,a3414,a3415,a3416,a3417,a3418,a3419,a3420,a3421,a3422,a3423,a3424,a3425,a3426,a3427,a3428,a3429,a3430,a3431,a3432,a3433,b,c = constructFeagin14(eltype(u))
   k = Vector{typeof(u)}(35)
   adaptiveConst = 1/1000
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
     k[2]  = Δt*f(u + a0100*k[1],t + c[1]*Δt)
@@ -527,7 +573,7 @@ function ode_impliciteuler(f::Function,u::Number,t,Δt,T,iter,maxiters,
   function rhsIE(u,resid,uOld,t,Δt)
     resid[:] = u - uOld - Δt*f(u,t+Δt)
   end
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     nlres = NLsolve.nlsolve((u,resid)->rhsIE(u,resid,uOld,t,Δt),u,autodiff=autodiff)
     u = nlres.zero
@@ -550,7 +596,7 @@ function ode_impliciteuler(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
   else
     du = similar(u)
   end
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     u_old = copy(u)
     nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt,du),u,autodiff=autodiff)
@@ -574,7 +620,7 @@ function ode_trapezoid(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
     end
   end
   u = vec(u)
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     u_old = copy(u)
     nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt,du1,du2),u,autodiff=autodiff)
@@ -590,7 +636,7 @@ function ode_trapezoid(f::Function,u::Number,t,Δt,T,iter,maxiters,
   function rhsTrap(u,resid,uOld,t,Δt)
     resid = u - uOld - Δt*(f(u,t+Δt)+f(uOld,t))/2
   end
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     nlres = NLsolve.nlsolve((u,resid)->rhsTrap(u,resid,uOld,t,Δt),u,autodiff=autodiff)
     u = nlres.zero
@@ -617,8 +663,7 @@ function ode_rosenbrock32(f::Function,u::AbstractArray,t,Δt,T,iter,
   f₁ = similar(u)
   f₂ = similar(u)
   utmp = similar(u)
-  utmp2 = similar(u)
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     dT = ForwardDiff.derivative((t)->f(du2,u,t),t) # Time derivative
     J = ForwardDiff.jacobian((du1,u)->vecf(du1,u,t),du1,vec(u))
@@ -626,9 +671,9 @@ function ode_rosenbrock32(f::Function,u::AbstractArray,t,Δt,T,iter,
     f(f₀,u,t)
     k₁[:] = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
     for i in eachindex(u)
-      utmp2[i]=u[i]+Δt*k₁[i]/2
+      utmp[i]=u[i]+Δt*k₁[i]/2
     end
-    f(f₁,utmp2,t+Δt/2)
+    f(f₁,utmp,t+Δt/2)
     k₂[:] = reshape(W\vec(f₁-k₁),sizeu...) + k₁
     if adaptive
       for i in eachindex(u)
@@ -656,7 +701,7 @@ function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
   function vecf(u,t)
     return(vec(f(reshape(u,sizeu...),t)))
   end
-  while t < T
+  @inbounds while t < T
     @ode_loopheader
     # Time derivative
     dT = ForwardDiff.derivative((t)->f(u,t),t)

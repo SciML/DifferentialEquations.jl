@@ -72,10 +72,10 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
     H0[:]=zeros(size(u)...,length(α))
     H1[:]=zeros(size(u)...,length(α))
     for i = 1:length(α)
-      A0temp[:]=zero(eltype(A0temp))
-      B0temp[:]=zero(eltype(B0temp))
-      A1temp[:]=zero(eltype(A1temp))
-      B1temp[:]=zero(eltype(B1temp))
+      A0temp[:]=zero(eltype(u))
+      B0temp[:]=zero(eltype(u))
+      A1temp[:]=zero(eltype(u))
+      B1temp[:]=zero(eltype(u))
       for j = 1:i-1
         A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
         B0temp += B₀[i,j]*σ(H1[..,j],t + c₁[j]*Δt)
@@ -85,10 +85,10 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
       H0[..,i] = u + A0temp*Δt + B0temp.*chi2
       H1[..,i] = u + A1temp*Δt + B1temp*sqΔt
     end
-    atemp[:]=zero(eltype(atemp))
-    btemp[:]=zero(eltype(btemp))
-    E₂[:]=zero(eltype(E₂))
-    E₁temp[:]=zero(eltype(E₁temp))
+    atemp[:]=zero(eltype(u))
+    btemp[:]=zero(eltype(u))
+    E₂[:]=zero(eltype(u))
+    E₁temp[:]=zero(eltype(u))
     for i = 1:length(α)
       ftemp = f(H0[..,i],t+c₀[i]*Δt)
       atemp += α[i]*ftemp
