@@ -166,10 +166,10 @@ function sde_sri(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
     H0[:]=zeros(size(u)...,length(α))
     H1[:]=zeros(size(u)...,length(α))
     for i = 1:length(α)
-      A0temp = 0.0
-      B0temp = 0.0
-      A1temp = 0.0
-      B1temp = 0.0
+      A0temp = zero(u)
+      B0temp = zero(u)
+      A1temp = zero(u)
+      B1temp = zero(u)
       for j = 1:i-1
         @inbounds A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
         @inbounds B0temp += B₀[i,j]*σ(H1[..,j],t + c₁[j]*Δt)
@@ -179,10 +179,10 @@ function sde_sri(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
       H0[..,i] = u + A0temp*Δt + B0temp.*chi2
       H1[..,i] = u + A1temp*Δt + B1temp*sqΔt
     end
-    atemp = 0.0
-    btemp = 0.0
-    E₂    = 0.0
-    E₁temp= 0.0
+    atemp = zero(u)
+    btemp = zero(u)
+    E₂    = zero(u)
+    E₁temp= zero(u)
     for i = 1:length(α)
       @inbounds ftemp = f(H0[..,i],t+c₀[i]*Δt)
       @inbounds atemp += α[i]*ftemp
@@ -201,7 +201,7 @@ function sde_sri(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
   u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
 end
 
-function sde_srivectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
+function sde_srivectorized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
   ΔZ = sqΔt*next(rands) # Take one first
@@ -276,7 +276,7 @@ function sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeser
   u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
 end
 
-function sde_sravectorized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
+function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
   ΔZ = sqΔt*next(rands) # Take one first
@@ -290,13 +290,72 @@ function sde_sravectorized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeserie
     chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
     H0[:]=zeros(length(α))
     for i = 1:length(α)
-      H0[i] = u + Δt*dot(vec(A₀[i,:]),f(H0,t + c₀*Δt)) + chi2*dot(vec(B₀[i,:]),σ(H0,t+c₁*Δt))
+      A0temp = zeros(size(u))
+      B0temp = zeros(size(u))
+      for j = 1:i-1
+        @inbounds A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
+        @inbounds B0temp += B₀[i,j]*σ(H0[..,j],t + c₁[j]*Δt)
+      end
+      H0[..,i] = u + A0temp*Δt + B0temp.*chi2
     end
-    fVec = f(H0,t+c₀*Δt)
-    E₁ = Δt*(fVec[1]+fVec[2])
-    E₂ = dot(β₂*chi2,σ(H0,t+c₁*Δt))
 
-    u = u + Δt*dot(α,f(H0,t+c₀*Δt)) + dot(β₁*ΔW,σ(H0,t+c₁*Δt)) + E₂
+    atemp = zeros(size(u))
+    btemp = zeros(size(u))
+    E₂    = zeros(size(u))
+    E₁temp= zeros(size(u))
+
+    for i = 1:length(α)
+      @inbounds ftemp = f(H0[..,i],t+c₀[i]*Δt)
+      @inbounds atemp += α[i]*ftemp
+      @inbounds btemp += (β₁[i]*ΔW ).*σ(H0[..,i],t+c₁[i]*Δt)
+      @inbounds E₂    += (β₂[i]*chi2).*σ(H0[..,i],t+c₁[i]*Δt)
+      E₁temp += ftemp
+    end
+    E₁ = Δt*ftemp
+    u = u + Δt*atemp + btemp + E₂
+
+    @sde_loopfooter
+  end
+  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+end
+
+function sde_sra(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
+  iter = 0
+  ΔW = sqΔt*next(rands) # Take one first
+  ΔZ = sqΔt*next(rands) # Take one first
+  uType = typeof(u)
+  @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
+  H0 = Array{eltype(u)}(size(u)...,length(α))
+  @sde_adaptiveprelim
+  while t<T
+    @sde_loopheader
+
+    chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
+    H0[:]=zeros(length(α))
+    for i = 1:length(α)
+      A0temp = zero(u)
+      B0temp = zero(u)
+      for j = 1:i-1
+        @inbounds A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
+        @inbounds B0temp += B₀[i,j]*σ(H0[..,j],t + c₁[j]*Δt) #H0[..,i] argument ignored
+      end
+      H0[..,i] = u + A0temp*Δt + B0temp.*chi2
+    end
+
+    atemp = zero(u)
+    btemp = zero(u)
+    E₂    = zero(u)
+    E₁temp= zero(u)
+
+    for i = 1:length(α)
+      @inbounds ftemp = f(H0[..,i],t+c₀[i]*Δt)
+      @inbounds atemp += α[i]*ftemp
+      @inbounds btemp += (β₁[i]*ΔW ).*σ(H0[..,i],t+c₁[i]*Δt) #H0[..,i] argument ignored
+      @inbounds E₂    += (β₂[i]*chi2).*σ(H0[..,i],t+c₁[i]*Δt) #H0[..,i] argument ignored
+      E₁temp += ftemp
+    end
+    E₁ = Δt*E₁temp
+    u = u + Δt*atemp + btemp + E₂
 
     @sde_loopfooter
   end

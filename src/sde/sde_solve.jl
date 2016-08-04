@@ -103,9 +103,9 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   push!(ts,t)
 
   #PreProcess
-  if alg==:SRA && tableau == nothing
+  if (alg==:SRA || alg==:SRAVectorized) && tableau == nothing
     tableau = constructSRA1()
-  elseif alg==:SRI && tableau == nothing
+  elseif (alg==:SRI || alg==:SRIVectorized) && tableau == nothing
     tableau = constructSRIW1()
   end
 
@@ -135,8 +135,10 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
     u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_srivectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   elseif alg==:SRAVectorized
     u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sravectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRA1Optimized || alg==:SRA # Need a devectorized form
+  elseif alg==:SRA1Optimized
     u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
+  elseif  alg==:SRA
+    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   end
 
   (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
