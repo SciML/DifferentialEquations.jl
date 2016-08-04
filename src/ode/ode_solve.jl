@@ -85,7 +85,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   T = tspan[2]
   o[:t] = t
   o[:T] = tspan[2]
-  @unpack prob: f,u₀,knownanalytic,analytic,numvars,sizeu
+  @unpack prob: u₀,knownanalytic,analytic,numvars,sizeu,isinplace
 
 
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
@@ -118,6 +118,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
     if alg==:ExplicitRK
       @unpack o[:tableau]: A,c,α,αEEst,stages,order
+    end
+    if !isinplace && typeof(u)<:AbstractArray
+      f = (du,u,t) -> (du[:] = prob.f(u,t))
+    else
+      f = prob.f
     end
     if Δt==0
       Δt = ode_determine_initΔt(u₀,float(tspan[1]),o[:abstol],o[:reltol],o[:internalnorm],f,order)
@@ -178,6 +183,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     if typeof(u) <: Number
       u = [u]
     end
+    f = prob.f
     initialize_backend(:ODEInterface)
     dict = buildOptions(o,ODEINTERFACE_OPTION_LIST,ODEINTERFACE_ALIASES,ODEINTERFACE_ALIASES_REVERSED)
     opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
@@ -215,8 +221,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     t = o[:t]
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
-
-    ode  = ODE.ExplicitODE(t,u,(t,y,dy)->dy[:]=f(y,t)) #not really inplace
+    if !isinplace && typeof(u)<:AbstractArray
+      f = (t,u,du) -> (du[:] = prob.f(u,t))
+    else
+      f = prob.f
+    end
+    ode  = ODE.ExplicitODE(t,u,f)
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
     if alg==:ode23
@@ -284,16 +294,19 @@ function buildOptions(o,optionlist,aliases,aliases_reversed)
 end
 
 function ode_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,order)
+  f₀ = similar(u₀); f₁ = similar(u₀); u₁ = similar(u₀)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
-  f₀ = f(u₀,t)
+  f(f₀,u₀,t)
   d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
   if d₀ < 1//10^(5) || d₁ < 1//10^(5)
     Δt₀ = 1//10^(6)
   else
     Δt₀ = (d₀/d₁)/100
   end
-  u₁ = u₀ + Δt₀*f₀
-  f₁ = f(u₁,t+Δt₀)
+  @inbounds for i in eachindex(u₀)
+     u₁[i] = u₀[i] + Δt₀*f₀[i]
+  end
+  f(f₁,u₁,t+Δt₀)
   d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))

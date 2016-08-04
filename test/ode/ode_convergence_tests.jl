@@ -58,10 +58,10 @@ println("Tests pass: $superbool1")
 println("Convergence Test on Stiff")
 Δts = 1.//2.^(8:-1:4)
 
-sim12 = test_convergence(Δts,prob,alg=:ImplicitEuler)
+sim12 = test_convergence(Δts,prob,alg=:ImplicitEuler,autodiff=false)
 bool12 = abs(sim12.𝒪est[:final]-1) < testTol
 
-sim13 = test_convergence(Δts,prob,alg=:Trapezoid)
+sim13 = test_convergence(Δts,prob,alg=:Trapezoid,autodiff=false)
 bool13 = abs(sim13.𝒪est[:final]-2) < testTol
 
 sim14 = test_convergence(Δts,prob,alg=:Rosenbrock32)
