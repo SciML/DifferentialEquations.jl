@@ -81,13 +81,13 @@ type SDESolution <: DESolution
   save_timeseries::Bool
   maxStackSize::Int
   W
-  function SDESolution(u::Union{AbstractArray,Number};timeseries=nothing,timeseries_analytic=nothing,t=nothing,Δt=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
+  function SDESolution(u::Union{AbstractArray,Number};timeseries=[],timeseries_analytic=[],t=[],Δt=[],Ws=[],maxStackSize=0,W=0.0)
     save_timeseries = timeseries == nothing
     trueknown = false
     return(new(u,trueknown,nothing,Dict(),timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxStackSize,W))
   end
-  function SDESolution(u,u_analytic;timeseries=nothing,timeseries_analytic=nothing,t=nothing,Δt=nothing,Ws=nothing,maxStackSize=nothing,W=nothing)
-    save_timeseries = timeseries != nothing
+  function SDESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[],Δt=nothing,Ws=[],maxStackSize=0,W=0.0)
+    save_timeseries = timeseries != []
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
@@ -130,13 +130,13 @@ type ODESolution <: DESolution
   timeseries_analytic::AbstractArrayOrVoid
   appxTrue::Bool
   save_timeseries::Bool
-  function ODESolution(u;timeseries=nothing,timeseries_analytic=nothing,t=nothing)
-    save_timeseries = timeseries == nothing
+  function ODESolution(u;timeseries=[],timeseries_analytic=[],t=[])
+    save_timeseries = timeseries == []
     trueknown = false
     return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries))
   end
-  function ODESolution(u,u_analytic;timeseries=nothing,timeseries_analytic=nothing,t=nothing)
-    save_timeseries = timeseries != nothing
+  function ODESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[])
+    save_timeseries = timeseries != []
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries

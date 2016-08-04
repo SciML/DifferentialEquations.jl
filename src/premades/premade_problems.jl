@@ -65,10 +65,10 @@ function additiveSDEExample(;α=0.1,β=0.05,u₀=1.)
 end
 
 """Multiple Ito dimension extension of additiveSDEExample"""
-function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1.)
-  f(u,t) = β/sqrt(1+t) - u/(2*(1+t))
-  σ(u,t) = α*β/sqrt(1+t)
-  analytic(u₀,t,W) = u₀/sqrt(1+t) + β*(t+α*W)/sqrt(1+t)
+function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=[0.5;0.25;0.125;0.1115],u₀=[1.;1.;1.;1.])
+  f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
+  σ(u,t) = α.*β./sqrt(1+t)
+  analytic(u₀,t,W) = u₀./sqrt(1+t) + β.*(t+α.*W)/sqrt(1+t)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
