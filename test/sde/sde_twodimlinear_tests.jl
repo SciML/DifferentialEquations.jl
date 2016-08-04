@@ -25,4 +25,6 @@ sim2 = test_convergence(Δts,prob,numMonte=5,alg=:RKMil)
 
 sim3 = test_convergence(Δts,prob,numMonte=5,alg=:SRI)
 
-abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5)<.6 #High tolerance since low Δts for testing!
+sim4 = test_convergence(Δts,prob,numMonte=50,alg=:SRIW1Optimized)
+
+abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5) + abs(sim4.𝒪est[:final]-1.5) <.6 #High tolerance since low Δts for testing!
