@@ -253,7 +253,7 @@ function sde_rkmil(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_step
   u,t,W,timeseries,ts,Ws
 end
 
-function sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
+function sde_sra1optimized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
   ΔZ = sqΔt*next(rands) # Take one first
@@ -276,6 +276,29 @@ function sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeser
   u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
 end
 
+function sde_sra1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
+  iter = 0
+  ΔW = sqΔt*next(rands) # Take one first
+  ΔZ = sqΔt*next(rands) # Take one first
+  uType = typeof(u)
+  H0 = Array{eltype(u)}(size(u)...,2)
+  @sde_adaptiveprelim
+  while t<T
+    @sde_loopheader
+
+    chi2 = (ΔW + ΔZ/sqrt(3))/2 #I_(1,0)/h
+    k₁ = Δt*f(u,t)
+    k₂ = Δt*f(u+3k₁/4 + 3chi2.*σ(u,t+Δt)/2,t+3Δt/4)
+    E₁ = k₁ + k₂
+    E₂ = chi2.*(σ(u,t)-σ(u,t+Δt)) #Only for additive!
+
+    u = u + k₁/3 + 2k₂/3 + E₂ + ΔW.*σ(u,t+Δt)
+
+    @sde_loopfooter
+  end
+  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+end
+
 function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,rands,sqΔt,W,Z,tableau)
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
@@ -288,7 +311,7 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
     @sde_loopheader
 
     chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
-    H0[:]=zeros(length(α))
+    H0[:]=zeros(size(u)...,length(α))
     for i = 1:length(α)
       A0temp = zeros(size(u))
       B0temp = zeros(size(u))
@@ -311,7 +334,7 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
       @inbounds E₂    += (β₂[i]*chi2).*σ(H0[..,i],t+c₁[i]*Δt)
       E₁temp += ftemp
     end
-    E₁ = Δt*ftemp
+    E₁ = Δt*E₁temp
     u = u + Δt*atemp + btemp + E₂
 
     @sde_loopfooter

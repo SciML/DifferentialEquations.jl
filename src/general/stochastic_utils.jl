@@ -48,3 +48,18 @@ type MonteCarloSimulation
 end
 
 Base.length(sim::MonteCarloSimulation) = sim.N
+Base.endof( sim::MonteCarloSimulation) = length(sim)
+Base.getindex(sim::MonteCarloSimulation,i::Int) = sim.solutions[i]
+Base.getindex(sim::MonteCarloSimulation,i::Int,I::Int...) = sim.solutions[i][I]
+
+function print(io::IO, sim::MonteCarloSimulation)
+  println(io,"$(typeof(sim)) of length $(length(sim)).")
+  println(io,"\n-----------Errors-----------")
+  for (k,v) in sim.errors
+    println(io,"$k: $v")
+  end
+end
+
+function show(io::IO,sim::MonteCarloSimulation)
+  println(io,"$(typeof(sim)) of length $(length(sim)).")
+end
