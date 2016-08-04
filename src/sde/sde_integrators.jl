@@ -103,7 +103,7 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
   u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
 end
 
-function sde_sriw1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
+function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
   ΔZ = sqΔt*next(rands) # Take one first
@@ -169,6 +169,51 @@ function sde_sriw1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timese
     end
     =#
     u = u + update
+
+    @sde_loopfooter
+  end
+  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+end
+
+function sde_sriw1optimized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
+  iter = 0
+  ΔW = sqΔt*next(rands) # Take one first
+  ΔZ = sqΔt*next(rands) # Take one first
+  H0 = Array{eltype(u)}(size(u)...,4)
+  H1 = Array{eltype(u)}(size(u)...,4)
+  @sde_adaptiveprelim
+  while t<T
+    @sde_loopheader
+
+    chi1 = (ΔW.^2 - Δt)/2sqΔt #I_(1,1)/sqrt(h)
+    chi2 = (ΔW + ΔZ/sqrt(3))/2 #I_(1,0)/h
+    chi3 = (ΔW.^3 - 3ΔW*Δt)/6Δt #I_(1,1,1)/h
+    fH01 = Δt*f(u,t)
+
+    σ₁ = σ(u,t)
+    fH01o4 = fH01/4
+    Δto4 = Δt/4
+    σ₁o2 = σ₁/2
+    H0 =  u + 3*(fH01o4  + chi2.*σ₁o2)
+    H11 = u + fH01o4   + sqΔt*σ₁o2
+    H12 = u + fH01     - sqΔt*σ₁
+    σ₂ = σ(H11,t+Δto4)
+    σ₃ = σ(H12,t+Δt)
+    H13 = u + fH01o4 + sqΔt*(-5σ₁ + 3σ₂ + σ₃/2)
+
+
+    σ₄ = σ(H13,t+Δto4)
+    fH02 = Δt*f(H0,t+3Δto4)
+
+    σ₂o3 = σ₂/3
+    Fσ₂o3 = 4σ₂o3
+    σ₃o3 = σ₃/3
+    Tσ₃o3 = 2σ₃o3
+    mσ₁ = -σ₁
+    E₁ = fH01+fH02
+    E₂ = chi2.*(2σ₁ - Fσ₂o3 - Tσ₃o3) + chi3.*(2mσ₁ + 5σ₂o3 - Tσ₃o3 + σ₄)
+
+    u = u + (fH01 + 2fH02)/3 + ΔW.*(mσ₁ + Fσ₂o3 + Tσ₃o3) + chi1.*(mσ₁ + Fσ₂o3 - σ₃o3) + E₂
 
     @sde_loopfooter
   end
@@ -331,7 +376,7 @@ function sde_sra1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeserie
       E₂[i] = chi2[i]*(σt[i]-σpΔt[i]) #Only for additive!
       update[i] = k₁[i]/3 + 2k₂[i]/3 + E₂[i] + ΔW[i]*σpΔt[i]
     end
-    
+
     u = u + update
 
     @sde_loopfooter
