@@ -75,11 +75,11 @@ solved over the given Δts.
 * `timeseries_steps`: Denotes the steps to save at if `save_timeseries=true`. Default is 1
 * `alg`: The algorithm to test. Defaults to "EM".
 """
-function test_convergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,save_timeseries=true,timeseries_steps=1,alg=:EM,tableau= constructSRIW1())
+function test_convergence(Δts::AbstractArray,prob::SDEProblem;tspan=[0,1],numMonte=10000,save_timeseries=true,timeseries_steps=1,kwargs...)
   N = length(Δts)
   #solutions = DESolution[solve(prob::SDEProblem,Δts[i],T,save_timeseries=save_timeseries,alg=alg) for j=1:numMonte,i=1:N]
   is = repmat(1:N,1,numMonte)'
-  solutions = pmap((i)->solve(prob,tspan,Δt=Δts[i],save_timeseries=save_timeseries,timeseries_steps=timeseries_steps,alg=alg,tableau=tableau),is)
+  solutions = pmap((i)->solve(prob,tspan;Δt=Δts[i],save_timeseries=save_timeseries,timeseries_steps=timeseries_steps,kwargs...),is)
   solutions = convert(Array{SDESolution},solutions)
   solutions = reshape(solutions,numMonte,N)
   auxdata = Dict("Δts" =>  Δts)

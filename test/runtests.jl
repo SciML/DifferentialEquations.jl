@@ -3,6 +3,7 @@
 const CPU_FLOPS = peakflops()
 const TEST_USE_FORWARDDIFF = false
 const TEST_PLOT = false
+const LONGER_TESTS = true
 #Start Test Script
 using DifferentialEquations, Compat
 using Base.Test
@@ -18,14 +19,16 @@ println("Number of Parameters Calc Tests")
 @time @test include("internals/numparameters_test.jl")
 println("Assembly Tests")
 @time @test include("internals/assembly_tests.jl")
-#println("Boundary Tests")
-#@time @test include("internals/boundary_tests.jl")
-#println("Example Mesh Tests")
-#@time @test include("internals/mesh_examples_tests.jl")
+println("Boundary Tests")
+(LONGER_TESTS) && @time @test include("internals/boundary_tests.jl")
+println("Example Mesh Tests")
+(LONGER_TESTS) && @time @test include("internals/mesh_examples_tests.jl")
 println("Simple Mesh Tests")
 @time @test include("internals/mesh_SimpleMesh_tests.jl")
 println("Solver Interface Tests")
 (VERSION >= v"0.5-") && (@time @test include("internals/solution_get_tests.jl"))
+println("Run other Premades")
+@time @test include("internals/other_premades_tests.jl")
 
 #ODE
 println("Linear ODE Tests")
@@ -83,8 +86,8 @@ println("Finite Element Heat Method Tests")
 @time @test include("heat/femheat_methods_tests.jl")
 println("Finite Element Nonlinear Heat Methods Tests")
 @time @test include("heat/femheat_nonlinearmethods_tests.jl")
-#println("Finite Element Nonlinear System Heat Tests") #ForwardDiff Issue
-#@time @test include("heat/femheat_system_tests.jl")
+println("Finite Element Nonlinear System Heat Tests") #ForwardDiff Issue
+@time @test include("heat/femheat_system_tests.jl")
 println("Heat Animation Test")
 @time @test include("heat/femheat_animation_tests.jl")
 println("Stochastic Heat Animation Test")
@@ -95,8 +98,8 @@ println("Finite Element Poisson Convergence Test")
 @time @test include("poisson/fempoisson_convergence_tests.jl")
 println("Finite Element Nonlinear Poisson Tests")
 @time @test include("poisson/fempoisson_nonlinear_tests.jl")
-#println("Finite Element Nonlinear System Poisson Tests") #ForwardDiff Issue
-#@time @test include("/poisson/fempoisson_nonlinearsystem_tests.jl")
+println("Finite Element Nonlinear System Poisson Tests") #ForwardDiff Issue
+@time @test include("poisson/fempoisson_nonlinearsystem_tests.jl")
 println("Finite Element Stochastic Poisson")
 @time @test include("poisson/fempoisson_stochastic_tests.jl")
 println("Finite Element Poisson")
