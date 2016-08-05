@@ -458,7 +458,7 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
   stages = length(α)
   H0 = Vector{typeof(u)}(0)
-  for i = 1:stages-1
+  for i = 1:stages
     push!(H0,similar(u))
   end
   A0temp = similar(u); B0temp = similar(u)
