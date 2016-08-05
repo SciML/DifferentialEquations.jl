@@ -617,22 +617,17 @@ end
 
 function ode_impliciteuler(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
                             timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-  function rhs_ie(u,resid,u_old,t,Δt,du)
-    f(du,reshape(u,sizeu...),t+Δt)
+  function rhs_ie(u,resid,u_old,t,Δt)
+    f(resid,reshape(u,sizeu...),t+Δt); resid[:]*=Δt
     for i in eachindex(u)
-      resid[i] = u[i] - u_old[i] - Δt*du[i]
+      resid[i] = resid[i] + u_old[i] - u[i]
     end
   end
   u = vec(u)
-  if autodiff
-    du = map((x)->ForwardDiff.Dual{length(u),typeof(x)}(x,length(u)),zeros(u))
-  else
-    du = similar(u)
-  end
   @inbounds while t < T
     @ode_loopheader
     u_old = copy(u)
-    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt,du),u,autodiff=autodiff)
+    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt),u,autodiff=autodiff)
     u[:] = nlres.zero
     @ode_implicitloopfooter
   end
@@ -646,8 +641,8 @@ function ode_trapezoid(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
   du2 = similar(u)
   Δto2 = Δt/2
   function rhs_trap(u,resid,u_old,t,Δt,du1,du2)
-    f(du1,reshape(u,sizeu...),t+Δt)
     f(du2,reshape(u_old,sizeu),t)
+    f(du1,reshape(u,sizeu...),t+Δt)
     for i in eachindex(u)
       resid[i] = u[i] - u_old[i] - Δto2*(du1[i]+du2[i])
     end
