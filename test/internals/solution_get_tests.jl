@@ -25,11 +25,11 @@ print(sim)
 show(sim)
 sim[end]
 
-sol[1] == prob.u₀ && sol[end] == sol.u
-
 sim = monteCarloSim(prob2::SDEProblem,Δt=1//2^(3),numMonte=5)
 length(sim)
 sim[1]
 print(sim)
 show(sim)
 sim[end]
+
+sol[1] == prob.u₀ && sol[end] == sol.u
