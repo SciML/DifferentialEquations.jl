@@ -1,7 +1,6 @@
 #!/usr/bin/env julia
 
 const CPU_FLOPS = peakflops()
-const TEST_USE_FORWARDDIFF = false
 const TEST_PLOT = false
 const LONGER_TESTS = false #Requires JLD
 #Start Test Script

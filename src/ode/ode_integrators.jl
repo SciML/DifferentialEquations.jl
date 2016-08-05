@@ -637,21 +637,35 @@ end
 
 function ode_trapezoid(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
                             timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-  du1 = similar(u)
-  du2 = similar(u)
-  Δto2 = Δt/2
-  function rhs_trap(u,resid,u_old,t,Δt,du1,du2)
-    f(du2,reshape(u_old,sizeu),t)
-    f(du1,reshape(u,sizeu...),t+Δt)
-    for i in eachindex(u)
-      resid[i] = u[i] - u_old[i] - Δto2*(du1[i]+du2[i])
+  if autodiff
+    cache1 = DiffCache(u)
+    cache2 = DiffCache(u)
+    Δto2 = Δt/2
+    rhs_trap = (u,resid,u_old,t,Δt,cache1,cache2) -> begin
+      du1 = get_du(cache1, eltype(u)); du2 = get_du(cache2, eltype(u_old))
+      f(du2,reshape(u_old,sizeu),t)
+      f(du1,reshape(u,sizeu),t+Δt)
+      for i in eachindex(u)
+        resid[i] = u[i] - u_old[i] - Δto2*(du1[i]+du2[i])
+      end
+    end
+  else
+    cache1 = similar(u)
+    cache2 = similar(u)
+    Δto2 = Δt/2
+    rhs_trap = (u,resid,u_old,t,Δt,du1,du2) -> begin
+      f(du2,reshape(u_old,sizeu),t)
+      f(du1,reshape(u,sizeu),t+Δt)
+      for i in eachindex(u)
+        resid[i] = u[i] - u_old[i] - Δto2*(du1[i]+du2[i])
+      end
     end
   end
   u = vec(u)
   @inbounds while t < T
     @ode_loopheader
     u_old = copy(u)
-    nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt,du1,du2),u,autodiff=autodiff)
+    nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt,cache1,cache2),u,autodiff=autodiff)
     u[:] = nlres.zero
     @ode_implicitloopfooter
   end
