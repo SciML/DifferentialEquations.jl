@@ -43,7 +43,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
               discard_length=1e-15,adaptivealg::Symbol=:RSwM3,progressbar=false,tType=typeof(Δt),tableau = nothing)
 
   atomloaded = isdefined(Main,:Atom)
-  @unpack prob: f,σ,u₀,knownanalytic,analytic, numvars, sizeu
+  @unpack prob: u₀,knownanalytic,analytic, numvars, sizeu,isinplace
 
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
@@ -53,6 +53,14 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   if adaptive
     warn("SDE adaptivity is currently disabled")
     adaptive = false
+  end
+  u = copy(u₀)
+  if !isinplace && typeof(u)<:AbstractArray
+    f = (du,u,t) -> (du[:] = prob.f(u,t))
+    σ = (du,u,t) -> (du[:] = prob.σ(u,t))
+  else
+    f = prob.f
+    σ = prob.σ
   end
 
   if adaptive && alg ∈ SDE_ADAPTIVEALGORITHMS
@@ -87,7 +95,6 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
 
   T = tType(tspan[2])
   t = tType(tspan[1])
-  u = copy(u₀)
   if numvars == 1
     W = 0.0
     Z = 0.0

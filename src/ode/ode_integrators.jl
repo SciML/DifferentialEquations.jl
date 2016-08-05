@@ -21,6 +21,13 @@ end
   end
 end
 
+@def ode_numberimplicitsavevalues begin
+  if save_timeseries && iter%timeseries_steps==0
+    push!(timeseries,u[1])
+    push!(ts,t)
+  end
+end
+
 @def ode_loopfooter begin
   if adaptive
     standard = abs(1/(γ*EEst))^(1/order)
@@ -61,6 +68,28 @@ end
   else #Not adaptive
     t = t + Δt
     @ode_implicitsavevalues
+  end
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+end
+
+@def ode_numberimplicitloopfooter begin
+  if adaptive
+    standard = abs(1/(γ*EEst))^(1/order)
+    if isinf(standard)
+        q = qmax
+    else
+       q = min(qmax,max(standard,eps()))
+    end
+    if q > 1
+      t = t + Δt
+      u = utmp
+      @ode_numberimplicitsavevalues
+    end
+    Δtpropose = min(Δtmax,q*Δt)
+    Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
+  else #Not adaptive
+    t = t + Δt
+    @ode_numberimplicitsavevalues
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 end
@@ -182,7 +211,7 @@ function ode_explicitrk(f::Function,u::Number,t,Δt,T,iter,maxiters,timeseries,t
   @inbounds while t < T
     @ode_loopheader
     for i = 1:stages
-      utilde = 0
+      utilde = zero(u)
       for j = 1:i-1
         utilde += A[i,j]*ks[j]
       end
@@ -570,15 +599,19 @@ end
 
 function ode_impliciteuler(f::Function,u::Number,t,Δt,T,iter,maxiters,
                             timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-  function rhsIE(u,resid,uOld,t,Δt)
-    resid[:] = u - uOld - Δt*f(u,t+Δt)
+  function rhs_ie(u,resid,u_old,t,Δt)
+    resid[1] = u[1] - u_old[1] - Δt*f(u,t+Δt)[1]
   end
+  u = [u]
+  u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    nlres = NLsolve.nlsolve((u,resid)->rhsIE(u,resid,uOld,t,Δt),u,autodiff=autodiff)
-    u = nlres.zero
-    @ode_loopfooter
+    u_old[1] = u[1]
+    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt),u,autodiff=autodiff)
+    u[1] = nlres.zero[1]
+    @ode_numberimplicitloopfooter
   end
+  u = u[1]
   return u,t,timeseries,ts
 end
 
@@ -632,16 +665,21 @@ function ode_trapezoid(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
 end
 
 function ode_trapezoid(f::Function,u::Number,t,Δt,T,iter,maxiters,
-                      timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-  function rhsTrap(u,resid,uOld,t,Δt)
-    resid = u - uOld - Δt*(f(u,t+Δt)+f(uOld,t))/2
+                            timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
+  Δto2 = Δt/2
+  function rhs_trap(u,resid,u_old,t,Δt)
+    resid[1] = u[1] - u_old[1] - Δto2*(f(u,t+Δt)[1] + f(u_old,t)[1])
   end
+  u = [u]
+  u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    nlres = NLsolve.nlsolve((u,resid)->rhsTrap(u,resid,uOld,t,Δt),u,autodiff=autodiff)
-    u = nlres.zero
-    @ode_loopfooter
+    u_old[1] = u[1]
+    nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt),u,autodiff=autodiff)
+    u[1] = nlres.zero[1]
+    @ode_numberimplicitloopfooter
   end
+  u = u[1]
   return u,t,timeseries,ts
 end
 
@@ -698,23 +736,20 @@ function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
   order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
-  function vecf(u,t)
-    return(vec(f(reshape(u,sizeu...),t)))
-  end
   @inbounds while t < T
     @ode_loopheader
     # Time derivative
     dT = ForwardDiff.derivative((t)->f(u,t),t)
-    J = ForwardDiff.jacobian((u)->vecf(u,t),vec(u))
+    J = ForwardDiff.derivative((u)->f(u,t),u)
     W = one(J)-Δt*d*J
     f₀ = f(u,t)
-    k₁ = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
+    k₁ = W\(f₀ + Δt*d*dT)
     f₁ = f(u+Δt*k₁/2,t+Δt/2)
-    k₂ = reshape(W\vec(f₁-k₁),sizeu...) + k₁
+    k₂ = W\(f₁-k₁) + k₁
     if adaptive
       utmp = u + Δt*k₂
       f₂ = f(utmp,t+Δt)
-      k₃ = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
+      k₃ = W\(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T)
       EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*k₂

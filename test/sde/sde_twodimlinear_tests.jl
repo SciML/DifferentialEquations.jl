@@ -4,7 +4,7 @@ prob = twoDimlinearSDEExample()
 
 ## Solve and plot
 println("Solve and Plot")
-sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRIW1Optimized)
+sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRI)
 
 #Now do the simulation 10000 times in parallel. Return an array
 solArr = monteCarloSim(prob::SDEProblem,Δt=1//2^(3),numMonte=5)
@@ -25,6 +25,6 @@ sim2 = test_convergence(Δts,prob,numMonte=5,alg=:RKMil)
 
 sim3 = test_convergence(Δts,prob,numMonte=5,alg=:SRI)
 
-sim4 = test_convergence(Δts,prob,numMonte=50,alg=:SRIW1Optimized,save_timeseries=false)
+sim4 = test_convergence(Δts,prob,numMonte=5,alg=:SRIW1Optimized,save_timeseries=false)
 
 abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5) + abs(sim4.𝒪est[:final]-1.5) <.6 #High tolerance since low Δts for testing!
