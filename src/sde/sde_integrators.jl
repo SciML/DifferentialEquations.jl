@@ -75,9 +75,9 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
   ΔZ = sqΔt*next(rands) # Take one first
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   stages = length(α)
-  H0 = [similar(u)]
-  H1 = [similar(u)]
-  for i = 1:stages-1
+  H0 = Vector{typeof(u)}(0)
+  H1 = Vector{typeof(u)}(0)
+  for i = 1:stages
     push!(H0,similar(u))
     push!(H1,similar(u))
   end
@@ -457,7 +457,7 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
   uType = typeof(u)
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
   stages = length(α)
-  H0 = [similar(u)]
+  H0 = Vector{typeof(u)}(0)
   for i = 1:stages-1
     push!(H0,similar(u))
   end
