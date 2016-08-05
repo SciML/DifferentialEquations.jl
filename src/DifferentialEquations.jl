@@ -2,9 +2,10 @@ __precompile__()
 
 module DifferentialEquations
 
-using IterativeSolvers, Parameters, Plots, GenericSVD,
+using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
       EllipsisNotation, GrowableArrays, ChunkedArrays
 import Base: length, size, getindex, endof, show, print
+import ForwardDiff.Dual
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem

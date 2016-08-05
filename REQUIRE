@@ -1,5 +1,6 @@
 julia 0.4
 Parameters
+ForwardDiff
 GrowableArrays
 ChunkedArrays
 EllipsisNotation
