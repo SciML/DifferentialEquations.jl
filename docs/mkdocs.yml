@@ -45,7 +45,7 @@ pages:
   - Plot Functions: man/plot.md
   - Convergence Simuations: man/convergence.md
   - Conditional Dependencies: man/conditional_dependencies.md
-  - Progress Bar: man/progress_bar.md
+  - Juno Progress Bar Integration: man/progress_bar.md
 - Internal Documentation:
   - Contributor's Guide: internals/contributors_guide.md
   - Internal Finite Element Tools: internals/fem_tools.md

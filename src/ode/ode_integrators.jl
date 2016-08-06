@@ -1162,7 +1162,7 @@ function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
       utmp = u + Δt*k₂
       f₂ = f(utmp,t+Δt)
       k₃ = W\(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T)
-      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
+      EEst = norm((Δt*(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*k₂
     end
