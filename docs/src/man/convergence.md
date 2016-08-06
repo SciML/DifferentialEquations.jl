@@ -37,7 +37,6 @@ be used in this command. Please see the Plots.jl documentation for more informat
 
 ```@docs
 Base.length(::ConvergenceSimulation)
-DifferentialEquations.conv_ests
 DifferentialEquations.calc𝒪estimates
 DifferentialEquations.test_convergence
 ```

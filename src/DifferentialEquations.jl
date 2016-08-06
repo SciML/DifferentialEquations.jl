@@ -82,7 +82,7 @@ export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemes
 export  plot, animate
 
 #General Functions
-export conv_ests, appxTrue!, accumarray, solve, test_convergence, monteCarloSim
+export appxTrue!, accumarray, solve, test_convergence, monteCarloSim
 
 #FEM Functions
 export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,

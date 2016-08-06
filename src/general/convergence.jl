@@ -150,7 +150,7 @@ end
 
 
 """
-conv_ests(error::Vector{Number})
+calc𝒪estimates(error::Vector{Number})
 
 Computes the pairwise convergence estimate for a convergence test done by
 halving/doubling stepsizes via
@@ -168,24 +168,6 @@ function calc𝒪estimates(error::Pair)
     S[i] = log2(error[i+1]/error[i])
   end
   return(Pair(key,abs(mean(S,1))))
-end
-
-"""
-conv_ests(error::AbstractArray{Number})
-
-Computes the pairwise convergence estimate for a convergence test done by
-halving/doubling stepsizes via
-
-log2(error[i+1]/error[i])
-
-Returns the mean of the convergence estimates
-"""
-function conv_ests(error::AbstractArray{Float64})
-  S = Vector{Float64}(size(error,1)-1,size(error,2))
-  for i=1:size(error,1)-1,j=1:size(error,2)
-    S[i,j] = log2(error[i+1,j]/error[i,j])
-  end
-  return(abs(mean(S)))
 end
 
 """
