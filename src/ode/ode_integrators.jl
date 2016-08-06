@@ -133,17 +133,16 @@ function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
                       maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
   halfΔt = Δt/2
   utilde = similar(u)
-  du1 = similar(u)
-  du2 = similar(u)
+  du = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    f(du1,u,t)
+    f(du,u,t)
     for i in eachindex(u)
-      utilde[i] = u[i]+halfΔt*du1[i]
+      utilde[i] = u[i]+halfΔt*du[i]
     end
-    f(du2,utilde,t+halfΔt)
+    f(du,utilde,t+halfΔt)
     for i in eachindex(u)
-      u[i] = u[i] + Δt*du2[i]
+      u[i] = u[i] + Δt*du[i]
     end
     @ode_loopfooter
   end
@@ -173,13 +172,7 @@ function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
   k₂ = similar(u)
   k₃ = similar(u)
   k₄ = similar(u)
-  du1 = similar(u)
-  du2 = similar(u)
-  du3 = similar(u)
-  du4 = similar(u)
   tmp = similar(u)
-  tmp2 = similar(u)
-  tmp3 = similar(u)
   @inbounds while t < T
     @ode_loopheader
     f(k₁,u,t)
@@ -189,13 +182,13 @@ function ode_rk4(f::Function,u::AbstractArray,t,Δt,T,
     end
     f(k₂,tmp,ttmp)
     for i in eachindex(u)
-      tmp2[i] = u[i]+halfΔt*k₂[i]
+      tmp[i] = u[i]+halfΔt*k₂[i]
     end
-    f(k₃,tmp2,ttmp)
+    f(k₃,tmp,ttmp)
     for i in eachindex(u)
-      tmp3[i] = u[i]+Δt*k₃[i]
+      tmp[i] = u[i]+Δt*k₃[i]
     end
-    f(k₄,tmp3,t+Δt)
+    f(k₄,tmp,t+Δt)
     for i in eachindex(u)
       u[i] = u[i] + Δt*(k₁[i] + 2k₂[i] + 2k₃[i] + k₄[i])/6
     end
@@ -319,7 +312,7 @@ function ode_feagin10(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     f(k[16],u + a1500*k[1]              + a1502*k[3]                                                                                                                                                     + a1514*k[15],t + c[15]*Δt); k[16]*=Δt
     f(k[17],u + a1600*k[1] + a1601*k[2] + a1602*k[3]              + a1604*k[5] + a1605*k[6] + a1606*k[7] + a1607*k[8] + a1608*k[9] + a1609*k[10] + a1610*k[11] + a1611*k[12] + a1612*k[13] + a1613*k[14] + a1614*k[15] + a1615*k[16],t + c[16]*Δt); k[17]*=Δt
     for i in eachindex(u)
-      update[i] = b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[9]*k[9][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[12]*k[12][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[17]*k[17][i]
+      update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[9]*k[9][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[12]*k[12][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i]) + (b[16]*k[16][i] + b[17]*k[17][i])
     end
     if adaptive
       for i in eachindex(u)
@@ -361,7 +354,7 @@ function ode_feagin10(f::Function,u::Number,t,Δt,T,iter,order,
     k[15] = Δt*f(u + a1400*k[1] + a1401*k[2]                           + a1404*k[5]              + a1406*k[7] +                                                                     a1412*k[13] + a1413*k[14],t + c[14]*Δt)
     k[16] = Δt*f(u + a1500*k[1]              + a1502*k[3]                                                                                                                                                     + a1514*k[15],t + c[15]*Δt)
     k[17] = Δt*f(u + a1600*k[1] + a1601*k[2] + a1602*k[3]              + a1604*k[5] + a1605*k[6] + a1606*k[7] + a1607*k[8] + a1608*k[9] + a1609*k[10] + a1610*k[11] + a1611*k[12] + a1612*k[13] + a1613*k[14] + a1614*k[15] + a1615*k[16],t + c[16]*Δt)
-    update = b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5] + b[7]*k[7] + b[9]*k[9] + b[10]*k[10] + b[11]*k[11] + b[12]*k[12] + b[13]*k[13] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16] + b[17]*k[17]
+    update = (b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5]) + (b[7]*k[7] + b[9]*k[9] + b[10]*k[10] + b[11]*k[11]) + (b[12]*k[12] + b[13]*k[13] + b[14]*k[14] + b[15]*k[15]) + (b[16]*k[16] + b[17]*k[17])
     if adaptive
       utmp = u + update
       EEst = norm(((k[2] - k[16]) / 360)./(abstol+u*reltol),internalnorm)
@@ -413,7 +406,7 @@ function ode_feagin12(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     f(k[25],u + a2400*k[1] + a2401*k[2] + a2402*k[3]              + a2404*k[5]              + a2406*k[7] + a2407*k[8] + a2408*k[9] + a2409*k[10] + a2410*k[11] + a2411*k[12] + a2412*k[13] + a2413*k[14] + a2414*k[15] + a2415*k[16] + a2416*k[17] + a2417*k[18] + a2418*k[19] + a2419*k[20] + a2420*k[21] + a2421*k[22] + a2422*k[23] + a2423*k[24],t + c[24]*Δt); k[25]*=Δt
 
     for i in eachindex(u)
-      update[i] = b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[17]*k[17][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i]
+      update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i]) + (b[17]*k[17][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i]) + (b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i]) + b[25]*k[25][i]
     end
     if adaptive
       for i in eachindex(u)
@@ -464,7 +457,7 @@ function ode_feagin12(f::Function,u::Number,t,Δt,T,iter,order,
     k[24] = Δt*f(u + a2300*k[1]              + a2302*k[3]                                                                                                                                                                                                                                                                     + a2322*k[23],t + c[23]*Δt)
     k[25] = Δt*f(u + a2400*k[1] + a2401*k[2] + a2402*k[3]              + a2404*k[5]              + a2406*k[7] + a2407*k[8] + a2408*k[9] + a2409*k[10] + a2410*k[11] + a2411*k[12] + a2412*k[13] + a2413*k[14] + a2414*k[15] + a2415*k[16] + a2416*k[17] + a2417*k[18] + a2418*k[19] + a2419*k[20] + a2420*k[21] + a2421*k[22] + a2422*k[23] + a2423*k[24],t + c[24]*Δt)
 
-    update = b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5] + b[7]*k[7] + b[8]*k[8] + b[10]*k[10] + b[11]*k[11] + b[13]*k[13] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16] + b[17]*k[17] + b[18]*k[18] + b[19]*k[19] + b[20]*k[20] + b[21]*k[21] + b[22]*k[22] + b[23]*k[23] + b[24]*k[24] + b[25]*k[25]
+    update = (b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5]) + (b[7]*k[7] + b[8]*k[8] + b[10]*k[10] + b[11]*k[11]) + (b[13]*k[13] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16]) + (b[17]*k[17] + b[18]*k[18] + b[19]*k[19] + b[20]*k[20]) + (b[21]*k[21] + b[22]*k[22] + b[23]*k[23] + b[24]*k[24]) + (b[25]*k[25])
     if adaptive
       utmp = u + update
       EEst = norm(((k[1] - k[23]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
@@ -525,7 +518,7 @@ function ode_feagin14(f::Function,u::AbstractArray,t,Δt,T,iter,order,
     f(k[34],u + a3300*k[1]              + a3302*k[3]                                                                                                                                                                                                                                                                                                                                                                                                                 + a3332*k[33],t + c[33]*Δt); k[34]*=Δt
     f(k[35],u + a3400*k[1] + a3401*k[2] + a3402*k[3]              + a3404*k[5]              + a3406*k[7] + a3407*k[8]              + a3409*k[10] + a3410*k[11] + a3411*k[12] + a3412*k[13] + a3413*k[14] + a3414*k[15] + a3415*k[16] + a3416*k[17] + a3417*k[18] + a3418*k[19] + a3419*k[20] + a3420*k[21] + a3421*k[22] + a3422*k[23] + a3423*k[24] + a3424*k[25] + a3425*k[26] + a3426*k[27] + a3427*k[28] + a3428*k[29] + a3429*k[30] + a3430*k[31] + a3431*k[32] + a3432*k[33] + a3433*k[34],t + c[34]*Δt); k[35]*=Δt
     for i in eachindex(u)
-      update[i] =b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[12]*k[12][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i] + b[26]*k[26][i] + b[27]*k[27][i] + b[28]*k[28][i] + b[29]*k[29][i] + b[30]*k[30][i] + b[31]*k[31][i] + b[32]*k[32][i] + b[33]*k[33][i] + b[34]*k[34][i] + b[35]*k[35][i]
+      update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[12]*k[12][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i]) + (b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i]) + (b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i]) + (b[26]*k[26][i] + b[27]*k[27][i] + b[28]*k[28][i] + b[29]*k[29][i]) + (b[30]*k[30][i] + b[31]*k[31][i] + b[32]*k[32][i] + b[33]*k[33][i]) + (b[34]*k[34][i] + b[35]*k[35][i])
     end
     if adaptive
       for i in eachindex(u)
@@ -534,7 +527,7 @@ function ode_feagin14(f::Function,u::AbstractArray,t,Δt,T,iter,order,
       EEst = norm(((k[1] - k[33]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
       for i in eachindex(u)
-        u[i] = u[i] + b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i] + b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i] + b[12]*k[12][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i] + b[26]*k[26][i] + b[27]*k[27][i] + b[28]*k[28][i] + b[29]*k[29][i] + b[30]*k[30][i] + b[31]*k[31][i] + b[32]*k[32][i] + b[33]*k[33][i] + b[34]*k[34][i] + b[35]*k[35][i]
+        u[i] = u[i] + update[i]
       end
     end
     @ode_loopfooter
@@ -585,7 +578,7 @@ function ode_feagin14(f::Function,u::Number,t,Δt,T,iter,order,
     k[33] = Δt*f(u + a3200*k[1] + a3201*k[2]                           + a3204*k[5]              + a3206*k[7]                                                                                                                                                                                                                                                                                                                                 + a3230*k[31] + a3231*k[32],t + c[32]*Δt)
     k[34] = Δt*f(u + a3300*k[1]              + a3302*k[3]                                                                                                                                                                                                                                                                                                                                                                                                                 + a3332*k[33],t + c[33]*Δt)
     k[35] = Δt*f(u + a3400*k[1] + a3401*k[2] + a3402*k[3]              + a3404*k[5]              + a3406*k[7] + a3407*k[8]              + a3409*k[10] + a3410*k[11] + a3411*k[12] + a3412*k[13] + a3413*k[14] + a3414*k[15] + a3415*k[16] + a3416*k[17] + a3417*k[18] + a3418*k[19] + a3419*k[20] + a3420*k[21] + a3421*k[22] + a3422*k[23] + a3423*k[24] + a3424*k[25] + a3425*k[26] + a3426*k[27] + a3427*k[28] + a3428*k[29] + a3429*k[30] + a3430*k[31] + a3431*k[32] + a3432*k[33] + a3433*k[34],t + c[34]*Δt)
-    update = b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5] + b[7]*k[7] + b[8]*k[8] + b[10]*k[10] + b[11]*k[11] + b[12]*k[12] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16] + b[18]*k[18] + b[19]*k[19] + b[20]*k[20] + b[21]*k[21] + b[22]*k[22] + b[23]*k[23] + b[24]*k[24] + b[25]*k[25] + b[26]*k[26] + b[27]*k[27] + b[28]*k[28] + b[29]*k[29] + b[30]*k[30] + b[31]*k[31] + b[32]*k[32] + b[33]*k[33] + b[34]*k[34] + b[35]*k[35]
+    update = (b[1]*k[1] + b[2]*k[2] + b[3]*k[3] + b[5]*k[5]) + (b[7]*k[7] + b[8]*k[8] + b[10]*k[10] + b[11]*k[11]) + (b[12]*k[12] + b[14]*k[14] + b[15]*k[15] + b[16]*k[16]) + (b[18]*k[18] + b[19]*k[19] + b[20]*k[20] + b[21]*k[21]) + (b[22]*k[22] + b[23]*k[23] + b[24]*k[24] + b[25]*k[25]) + (b[26]*k[26] + b[27]*k[27] + b[28]*k[28] + b[29]*k[29]) + (b[30]*k[30] + b[31]*k[31] + b[32]*k[32] + b[33]*k[33]) + (b[34]*k[34] + b[35]*k[35])
     if adaptive
       utmp = u + update
       EEst = norm(((k[1] - k[33]) * adaptiveConst)./(abstol+u*reltol),internalnorm)

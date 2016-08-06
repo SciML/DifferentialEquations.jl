@@ -72,9 +72,11 @@ end
 
 @def femheat_nonlinearsolvepreamble begin
   initialize_backend(:NLsolve)
+  #=
   if autodiff
     initialize_backend(:ForwardDiff)
   end
+  =#
   uOld = similar(vec(u))
 end
 

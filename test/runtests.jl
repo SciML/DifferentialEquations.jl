@@ -3,6 +3,7 @@
 const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
 const LONGER_TESTS = false #Requires JLD
+const TEST_CONDITIONAL_DEPS = false
 #Start Test Script
 using DifferentialEquations, Compat
 using Base.Test
@@ -39,9 +40,9 @@ println("ODE Adaptive Tests")
 println("ODE Lorenz Attractor")
 @time @test include("ode/ode_lorenzattractor_tests.jl")
 println("ODEInterface Tests")
-@compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
+(TEST_CONDITIONAL_DEPS) && @compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
 println("ODE.jl Tests")
-@time @test include("ode/ODEJL_tests.jl")
+(TEST_CONDITIONAL_DEPS) && @time @test include("ode/ODEJL_tests.jl")
 println("ODE Number Type Tests")
 @time @test include("ode/ode_numbertype_tests.jl")
 println("ODE Initial Dt Tests")
