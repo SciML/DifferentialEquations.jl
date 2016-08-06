@@ -25,9 +25,10 @@ print(sim)
 show(sim)
 sim[end]
 
-sim = monteCarloSim(prob2::SDEProblem,Δt=1//2^(3),numMonte=5)
+sim = monteCarloSim(prob2::SDEProblem,Δt=1//2^(3),save_timeseries=true,numMonte=5)
 length(sim)
 sim[1]
+sim[1][1]
 print(sim)
 show(sim)
 sim[end]
