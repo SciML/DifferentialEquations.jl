@@ -304,7 +304,7 @@ function buildOptions(o,optionlist,aliases,aliases_reversed)
   merge(dict1,dict2)
 end
 
-function ode_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,order)
+function ode_determine_initΔt(u₀::AbstractArray,t,abstol,reltol,internalnorm,f,order)
   f₀ = similar(u₀); f₁ = similar(u₀); u₁ = similar(u₀)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
   f(f₀,u₀,t)
@@ -318,6 +318,26 @@ function ode_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,order)
      u₁[i] = u₀[i] + Δt₀*f₀[i]
   end
   f(f₁,u₁,t+Δt₀)
+  d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
+  if max(d₁,d₂)<=1//10^(15)
+    Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
+  else
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+  end
+  Δt = min(100Δt₀,Δt₁)
+end
+
+function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order)
+  d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
+  f₀ =f(u₀,t)
+  d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
+  if d₀ < 1//10^(5) || d₁ < 1//10^(5)
+    Δt₀ = 1//10^(6)
+  else
+    Δt₀ = (d₀/d₁)/100
+  end
+  u₁ = u₀ + Δt₀*f₀
+  f₁ = f(u₁,t+Δt₀)
   d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
