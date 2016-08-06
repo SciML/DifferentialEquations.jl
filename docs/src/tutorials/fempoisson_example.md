@@ -25,7 +25,7 @@ Note that by specifying :dirichlet our boundary conditions is set on all boundar
 sol = solve(fem_mesh,pdeProb)
 ```
 
-fem_solvepoisson takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This returns a FEMSolution object which holds data about the solution, such as the solution values (u). To plot the solution, we use the command
+solve takes in a mesh and a PoissonProblem and uses the solver to compute the solution. Here the solver was chosen to be GMRES. Other solvers can be found in the documentation. This returns a FEMSolution object which holds data about the solution, such as the solution values (u). To plot the solution, we use the command
 
 ```julia
 plot(sol::FEMSolution)

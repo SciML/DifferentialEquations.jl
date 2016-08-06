@@ -2,9 +2,10 @@ __precompile__()
 
 module DifferentialEquations
 
-using IterativeSolvers, Parameters, Plots, GenericSVD,
+using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
       EllipsisNotation, GrowableArrays, ChunkedArrays
 import Base: length, size, getindex, endof, show, print
+import ForwardDiff.Dual
 
 "PdeProblem: Defines differential equation problems via its internal functions"
 abstract DEProblem
@@ -61,7 +62,8 @@ export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
        lorenzAttractorSDEExample
 
 #ODE Example Problems
-export twoDimlinearODEExample, linearODEExample, lorenzAttractorODEExample
+export twoDimlinearODEExample, twoDimlinearODEExample!, linearODEExample,
+      lorenzAttractorODEExample, lorenzAttractorODEExample!
 
 #FEM Example Problems
 export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,

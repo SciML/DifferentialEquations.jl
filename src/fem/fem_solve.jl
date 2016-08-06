@@ -192,7 +192,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   atomloaded = isdefined(Main,:Atom)
 
   #Set Initial
-  u = u₀(node)
+  u = copy(u₀(node))
   if numvars==0
     numvars = size(u,2)
     prob.numvars = numvars #Mutate problem to be correct.

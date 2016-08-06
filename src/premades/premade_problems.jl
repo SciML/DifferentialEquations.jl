@@ -14,11 +14,27 @@ function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
   return(ODEProblem(f,u₀,analytic=analytic))
 end
 
+"""Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
+function twoDimlinearODEExample!(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
+  f(du,u,t) = (du[:] = α.*u)
+  analytic(u₀,t) = u₀.*exp(α.*t)
+  return(ODEProblem(f,u₀,analytic=analytic))
+end
+
 function lorenzAttractorODEExample(;σ=10.,ρ=28.,β=8//3,u₀=ones(3))
   f₁(u,t) = σ*(u[2]-u[1])
   f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
   f₃(u,t) = u[1]*u[2] - β*u[3]
   f(u,t) = [f₁(u,t);f₂(u,t);f₃(u,t)]
+  return(ODEProblem(f,u₀))
+end
+
+function lorenzAttractorODEExample!(;σ=10.,ρ=28.,β=8//3,u₀=ones(3))
+  function f(du,u,t)
+    du[1] = σ*(u[2]-u[1])
+    du[2] = u[1]*(ρ-u[3]) - u[2]
+    du[3] = u[1]*u[2] - β*u[3]
+  end
   return(ODEProblem(f,u₀))
 end
 
@@ -65,10 +81,10 @@ function additiveSDEExample(;α=0.1,β=0.05,u₀=1.)
 end
 
 """Multiple Ito dimension extension of additiveSDEExample"""
-function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=0.5,u₀=1.)
-  f(u,t) = β/sqrt(1+t) - u/(2*(1+t))
-  σ(u,t) = α*β/sqrt(1+t)
-  analytic(u₀,t,W) = u₀/sqrt(1+t) + β*(t+α*W)/sqrt(1+t)
+function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=[0.5;0.25;0.125;0.1115],u₀=[1.;1.;1.;1.])
+  f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
+  σ(u,t) = α.*β./sqrt(1+t)
+  analytic(u₀,t,W) = u₀./sqrt(1+t) + β.*(t+α.*W)/sqrt(1+t)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
