@@ -25,8 +25,6 @@ sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10)
 
 prob = twoDimlinearODEExample(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
 
-# sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10) # Fails, no norm2 for Matrix of BigFloats
-
 sim = test_convergence(Δts,prob,alg=:Feagin10)
 #plot(sim); Plots.gui()
 #sim = test_convergence(Δts,prob,alg=:RK4)
@@ -52,6 +50,20 @@ bool8 = abs(sim.𝒪est[:final]-12) < testTol #Upped to 15 for test
 sim = test_convergence(Δts,prob,alg=:Feagin14)
 bool9 = abs(sim.𝒪est[:final]-16) < testTol #Upped to 15 for test
 
+prob = twoDimlinearODEExample(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
+
+#compile
+sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10Vectorized)
+sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12Vectorized)
+sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14Vectorized)
+
+#test
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10Vectorized)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12Vectorized)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14Vectorized)
 
 
 bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9
