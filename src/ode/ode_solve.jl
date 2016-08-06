@@ -37,6 +37,9 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
     - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
     - `:Feagin14` - Feagin's 14th-order Runge-Kutta method.
+    - `:Feagin10Vectorized` - Feagin's 10th-order Runge-Kutta method. Not as optimized as the other implementation.
+    - `:Feagin12Vectorized` - Feagin's 12th-order Runge-Kutta method. Not as optimized as the other implementation.
+    - `:Feagin14Vectorized` - Feagin's 14th-order Runge-Kutta method. Not as optimized as the other implementation.
     - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
       are specified via the keyword argument `tab=tableau`. The default tableau is
       for Dormand-Prine 4/5. Other supplied tableaus include:
@@ -172,6 +175,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       u,t,timeseries,ts = ode_feagin12(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:Feagin14
       u,t,timeseries,ts = ode_feagin14(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin10Vectorized
+      u,t,timeseries,ts = ode_feagin10_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin12Vectorized
+      u,t,timeseries,ts = ode_feagin12_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin14Vectorized
+      u,t,timeseries,ts = ode_feagin14_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:ImplicitEuler
       u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
     elseif alg==:Trapezoid
