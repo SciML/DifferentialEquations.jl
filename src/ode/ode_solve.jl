@@ -136,9 +136,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     end
     if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
       initialize_backend(:NLsolve)
+      #=
       if o[:autodiff]
         initialize_backend(:ForwardDiff)
       end
+      =#
     end
     tType=typeof(Δt)
 
