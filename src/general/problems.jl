@@ -337,7 +337,9 @@ type SDEProblem <: DEProblem
   knownanalytic::Bool
   numvars::Int
   sizeu#::Tuple
+  isinplace::Bool
   function SDEProblem(f,σ,u₀;analytic=nothing)
+    isinplace = numparameters(f)==3
     if analytic==nothing
       knownanalytic = false
       analytic=(u,t,W)->0
@@ -351,7 +353,7 @@ type SDEProblem <: DEProblem
       sizeu = size(u₀)
       numvars = size(u₀)[end]
     end
-    new(f,σ,u₀,analytic,knownanalytic,numvars,sizeu)
+    new(f,σ,u₀,analytic,knownanalytic,numvars,sizeu,isinplace)
   end
 end
 
@@ -388,10 +390,12 @@ type ODEProblem <: DEProblem
   knownanalytic::Bool
   numvars::Int
   sizeu#::Tuple
+  isinplace::Bool
   function ODEProblem(f,u₀;analytic=nothing)
+    isinplace = numparameters(f)==3
     if analytic==nothing
       knownanalytic = false
-      analytic=(u,t)->0
+      analytic=(du,u,t)->0
     else
       knownanalytic = true
     end
@@ -402,7 +406,7 @@ type ODEProblem <: DEProblem
       sizeu = size(u₀)
       numvars = size(u₀)[end]
     end
-    new(f,u₀,analytic,knownanalytic,numvars,sizeu)
+    new(f,u₀,analytic,knownanalytic,numvars,sizeu,isinplace)
   end
 end
 

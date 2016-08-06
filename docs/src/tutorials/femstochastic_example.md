@@ -23,9 +23,10 @@ We can solve the same PDE as in the Poisson Tutorial except as the stochastic PD
 f(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])
 σ(x) = 5 #Additive noise
 prob = PoissonProblem(f,σ=σ)
+solve(prob)
 ```
 
-This gives the following plot:
+This gives the following plot (with adding the deterministic solution from the previous example):
 
 <img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introductionStochasticExample.png" width="750" align="middle" />
 

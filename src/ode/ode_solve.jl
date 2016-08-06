@@ -37,6 +37,9 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
     - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
     - `:Feagin14` - Feagin's 14th-order Runge-Kutta method.
+    - `:Feagin10Vectorized` - Feagin's 10th-order Runge-Kutta method. Not as optimized as the other implementation.
+    - `:Feagin12Vectorized` - Feagin's 12th-order Runge-Kutta method. Not as optimized as the other implementation.
+    - `:Feagin14Vectorized` - Feagin's 14th-order Runge-Kutta method. Not as optimized as the other implementation.
     - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
       are specified via the keyword argument `tab=tableau`. The default tableau is
       for Dormand-Prine 4/5. Other supplied tableaus include:
@@ -85,7 +88,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   T = tspan[2]
   o[:t] = t
   o[:T] = tspan[2]
-  @unpack prob: f,u₀,knownanalytic,analytic,numvars,sizeu
+  @unpack prob: u₀,knownanalytic,analytic,numvars,sizeu,isinplace
 
 
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
@@ -119,6 +122,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     if alg==:ExplicitRK
       @unpack o[:tableau]: A,c,α,αEEst,stages,order
     end
+    if !isinplace && typeof(u)<:AbstractArray
+      f = (du,u,t) -> (du[:] = prob.f(u,t))
+    else
+      f = prob.f
+    end
     if Δt==0
       Δt = ode_determine_initΔt(u₀,float(tspan[1]),o[:abstol],o[:reltol],o[:internalnorm],f,order)
     end
@@ -131,9 +139,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     end
     if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
       initialize_backend(:NLsolve)
+      #=
       if o[:autodiff]
         initialize_backend(:ForwardDiff)
       end
+      =#
     end
     tType=typeof(Δt)
 
@@ -165,6 +175,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       u,t,timeseries,ts = ode_feagin12(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:Feagin14
       u,t,timeseries,ts = ode_feagin14(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin10Vectorized
+      u,t,timeseries,ts = ode_feagin10_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin12Vectorized
+      u,t,timeseries,ts = ode_feagin12_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
+    elseif alg==:Feagin14Vectorized
+      u,t,timeseries,ts = ode_feagin14_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
     elseif alg==:ImplicitEuler
       u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
     elseif alg==:Trapezoid
@@ -178,6 +194,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     if typeof(u) <: Number
       u = [u]
     end
+    f = prob.f
     initialize_backend(:ODEInterface)
     dict = buildOptions(o,ODEINTERFACE_OPTION_LIST,ODEINTERFACE_ALIASES,ODEINTERFACE_ALIASES_REVERSED)
     opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
@@ -215,8 +232,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     t = o[:t]
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
-
-    ode  = ODE.ExplicitODE(t,u,(t,y,dy)->dy[:]=f(y,t)) #not really inplace
+    if !isinplace && typeof(u)<:AbstractArray
+      f = (t,u,du) -> (du[:] = prob.f(u,t))
+    else
+      f = prob.f
+    end
+    ode  = ODE.ExplicitODE(t,u,f)
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
     if alg==:ode23
@@ -283,9 +304,32 @@ function buildOptions(o,optionlist,aliases,aliases_reversed)
   merge(dict1,dict2)
 end
 
-function ode_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,order)
+function ode_determine_initΔt(u₀::AbstractArray,t,abstol,reltol,internalnorm,f,order)
+  f₀ = similar(u₀); f₁ = similar(u₀); u₁ = similar(u₀)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
-  f₀ = f(u₀,t)
+  f(f₀,u₀,t)
+  d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
+  if d₀ < 1//10^(5) || d₁ < 1//10^(5)
+    Δt₀ = 1//10^(6)
+  else
+    Δt₀ = (d₀/d₁)/100
+  end
+  @inbounds for i in eachindex(u₀)
+     u₁[i] = u₀[i] + Δt₀*f₀[i]
+  end
+  f(f₁,u₁,t+Δt₀)
+  d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
+  if max(d₁,d₂)<=1//10^(15)
+    Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
+  else
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+  end
+  Δt = min(100Δt₀,Δt₁)
+end
+
+function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order)
+  d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
+  f₀ =f(u₀,t)
   d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
   if d₀ < 1//10^(5) || d₁ < 1//10^(5)
     Δt₀ = 1//10^(6)
