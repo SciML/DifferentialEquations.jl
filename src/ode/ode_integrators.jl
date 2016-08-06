@@ -1007,17 +1007,30 @@ end
 
 function ode_impliciteuler(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
                             timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-  function rhs_ie(u,resid,u_old,t,Δt)
-    f(resid,reshape(u,sizeu...),t+Δt); resid*=Δt
-    for i in eachindex(u)
-      resid[i] = resid[i] + u_old[i] - u[i]
+  if autodiff
+    cache = DiffCache(u)
+    rhs_ie = (u,resid,u_old,t,Δt,cache) -> begin
+      du = get_du(cache, eltype(u))
+      f(du,reshape(u,sizeu),t+Δt)
+      for i in eachindex(u)
+        resid[i] = u[i] - u_old[i] - Δt*du[i]
+      end
+    end
+  else
+    cache = similar(u)
+    rhs_ie = (u,resid,u_old,t,Δt,du) -> begin
+      f(du,reshape(u,sizeu),t+Δt)
+      for i in eachindex(u)
+        resid[i] = u[i] - u_old[i] - Δt*du[i]
+      end
     end
   end
+
   u = vec(u)
   @inbounds while t < T
     @ode_loopheader
     u_old = copy(u)
-    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt),u,autodiff=autodiff)
+    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt,cache),u,autodiff=autodiff)
     u[:] = nlres.zero
     @ode_implicitloopfooter
   end
