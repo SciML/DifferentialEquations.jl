@@ -1,4 +1,12 @@
 using DifferentialEquations,Plots
+
+prob = linearODEExample()
+println("Solve and Plot")
+tab = constructBogakiShampine()
+sol =solve(prob::ODEProblem,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab)
+TEST_PLOT && plot(sol,plot_analytic=true)
+Δt₀ = sol.t[2]
+
 prob = twoDimlinearODEExample()
 
 ## Solve and plot
