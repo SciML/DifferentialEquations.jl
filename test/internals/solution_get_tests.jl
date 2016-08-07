@@ -3,8 +3,8 @@ prob = twoDimlinearODEExample()
 
 ## Solve and plot
 println("Test getindex")
-tab = constructBogakiShampine()
-sol =solve(prob::ODEProblem,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab)
+tab = constructDormandPrince()
+sol =solve(prob::ODEProblem,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab,abstol=1e-8,reltol=1e-7)
 
 size(sol)
 sol[1]

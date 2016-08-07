@@ -93,22 +93,22 @@ type FEMHeatIntegrator{T1,T2,T3}
   N::Int
   NT::Int
   Δt::Float64
-  t
-  Minv
-  D
-  A
-  freenode
+  t::Number
+  Minv::AbstractArray
+  D#::AbstractArray
+  A::AbstractArray
+  freenode::AbstractArray
   f::Function
   gD::Function
   gN::Function
-  u
-  node
-  elem
-  area
-  bdnode
-  mid
-  dirichlet
-  neumann
+  u::AbstractArray
+  node::AbstractArray
+  elem::AbstractArray
+  area::AbstractArray
+  bdnode::AbstractArray
+  mid::AbstractArray
+  dirichlet::AbstractArray
+  neumann::AbstractArray
   islinear::Bool
   numvars::Int
   sqrtΔt::Float64
@@ -116,8 +116,8 @@ type FEMHeatIntegrator{T1,T2,T3}
   noisetype::Symbol
   numiters::Int
   save_timeseries::Bool
-  timeseries
-  ts
+  timeseries::GrowableArray
+  ts::AbstractArray
   atomloaded::Bool
   solver::Symbol
   autodiff::Bool
