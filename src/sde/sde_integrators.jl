@@ -1,4 +1,4 @@
-immutable SDEIntegrator{T1,uType,tType,tableauType}
+immutable SDEIntegrator{T1,uType,uEltype,N,tType,tableauType}
   f::Function
   σ::Function
   u::uType
@@ -6,18 +6,18 @@ immutable SDEIntegrator{T1,uType,tType,tableauType}
   Δt::tType
   T::tType
   maxiters::Int
-  timeseries::AbstractArray
-  Ws::GrowableArray
-  ts::AbstractArray
+  timeseries::GrowableArray{uEltype,uType,N}
+  Ws::GrowableArray{uEltype,uType,N}
+  ts::Vector{tType}
   timeseries_steps::Int
   save_timeseries::Bool
   adaptive::Bool
   adaptivealg::Symbol
-  δ::uType
-  γ::tType
-  abstol::uType
-  reltol::uType
-  qmax::tType
+  δ::uEltype
+  γ::uEltype
+  abstol::uEltype
+  reltol::uEltype
+  qmax::uEltype
   Δtmax::tType
   Δtmin::tType
   internalnorm::Int
