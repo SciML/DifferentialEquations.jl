@@ -171,8 +171,23 @@ with matrices), then the solver will use the matrices without error.
 
   * Implement standard solvers and add to ODEProblem type
 
+* Linear Solvers
 
+  * Finite Difference Geometric Multigrids
+  * Algebraic Multigrids via pyAMG
 
+* Performance
+
+  * Improve FEM performance
+  * Implement threaded versions
+  * Test ParallelAccelerator.jl on solvers
+  * Add Xeon Phi / GPU variants
+
+* Misc
+
+  * Davie-Gaines convergence analysis
+  * Add benchmarking tools
+  * Improve MonteCarloSimulation
 
 
 ## IJulia Notebook Tutorials
