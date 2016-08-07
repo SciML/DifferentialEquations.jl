@@ -4,8 +4,8 @@ prob = twoDimlinearSDEExample()
 
 ## Solve and plot
 println("Solve and Plot")
-sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:EM)
-sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRI)
+sol = solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:EM)
+sol = solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRI)
 
 #Now do the simulation 10000 times in parallel. Return an array
 solArr = monteCarloSim(prob::SDEProblem,Δt=1//2^(3),numMonte=5)
