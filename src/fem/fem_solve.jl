@@ -261,6 +261,7 @@ quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear
 Performs the order 2 quadrature to calculate the vector from the term ``<f,v>`` for linear elements.
 """
 function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
+  b = zeros(u) #size(bt1,2) == numvars
   if islinear
     bt1 = area.*(f(mid[:,:,2])+f(mid[:,:,3]))/6
     bt2 = area.*(f(mid[:,:,3])+f(mid[:,:,1]))/6
