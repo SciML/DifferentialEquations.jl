@@ -6,4 +6,5 @@ ChunkedArrays
 EllipsisNotation
 IterativeSolvers
 GenericSVD
+Compat
 Plots
