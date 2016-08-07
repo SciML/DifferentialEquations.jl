@@ -79,24 +79,24 @@ type SDESolution <: DESolution
   timeseries_analytic::AbstractArrayOrVoid
   appxTrue::Bool
   save_timeseries::Bool
-  maxStackSize::Int
+  maxstacksize::Int
   W
-  function SDESolution(u::Union{AbstractArray,Number};timeseries=[],timeseries_analytic=[],t=[],Δt=[],Ws=[],maxStackSize=0,W=0.0)
+  function SDESolution(u::Union{AbstractArray,Number};timeseries=[],timeseries_analytic=[],t=[],Δt=[],Ws=[],maxstacksize=0,W=0.0)
     save_timeseries = timeseries == nothing
     trueknown = false
-    return(new(u,trueknown,nothing,Dict(),timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueknown,nothing,Dict(),timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
-  function SDESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[],Δt=nothing,Ws=[],maxStackSize=0,W=0.0)
+  function SDESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[],Δt=nothing,Ws=[],maxstacksize=0,W=0.0)
     save_timeseries = timeseries != []
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
       errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-timeseries_analytic)),:l2=>sqrt(mean((timeseries-timeseries_analytic).^2)))
     end
-    return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.t,a.Δt,a.Ws,a.timeseries_analytic,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
+  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.t,a.Δt,a.Ws,a.timeseries_analytic,a.appxTrue,a.save_timeseries,a.maxstacksize,a.W)
 end
 
 """

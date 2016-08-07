@@ -1,3 +1,4 @@
+include("precompile.jl")
 __precompile__()
 
 module DifferentialEquations
