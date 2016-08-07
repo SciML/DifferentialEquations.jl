@@ -7,6 +7,14 @@ function linearODEExample(;α=1,u₀=1/2)
   return(ODEProblem(f,u₀,analytic=analytic))
 end
 
+"""Van der Pol Equations"""
+function vanDerPolExample(u₀=[0;sqrt(3)])
+  f₁(u,t) = (1-u[2].^2)*u[1] - u[2]
+  f₂(u,t) = u[1]
+  f(u,t) = [f₁(u,t);f₂(u,t)]
+  return(ODEProblem(f,u₀))
+end
+
 """Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
 function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
   f(u,t) = α.*u

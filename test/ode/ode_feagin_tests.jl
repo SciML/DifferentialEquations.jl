@@ -52,10 +52,14 @@ bool9 = abs(sim.𝒪est[:final]-16) < testTol #Upped to 15 for test
 
 prob = twoDimlinearODEExample!(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
 
+
 #compile
 sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10Vectorized)
 sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12Vectorized)
 sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14Vectorized)
+sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10)
+sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12)
+sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14)
 
 #test
 @time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10,adaptive=true)
