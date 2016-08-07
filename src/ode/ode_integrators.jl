@@ -1026,7 +1026,7 @@ function ode_impliciteuler(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
     end
   end
 
-  u = vec(u)
+  u = vec(u); u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
     copy!(u_old,u)
@@ -1064,7 +1064,7 @@ function ode_trapezoid(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
       end
     end
   end
-  u = vec(u)
+  u = vec(u); u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
     copy!(u_old,u)
