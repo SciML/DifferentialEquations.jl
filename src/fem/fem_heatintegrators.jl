@@ -1,3 +1,43 @@
+immutable FEMHeatIntegrator{T1,T2,T3}
+  N::Int
+  NT::Int
+  Δt::Float64
+  t::Number
+  Minv::AbstractArray
+  D#::AbstractArray
+  A::AbstractArray
+  freenode::AbstractArray
+  f::Function
+  gD::Function
+  gN::Function
+  u::AbstractArray
+  node::AbstractArray
+  elem::AbstractArray
+  area::AbstractArray
+  bdnode::AbstractArray
+  mid::AbstractArray
+  dirichlet::AbstractArray
+  neumann::AbstractArray
+  islinear::Bool
+  numvars::Int
+  sqrtΔt::Float64
+  σ::Function
+  noisetype::Symbol
+  numiters::Int
+  save_timeseries::Bool
+  timeseries::GrowableArray
+  ts::AbstractArray
+  atomloaded::Bool
+  solver::Symbol
+  autodiff::Bool
+  method::Symbol
+  show_trace::Bool
+  iterations::Int
+  timeseries_steps::Int
+  progressbar::Bool
+  progress_steps::Int
+end
+
 @def femheat_footer begin
   u[bdnode] = gD(node,i*Δt)[bdnode]
   if save_timeseries && i%timeseries_steps==0
@@ -87,46 +127,6 @@ end
 @def femheat_stochasticpreamble begin
   @unpack integrator: sqrtΔt,σ,noisetype
   rands = getNoise(u,node,elem,noisetype=noisetype)
-end
-
-immutable FEMHeatIntegrator{T1,T2,T3}
-  N::Int
-  NT::Int
-  Δt::Float64
-  t::Number
-  Minv::AbstractArray
-  D#::AbstractArray
-  A::AbstractArray
-  freenode::AbstractArray
-  f::Function
-  gD::Function
-  gN::Function
-  u::AbstractArray
-  node::AbstractArray
-  elem::AbstractArray
-  area::AbstractArray
-  bdnode::AbstractArray
-  mid::AbstractArray
-  dirichlet::AbstractArray
-  neumann::AbstractArray
-  islinear::Bool
-  numvars::Int
-  sqrtΔt::Float64
-  σ::Function
-  noisetype::Symbol
-  numiters::Int
-  save_timeseries::Bool
-  timeseries::GrowableArray
-  ts::AbstractArray
-  atomloaded::Bool
-  solver::Symbol
-  autodiff::Bool
-  method::Symbol
-  show_trace::Bool
-  iterations::Int
-  timeseries_steps::Int
-  progressbar::Bool
-  progress_steps::Int
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:linear,:Euler,:deterministic})

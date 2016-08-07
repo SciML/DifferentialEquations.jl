@@ -159,11 +159,8 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
-    iter = 0
-
-    typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,typeof(u),typeof(Δt)}(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,sizeu,order,atomloaded))
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,typeof(u),eltype(u),ndims(u)+1,typeof(Δt)}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
