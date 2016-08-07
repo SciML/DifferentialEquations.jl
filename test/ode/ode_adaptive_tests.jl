@@ -1,7 +1,5 @@
 using DifferentialEquations,Plots
 prob = twoDimlinearODEExample()
-TEST_PLOT = true
-Plots.plotly()
 ## Solve and plot
 println("Solve and Plot")
 tab = constructBogakiShampine()
