@@ -163,7 +163,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     iter = 0
 
     typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,value_type}(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,sizeu,order,atomloaded))
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,typeof(u),typeof(Δt)}(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,sizeu,order,atomloaded))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
