@@ -9,9 +9,10 @@ end
 
 """Van der Pol Equations"""
 function vanDerPolExample(u₀=[0;sqrt(3)])
-  f₁(u,t) = (1-u[2].^2)*u[1] - u[2]
-  f₂(u,t) = u[1]
-  f(u,t) = [f₁(u,t);f₂(u,t)]
+  function f(du,u,t)
+    du[1] = (1-u[2].^2)*u[1] - u[2]
+    du[2] = u[1]
+  end
   return(ODEProblem(f,u₀))
 end
 
