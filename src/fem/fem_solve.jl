@@ -273,9 +273,17 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,is
     bt2 = area.*(f(u3,mid[:,:,3])+f(u1,mid[:,:,1]))/6
     bt3 = area.*(f(u1,mid[:,:,1])+f(u2,mid[:,:,2]))/6
   end
-  b = Array{eltype(bt1)}(N,numvars) #size(bt1,2) == numvars
-  for i = 1:numvars
-    b[:,i] = accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
+  b = zeros(N,numvars) #size(bt1,2) == numvars
+  for i = 1:numvars # accumarray the bt's
+    for j = 1:NT
+      b[elem[j,1],i] += bt1[j,i]
+    end
+    for j = 1:NT
+      b[elem[j,2],i] += bt2[j,i]
+    end
+    for j = 1:NT
+      b[elem[j,3],i] += bt3[j,i]
+    end
   end
 
   if(!isempty(dirichlet))
