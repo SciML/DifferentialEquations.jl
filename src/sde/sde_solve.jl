@@ -131,7 +131,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   #EEst = 0
   typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
 
-  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,typeof(u),eltype(u),ndims(u)+1,typeof(Δt),typeof(tableauType)}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
+  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,typeof(u),eltype(u),ndims(u),ndims(u)+1,typeof(Δt),typeof(tableau)}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
 
   (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 

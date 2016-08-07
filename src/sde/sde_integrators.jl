@@ -1,4 +1,4 @@
-immutable SDEIntegrator{T1,uType,uEltype,N,tType,tableauType}
+immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType}
   f::Function
   σ::Function
   u::uType
@@ -26,7 +26,7 @@ immutable SDEIntegrator{T1,uType,uEltype,N,tType,tableauType}
   progressbar::Bool
   atomloaded::Bool
   progress_steps::Int
-  rands::ChunkedArray
+  rands::ChunkedArray{uEltype,Nm1,N}
   sqΔt::tType
   W::uType
   Z::uType
@@ -34,7 +34,7 @@ immutable SDEIntegrator{T1,uType,uEltype,N,tType,tableauType}
 end
 
 @def sde_preamble begin
-  @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
+  @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
   sizeu = size(u)
   iter = 0
   max_stack_size = 0
@@ -79,7 +79,7 @@ max_stack_size = 0
 max_stack_size2 = 0
 end
 
-function sde_solve(integrator::SDEIntegrator{:EM,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   @inbounds while t<T
     @sde_loopheader
@@ -94,7 +94,7 @@ function sde_solve(integrator::SDEIntegrator{:EM,:Number})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:EM,:AbstractArray})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   utmp1 = similar(u); utmp2 = similar(u)
   @inbounds while t<T
@@ -112,7 +112,7 @@ function sde_solve(integrator::SDEIntegrator{:EM,:AbstractArray})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRI,:AbstractArray})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   stages = length(α)
@@ -141,14 +141,14 @@ function sde_solve(integrator::SDEIntegrator{:SRI,:AbstractArray})
       chi3[i] = 1/6 * (ΔW[i].^3 - 3*ΔW[i]*Δt)/Δt #I_(1,1,1)/h
     end
     for i=1:stages
-      H0[i][:]=zero(eltype(u))
-      H1[i][:]=zero(eltype(u))
+      H0[i][:]=zero(uEltype)
+      H1[i][:]=zero(uEltype)
     end
     for i = 1:stages
-      A0temp[:]=zero(eltype(u))
-      B0temp[:]=zero(eltype(u))
-      A1temp[:]=zero(eltype(u))
-      B1temp[:]=zero(eltype(u))
+      A0temp[:]=zero(uEltype)
+      B0temp[:]=zero(uEltype)
+      A1temp[:]=zero(uEltype)
+      B1temp[:]=zero(uEltype)
       for j = 1:i-1
         f(ftemp,H0[j],t + c₀[j]*Δt)
         σ(σtemp,H1[j],t + c₁[j]*Δt)
@@ -162,10 +162,10 @@ function sde_solve(integrator::SDEIntegrator{:SRI,:AbstractArray})
       H0[i] = u + A0temp*Δt + B0temp.*chi2
       H1[i] = u + A1temp*Δt + B1temp*sqΔt
     end
-    atemp[:]=zero(eltype(u))
-    btemp[:]=zero(eltype(u))
-    E₂[:]=zero(eltype(u))
-    E₁temp[:]=zero(eltype(u))
+    atemp[:]=zero(uEltype)
+    btemp[:]=zero(uEltype)
+    E₂[:]=zero(uEltype)
+    E₁temp[:]=zero(uEltype)
     for i = 1:stages
       f(ftemp,H0[i],t+c₀[i]*Δt)
       σ(σtemp,H1[i],t+c₁[i]*Δt)
@@ -191,10 +191,10 @@ function sde_solve(integrator::SDEIntegrator{:SRI,:AbstractArray})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRIW1Optimized,:AbstractArray})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  H0 = Array{eltype(u)}(size(u)...,4)
-  H1 = Array{eltype(u)}(size(u)...,4)
+  H0 = Array{uEltype}(size(u)...,4)
+  H1 = Array{uEltype}(size(u)...,4)
   chi1 = similar(u)
   chi2 = similar(u)
   chi3 = similar(u)
@@ -256,10 +256,10 @@ function sde_solve(integrator::SDEIntegrator{:SRIW1Optimized,:AbstractArray})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRIW1Optimized,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  H0 = Array{eltype(u)}(size(u)...,4)
-  H1 = Array{eltype(u)}(size(u)...,4)
+  H0 = Array{uEltype}(size(u)...,4)
+  H1 = Array{uEltype}(size(u)...,4)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -299,7 +299,7 @@ function sde_solve(integrator::SDEIntegrator{:SRIW1Optimized,:Number})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRI,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   stages = length(α)
@@ -351,13 +351,13 @@ function sde_solve(integrator::SDEIntegrator{:SRI,:Number})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRIVectorized,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRIVectorized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  uType = typeof(u)
+
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   stages = length(α)
-  H0 = Array{eltype(u)}(stages)
-  H1 = Array{eltype(u)}(stages)
+  H0 = Array{uEltype}(stages)
+  H1 = Array{uEltype}(stages)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -383,7 +383,7 @@ function sde_solve(integrator::SDEIntegrator{:SRIVectorized,:Number})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:RKMil,:AbstractArray})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   du1 = similar(u); du2 = similar(u)
   K = similar(u); utilde = similar(u); L = similar(u)
@@ -407,7 +407,7 @@ function sde_solve(integrator::SDEIntegrator{:RKMil,:AbstractArray})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:RKMil,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   @inbounds while t<T
     @sde_loopheader
@@ -426,10 +426,9 @@ function sde_solve(integrator::SDEIntegrator{:RKMil,:Number})
 end
 
 
-function sde_solve(integrator::SDEIntegrator{:SRA1Optimized,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  uType = typeof(u)
-  H0 = Array{eltype(u)}(size(u)...,2)
+  H0 = Array{uEltype}(size(u)...,2)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -447,10 +446,10 @@ function sde_solve(integrator::SDEIntegrator{:SRA1Optimized,:Number})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRA1Optimized,:AbstractArray})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  uType = typeof(u)
-  H0 = Array{eltype(u)}(size(u)...,2)
+
+  H0 = Array{uEltype}(size(u)...,2)
   chi2 = similar(u)
   tmp1 = similar(u)
   E₁ = similar(u); σt = similar(u); σpΔt = similar(u)
@@ -477,9 +476,9 @@ function sde_solve(integrator::SDEIntegrator{:SRA1Optimized,:AbstractArray})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRA,:AbstractArray})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  uType = typeof(u)
+
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
   stages = length(α)
   H0 = Vector{typeof(u)}(0)
@@ -497,11 +496,11 @@ function sde_solve(integrator::SDEIntegrator{:SRA,:AbstractArray})
       chi2[i] = .5*(ΔW[i] + ΔZ[i]/sqrt(3)) #I_(1,0)/h
     end
     for i in 1:stages
-      H0[i][:]=zero(eltype(u))
+      H0[i][:]=zero(uEltype)
     end
     for i = 1:stages
-      A0temp[:] = zero(eltype(u))
-      B0temp[:] = zero(eltype(u))
+      A0temp[:] = zero(uEltype)
+      B0temp[:] = zero(uEltype)
       for j = 1:i-1
         f(ftmp,H0[j],t + c₀[j]*Δt)
         σ(σtmp,H0[j],t + c₁[j]*Δt)
@@ -514,10 +513,10 @@ function sde_solve(integrator::SDEIntegrator{:SRA,:AbstractArray})
         H0[i][j] = u[j] + A0temp[j]*Δt + B0temp[j]*chi2[j]
       end
     end
-    atemp[:] = zero(eltype(u))
-    btemp[:] = zero(eltype(u))
-    E₂[:]    = zero(eltype(u))
-    E₁temp[:]= zero(eltype(u))
+    atemp[:] = zero(uEltype)
+    btemp[:] = zero(uEltype)
+    E₂[:]    = zero(uEltype)
+    E₁temp[:]= zero(uEltype)
 
     for i = 1:stages
       f(ftmp,H0[..,i],t+c₀[i]*Δt)
@@ -539,12 +538,12 @@ function sde_solve(integrator::SDEIntegrator{:SRA,:AbstractArray})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRA,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  uType = typeof(u)
+
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
   stages = length(α)
-  H0 = Array{eltype(u)}(stages)
+  H0 = Array{uEltype}(stages)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -581,13 +580,13 @@ function sde_solve(integrator::SDEIntegrator{:SRA,:Number})
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve(integrator::SDEIntegrator{:SRAVectorized,:Number})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRAVectorized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  uType = typeof(u)
+
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
   stages = length(α)
   @sde_adaptiveprelim
-  H0 = Array{eltype(u)}(stages)
+  H0 = Array{uEltype}(stages)
   @inbounds while t<T
     @sde_loopheader
 
