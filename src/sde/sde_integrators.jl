@@ -1,10 +1,10 @@
-immutable SDEIntegrator{T1,T2}
+immutable SDEIntegrator{T1,uType,tType,tableauType}
   f::Function
   σ::Function
-  u
-  t::Number
-  Δt::Number
-  T::Number
+  u::uType
+  t::tType
+  Δt::tType
+  T::tType
   maxiters::Int
   timeseries::AbstractArray
   Ws::GrowableArray
@@ -13,29 +13,29 @@ immutable SDEIntegrator{T1,T2}
   save_timeseries::Bool
   adaptive::Bool
   adaptivealg::Symbol
-  δ::Number
-  γ::Number
-  abstol::Number
-  reltol::Number
-  qmax::Number
-  Δtmax::Number
-  Δtmin::Number
+  δ::uType
+  γ::tType
+  abstol::uType
+  reltol::uType
+  qmax::tType
+  Δtmax::tType
+  Δtmin::tType
   internalnorm::Int
   numvars::Int
-  sizeu::NTuple
-  discard_length::Number
+  discard_length::tType
   progressbar::Bool
   atomloaded::Bool
   progress_steps::Int
   rands::ChunkedArray
-  sqΔt::Number
-  W
-  Z
-  tableau::Tableau
+  sqΔt::tType
+  W::uType
+  Z::uType
+  tableau::tableauType
 end
 
 @def sde_preamble begin
   @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
+  sizeu = size(u)
   iter = 0
   max_stack_size = 0
   max_stack_size2 = 0
