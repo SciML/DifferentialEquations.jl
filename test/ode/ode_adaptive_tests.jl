@@ -2,6 +2,8 @@ using DifferentialEquations,Plots
 prob = twoDimlinearODEExample()
 ## Solve and plot
 println("Solve and Plot")
+sol =solve(prob::ODEProblem,[0,1],Δt=1/2^4,save_timeseries=true,alg=:Rosenbrock32,adaptive=true)
+
 tab = constructBogakiShampine()
 sol =solve(prob::ODEProblem,[0,1],Δt=1/2^4,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab)
 val1 = maximum(abs(sol.u - sol.u_analytic))
