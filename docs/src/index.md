@@ -217,6 +217,7 @@ Pages = [
     "man/plot.md",
     "man/convergence.md",
     "man/conditional_dependencies.md"
+    "man/progress_bar.md"
 ]
 Depth = 2
 ```

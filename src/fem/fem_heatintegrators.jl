@@ -81,33 +81,34 @@ end
 end
 
 @def femheat_deterministicpreamble begin
-  @unpack integrator: N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps
+  @unpack integrator: N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps
 end
 
 @def femheat_stochasticpreamble begin
-  @unpack integrator: N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps
+  @unpack integrator: sqrtΔt,σ,noisetype
   rands = getNoise(u,node,elem,noisetype=noisetype)
 end
 
 type FEMHeatIntegrator{T1,T2,T3}
   N::Int
+  NT::Int
   Δt::Float64
-  t
-  Minv
-  D
-  A
-  freenode
+  t::Number
+  Minv::AbstractArray
+  D#::AbstractArray
+  A::AbstractArray
+  freenode::AbstractArray
   f::Function
   gD::Function
   gN::Function
-  u
-  node
-  elem
-  area
-  bdnode
-  mid
-  dirichlet
-  neumann
+  u::AbstractArray
+  node::AbstractArray
+  elem::AbstractArray
+  area::AbstractArray
+  bdnode::AbstractArray
+  mid::AbstractArray
+  dirichlet::AbstractArray
+  neumann::AbstractArray
   islinear::Bool
   numvars::Int
   sqrtΔt::Float64
@@ -115,8 +116,8 @@ type FEMHeatIntegrator{T1,T2,T3}
   noisetype::Symbol
   numiters::Int
   save_timeseries::Bool
-  timeseries
-  ts
+  timeseries::GrowableArray
+  ts::AbstractArray
   atomloaded::Bool
   solver::Symbol
   autodiff::Bool
@@ -133,7 +134,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:Euler,:determinist
   K = eye(N) - Δt*Minv*D*A #D okay since numVar = 1 for linear
   for i=1:numiters
     u[freenode,:] = K[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,t),(x)->gD(x,t),(x)->gN(x,t),
-                A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
     t += Δt
     @femheat_footer
   end
@@ -141,14 +142,15 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:Euler,:determinist
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:linear,:Euler,:stochastic})
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   K = eye(N) - Δt*Minv*D*A #D okay since numVar = 1 for linear
   for i=1:numiters
     dW = next(rands)
     u[freenode,:] = K[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,t),(x)->gD(x,t),(x)->gN(x,t),
-                A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] +
+                A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
                 (sqrtΔt.*dW.*Minv*quadfbasis((x)->σ(x,t),(x)->gD(x,t),(x)->gN(x,t),
-                            A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                            A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
     t += Δt
     @femheat_footer
   end
@@ -159,7 +161,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:Euler,:determin
   @femheat_deterministicpreamble
   for i=1:numiters
     u[freenode,:] = u[freenode,:] - D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,t),(x)->gD(x,t),(x)->gN(x,t),
-            A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+            A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
     t += Δt
     @femheat_footer
   end
@@ -167,13 +169,14 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:Euler,:determin
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:Euler,:stochastic})
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   for i=1:numiters
     dW = next(rands)
     u[freenode,:] = u[freenode,:] - D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) + (Minv*Δt*quadfbasis((u,x)->f(u,x,t),(x)->gD(x,t),(x)->gN(x,t),
-                A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] +
+                A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
                 (sqrtΔt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,t),(x)->gD(x,t),(x)->gN(x,t),
-                            A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                            A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
     t += Δt
     @femheat_footer
   end
@@ -181,12 +184,13 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:Euler,:stochast
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:linear,:ImplicitEuler,:stochastic})
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   K = eye(N) + Δt*Minv*D*A #D okay since numVar = 1 for linear
   lhs = K[freenode,freenode]
-  rhs(u,i,dW) = u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] +
+  rhs(u,i,dW) = u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
               (sqrtΔt.*dW.*Minv*quadfbasis((x)->σ(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                          A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     dW = next(rands)
@@ -201,7 +205,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:ImplicitEuler,:det
   @femheat_deterministicpreamble
   K = eye(N) + Δt*Minv*D*A #D okay since numVar = 1 for linear
   lhs = K[freenode,freenode]
-  rhs(u,i) = u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+  rhs(u,i) = u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     t += Δt
@@ -212,13 +216,14 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:ImplicitEuler,:det
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:linear,:CrankNicholson,:stochastic})
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   Km = eye(N) - Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
   Kp = eye(N) + Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
   lhs = Kp[freenode,freenode]
-  rhs(u,i,dW) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] +
+  rhs(u,i,dW) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
               (sqrtΔt.*dW.*Minv*quadfbasis((x)->σ(x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                          A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     dW = next(rands)
@@ -234,7 +239,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:CrankNicholson,:de
   Km = eye(N) - Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
   Kp = eye(N) + Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
   lhs = Kp[freenode,freenode]
-  rhs(u,i) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+  rhs(u,i) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f(x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     t += Δt
@@ -250,7 +255,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitEul
   K = eye(N) + Δt*Minv*A
   lhs = K[freenode,freenode]
   rhs(u,i) = u[freenode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
-              A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+              A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     t += Δt
@@ -261,14 +266,15 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitEul
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitEuler,:stochastic}) #Incorrect for system with different diffusions
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   Dinv = D.^(-1)
   K = eye(N) + Δt*Minv*A
   lhs = K[freenode,freenode]
   rhs(u,i,dW) = u[freenode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
-              A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] +
+              A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
               (sqrtΔt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                          A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     dW = next(rands)
@@ -286,7 +292,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitCra
   Kp = eye(N) + Δt*Minv*A/2
   lhs = Kp[freenode,freenode]
   rhs(u,i) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
-              A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+              A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     t += Δt
@@ -297,15 +303,16 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitCra
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitCrankNicholson,:stochastic}) #Incorrect for system with different diffusions
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   Dinv = D.^(-1)
   Km = eye(N) - Δt*Minv*A/2
   Kp = eye(N) + Δt*Minv*A/2
   lhs = Kp[freenode,freenode]
   rhs(u,i,dW) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((u,x)->f(u,x,(i-.5)*Δt),(x)->gD(x,(i-.5)*Δt),(x)->gN(x,(i-.5)*Δt),
-              A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] +
+              A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
               (sqrtΔt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i-1)*Δt),(x)->gD(x,(i-1)*Δt),(x)->gN(x,(i-1)*Δt),
-                          A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   for i=1:numiters
     dW = next(rands)
@@ -323,7 +330,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:ImplicitEuler,:
     uOld = reshape(uOld,N,numvars)
     resid = reshape(resid,N,numvars)
     resid[freenode,:] = u[freenode,:] - uOld[freenode,:] + D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) -
-    (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+    (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
     u = vec(u)
     resid = vec(resid)
   end
@@ -337,12 +344,13 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:ImplicitEuler,:
 end
 
 function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:ImplicitEuler,:stochastic})
+  @femheat_deterministicpreamble
   @femheat_stochasticpreamble
   function rhs!(u,resid,dW,uOld,i)
     u = reshape(u,N,numvars)
     resid = reshape(resid,N,numvars)
-    resid[freenode,:] = u[freenode,:] - uOld[freenode,:] + D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:] -(sqrtΔt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
-                A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars))[freenode,:]
+    resid[freenode,:] = u[freenode,:] - uOld[freenode,:] + D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) - (Minv*Δt*quadfbasis((u,x)->f(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] -(sqrtΔt.*dW.*Minv*quadfbasis((u,x)->σ(u,x,(i)*Δt),(x)->gD(x,(i)*Δt),(x)->gN(x,(i)*Δt),
+                A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
     u = vec(u)
     resid = vec(resid)
   end

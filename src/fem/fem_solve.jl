@@ -65,9 +65,9 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
   if stochastic
     rands = getNoise(u,node,elem,noisetype=noisetype)
     dW = next(rands)
-    rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars).*dW
+    rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars) + quadfbasis(σ,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars).*dW
   else #Not Stochastic
-    rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars)
+    rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)
   end
   Dinv = D.^(-1)
   #Solve
@@ -236,7 +236,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   Minv = sparse(inv(M)) #sparse(Minv) needed until update
 
   #Heat Equation Loop
-  u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
+  u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
 
   if knownanalytic #True Solution exists
     if save_timeseries
@@ -256,11 +256,12 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 end
 
 """
-quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
+quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
 
 Performs the order 2 quadrature to calculate the vector from the term ``<f,v>`` for linear elements.
 """
-function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
+function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
+  b = zeros(u) #size(bt1,2) == numvars
   if islinear
     bt1 = area.*(f(mid[:,:,2])+f(mid[:,:,3]))/6
     bt2 = area.*(f(mid[:,:,3])+f(mid[:,:,1]))/6
@@ -273,9 +274,17 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,dirichlet,neumann,is
     bt2 = area.*(f(u3,mid[:,:,3])+f(u1,mid[:,:,1]))/6
     bt3 = area.*(f(u1,mid[:,:,1])+f(u2,mid[:,:,2]))/6
   end
-  b = Array{eltype(bt1)}(N,numvars) #size(bt1,2) == numvars
-  for i = 1:numvars
-    b[:,i] = accumarray(vec(elem),vec([bt1[:,i];bt2[:,i];bt3[:,i]]))
+
+  for i = 1:numvars # accumarray the bt's
+    for j = 1:NT
+      b[elem[j,1],i] += bt1[j,i]
+    end
+    for j = 1:NT
+      b[elem[j,2],i] += bt2[j,i]
+    end
+    for j = 1:NT
+      b[elem[j,3],i] += bt3[j,i]
+    end
   end
 
   if(!isempty(dirichlet))

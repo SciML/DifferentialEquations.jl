@@ -58,12 +58,12 @@ sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12Vectorized)
 sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14Vectorized)
 
 #test
-@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10,adaptive=false)
-@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10Vectorized,adaptive=false)
-@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12,adaptive=false)
-@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12Vectorized,adaptive=false)
-@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14,adaptive=false)
-@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14Vectorized,adaptive=false)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10,adaptive=true)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10Vectorized,adaptive=true)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12,adaptive=true)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin12Vectorized,adaptive=true)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14,adaptive=true)
+@time sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin14Vectorized,adaptive=true)
 
 
 bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9

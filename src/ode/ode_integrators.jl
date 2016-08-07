@@ -38,7 +38,7 @@ end
     end
     if q > 1
       t = t + Δt
-      u = utmp
+      u = copy_if_possible!(u, utmp)
       @ode_savevalues
     end
     Δtpropose = min(Δtmax,q*Δt)
@@ -60,7 +60,7 @@ end
     end
     if q > 1
       t = t + Δt
-      u = utmp
+      u = copy_if_possible!(u, utmp)
       @ode_implicitsavevalues
     end
     Δtpropose = min(Δtmax,q*Δt)
@@ -239,7 +239,7 @@ function ode_explicitrk(f::Function,u::AbstractArray,t,Δt,T,iter,
   end
   utilde = similar(u)
   tmp = similar(u)
-  utmp = similar(u)
+  utmp = zeros(u)
   uEEst = similar(u)
   @inbounds while t < T
     @ode_loopheader
@@ -1026,10 +1026,10 @@ function ode_impliciteuler(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
     end
   end
 
-  u = vec(u)
+  u = vec(u); u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    u_old = copy(u)
+    copy!(u_old,u)
     nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt,cache),u,autodiff=autodiff)
     u[:] = nlres.zero
     @ode_implicitloopfooter
@@ -1064,10 +1064,10 @@ function ode_trapezoid(f::Function,u::AbstractArray,t,Δt,T,iter,maxiters,
       end
     end
   end
-  u = vec(u)
+  u = vec(u); u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    u_old = copy(u)
+    copy!(u_old,u)
     nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt,cache1,cache2),u,autodiff=autodiff)
     u[:] = nlres.zero
     @ode_implicitloopfooter
@@ -1162,7 +1162,7 @@ function ode_rosenbrock32(f::Function,u::Number,t,Δt,T,iter,
       utmp = u + Δt*k₂
       f₂ = f(utmp,t+Δt)
       k₃ = W\(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T)
-      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
+      EEst = norm((Δt*(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
     else
       u = u + Δt*k₂
     end
