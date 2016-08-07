@@ -113,7 +113,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   #PreProcess
   if (alg==:SRA || alg==:SRAVectorized) && tableau == nothing
     tableau = constructSRA1()
-  elseif (alg==:SRI || alg==:SRIVectorized) && tableau == nothing
+  elseif tableau == nothing # && (alg==:SRI || alg==:SRIVectorized)
     tableau = constructSRIW1()
   end
 
@@ -127,27 +127,11 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
   ΔZ = sqΔt*next(rands) # Take one first
-  maxStackSize = 0
+  maxstacksize = 0
   #EEst = 0
+  typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
 
-  # This part is a mess. Needs cleaning.
-  if alg==:EM
-    u,t,W,timeseries,ts,Ws = sde_eulermaruyama(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  elseif alg==:RKMil
-    u,t,W,timeseries,ts,Ws = sde_rkmil(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  elseif alg==:SRI
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =            sde_sri(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRIW1Optimized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 = sde_sriw1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRIVectorized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_srivectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRAVectorized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sravectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRA1Optimized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif  alg==:SRA
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  end
+  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,value_type}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
 
   (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
@@ -161,16 +145,16 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
       Ws = copy(Ws)
       timeseries = copy(timeseries)
       timeseries_analytic = copy(timeseries_analytic)
-      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,t=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,t=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxstacksize=maxstacksize))
     else
-      return(SDESolution(u,u_analytic,W=W,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,maxstacksize=maxstacksize))
     end
   else #No known analytic
     if save_timeseries
       timeseries = copy(timeseries)
-      return(SDESolution(u,timeseries=timeseries,W=W,t=ts,maxStackSize=maxStackSize))
+      return(SDESolution(u,timeseries=timeseries,W=W,t=ts,maxstacksize=maxstacksize))
     else
-      return(SDESolution(u,W=W,maxStackSize=maxStackSize))
+      return(SDESolution(u,W=W,maxstacksize=maxstacksize))
     end
   end
 end

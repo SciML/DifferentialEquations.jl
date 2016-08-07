@@ -34,7 +34,7 @@ Codes for the latest features can be found in [test/](https://github.com/ChrisRa
 For the most up to date on using the package information, please contact me [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl)
 or [read the latest documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 
-# Supported Equations
+## Supported Equations
 
 For PDEs, one can optionally specify a noise equation. The solvers currently have
 stochastic variants for handling Gaussian Space-time white noise SPDEs.
@@ -49,7 +49,7 @@ stochastic variants for handling Gaussian Space-time white noise SPDEs.
   * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
   * Stationary Stokes Equation
 
-# Implemented Solvers
+## Implemented Solvers
 
 For PDEs, [method] denotes an additional version for handling stochastic partial
 differential equations. SDE solvers and ODE solvers take in general sized inputs.
@@ -140,22 +140,40 @@ with matrices), then the solver will use the matrices without error.
   * Conjugate-Gradient (CG)
   * GMRES
 
-# Roadmap
+## Roadmap
+
+* ODE Solvers
+
+  * Stabilized stiff - ROCK2 and ROCK4
 
 * SODE Solvers
 
   * Adaptive-SRK
 
-
-* Finite difference solvers (Stochastic) PDE Solvers
+* Finite difference solvers
 
   * Semi-linear Heat Equation (Reaction-Diffusion Equation)
   * Semi-linear Poisson Equation
   * Wave Equation
   * Transport Equation
-  * Stokes Equation
+
+* Stochastic PDE Solvers
+
   * Implicit Integration Factor (IIF) Maruyama
   * Implicit Integration Factor (IIF) Milstein
+
+* DDE Solvers
+
+  * Wrap RETARD and RADAR5
+  * Implement standard Runge-Kutta DDE solvers
+
+* Algebraic differential equations
+
+  * Implement standard solvers and add to ODEProblem type
+
+
+
+
 
 ## IJulia Notebook Tutorials
 

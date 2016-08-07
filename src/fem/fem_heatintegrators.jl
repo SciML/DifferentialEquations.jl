@@ -89,7 +89,7 @@ end
   rands = getNoise(u,node,elem,noisetype=noisetype)
 end
 
-type FEMHeatIntegrator{T1,T2,T3}
+immutable FEMHeatIntegrator{T1,T2,T3}
   N::Int
   NT::Int
   Δt::Float64

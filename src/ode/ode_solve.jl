@@ -82,7 +82,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
   end
-
+  atomloaded = isdefined(Main,:Atom)
   o = KW(kwargs)
   t = tspan[1]
   T = tspan[2]
@@ -120,7 +120,7 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     Δt = o[:Δt]
     order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
     if alg==:ExplicitRK
-      @unpack o[:tableau]: A,c,α,αEEst,stages,order
+      @unpack o[:tableau]: order
     end
     if !isinplace && typeof(u)<:AbstractArray
       f = (du,u,t) -> (du[:] = prob.f(u,t))
@@ -161,33 +161,11 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
     iter = 0
-    if alg==:Euler
-      u,t,timeseries,ts = ode_euler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
-    elseif alg==:Midpoint
-      u,t,timeseries,ts = ode_midpoint(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
-    elseif alg==:RK4
-      u,t,timeseries,ts = ode_rk4(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
-    elseif alg==:ExplicitRK
-      u,t,timeseries,ts = ode_explicitrk(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,A,c,α,αEEst,stages,order,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:Feagin10
-      u,t,timeseries,ts = ode_feagin10(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:Feagin12
-      u,t,timeseries,ts = ode_feagin12(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:Feagin14
-      u,t,timeseries,ts = ode_feagin14(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:Feagin10Vectorized
-      u,t,timeseries,ts = ode_feagin10_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:Feagin12Vectorized
-      u,t,timeseries,ts = ode_feagin12_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:Feagin14Vectorized
-      u,t,timeseries,ts = ode_feagin14_vectorized(f,u,t,Δt,T,iter,order,maxiters,timeseries,ts,timeseries_steps,save_timeseries,γ,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar)
-    elseif alg==:ImplicitEuler
-      u,t,timeseries,ts = ode_impliciteuler(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-    elseif alg==:Trapezoid
-      u,t,timeseries,ts = ode_trapezoid(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,progressbar,autodiff)
-    elseif alg==:Rosenbrock32
-      u,t,timeseries,ts = ode_rosenbrock32(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,sizeu,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,γ)
-    end
+
+    typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,value_type}(f,u,t,Δt,T,iter,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,sizeu,order,atomloaded))
+
+    (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
 
