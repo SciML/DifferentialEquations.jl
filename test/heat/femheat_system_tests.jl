@@ -5,12 +5,12 @@ using DifferentialEquations
 
 #Define a parabolic problem
 T = 5
-Δx = 1//2^(1)
-Δt = 1//2^(7)
+Δx = 1/2^(1)
+Δt = 1/2^(7)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
 prob = heatProblemExample_birthdeathinteractingsystem()
-
-sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitEuler)
+#@code_warntype solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler)
+@profile sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler)
 
 TEST_PLOT && plot(sol,plot_analytic=false,zlim=(0,2),cbar=false)
 

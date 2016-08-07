@@ -3,8 +3,8 @@ prob = twoDimlinearODEExample()
 
 ## Solve and plot
 println("Test getindex")
-tab = constructBogakiShampine()
-sol =solve(prob::ODEProblem,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab)
+tab = constructDormandPrince()
+sol =solve(prob::ODEProblem,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab,abstol=1e-8,reltol=1e-7)
 
 size(sol)
 sol[1]
@@ -25,9 +25,10 @@ print(sim)
 show(sim)
 sim[end]
 
-sim = monteCarloSim(prob2::SDEProblem,Δt=1//2^(3),numMonte=5)
+sim = monteCarloSim(prob2::SDEProblem,Δt=1//2^(3),save_timeseries=true,numMonte=5)
 length(sim)
 sim[1]
+sim[1][1]
 print(sim)
 show(sim)
 sim[end]

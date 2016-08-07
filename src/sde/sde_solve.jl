@@ -196,9 +196,6 @@ function sde_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,σ,order)
   if max(d₁,d₂)<=1e-15
     Δt₁ = max(1e-6,Δt₀*1e-3)
   else
-    if !isdefined(Main,:order)
-      order = 1 #Convervative choice
-    end
     Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+.5))
   end
   Δt = min(100Δt₀,Δt₁)

@@ -3,7 +3,7 @@
 const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
 const LONGER_TESTS = false #Requires JLD
-const TEST_CONDITIONAL_DEPS = false
+const TEST_CONDITIONAL_DEPS = true
 #Start Test Script
 using DifferentialEquations, Compat
 using Base.Test
