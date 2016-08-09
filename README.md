@@ -24,4 +24,7 @@ to be an error, please open an issue.
 
 If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. For help installing conditional dependencies such as the ODE.jl wrappers, see the [Conditional Dependences manual page](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies/). If you're interested in contributing, please see the [Contributor's Guide](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/internals/contributors_guide/).
 
+--------------------------------
+
+
 <img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/DifferentialEquations_Example.png" align="middle"  />
