@@ -63,7 +63,7 @@ module DifferentialEquations
 
   #ODE Example Problems
   export twoDimlinearODEExample, twoDimlinearODEExample!, linearODEExample,
-        lorenzAttractorODEExample, lorenzAttractorODEExample!
+        lorenzAttractorODEExample, lorenzAttractorODEExample!, vanDerPolExample
 
   #FEM Example Problems
   export  heatProblemExample_moving, heatProblemExample_diffuse, heatProblemExample_pure,
