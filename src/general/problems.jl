@@ -380,35 +380,34 @@ defines the solution if analytic is given.
 * `analytic`: A function which describes the solution.
 * `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
-* `sizeu`: The size of the initial condition (and thus `u`)
 
 """
-type ODEProblem <: DEProblem
+type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: DEProblem
   f::Function
-  u₀#::AbstractArray
+  u₀::uType
   analytic::Function
   knownanalytic::Bool
   numvars::Int
-  sizeu#::Tuple
   isinplace::Bool
-  function ODEProblem(f,u₀;analytic=nothing)
-    isinplace = numparameters(f)==3
-    if analytic==nothing
-      knownanalytic = false
-      analytic=(du,u,t)->0
-    else
-      knownanalytic = true
-    end
-    if typeof(u₀) <: Number
-      sizeu = (1,)
-      numvars = 1
-    else
-      sizeu = size(u₀)
-      numvars = size(u₀)[end]
-    end
-    new(f,u₀,analytic,knownanalytic,numvars,sizeu,isinplace)
-  end
 end
+
+function ODEProblem(f::Function,u₀;analytic=nothing)
+  isinplace = numparameters(f)==3
+  if analytic==nothing
+    knownanalytic = false
+    analytic=(du,u,t)->0
+  else
+    knownanalytic = true
+  end
+  if typeof(u₀) <: Number
+    sizeu = (1,)
+    numvars = 1
+  else
+    numvars = size(u₀)[end]
+  end
+  ODEProblem{typeof(u₀),eltype(u₀)}(f,u₀,analytic,knownanalytic,numvars,isinplace)
+end
+#ODEProblem{uType<:Union{AbstractArray,Number}}(f,u₀::uType,)
 
 """
 StokesProblem

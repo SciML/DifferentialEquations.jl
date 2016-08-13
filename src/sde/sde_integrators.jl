@@ -34,6 +34,12 @@ immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType}
 end
 
 @def sde_preamble begin
+  local u::uType
+  local t::tType
+  local Δt::tType
+  local T::tType
+  local ΔW::uType
+  local ΔZ::uType
   @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
   sizeu = size(u)
   iter = 0
@@ -41,6 +47,30 @@ end
   max_stack_size2 = 0
   ΔW = sqΔt*next(rands) # Take one first
   ΔZ = sqΔt*next(rands) # Take one first
+end
+
+@def sde_sritableaupreamble begin
+  local c₀::Vector{uEltype}
+  local c₁::Vector{uEltype}
+  local A₀::Matrix{uEltype}
+  local A₁::Matrix{uEltype}
+  local B₀::Matrix{uEltype}
+  local B₁::Matrix{uEltype}
+  local α::Vector{uEltype}
+  local β₁::Vector{uEltype}
+  local β₂::Vector{uEltype}
+  local β₃::Vector{uEltype}
+  local β₄::Vector{uEltype}
+end
+
+@def sde_sratableaupreamble begin
+  local c₀::Vector{uEltype}
+  local c₁::Vector{uEltype}
+  local A₀::Matrix{uEltype}
+  local B₀::Matrix{uEltype}
+  local α::Vector{uEltype}
+  local β₁::Vector{uEltype}
+  local β₂::Vector{uEltype}
 end
 
 @def sde_loopheader begin
@@ -114,6 +144,7 @@ end
 
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
+  @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   stages = length(α)
   H0 = Vector{typeof(u)}(0)
@@ -123,14 +154,14 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
     push!(H1,similar(u))
   end
   #TODO Reduce memory
-  A0temp = similar(u); A1temp = similar(u)
-  B0temp = similar(u); B1temp = similar(u)
-  A0temp2 = similar(u); A1temp2 = similar(u)
-  B0temp2 = similar(u); B1temp2 = similar(u)
-  atemp = similar(u); btemp = similar(u)
-  E₁ = similar(u); E₂ = similar(u); E₁temp = similar(u)
-  ftemp = similar(u); σtemp = similar(u)
-  chi1 = similar(u); chi2 = similar(u); chi3 = similar(u)
+  A0temp::uType = similar(u); A1temp::uType = similar(u)
+  B0temp::uType = similar(u); B1temp::uType = similar(u)
+  A0temp2::uType = similar(u); A1temp2::uType = similar(u)
+  B0temp2::uType = similar(u); B1temp2::uType = similar(u)
+  atemp::uType = similar(u); btemp::uType = similar(u)
+  E₁::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
+  ftemp::uType = similar(u); σtemp::uType = similar(u)
+  chi1::uType = similar(u); chi2::uType = similar(u); chi3::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -193,26 +224,24 @@ end
 
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  H0 = Array{uEltype}(size(u)...,4)
-  H1 = Array{uEltype}(size(u)...,4)
-  chi1 = similar(u)
-  chi2 = similar(u)
-  chi3 = similar(u)
-  fH01o4 = similar(u)
-  σ₁o2 = similar(u)
-  H0 = similar(u)
-  H11 = similar(u)
-  H12 = similar(u)
-  H13 = similar(u)
-  σ₂o3 = similar(u)
-  Fσ₂o3 = similar(u)
-  σ₃o3 = similar(u)
-  Tσ₃o3 = similar(u)
-  mσ₁ = similar(u)
-  E₁ = similar(u)
-  E₂ = similar(u)
-  fH01 = similar(u); fH02 = similar(u)
-  σ₁ = similar(u); σ₂ = similar(u); σ₃ = similar(u); σ₄ = similar(u)
+  chi1::uType = similar(u)
+  chi2::uType = similar(u)
+  chi3::uType = similar(u)
+  fH01o4::uType = similar(u)
+  σ₁o2::uType = similar(u)
+  H0::uType = similar(u)
+  H11::uType = similar(u)
+  H12::uType = similar(u)
+  H13::uType = similar(u)
+  σ₂o3::uType = similar(u)
+  Fσ₂o3::uType = similar(u)
+  σ₃o3::uType = similar(u)
+  Tσ₃o3::uType = similar(u)
+  mσ₁::uType = similar(u)
+  E₁::uType = similar(u)
+  E₂::uType = similar(u)
+  fH01::uType = similar(u); fH02::uType = similar(u)
+  σ₁::uType = similar(u); σ₂::uType = similar(u); σ₃::uType = similar(u); σ₄::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -258,9 +287,16 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  H0 = Array{uEltype}(size(u)...,4)
-  H1 = Array{uEltype}(size(u)...,4)
+  local H0::uType
   @sde_adaptiveprelim
+  local fH01::uType; local σ₁::uType
+  local fH01o4::uType; local σ₁o2::uType
+  local H11::uType; local H12::uType
+  local σ₂::uType; local σ₃::uType; local σ₄::uType
+  local H13::uType; local fH02::uType
+  local σ₂o3::uType; local Fσ₂o3::uType
+  local σ₃o3::uType; local Tσ₃o3::uType
+  local mσ₁::uType; local E₁::uType; local E₂::uType
   @inbounds while t<T
     @sde_loopheader
 
@@ -301,10 +337,16 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
+  @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
-  stages = length(α)
+  stages::Int = length(α)
   H0 = Array{typeof(u)}(stages)
   H1 = Array{typeof(u)}(stages)
+  local A0temp::uType; local A1temp::uType
+  local B0temp::uType; local B1temp::uType
+  local atemp::uType;  local btemp::uType
+  local E₁::uType; local E₂::uType
+  local E₁temp::uType; local ftemp::uType
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -353,9 +395,9 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRIVectorized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-
+  @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
-  stages = length(α)
+  stages::Int = length(α)
   H0 = Array{uEltype}(stages)
   H1 = Array{uEltype}(stages)
   @sde_adaptiveprelim
@@ -385,8 +427,8 @@ end
 
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-  du1 = similar(u); du2 = similar(u)
-  K = similar(u); utilde = similar(u); L = similar(u)
+  du1::uType = similar(u); du2::uType = similar(u)
+  K::uType = similar(u); utilde::uType = similar(u); L::uType = similar(u)
   @inbounds while t<T
     @sde_loopheader
     f(du1,u,t)
@@ -409,6 +451,7 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
+  local L::uType; local K::uType; local utilde::uType
   @inbounds while t<T
     @sde_loopheader
 
@@ -429,6 +472,7 @@ end
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
   H0 = Array{uEltype}(size(u)...,2)
+  local k₁::uType; local k₂::uType; local E₁::uType; local E₂::uType
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -450,10 +494,10 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   @sde_preamble
 
   H0 = Array{uEltype}(size(u)...,2)
-  chi2 = similar(u)
-  tmp1 = similar(u)
-  E₁ = similar(u); σt = similar(u); σpΔt = similar(u)
-  E₂ = similar(u); k₁ = similar(u); k₂ = similar(u)
+  chi2::uType = similar(u)
+  tmp1::uType = similar(u)
+  E₁::uType = similar(u); σt::uType = similar(u); σpΔt::uType = similar(u)
+  E₂::uType = similar(u); k₁::uType = similar(u); k₂::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -478,17 +522,17 @@ end
 
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-
+  @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
-  stages = length(α)
+  stages::Int = length(α)
   H0 = Vector{typeof(u)}(0)
   for i = 1:stages
     push!(H0,similar(u))
   end
-  A0temp = similar(u); B0temp = similar(u)
-  ftmp = similar(u); σtmp = similar(u); chi2 = similar(u)
-  atemp = similar(u); btemp = similar(u); E₂ = similar(u); E₁temp = similar(u)
-  E₁ = similar(u)
+  A0temp::uType = similar(u); B0temp::uType = similar(u)
+  ftmp::uType = similar(u); σtmp::uType = similar(u); chi2::uType = similar(u)
+  atemp::uType = similar(u); btemp::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
+  E₁::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -540,10 +584,13 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-
+  @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
-  stages = length(α)
+  stages::Int = length(α)
   H0 = Array{uEltype}(stages)
+  local atemp::uType; local btemp::uType
+  local E₂::uType; local E₁::uType; local E₁temp::uType
+  local ftemp::uType; local A0temp::uType; local B0temp::uType
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -582,11 +629,12 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau}(integrator::SDEIntegrator{:SRAVectorized,uType,uEltype,Nm1,N,tType,tableauType})
   @sde_preamble
-
+  @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
-  stages = length(α)
+  stages::Int = length(α)
   @sde_adaptiveprelim
   H0 = Array{uEltype}(stages)
+
   @inbounds while t<T
     @sde_loopheader
 
