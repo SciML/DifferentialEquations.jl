@@ -77,7 +77,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:ode4` - RK4
     - `:ode45_fe` - Runge-Kutta-Fehlberg 4/5 method
 """
-function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
+function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProblem{uType,uEltype},tspan::AbstractArray=[0,1];kwargs...)
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
@@ -88,20 +88,22 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   T = tspan[2]
   o[:t] = t
   o[:T] = tspan[2]
-  @unpack prob: u₀,knownanalytic,analytic,numvars,sizeu,isinplace
+  @unpack prob: u₀,knownanalytic,analytic,numvars,isinplace
 
 
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   # Get the control variables
   @materialize progress_steps, progressbar, adaptive, save_timeseries = command_opts
 
+  #=
   if typeof(u₀)<:Number
-    uType = typeof(u₀)
+    uElType = typeof(u₀)
   elseif typeof(u₀) <: AbstractArray
-    uType = eltype(u₀)
+    uEltype = eltype(u₀)
   else
     error("u₀ must be a number or an array")
   end
+  =#
 
   u = copy(u₀)
 
@@ -160,12 +162,12 @@ function solve(prob::ODEProblem,tspan::AbstractArray=[0,1];kwargs...)
     ts = Vector{tType}(0)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,typeof(u),eltype(u),ndims(u)+1,typeof(Δt)}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded))
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded,progress_steps))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
-
+    sizeu = size(u)
     if typeof(u) <: Number
       u = [u]
     end

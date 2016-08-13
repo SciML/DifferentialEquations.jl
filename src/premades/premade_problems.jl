@@ -25,7 +25,12 @@ end
 
 """Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
 function twoDimlinearODEExample!(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
-  f(du,u,t) = (du[:] = α.*u)
+  function f(du,u,t)
+    @inbounds for i in eachindex(u)
+      du[i] = α[i]*u[i]
+    end
+    du
+  end
   analytic(u₀,t) = u₀.*exp(α.*t)
   return(ODEProblem(f,u₀,analytic=analytic))
 end

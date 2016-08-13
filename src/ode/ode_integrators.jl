@@ -1,4 +1,4 @@
-immutable ODEIntegrator{Alg,uType,uEltype,N,tType}
+immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N,tType<:Number} <: DEIntegrator
   f::Function
   u::uType
   t::tType
@@ -22,12 +22,28 @@ immutable ODEIntegrator{Alg,uType,uEltype,N,tType}
   autodiff::Bool
   order::Int
   atomloaded::Bool
+  progress_steps::Int
 end
 
 @def ode_preamble begin
-  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,save_timeseries,adaptive,progressbar,autodiff,order,atomloaded
-  iter = 0
+  local u::uType
+  local t::tType
+  local Δt::tType
+  local T::tType
+  local order::Int
+  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,save_timeseries,adaptive,progressbar,autodiff,order,atomloaded,progress_steps
+  local iter::Int = 0
   sizeu = size(u)
+  local utmp::uType
+  if uType <: Number
+    utmp = zero(uType)
+  else
+    utmp = zeros(u)
+  end
+  local standard::uEltype = zero(eltype(u))
+  local q::uEltype = zero(eltype(u))
+  local Δtpropose::tType = zero(t)
+  #local Eest::uType = zero(eltype(u))
   if adaptive
     @unpack integrator: abstol,reltol,qmax,Δtmax,Δtmin,internalnorm
   end
@@ -58,7 +74,7 @@ end
 
 @def ode_numberimplicitsavevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,u[1])
+    push!(timeseries,uhold[1])
     push!(ts,t)
   end
 end
@@ -73,13 +89,35 @@ end
     end
     if q > 1
       t = t + Δt
-      u = copy_if_possible!(u, utmp)
+      copy!(u, utmp)
       @ode_savevalues
     end
     Δtpropose = min(Δtmax,q*Δt)
     Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
   else #Not adaptive
-    t = t + Δt
+    t += Δt
+    @ode_savevalues
+  end
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+end
+
+@def ode_numberloopfooter begin
+  if adaptive
+    standard = abs(1/(γ*EEst))^(1/order)
+    if isinf(standard)
+        q = qmax
+    else
+       q = min(qmax,max(standard,eps()))
+    end
+    if q > 1
+      t = t + Δt
+      u = utmp
+      @ode_savevalues
+    end
+    Δtpropose = min(Δtmax,q*Δt)
+    Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
+  else #Not adaptive
+    t += Δt
     @ode_savevalues
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
@@ -95,7 +133,7 @@ end
     end
     if q > 1
       t = t + Δt
-      u = copy_if_possible!(u, utmp)
+      copy!(uhold, utmp)
       @ode_implicitsavevalues
     end
     Δtpropose = min(Δtmax,q*Δt)
@@ -117,7 +155,7 @@ end
     end
     if q > 1
       t = t + Δt
-      u = utmp
+      uhold = utmp
       @ode_numberimplicitsavevalues
     end
     Δtpropose = min(Δtmax,q*Δt)
@@ -133,19 +171,20 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
   @ode_preamble
   @inbounds while t < T
     @ode_loopheader
-    u = u + Δt.*f(u,t)
-    @ode_loopfooter
+    u = u + Δt.*f(u,t)::uType
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Euler,uType,uEltype,N,tType})
   @ode_preamble
-  du = similar(u)
+  du::uType = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(du,u,t)
-    for i in eachindex(u)
+    for i in uidx
       u[i] = u[i] + Δt*du[i]
     end
     @ode_loopfooter
@@ -155,28 +194,29 @@ end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Midpoint,uType,uEltype,N,tType})
   @ode_preamble
-  halfΔt = Δt/2
+  halfΔt::tType = Δt/2
   @inbounds while t < T
     @ode_loopheader
     u = u + Δt.*f(u+halfΔt.*f(u,t),t+halfΔt)
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Midpoint,uType,uEltype,N,tType})
   @ode_preamble
-  halfΔt = Δt/2
-  utilde = similar(u)
-  du = similar(u)
+  halfΔt::tType = Δt/2
+  utilde::uType = similar(u)
+  du::uType = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(du,u,t)
-    for i in eachindex(u)
+    for i in uidx
       utilde[i] = u[i]+halfΔt*du[i]
     end
     f(du,utilde,t+halfΔt)
-    for i in eachindex(u)
+    for i in uidx
       u[i] = u[i] + Δt*du[i]
     end
     @ode_loopfooter
@@ -186,7 +226,12 @@ end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:RK4,uType,uEltype,N,tType})
   @ode_preamble
-  halfΔt = Δt/2
+  halfΔt::tType = Δt/2
+  local k₁::uType
+  local k₂::uType
+  local k₃::uType
+  local k₄::uType
+  local ttmp::tType
   @inbounds while t < T
     @ode_loopheader
     k₁ = f(u,t)
@@ -195,36 +240,37 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
     k₃ = f(u+halfΔt*k₂,ttmp)
     k₄ = f(u+Δt*k₃,t+Δt)
     u = u + Δt*(k₁ + 2k₂ + 2k₃ + k₄)/6
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:RK4,uType,uEltype,N,tType})
   @ode_preamble
-  halfΔt = Δt/2
+  halfΔt::tType = Δt/2
   k₁ = similar(u)
   k₂ = similar(u)
   k₃ = similar(u)
   k₄ = similar(u)
   tmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k₁,u,t)
     ttmp = t+halfΔt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i]+halfΔt*k₁[i]
     end
     f(k₂,tmp,ttmp)
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i]+halfΔt*k₂[i]
     end
     f(k₃,tmp,ttmp)
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i]+Δt*k₃[i]
     end
     f(k₄,tmp,t+Δt)
-    for i in eachindex(u)
+    for i in uidx
       u[i] = u[i] + Δt*(k₁[i] + 2k₂[i] + 2k₃[i] + k₄[i])/6
     end
     @ode_loopfooter
@@ -234,6 +280,11 @@ end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:ExplicitRK,uType,uEltype,N,tType})
   @ode_preamble
+  local A::Matrix{uEltype}
+  local c::Vector{uEltype}
+  local α::Vector{uEltype}
+  local αEEst::Vector{uEltype}
+  local stages::Int
   @unpack integrator.tableau: A,c,α,αEEst,stages
   ks = Array{typeof(u)}(stages)
   @inbounds while t < T
@@ -259,13 +310,19 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
     else
       u = u + Δt*utilde
     end
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:ExplicitRK,uType,uEltype,N,tType})
   @ode_preamble
+  local A::Matrix{uEltype}
+  local c::Vector{uEltype}
+  local α::Vector{uEltype}
+  local αEEst::Vector{uEltype}
+  local stages::Int
+  uidx = eachindex(u)
   @unpack integrator.tableau: A,c,α,αEEst,stages
   ks = Vector{typeof(u)}(0)
   for i = 1:stages
@@ -280,34 +337,34 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     for i = 1:stages
       utilde[:] = zero(eltype(u))
       for j = 1:i-1
-        for k in eachindex(u)
+        for k in uidx
           utilde[k] += A[i,j]*ks[j][k]
         end
       end
-      for k in eachindex(u)
+      for k in uidx
         tmp[k] = u[k]+Δt*utilde[k]
       end
       f(ks[i],tmp,t+c[i]*Δt)
     end
     utilde[:] = α[1]*ks[1]
     for i = 2:stages
-      for k in eachindex(u)
+      for k in uidx
         utilde[k] += α[i]*ks[i][k]
       end
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + Δt*utilde[i]
       end
       uEEst[:] = αEEst[1]*ks[1]
       for i = 2:stages
-        for j in eachindex(u)
+        for j in uidx
           uEEst[j] += αEEst[i]*ks[i][j]
         end
       end
       EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalnorm)
     else
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + Δt*utilde[i]
       end
     end
@@ -325,6 +382,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   end
   update = similar(u)
   utmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k[1],u,t); k[1]*=Δt
@@ -344,16 +402,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     f(k[15],u + a1400*k[1] + a1401*k[2]                           + a1404*k[5]              + a1406*k[7] +                                                                     a1412*k[13] + a1413*k[14],t + c[14]*Δt); k[15]*=Δt
     f(k[16],u + a1500*k[1]              + a1502*k[3]                                                                                                                                                     + a1514*k[15],t + c[15]*Δt); k[16]*=Δt
     f(k[17],u + a1600*k[1] + a1601*k[2] + a1602*k[3]              + a1604*k[5] + a1605*k[6] + a1606*k[7] + a1607*k[8] + a1608*k[9] + a1609*k[10] + a1610*k[11] + a1611*k[12] + a1612*k[13] + a1613*k[14] + a1614*k[15] + a1615*k[16],t + c[16]*Δt); k[17]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[9]*k[9][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[12]*k[12][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i]) + (b[16]*k[16][i] + b[17]*k[17][i])
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + update[i]
       end
       EEst = norm(((k[2] - k[16]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + update[i]
       end
     end
@@ -371,84 +429,85 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   end
   tmp = similar(u)
   utmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k[1],u,t); k[1]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0100*k[1][i]
     end
     f(k[2],tmp,t + c[1]*Δt); k[2]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0200*k[1][i] + a0201*k[2][i]
     end
     f(k[3],tmp,t + c[2]*Δt ); k[3]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0300*k[1][i] + a0302*k[3][i]
     end
     f(k[4],tmp,t + c[3]*Δt); k[4]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0400*k[1][i] + a0402*k[3][i] + a0403*k[4][i]
     end
     f(k[5],tmp,t + c[4]*Δt); k[5]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0500*k[1][i] + a0503*k[4][i] + a0504*k[5][i]
     end
     f(k[6],tmp,t + c[5]*Δt); k[6]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0600*k[1][i] + a0603*k[4][i] + a0604*k[5][i] + a0605*k[6][i]
     end
     f(k[7],tmp,t + c[6]*Δt); k[7]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0700*k[1][i] + a0704*k[5][i] + a0705*k[6][i]) + a0706*k[7][i]
     end
     f(k[8],tmp,t + c[7]*Δt); k[8]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0800*k[1][i] + a0805*k[6][i] + a0806*k[7][i]) + a0807*k[8][i]
     end
     f(k[9],tmp,t + c[8]*Δt); k[9]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0900*k[1][i] + a0905*k[6][i] + a0906*k[7][i]) + a0907*k[8][i] + a0908*k[9][i]
     end
     f(k[10],tmp,t + c[9]*Δt); k[10]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1000*k[1][i] + a1005*k[6][i] + a1006*k[7][i]) + a1007*k[8][i] + a1008*k[9][i] + a1009*k[10][i]
     end
     f(k[11],tmp,t + c[10]*Δt); k[11]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1100*k[1][i] + a1105*k[6][i] + a1106*k[7][i]) + (a1107*k[8][i] + a1108*k[9][i] + a1109*k[10][i] + a1110*k[11][i])
     end
     f(k[12],tmp,t + c[11]*Δt); k[12]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1200*k[1][i] + a1203*k[4][i] + a1204*k[5][i]) + (a1205*k[6][i] + a1206*k[7][i] + a1207*k[8][i] + a1208*k[9][i]) + (a1209*k[10][i] + a1210*k[11][i] + a1211*k[12][i])
     end
     f(k[13],tmp,t + c[12]*Δt); k[13]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1300*k[1][i] + a1302*k[3][i] + a1303*k[4][i]) + (a1305*k[6][i] + a1306*k[7][i] + a1307*k[8][i] + a1308*k[9][i]) + (a1309*k[10][i] + a1310*k[11][i] + a1311*k[12][i] + a1312*k[13][i])
     end
     f(k[14],tmp,t + c[13]*Δt); k[14]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1400*k[1][i] + a1401*k[2][i] + a1404*k[5][i]) + (a1406*k[7][i] + a1412*k[13][i] + a1413*k[14][i])
     end
     f(k[15],tmp,t + c[14]*Δt); k[15]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a1500*k[1][i] + a1502*k[3][i] + a1514*k[15][i]
     end
     f(k[16],tmp,t + c[15]*Δt); k[16]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1600*k[1][i] + a1601*k[2][i] + a1602*k[3][i]) + (a1604*k[5][i] + a1605*k[6][i] + a1606*k[7][i] + a1607*k[8][i]) + (a1608*k[9][i] + a1609*k[10][i] + a1610*k[11][i] + a1611*k[12][i]) + (a1612*k[13][i] + a1613*k[14][i] + a1614*k[15][i] + a1615*k[16][i])
     end
     f(k[17],tmp,t + c[16]*Δt); k[17]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[9]*k[9][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[12]*k[12][i] + b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i]) + (b[16]*k[16][i] + b[17]*k[17][i])
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + tmp[i]
         tmp[i] = ((k[2][i] - k[16][i]) * adaptiveConst)./(abstol+u[i]*reltol)
       end
       EEst = norm(tmp,internalnorm)
     else #no chance of rejecting, so in-place
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + tmp[i]
       end
     end
@@ -461,7 +520,6 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
   @ode_preamble
   adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b,c = constructFeagin10(eltype(u))
   k = Vector{typeof(u)}(17)
-  sumIdx = [collect(1:3);5;7;collect(9:17)]
   @inbounds while t < T
     @ode_loopheader
     k[1]  = Δt*f(u,t)
@@ -488,7 +546,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
     else
       u = u + update
     end
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
@@ -502,6 +560,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   end
   update = similar(u)
   utmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k[1] ,u,t); k[1]*=Δt
@@ -530,16 +589,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     f(k[24],u + a2300*k[1]              + a2302*k[3]                                                                                                                                                                                                                                                                     + a2322*k[23],t + c[23]*Δt); k[24]*=Δt
     f(k[25],u + a2400*k[1] + a2401*k[2] + a2402*k[3]              + a2404*k[5]              + a2406*k[7] + a2407*k[8] + a2408*k[9] + a2409*k[10] + a2410*k[11] + a2411*k[12] + a2412*k[13] + a2413*k[14] + a2414*k[15] + a2415*k[16] + a2416*k[17] + a2417*k[18] + a2418*k[19] + a2419*k[20] + a2420*k[21] + a2421*k[22] + a2422*k[23] + a2423*k[24],t + c[24]*Δt); k[25]*=Δt
 
-    for i in eachindex(u)
+    for i in uidx
       update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i]) + (b[17]*k[17][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i]) + (b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i]) + b[25]*k[25][i]
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + update[i]
       end
       EEst = norm(((k[2] - k[24]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting so in-place
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + update[i]
       end
     end
@@ -558,117 +617,118 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   update = similar(u)
   utmp = similar(u)
   tmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k[1] ,u,t); k[1]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0100*k[1][i]
     end
     f(k[2] ,tmp,t + c[1]*Δt); k[2]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0200*k[1][i] + a0201*k[2][i]
     end
     f(k[3] ,tmp,t + c[2]*Δt ); k[3]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0300*k[1][i] + a0302*k[3][i]
     end
     f(k[4] ,tmp,t + c[3]*Δt); k[4]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0400*k[1][i] + a0402*k[3][i] + a0403*k[4][i]
     end
     f(k[5] ,tmp,t + c[4]*Δt); k[5]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0500*k[1][i] + a0503*k[4][i] + a0504*k[5][i]
     end
     f(k[6] ,tmp,t + c[5]*Δt); k[6]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0600*k[1][i] + a0603*k[4][i] + a0604*k[5][i]) + a0605*k[6][i]
     end
     f(k[7] ,tmp,t + c[6]*Δt); k[7]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0700*k[1][i] + a0704*k[5][i] + a0705*k[6][i]) + a0706*k[7][i]
     end
     f(k[8] ,tmp,t + c[7]*Δt); k[8]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0800*k[1][i] + a0805*k[6][i] + a0806*k[7][i]) + a0807*k[8][i]
     end
     f(k[9] ,tmp,t + c[8]*Δt); k[9]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0900*k[1][i] + a0905*k[6][i] + a0906*k[7][i]) + (a0907*k[8][i] + a0908*k[9][i])
     end
     f(k[10],tmp,t + c[9]*Δt); k[10]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1000*k[1][i] + a1005*k[6][i] + a1006*k[7][i]) + (a1007*k[8][i] + a1008*k[9][i] + a1009*k[10][i])
     end
     f(k[11],tmp,t + c[10]*Δt); k[11]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1100*k[1][i] + a1105*k[6][i] + a1106*k[7][i]) + (a1107*k[8][i] + a1108*k[9][i] + a1109*k[10][i] + a1110*k[11][i])
     end
     f(k[12],tmp,t + c[11]*Δt); k[12]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1200*k[1][i] + a1208*k[9][i] + a1209*k[10][i]) + (a1210*k[11][i] + a1211*k[12][i])
     end
     f(k[13],tmp,t + c[12]*Δt); k[13]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1300*k[1][i] + a1308*k[9][i] + a1309*k[10][i]) + (a1310*k[11][i] + a1311*k[12][i] + a1312*k[13][i])
     end
     f(k[14],tmp,t + c[13]*Δt); k[14]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1400*k[1][i] + a1408*k[9][i] + a1409*k[10][i]) + (a1410*k[11][i] + a1411*k[12][i] + a1412*k[13][i] + a1413*k[14][i])
     end
     f(k[15],tmp,t + c[14]*Δt); k[15]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1500*k[1][i] + a1508*k[9][i] + a1509*k[10][i]) + (a1510*k[11][i] + a1511*k[12][i] + a1512*k[13][i] + a1513*k[14][i]) + a1514*k[15][i]
     end
     f(k[16],tmp,t + c[15]*Δt); k[16]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1600*k[1][i] + a1608*k[9][i] + a1609*k[10][i]) + (a1610*k[11][i] + a1611*k[12][i] + a1612*k[13][i] + a1613*k[14][i]) + (a1614*k[15][i] + a1615*k[16][i])
     end
     f(k[17],tmp,t + c[16]*Δt); k[17]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1700*k[1][i] + a1705*k[6][i] + a1706*k[7][i]) + (a1707*k[8][i] + a1708*k[9][i] + a1709*k[10][i] + a1710*k[11][i]) + (a1711*k[12][i] + a1712*k[13][i] + a1713*k[14][i] + a1714*k[15][i]) + (a1715*k[16][i] + a1716*k[17][i])
     end
     f(k[18],tmp,t + c[17]*Δt); k[18]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1800*k[1][i] + a1805*k[6][i] + a1806*k[7][i]) + (a1807*k[8][i] + a1808*k[9][i] + a1809*k[10][i] + a1810*k[11][i]) + (a1811*k[12][i] + a1812*k[13][i] + a1813*k[14][i] + a1814*k[15][i]) + (a1815*k[16][i] + a1816*k[17][i] + a1817*k[18][i])
     end
     f(k[19],tmp,t + c[18]*Δt); k[19]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1900*k[1][i] + a1904*k[5][i] + a1905*k[6][i]) + (a1906*k[7][i] + a1908*k[9][i] + a1909*k[10][i] + a1910*k[11][i]) + (a1911*k[12][i] + a1912*k[13][i] + a1913*k[14][i] + a1914*k[15][i]) + (a1915*k[16][i] + a1916*k[17][i] + a1917*k[18][i] + a1918*k[19][i])
     end
     f(k[20],tmp,t + c[19]*Δt); k[20]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2000*k[1][i] + a2003*k[4][i] + a2004*k[5][i]) + (a2005*k[6][i] + a2007*k[8][i] + a2009*k[10][i] + a2010*k[11][i]) + (a2017*k[18][i] + a2018*k[19][i] + a2019*k[20][i])
     end
     f(k[21],tmp,t + c[20]*Δt); k[21]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2100*k[1][i] + a2102*k[3][i] + a2103*k[4][i]) + (a2106*k[7][i] + a2107*k[8][i] + a2109*k[10][i] + a2110*k[11][i]) + (a2117*k[18][i] + a2118*k[19][i] + a2119*k[20][i] + a2120*k[21][i])
     end
     f(k[22],tmp,t + c[21]*Δt); k[22]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2200*k[1][i] + a2201*k[2][i] + a2204*k[5][i]) + (a2206*k[7][i] + a2220*k[21][i] + a2221*k[22][i])
     end
     f(k[23],tmp,t + c[22]*Δt); k[23]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a2300*k[1][i] + a2302*k[3][i] + a2322*k[23][i]
     end
     f(k[24],tmp,t + c[23]*Δt); k[24]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2400*k[1][i] + a2401*k[2][i] + a2402*k[3][i]) + (a2404*k[5][i] + a2406*k[7][i] + a2407*k[8][i] + a2408*k[9][i]) + (a2409*k[10][i] + a2410*k[11][i] + a2411*k[12][i] + a2412*k[13][i]) + (a2413*k[14][i] + a2414*k[15][i] + a2415*k[16][i] + a2416*k[17][i]) + (a2417*k[18][i] + a2418*k[19][i] + a2419*k[20][i] + a2420*k[21][i]) + (a2421*k[22][i] + a2422*k[23][i] + a2423*k[24][i])
     end
     f(k[25],tmp,t + c[24]*Δt); k[25]*=Δt
 
-    for i in eachindex(u)
+    for i in uidx
       update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[13]*k[13][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i]) + (b[17]*k[17][i] + b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i]) + (b[21]*k[21][i] + b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i]) + b[25]*k[25][i]
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + update[i]
         tmp[i] = ((k[2][i] - k[24][i]) * adaptiveConst)/(abstol+u[i]*reltol)
       end
       EEst = norm(tmp,internalnorm)
     else #no chance of rejecting so in-place
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + update[i]
       end
     end
@@ -716,7 +776,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
     else #no chance of rejecting so in-place
       u = u + update
     end
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
@@ -731,156 +791,157 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   update = similar(u)
   utmp = similar(u)
   tmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k[1] ,u,t); k[1]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0100*k[1][i]
     end
     f(k[2] ,tmp,t + c[1]*Δt); k[2]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0200*k[1][i] + a0201*k[2][i]
     end
     f(k[3] ,tmp,t + c[2]*Δt ); k[3]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0300*k[1][i] + a0302*k[3][i]
     end
     f(k[4] ,tmp,t + c[3]*Δt); k[4]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0400*k[1][i] + a0402*k[3][i] + a0403*k[4][i]
     end
     f(k[5] ,tmp,t + c[4]*Δt); k[5]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a0500*k[1][i] + a0503*k[4][i] + a0504*k[5][i]
     end
     f(k[6] ,tmp,t + c[5]*Δt); k[6]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0600*k[1][i] + a0603*k[4][i] + a0604*k[5][i]) + a0605*k[6][i]
     end
     f(k[7] ,tmp,t + c[6]*Δt); k[7]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0700*k[1][i] + a0704*k[5][i] + a0705*k[6][i]) + a0706*k[7][i]
     end
     f(k[8] ,tmp,t + c[7]*Δt); k[8]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0800*k[1][i] + a0805*k[6][i] + a0806*k[7][i]) + a0807*k[8][i]
     end
     f(k[9] ,tmp,t + c[8]*Δt); k[9]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a0900*k[1][i] + a0905*k[6][i] + a0906*k[7][i]) + a0907*k[8][i] + a0908*k[9][i]
     end
     f(k[10],tmp,t + c[9]*Δt); k[10]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1000*k[1][i] + a1005*k[6][i] + a1006*k[7][i]) + (a1007*k[8][i] + a1008*k[9][i] + a1009*k[10][i])
     end
     f(k[11],tmp,t + c[10]*Δt); k[11]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1100*k[1][i] + a1105*k[6][i] + a1106*k[7][i]) + (a1107*k[8][i] + a1108*k[9][i] + a1109*k[10][i] + a1110*k[11][i])
     end
     f(k[12],tmp,t + c[11]*Δt); k[12]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1200*k[1][i] + a1208*k[9][i] + a1209*k[10][i]) + (a1210*k[11][i] + a1211*k[12][i])
     end
     f(k[13],tmp,t + c[12]*Δt); k[13]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1300*k[1][i] + a1308*k[9][i] + a1309*k[10][i]) + (a1310*k[11][i] + a1311*k[12][i] + a1312*k[13][i])
     end
     f(k[14],tmp,t + c[13]*Δt); k[14]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1400*k[1][i] + a1408*k[9][i] + a1409*k[10][i]) + (a1410*k[11][i] + a1411*k[12][i] + a1412*k[13][i] + a1413*k[14][i])
     end
     f(k[15],tmp,t + c[14]*Δt); k[15]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1500*k[1][i] + a1508*k[9][i] + a1509*k[10][i]) + (a1510*k[11][i] + a1511*k[12][i] + a1512*k[13][i] + a1513*k[14][i]) + a1514*k[15][i]
     end
     f(k[16],tmp,t + c[15]*Δt); k[16]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1600*k[1][i] + a1608*k[9][i] + a1609*k[10][i]) + (a1610*k[11][i] + a1611*k[12][i] + a1612*k[13][i] + a1613*k[14][i]) + a1614*k[15][i] + a1615*k[16][i]
     end
     f(k[17],tmp,t + c[16]*Δt); k[17]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1700*k[1][i] + a1712*k[13][i] + a1713*k[14][i]) + (a1714*k[15][i] + a1715*k[16][i] + a1716*k[17][i])
     end
     f(k[18],tmp,t + c[17]*Δt); k[18]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1800*k[1][i] + a1812*k[13][i] + a1813*k[14][i]) + (a1814*k[15][i] + a1815*k[16][i] + a1816*k[17][i] + a1817*k[18][i])
     end
     f(k[19],tmp,t + c[18]*Δt); k[19]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a1900*k[1][i] + a1912*k[13][i] + a1913*k[14][i]) + (a1914*k[15][i] + a1915*k[16][i] + a1916*k[17][i] + a1917*k[18][i]) + a1918*k[19][i]
     end
     f(k[20],tmp,t + c[19]*Δt); k[20]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2000*k[1][i] + a2012*k[13][i] + a2013*k[14][i]) + (a2014*k[15][i] + a2015*k[16][i] + a2016*k[17][i] + a2017*k[18][i]) + (a2018*k[19][i] + a2019*k[20][i])
     end
     f(k[21],tmp,t + c[20]*Δt); k[21]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2100*k[1][i] + a2112*k[13][i] + a2113*k[14][i]) + (a2114*k[15][i] + a2115*k[16][i] + a2116*k[17][i] + a2117*k[18][i]) + (a2118*k[19][i] + a2119*k[20][i] + a2120*k[21][i])
     end
     f(k[22],tmp,t + c[21]*Δt); k[22]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2200*k[1][i] + a2212*k[13][i] + a2213*k[14][i]) + (a2214*k[15][i] + a2215*k[16][i] + a2216*k[17][i] + a2217*k[18][i]) + (a2218*k[19][i] + a2219*k[20][i] + a2220*k[21][i] + a2221*k[22][i])
     end
     f(k[23],tmp,t + c[22]*Δt); k[23]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2300*k[1][i] + a2308*k[9][i] + a2309*k[10][i]) + (a2310*k[11][i] + a2311*k[12][i] + a2312*k[13][i] + a2313*k[14][i]) + (a2314*k[15][i] + a2315*k[16][i] + a2316*k[17][i] + a2317*k[18][i]) + (a2318*k[19][i] + a2319*k[20][i] + a2320*k[21][i] + a2321*k[22][i]) + (a2322*k[23][i])
     end
     f(k[24],tmp,t + c[23]*Δt); k[24]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2400*k[1][i] + a2408*k[9][i] + a2409*k[10][i]) + (a2410*k[11][i] + a2411*k[12][i] + a2412*k[13][i] + a2413*k[14][i]) + (a2414*k[15][i] + a2415*k[16][i] + a2416*k[17][i] + a2417*k[18][i]) + (a2418*k[19][i] + a2419*k[20][i] + a2420*k[21][i] + a2421*k[22][i]) + (a2422*k[23][i] + a2423*k[24][i])
     end
     f(k[25],tmp,t + c[24]*Δt); k[25]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2500*k[1][i] + a2508*k[9][i] + a2509*k[10][i]) + (a2510*k[11][i] + a2511*k[12][i] + a2512*k[13][i] + a2513*k[14][i]) + (a2514*k[15][i] + a2515*k[16][i] + a2516*k[17][i] + a2517*k[18][i]) + (a2518*k[19][i] + a2519*k[20][i] + a2520*k[21][i] + a2521*k[22][i]) + (a2522*k[23][i] + a2523*k[24][i] + a2524*k[25][i])
     end
     f(k[26],tmp,t + c[25]*Δt); k[26]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2600*k[1][i] + a2605*k[6][i] + a2606*k[7][i]) + (a2607*k[8][i] + a2608*k[9][i] + a2609*k[10][i] + a2610*k[11][i]) + (a2612*k[13][i] + a2613*k[14][i] + a2614*k[15][i] + a2615*k[16][i]) + (a2616*k[17][i] + a2617*k[18][i] + a2618*k[19][i] + a2619*k[20][i]) + (a2620*k[21][i] + a2621*k[22][i] + a2622*k[23][i] + a2623*k[24][i]) + (a2624*k[25][i] + a2625*k[26][i])
     end
     f(k[27],tmp,t + c[26]*Δt); k[27]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2700*k[1][i] + a2705*k[6][i] + a2706*k[7][i]) + (a2707*k[8][i] + a2708*k[9][i] + a2709*k[10][i] + a2711*k[12][i]) + (a2712*k[13][i] + a2713*k[14][i] + a2714*k[15][i] + a2715*k[16][i]) + (a2716*k[17][i] + a2717*k[18][i] + a2718*k[19][i] + a2719*k[20][i]) + (a2720*k[21][i] + a2721*k[22][i] + a2722*k[23][i] + a2723*k[24][i]) + (a2724*k[25][i] + a2725*k[26][i] + a2726*k[27][i])
     end
     f(k[28],tmp,t + c[27]*Δt); k[28]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2800*k[1][i] + a2805*k[6][i] + a2806*k[7][i]) + (a2807*k[8][i] + a2808*k[9][i] + a2810*k[11][i] + a2811*k[12][i]) + (a2813*k[14][i] + a2814*k[15][i] + a2815*k[16][i] + a2823*k[24][i]) + (a2824*k[25][i] + a2825*k[26][i] + a2826*k[27][i] + a2827*k[28][i])
     end
     f(k[29],tmp,t + c[28]*Δt); k[29]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a2900*k[1][i] + a2904*k[5][i] + a2905*k[6][i]) + (a2906*k[7][i] + a2909*k[10][i] + a2910*k[11][i] + a2911*k[12][i]) + (a2913*k[14][i] + a2914*k[15][i] + a2915*k[16][i] + a2923*k[24][i]) + (a2924*k[25][i] + a2925*k[26][i] + a2926*k[27][i] + a2927*k[28][i]) + (a2928*k[29][i])
     end
     f(k[30],tmp,t + c[29]*Δt); k[30]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a3000*k[1][i] + a3003*k[4][i] + a3004*k[5][i]) + (a3005*k[6][i] + a3007*k[8][i] + a3009*k[10][i] + a3010*k[11][i]) + (a3013*k[14][i] + a3014*k[15][i] + a3015*k[16][i] + a3023*k[24][i]) + (a3024*k[25][i] + a3025*k[26][i] + a3027*k[28][i] + a3028*k[29][i]) + (a3029*k[30][i])
     end
     f(k[31],tmp,t + c[30]*Δt); k[31]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a3100*k[1][i] + a3102*k[3][i] + a3103*k[4][i]) + (a3106*k[7][i] + a3107*k[8][i] + a3109*k[10][i] + a3110*k[11][i]) + (a3113*k[14][i] + a3114*k[15][i] + a3115*k[16][i] + a3123*k[24][i]) + (a3124*k[25][i] + a3125*k[26][i] + a3127*k[28][i] + a3128*k[29][i]) + (a3129*k[30][i] + a3130*k[31][i])
     end
     f(k[32],tmp,t + c[31]*Δt); k[32]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a3200*k[1][i] + a3201*k[2][i] + a3204*k[5][i]) + (a3206*k[7][i] + a3230*k[31][i] + a3231*k[32][i])
     end
     f(k[33],tmp,t + c[32]*Δt); k[33]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = u[i] + a3300*k[1][i] + a3302*k[3][i] + a3332*k[33][i]
     end
     f(k[34],tmp,t + c[33]*Δt); k[34]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       tmp[i] = (u[i] + a3400*k[1][i] + a3401*k[2][i] + a3402*k[3][i]) + (a3404*k[5][i] + a3406*k[7][i] + a3407*k[8][i] + a3409*k[10][i]) + (a3410*k[11][i] + a3411*k[12][i] + a3412*k[13][i] + a3413*k[14][i]) + (a3414*k[15][i] + a3415*k[16][i] + a3416*k[17][i] + a3417*k[18][i]) + (a3418*k[19][i] + a3419*k[20][i] + a3420*k[21][i] + a3421*k[22][i]) + (a3422*k[23][i] + a3423*k[24][i] + a3424*k[25][i] + a3425*k[26][i]) + (a3426*k[27][i] + a3427*k[28][i] + a3428*k[29][i] + a3429*k[30][i]) + (a3430*k[31][i] + a3431*k[32][i] + a3432*k[33][i] + a3433*k[34][i])
     end
     f(k[35],tmp,t + c[34]*Δt); k[35]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[12]*k[12][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i]) + (b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i]) + (b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i]) + (b[26]*k[26][i] + b[27]*k[27][i] + b[28]*k[28][i] + b[29]*k[29][i]) + (b[30]*k[30][i] + b[31]*k[31][i] + b[32]*k[32][i] + b[33]*k[33][i]) + (b[34]*k[34][i] + b[35]*k[35][i])
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + update[i]
         tmp[i] = ((k[2][i] - k[34][i]) * adaptiveConst)./(abstol+u[i]*reltol)
       end
       EEst = norm(tmp,internalnorm)
     else #no chance of rejecting, so in-place
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + update[i]
       end
     end
@@ -898,6 +959,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   end
   update = similar(u)
   utmp = similar(u)
+  uidx = eachindex(u)
   @inbounds while t < T
     @ode_loopheader
     f(k[1] ,u,t); k[1]*=Δt
@@ -935,16 +997,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     f(k[33],u + a3200*k[1] + a3201*k[2]                           + a3204*k[5]              + a3206*k[7]                                                                                                                                                                                                                                                                                                                                 + a3230*k[31] + a3231*k[32],t + c[32]*Δt); k[33]*=Δt
     f(k[34],u + a3300*k[1]              + a3302*k[3]                                                                                                                                                                                                                                                                                                                                                                                                                 + a3332*k[33],t + c[33]*Δt); k[34]*=Δt
     f(k[35],u + a3400*k[1] + a3401*k[2] + a3402*k[3]              + a3404*k[5]              + a3406*k[7] + a3407*k[8]              + a3409*k[10] + a3410*k[11] + a3411*k[12] + a3412*k[13] + a3413*k[14] + a3414*k[15] + a3415*k[16] + a3416*k[17] + a3417*k[18] + a3418*k[19] + a3419*k[20] + a3420*k[21] + a3421*k[22] + a3422*k[23] + a3423*k[24] + a3424*k[25] + a3425*k[26] + a3426*k[27] + a3427*k[28] + a3428*k[29] + a3429*k[30] + a3430*k[31] + a3431*k[32] + a3432*k[33] + a3433*k[34],t + c[34]*Δt); k[35]*=Δt
-    for i in eachindex(u)
+    for i in uidx
       update[i] = (b[1]*k[1][i] + b[2]*k[2][i] + b[3]*k[3][i] + b[5]*k[5][i]) + (b[7]*k[7][i] + b[8]*k[8][i] + b[10]*k[10][i] + b[11]*k[11][i]) + (b[12]*k[12][i] + b[14]*k[14][i] + b[15]*k[15][i] + b[16]*k[16][i]) + (b[18]*k[18][i] + b[19]*k[19][i] + b[20]*k[20][i] + b[21]*k[21][i]) + (b[22]*k[22][i] + b[23]*k[23][i] + b[24]*k[24][i] + b[25]*k[25][i]) + (b[26]*k[26][i] + b[27]*k[27][i] + b[28]*k[28][i] + b[29]*k[29][i]) + (b[30]*k[30][i] + b[31]*k[31][i] + b[32]*k[32][i] + b[33]*k[33][i]) + (b[34]*k[34][i] + b[35]*k[35][i])
     end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + update[i]
       end
       EEst = norm(((k[2] - k[34]) * adaptiveConst)./(abstol+u*reltol),internalnorm)
     else #no chance of rejecting, so in-place
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + update[i]
       end
     end
@@ -1001,37 +1063,41 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
     else #no chance of rejecting, so in-place
       u = u + update
     end
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:ImplicitEuler,uType,uEltype,N,tType})
   @ode_preamble
+  local nlres::NLsolve.SolverResults{uEltype}
   function rhs_ie(u,resid,u_old,t,Δt)
     resid[1] = u[1] - u_old[1] - Δt*f(u,t+Δt)[1]
   end
-  u = [u]
-  u_old = similar(u)
+  uhold::Vector{uType} = Vector{uType}(1)
+  u_old::Vector{uType} = Vector{uType}(1)
+  uhold[1] = u; u_old[1] = u
   @inbounds while t < T
     @ode_loopheader
-    u_old[1] = u[1]
-    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt),u,autodiff=autodiff)
-    u[1] = nlres.zero[1]
+    u_old[1] = uhold[1]
+    nlres = NLsolve.nlsolve((uhold,resid)->rhs_ie(uhold,resid,u_old,t,Δt),uhold,autodiff=autodiff)
+    uhold[1] = nlres.zero[1]
     @ode_numberimplicitloopfooter
   end
-  u = u[1]
+  u = uhold[1]
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:ImplicitEuler,uType,uEltype,N,tType})
   @ode_preamble
+  local nlres::NLsolve.SolverResults{uEltype}
+  uidx = eachindex(u)
   if autodiff
     cache = DiffCache(u)
     rhs_ie = (u,resid,u_old,t,Δt,cache) -> begin
       du = get_du(cache, eltype(u))
       f(du,reshape(u,sizeu),t+Δt)
-      for i in eachindex(u)
+      for i in uidx
         resid[i] = u[i] - u_old[i] - Δt*du[i]
       end
     end
@@ -1039,26 +1105,28 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     cache = similar(u)
     rhs_ie = (u,resid,u_old,t,Δt,du) -> begin
       f(du,reshape(u,sizeu),t+Δt)
-      for i in eachindex(u)
+      for i in uidx
         resid[i] = u[i] - u_old[i] - Δt*du[i]
       end
     end
   end
 
-  u = vec(u); u_old = similar(u)
+  uhold = vec(u); u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    copy!(u_old,u)
-    nlres = NLsolve.nlsolve((u,resid)->rhs_ie(u,resid,u_old,t,Δt,cache),u,autodiff=autodiff)
-    u[:] = nlres.zero
+    copy!(u_old,uhold)
+    nlres = NLsolve.nlsolve((uhold,resid)->rhs_ie(uhold,resid,u_old,t,Δt,cache),uhold,autodiff=autodiff)
+    uhold[:] = nlres.zero
     @ode_implicitloopfooter
   end
-  u = reshape(u,sizeu...)
+  u = reshape(uhold,sizeu...)
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Trapezoid,uType,uEltype,N,tType})
   @ode_preamble
+  local nlres::NLsolve.SolverResults{uEltype}
+  uidx = eachindex(u)
   if autodiff
     cache1 = DiffCache(u)
     cache2 = DiffCache(u)
@@ -1067,7 +1135,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       du1 = get_du(cache1, eltype(u)); du2 = get_du(cache2, eltype(u_old))
       f(du2,reshape(u_old,sizeu),t)
       f(du1,reshape(u,sizeu),t+Δt)
-      for i in eachindex(u)
+      for i in uidx
         resid[i] = u[i] - u_old[i] - Δto2*(du1[i]+du2[i])
       end
     end
@@ -1078,39 +1146,41 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     rhs_trap = (u,resid,u_old,t,Δt,du1,du2) -> begin
       f(du2,reshape(u_old,sizeu),t)
       f(du1,reshape(u,sizeu),t+Δt)
-      for i in eachindex(u)
+      for i in uidx
         resid[i] = u[i] - u_old[i] - Δto2*(du1[i]+du2[i])
       end
     end
   end
-  u = vec(u); u_old = similar(u)
+  uhold = vec(u); u_old = similar(u)
   @inbounds while t < T
     @ode_loopheader
-    copy!(u_old,u)
-    nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt,cache1,cache2),u,autodiff=autodiff)
-    u[:] = nlres.zero
+    copy!(u_old,uhold)
+    nlres = NLsolve.nlsolve((uhold,resid)->rhs_trap(uhold,resid,u_old,t,Δt,cache1,cache2),uhold,autodiff=autodiff)
+    uhold[:] = nlres.zero
     @ode_implicitloopfooter
   end
-  u = reshape(u,sizeu...)
+  u = reshape(uhold,sizeu...)
   return u,t,timeseries,ts
 end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Trapezoid,uType,uEltype,N,tType})
   @ode_preamble
-  Δto2 = Δt/2
+  Δto2::tType = Δt/2
   function rhs_trap(u,resid,u_old,t,Δt)
     resid[1] = u[1] - u_old[1] - Δto2*(f(u,t+Δt)[1] + f(u_old,t)[1])
   end
-  u = [u]
-  u_old = similar(u)
+  local nlres::NLsolve.SolverResults{uEltype}
+  uhold::Vector{uType} = Vector{uType}(1)
+  u_old::Vector{uType} = Vector{uType}(1)
+  uhold[1] = u; u_old[1] = u
   @inbounds while t < T
     @ode_loopheader
-    u_old[1] = u[1]
-    nlres = NLsolve.nlsolve((u,resid)->rhs_trap(u,resid,u_old,t,Δt),u,autodiff=autodiff)
-    u[1] = nlres.zero[1]
+    u_old[1] = uhold[1]
+    nlres = NLsolve.nlsolve((uhold,resid)->rhs_trap(uhold,resid,u_old,t,Δt),uhold,autodiff=autodiff)
+    uhold[1] = nlres.zero[1]
     @ode_numberimplicitloopfooter
   end
-  u = u[1]
+  u = uhold[1]
   return u,t,timeseries,ts
 end
 
@@ -1119,9 +1189,10 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
-  k₁ = similar(u)
+  k₁::uType = similar(u)
   k₂ = similar(u)
-  k₃ = similar(u)
+  k₃::uType = similar(u)
+  local tmp::uType
   function vecf(du,u,t)
     return(vec(f(reshape(du,sizeu...),reshape(u,sizeu...),t)))
   end
@@ -1129,29 +1200,43 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   du2 = similar(u)
   f₀ = similar(u)
   f₁ = similar(u)
-  f₂ = similar(u)
-  utmp = similar(u)
+  f₂ = similar(u); vectmp3 = similar(vec(u))
+  utmp = similar(u); vectmp2 = similar(vec(u))
+  dT = similar(u); vectmp = similar(vec(u))
+  J::Matrix{uEltype} = ForwardDiff.jacobian((du1,u)->vecf(du1,u,t),du1,vec(u))
+  W = similar(J); tmp2 = similar(u)
+  uidx = eachindex(u)
+  jidx = eachindex(J)
   @inbounds while t < T
     @ode_loopheader
-    dT = ForwardDiff.derivative((t)->f(du2,u,t),t) # Time derivative
-    J = ForwardDiff.jacobian((du1,u)->vecf(du1,u,t),du1,vec(u))
-    W = one(J)-Δt*d*J
+    ForwardDiff.derivative!(dT,(t)->f(du2,u,t),t) # Time derivative
+    ForwardDiff.jacobian!(J,(du1,u)->vecf(du1,u,t),du1,vec(u))
+    W[:] = one(J)-Δt*d*J # Can an allocation be cut here?
     f(f₀,u,t)
-    k₁[:] = reshape(W\vec(f₀ + Δt*d*dT),sizeu...)
-    for i in eachindex(u)
+    @into! vectmp = W\vec(f₀ + Δt*d*dT)
+    k₁ = reshape(vectmp,sizeu...)
+    for i in uidx
       utmp[i]=u[i]+Δt*k₁[i]/2
     end
     f(f₁,utmp,t+Δt/2)
-    k₂[:] = reshape(W\vec(f₁-k₁),sizeu...) + k₁
+    @into! vectmp2 = W\vec(f₁-k₁)
+    tmp = reshape(vectmp2,sizeu...)
+    for i in uidx
+      k₂[i] = tmp[i] + k₁[i]
+    end
     if adaptive
-      for i in eachindex(u)
+      for i in uidx
         utmp[i] = u[i] + Δt*k₂[i]
       end
       f(f₂,utmp,t+Δt)
-      k₃[:] = reshape(W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T),sizeu...)
-      EEst = norm((Δt(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
+      @into! vectmp3 = W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-f₀)+Δt*d*T)
+      k₃ = reshape(vectmp3,sizeu...)
+      for i in uidx
+        tmp2[i] = (Δt*(k₁[i] - 2k₂[i] + k₃[i])/6)./(abstol+u[i]*reltol)
+      end
+      EEst = norm(tmp2,internalnorm)
     else
-      for i in eachindex(u)
+      for i in uidx
         u[i] = u[i] + Δt*k₂[i]
       end
     end
@@ -1165,6 +1250,14 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
   order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
+  local dT::uType
+  local J::uType
+  local f₀::uType
+  local k₁::uType
+  local f₁::uType
+  local f₂::uType
+  local k₂::uType
+  local k₃::uType
   @inbounds while t < T
     @ode_loopheader
     # Time derivative
@@ -1183,7 +1276,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
     else
       u = u + Δt*k₂
     end
-    @ode_loopfooter
+    @ode_numberloopfooter
   end
   return u,t,timeseries,ts
 end

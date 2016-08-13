@@ -7,3 +7,4 @@ EllipsisNotation
 IterativeSolvers
 GenericSVD
 Plots
+InplaceOps
