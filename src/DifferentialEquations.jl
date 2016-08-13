@@ -3,7 +3,7 @@ __precompile__()
 module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
-        EllipsisNotation, GrowableArrays, ChunkedArrays
+        EllipsisNotation, GrowableArrays, ChunkedArrays, InplaceOps
   import Base: length, size, getindex, endof, show, print
   import ForwardDiff.Dual
 
@@ -15,6 +15,7 @@ module DifferentialEquations
   abstract Mesh
   "Tableau: Holds the information for a Runge-Kutta Tableau"
   abstract Tableau
+  abstract DEIntegrator
   typealias String AbstractString
   typealias KW Dict{Symbol,Any}
   AbstractArrayOrVoid = Union{AbstractArray,Void}
