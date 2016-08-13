@@ -8,3 +8,4 @@ IterativeSolvers
 GenericSVD
 Compat
 Plots
+InplaceOps

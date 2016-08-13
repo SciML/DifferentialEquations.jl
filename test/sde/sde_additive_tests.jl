@@ -1,5 +1,10 @@
 using DifferentialEquations
 srand(100)
+
+prob = additiveSDEExample()
+sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRA)
+sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRA1Optimized)
+
 prob = multiDimAdditiveSDEExample()
 
 ## Solve and plot
