@@ -93,7 +93,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
 
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   # Get the control variables
-  @materialize progress_steps, progressbar, adaptive, save_timeseries = command_opts
+  @materialize save_timeseries = command_opts
 
   #=
   if typeof(u₀)<:Number
@@ -121,7 +121,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o = o2
     Δt = o[:Δt]
     order = DIFFERENTIALEQUATIONSJL_ORDERS[alg]
-    if alg==:ExplicitRK
+    if alg==:ExplicitRK || alg==:ExplicitRKVectorized
       @unpack o[:tableau]: order
     end
     if !isinplace && typeof(u)<:AbstractArray
@@ -161,7 +161,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,progress_steps,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
     u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded,progress_steps))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded

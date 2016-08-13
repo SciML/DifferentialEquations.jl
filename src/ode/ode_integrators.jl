@@ -47,6 +47,7 @@ end
   if adaptive
     @unpack integrator: abstol,reltol,qmax,Δtmax,Δtmin,internalnorm
   end
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(0) : nothing #Use Atom's progressbar if loaded
 end
 
 @def ode_loopheader begin
@@ -81,7 +82,7 @@ end
 
 @def ode_loopfooter begin
   if adaptive
-    standard = abs(1/(γ*EEst))^(1/order)
+    standard = γ*abs(1/(EEst))^(1/(order+1))
     if isinf(standard)
         q = qmax
     else
@@ -306,7 +307,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
       for i = 2:stages
         uEEst += αEEst[i]*ks[i]
       end
-      EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalnorm)
+      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2))
     else
       u = u + Δt*utilde
     end
@@ -362,11 +363,57 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
           uEEst[j] += αEEst[i]*ks[i][j]
         end
       end
-      EEst = norm((utilde-uEEst)./(abstol+u*reltol),internalnorm)
+      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) / length(u))
     else
       for i in uidx
         u[i] = u[i] + Δt*utilde[i]
       end
+    end
+    @ode_loopfooter
+  end
+  return u,t,timeseries,ts
+end
+
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:ExplicitRKVectorized,uType,uEltype,N,tType})
+  @ode_preamble
+  local A::Matrix{uEltype}
+  local c::Vector{uEltype}
+  local α::Vector{uEltype}
+  local αEEst::Vector{uEltype}
+  local stages::Int
+  uidx = eachindex(u)
+  @unpack integrator.tableau: A,c,α,αEEst,stages
+  ks = Vector{typeof(u)}(0)
+  for i = 1:stages
+    push!(ks,similar(u))
+  end
+  utilde = similar(u)
+  tmp = similar(u)
+  utmp = zeros(u)
+  uEEst = similar(u)
+  @inbounds while t < T
+    @ode_loopheader
+    for i = 1:stages
+      utilde[:] = zero(eltype(u))
+      for j = 1:i-1
+        utilde += A[i,j]*ks[j]
+      end
+      tmp = u+Δt*utilde
+      f(ks[i],tmp,t+c[i]*Δt)
+    end
+    utilde[:] = α[1]*ks[1]
+    for i = 2:stages
+      utilde += α[i]*ks[i]
+    end
+    if adaptive
+      utmp = u + Δt*utilde
+      uEEst[:] = αEEst[1]*ks[1]
+      for i = 2:stages
+        uEEst += αEEst[i]*ks[i]
+      end
+      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) / length(u))
+    else
+      u = u + Δt*utilde
     end
     @ode_loopfooter
   end

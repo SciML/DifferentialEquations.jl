@@ -23,4 +23,4 @@ val3 = maximum(abs(sol3.u - sol3.u_analytic))
 TEST_PLOT && plot(sol3,plot_analytic=true)
 #gui()
 
-length(sol.t)>length(sol2.t)>=length(sol3.t) && max(val1,val2,val3)<1e-3
+length(sol.t)>length(sol2.t)>=length(sol3.t) && max(val1,val2,val3)<2e-3
