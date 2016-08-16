@@ -150,19 +150,23 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     tType=typeof(Δt)
 
     if o[:Δtmax] == nothing
-      o[:Δtmax] = tType((tspan[2]-tspan[1])//2)
+      o[:Δtmax] = tType((tspan[2]-tspan[1])/2)
     end
     if o[:Δtmin] == nothing
       o[:Δtmin] = tType(1//10^(10))
     end
-
+    if o[:fullnormalize] == true
+      normfactor = uEltype(1/length(u))
+    else
+      normfactor = 1
+    end
     T = tType(T)
     t = tType(t)
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,progress_steps,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,tableau,autodiff= o
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded,progress_steps))
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, β, timechoicealg,qoldinit= o
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 

@@ -13,7 +13,8 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   abstol::uEltype
   reltol::uEltype
   γ::uEltype
-  qmax::uEltype
+  qmax::Float64
+  qmin::Float64
   Δtmax::tType
   Δtmin::tType
   internalnorm::Int
@@ -23,6 +24,10 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   order::Int
   atomloaded::Bool
   progress_steps::Int
+  β::Float64
+  timechoicealg::Symbol
+  qoldinit::Float64
+  normfactor::uEltype
 end
 
 @def ode_preamble begin
@@ -31,7 +36,7 @@ end
   local Δt::tType
   local T::tType
   local order::Int
-  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,save_timeseries,adaptive,progressbar,autodiff,order,atomloaded,progress_steps
+  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor
   local iter::Int = 0
   sizeu = size(u)
   local utmp::uType
@@ -41,8 +46,13 @@ end
     utmp = zeros(u)
   end
   local standard::uEltype = zero(eltype(u))
-  local q::uEltype = zero(eltype(u))
+  local q::Float64 = 0.0
   local Δtpropose::tType = zero(t)
+  local q11::Float64
+  qold = qoldinit
+  expo1 = 0.2 - β * 0.75
+  qminc = 1.0 / qmin;
+  qmaxc = 1.0 / qmax;
   #local Eest::uType = zero(eltype(u))
   if adaptive
     @unpack integrator: abstol,reltol,qmax,Δtmax,Δtmin,internalnorm
@@ -57,6 +67,7 @@ end
     # u = map((x)->oftype(x,NaN),u)
     break
   end
+  Δt = min(Δt,abs(T-t))
 end
 
 @def ode_savevalues begin
@@ -82,19 +93,36 @@ end
 
 @def ode_loopfooter begin
   if adaptive
-    standard = γ*abs(1/(EEst))^(1/(order+1))
-    if isinf(standard)
-        q = qmax
-    else
-       q = min(qmax,max(standard,eps()))
+    if timechoicealg == :Lund #Lund stabilization of q
+      q11 = EEst^expo1
+      q = q11/(qold^β)
+      q = max(qmaxc,min(qminc,q/γ))
+      Δtnew = Δt/q
+      if EEst < 1.0
+        qold = max(EEst,qoldinit)
+        t = t + Δt
+        copy!(u, utmp)
+        @ode_savevalues
+        Δtpropose = min(Δtmax,Δtnew)
+        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
+      else
+        Δt = Δt/min(qminc,q11/γ)
+      end
+    elseif timechoicealg == :Simple
+      standard = γ*abs(1/(EEst))^(1/(order+1))
+      if isinf(standard)
+          q = qmax
+      else
+         q = min(qmax,max(standard,eps()))
+      end
+      if q > 1
+        t = t + Δt
+        copy!(u, utmp)
+        @ode_savevalues
+      end
+      Δtpropose = min(Δtmax,q*Δt)
+      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     end
-    if q > 1
-      t = t + Δt
-      copy!(u, utmp)
-      @ode_savevalues
-    end
-    Δtpropose = min(Δtmax,q*Δt)
-    Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
   else #Not adaptive
     t += Δt
     @ode_savevalues
@@ -363,7 +391,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
           uEEst[j] += αEEst[i]*ks[i][j]
         end
       end
-      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) / length(u))
+      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
     else
       for i in uidx
         u[i] = u[i] + Δt*utilde[i]
@@ -411,7 +439,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       for i = 2:stages
         uEEst += αEEst[i]*ks[i]
       end
-      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) / length(u))
+      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
     else
       u = u + Δt*utilde
     end
