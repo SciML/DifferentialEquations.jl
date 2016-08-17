@@ -42,15 +42,20 @@ end
   local utmp::uType
   if uType <: Number
     utmp = zero(uType)
+    faslfirst = zero(uType)
+    fasllast = zero(uType)
   else
     utmp = zeros(u)
+    faslfirst::uType = similar(u)
+    fasllast::uType = similar(u)
   end
   local standard::uEltype = zero(eltype(u))
   local q::uEltype = zero(eltype(u))
   local Δtpropose::tType = zero(t)
   local q11::uEltype = zero(eltype(u))
   #local k1::uType; local k7::uType
-  qold = qoldinit
+  local qold::uEltype = qoldinit
+
   expo1 = 0.2 - β * 0.75
   qminc = inv(qmin)
   qmaxc = inv(qmax)
