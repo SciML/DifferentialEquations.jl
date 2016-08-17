@@ -49,10 +49,12 @@ end
   local q::uEltype = zero(eltype(u))
   local Δtpropose::tType = zero(t)
   local q11::uEltype = zero(eltype(u))
+  #local k1::uType; local k7::uType
   qold = qoldinit
   expo1 = 0.2 - β * 0.75
-  qminc = 1.0 / qmin;
-  qmaxc = 1.0 / qmax;
+  qminc = inv(qmin)
+  qmaxc = inv(qmax)
+  FASL = false
   #local Eest::uType = zero(eltype(u))
   if adaptive
     @unpack integrator: abstol,reltol,qmax,Δtmax,Δtmin,internalnorm
@@ -98,14 +100,148 @@ end
       q = q11/(qold^β)
       q = max(qmaxc,min(qminc,q/γ))
       Δtnew = Δt/q
-      if EEst < 1.0
-        qold = max(EEst,qoldinit)
+      if EEst < 1.0 # Accept
         t = t + Δt
+        qold = max(EEst,qoldinit)
         copy!(u, utmp)
         @ode_savevalues
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
+        if FASL
+          copy!(faslfirst,fasllast)
+        end
+      else # Reject
+        Δt = Δt/min(qminc,q11/γ)
+      end
+    elseif timechoicealg == :Simple
+      standard = γ*abs(1/(EEst))^(1/(order))
+      if isinf(standard)
+          q = qmax
       else
+         q = min(qmax,max(standard,eps()))
+      end
+      if q > 1 # Accept
+        t = t + Δt
+        copy!(u, utmp)
+        @ode_savevalues
+        if FASL
+          copy!(faslfirst,fasllast)
+        end
+      end
+      Δtpropose = min(Δtmax,q*Δt)
+      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
+    end
+  else #Not adaptive
+    t += Δt
+    @ode_savevalues
+    if FASL
+      copy!(faslfirst,fasllast)
+    end
+  end
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+end
+
+@def ode_numberloopfooter begin
+  if adaptive
+    if timechoicealg == :Lund #Lund stabilization of q
+      q11 = EEst^expo1
+      q = q11/(qold^β)
+      q = max(qmaxc,min(qminc,q/γ))
+      Δtnew = Δt/q
+      if EEst < 1.0 # Accept
+        t = t + Δt
+        qold = max(EEst,qoldinit)
+        u = utmp
+        @ode_savevalues
+        Δtpropose = min(Δtmax,Δtnew)
+        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
+        if FASL
+          faslfirst = fasllast
+        end
+      else # Reject
+        Δt = Δt/min(qminc,q11/γ)
+      end
+    elseif timechoicealg == :Simple
+      standard = γ*abs(1/(EEst))^(1/(order))
+      if isinf(standard)
+          q = qmax
+      else
+         q = min(qmax,max(standard,eps()))
+      end
+      if q > 1 # Accept
+        t = t + Δt
+        u = utmp
+        @ode_savevalues
+        if FASL
+          faslfirst = fasllast
+        end
+      end
+      Δtpropose = min(Δtmax,q*Δt)
+      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
+    end
+  else #Not adaptive
+    t += Δt
+    @ode_savevalues
+    if FASL
+      faslfirst = fasllast
+    end
+  end
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+end
+
+@def ode_implicitloopfooter begin
+  if adaptive
+    if timechoicealg == :Lund #Lund stabilization of q
+      q11 = EEst^expo1
+      q = q11/(qold^β)
+      q = max(qmaxc,min(qminc,q/γ))
+      Δtnew = Δt/q
+      if EEst < 1.0 # Accept
+        t = t + Δt
+        qold = max(EEst,qoldinit)
+        copy!(uhold, utmp)
+        @ode_implicitsavevalues
+        Δtpropose = min(Δtmax,Δtnew)
+        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
+      else # Reject
+        Δt = Δt/min(qminc,q11/γ)
+      end
+    elseif timechoicealg == :Simple
+      standard = γ*abs(1/(EEst))^(1/(order+1))
+      if isinf(standard)
+          q = qmax
+      else
+         q = min(qmax,max(standard,eps()))
+      end
+      if q > 1 # Accept
+        t = t + Δt
+        copy!(uhold, utmp)
+        @ode_implicitsavevalues
+      end
+      Δtpropose = min(Δtmax,q*Δt)
+      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
+    end  else #Not adaptive
+    t = t + Δt
+    @ode_implicitsavevalues
+  end
+  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+end
+
+@def ode_numberimplicitloopfooter begin
+  if adaptive
+    if timechoicealg == :Lund #Lund stabilization of q
+      q11 = EEst^expo1
+      q = q11/(qold^β)
+      q = max(qmaxc,min(qminc,q/γ))
+      Δtnew = Δt/q
+      if EEst < 1.0 # Accept
+        qold = max(EEst,qoldinit)
+        t = t + Δt
+        uhold = utmp
+        @ode_numberimplicitsavevalues
+        Δtpropose = min(Δtmax,Δtnew)
+        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
+      else # Reject
         Δt = Δt/min(qminc,q11/γ)
       end
     elseif timechoicealg == :Simple
@@ -117,78 +253,12 @@ end
       end
       if q > 1
         t = t + Δt
-        copy!(u, utmp)
-        @ode_savevalues
+        uhold = utmp
+        @ode_numberimplicitsavevalues
       end
       Δtpropose = min(Δtmax,q*Δt)
       Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     end
-  else #Not adaptive
-    t += Δt
-    @ode_savevalues
-  end
-  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
-end
-
-@def ode_numberloopfooter begin
-  if adaptive
-    standard = abs(1/(γ*EEst))^(1/order)
-    if isinf(standard)
-        q = qmax
-    else
-       q = min(qmax,max(standard,eps()))
-    end
-    if q > 1
-      t = t + Δt
-      u = utmp
-      @ode_savevalues
-    end
-    Δtpropose = min(Δtmax,q*Δt)
-    Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-  else #Not adaptive
-    t += Δt
-    @ode_savevalues
-  end
-  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
-end
-
-@def ode_implicitloopfooter begin
-  if adaptive
-    standard = abs(1/(γ*EEst))^(1/order)
-    if isinf(standard)
-        q = qmax
-    else
-       q = min(qmax,max(standard,eps()))
-    end
-    if q > 1
-      t = t + Δt
-      copy!(uhold, utmp)
-      @ode_implicitsavevalues
-    end
-    Δtpropose = min(Δtmax,q*Δt)
-    Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-  else #Not adaptive
-    t = t + Δt
-    @ode_implicitsavevalues
-  end
-  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
-end
-
-@def ode_numberimplicitloopfooter begin
-  if adaptive
-    standard = abs(1/(γ*EEst))^(1/order)
-    if isinf(standard)
-        q = qmax
-    else
-       q = min(qmax,max(standard,eps()))
-    end
-    if q > 1
-      t = t + Δt
-      uhold = utmp
-      @ode_numberimplicitsavevalues
-    end
-    Δtpropose = min(Δtmax,q*Δt)
-    Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
   else #Not adaptive
     t = t + Δt
     @ode_numberimplicitsavevalues
@@ -391,13 +461,10 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
           uEEst[j] += αEEst[i]*ks[i][j]
         end
       end
-      #=
       for i in uidx
         tmp[i] = ((utilde[i]-uEEst[i])/(abstol+max(u[i],utmp[i])*reltol))^2
       end
       EEst = sqrt( sum(tmp) * normfactor)
-      =#
-      EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
     else
       for i in uidx
         u[i] = u[i] + utilde[i]
@@ -466,15 +533,18 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
   local k7::uType
   local utilde::uType
   local EEst::uType
+  FASL = true
+  faslfirst = f(u,t) # Pre-start FASL
   @inbounds while t<T
-    k1 = Δt*f(u,t)
+    @ode_loopheader
+    k1 = Δt*faslfirst
     k2 = Δt*f(u+a21*k1,t+c1*Δt)
     k3 = Δt*f(u+a31*k1+a32*k2,t+c2*Δt)
     k4 = Δt*f(u+a41*k1+a42*k2+a43*k3,t+c3*Δt)
     k5 = Δt*f(u+(a51*k1+a52*k2+a53*k3+a54*k4),t+c4*Δt)
-    k6 = Δt*f((u+a61*k1+a62*k2+a63*k3)+(a64*k4+a65*k5),t+c5*Δt)
+    k6 = Δt*f((u+a61*k1+a62*k2+a63*k3)+(a64*k4+a65*k5),t+Δt)
     utmp = (u+a71*k1+a73*k3)+(a74*k4+a75*k5+a76*k6)
-    k7 = Δt*f(utmp,t+c6*Δt)
+    fasllast = f(utmp,t+Δt); k7 = Δt*fasllast
     if adaptive
       utilde = (u + b1*k1 + b3*k3) + (b4*k4 + b5*k5 + b6*k6 + b7*k7)
       EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
@@ -497,16 +567,20 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   k6 = similar(u)
   k7 = similar(u)
   utilde = similar(u)
+  faslfirst = similar(u); fasllast = similar(u)
+  FASL = true
   local EEst::uEltype
+  f(faslfirst,u,t); #Pre-start FASL
   @inbounds while t<T
-    f(k1,u,t); k1*=Δt
+    @ode_loopheader
+    k1=Δt*faslfirst
     f(k2,u+a21*k1,t+c1*Δt); k2*=Δt
     f(k3,u+a31*k1+a32*k2,t+c2*Δt); k3*=Δt
     f(k4,u+a41*k1+a42*k2+a43*k3,t+c3*Δt); k4*=Δt
     f(k5,u+(a51*k1+a52*k2+a53*k3+a54*k4),t+c4*Δt); k5*=Δt
     f(k6,(u+a61*k1+a62*k2+a63*k3)+(a64*k4+a65*k5),t+c5*Δt); k6*=Δt
     utmp = (u+a71*k1+a73*k3)+(a74*k4+a75*k5+a76*k6)
-    f(k7,utmp,t+c6*Δt); k7*=Δt
+    f(fasllast,utmp,t+c6*Δt); k7=Δt*fasllast
     if adaptive
       utilde = (u + b1*k1 + b3*k3) + (b4*k4 + b5*k5 + b6*k6 + b7*k7)
       EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
@@ -531,10 +605,14 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   utilde = similar(u)
   tmp = similar(u)
   uidx = eachindex(u)
+  fasllast = similar(u); faslfirst = similar(u)
   local EEst::uEltype
+  FASL = true
+  f(faslfirst,u,t);  # Pre-start FASL
   @inbounds while t<T
-    f(k1,u,t); k1*=Δt
+    @ode_loopheader
     for i in uidx
+      k1[i] = Δt*faslfirst[i]
       tmp[i] = u[i]+a21*k1[i]
     end
     f(k2,tmp,t+c1*Δt); k2*=Δt
@@ -557,7 +635,10 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     for i in uidx
       utmp[i] = (u[i]+a71*k1[i]+a73*k3[i])+(a74*k4[i]+a75*k5[i]+a76*k6[i])
     end
-    f(k7,utmp,t+c6*Δt); k7*=Δt
+    f(fasllast,utmp,t+c6*Δt);
+    for i in uidx
+      k7[i]=Δt*fasllast[i]
+    end
     if adaptive
       for i in uidx
         utilde[i] = (u[i] + b1*k1[i] + b3*k3[i]) + (b4*k4[i] + b5*k5[i] + b6*k6[i] + b7*k7[i])
