@@ -110,7 +110,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   if :alg ∈ keys(o)
     alg = o[:alg]
   else
-    alg = :ExplicitRK
+    alg = :DP5 # Default algorithm
   end
 
   if alg ∈ DIFFERENTIALEQUATIONSJL_ALGORITHMS
@@ -166,6 +166,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ts = Vector{tType}(0)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, β, timechoicealg,qoldinit= o
+    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor))
     u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded

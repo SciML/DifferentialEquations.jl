@@ -24,7 +24,7 @@ TEST_PLOT && plot(sol,plot_analytic=true)
 
 bool2 = 1e-7 < Δt₀ < .01
 
-tab = constructDormandPrince8()
+tab = constructDormandPrince8_64bit()
 sol3 =solve(prob::ODEProblem,save_timeseries=true,alg=:ExplicitRK,adaptive=true,tableau=tab)
 TEST_PLOT && plot(sol3,plot_analytic=true)
 Δt₀ = sol3.t[2]
