@@ -42,9 +42,10 @@ type ConvergenceSimulation
   convergence_axis
   function ConvergenceSimulation(solutions::Array{DESolution},convergence_axis;auxdata=nothing)
     N = size(solutions,1)
+    uEltype = eltype(solutions[1].u)
     errors = Dict() #Should add type information
     for k in keys(solutions[1].errors)
-      errors[k] = reshape(Float64[sol.errors[k] for sol in solutions],size(solutions)...)
+      errors[k] = reshape(uEltype[sol.errors[k] for sol in solutions],size(solutions)...)
     end
     𝒪est = Dict(map(calc𝒪estimates,errors))
     𝒪esttmp = Dict() #Makes Dict of Any to be more compatible
@@ -163,7 +164,7 @@ function calc𝒪estimates(error::Pair)
   key = error.first
   error =error.second
   if ndims(error)>1 error=mean(error,1) end
-  S = Vector{Float64}(length(error)-1)
+  S = Vector{eltype(error)}(length(error)-1)
   for i=1:length(error)-1
     S[i] = log2(error[i+1]/error[i])
   end

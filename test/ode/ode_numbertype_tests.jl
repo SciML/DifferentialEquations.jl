@@ -20,7 +20,7 @@ bool6 = typeof(sol3.u) == Float64
 
 sol4 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:ExplicitRK,abstol=1,reltol=0)
 
-tab = constructDormandPrince8()
+tab = constructDormandPrince8_64bit(Float64)
 sol5 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:ExplicitRK,abstol=1,reltol=0,tableau=tab)
 
 bool7 = 1e-10 < float(sol5.u) - sol3.u < 1e-9

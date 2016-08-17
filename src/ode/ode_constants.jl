@@ -5,7 +5,7 @@ Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
 """
 const ODE_DEFAULT_TABLEAU = constructDormandPrince()
 
-const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
+const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seulex])
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 
@@ -66,6 +66,10 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :RK4=>4,
                                                         :ExplicitRK=>4, #Gets overwritten
                                                         :ExplicitRKVectorized=>4,#Gets overwritten
+                                                        :DP5=>4,
+                                                        :DP5Vectorized=>4,
+                                                        :DP8=>7,
+                                                        :DP8Vectorized=>7,
                                                         :ImplicitEuler=>1,
                                                         :Trapezoid=>2,
                                                         :Rosenbrock32=>3,
@@ -75,7 +79,7 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :Feagin10Vectorized=>10,
                                                         :Feagin12Vectorized=>12,
                                                         :Feagin14Vectorized=>14)
-const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
+const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32])
 const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
   :LOGIO            => "logio",
