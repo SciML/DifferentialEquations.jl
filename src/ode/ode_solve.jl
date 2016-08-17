@@ -62,7 +62,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
     - `:dop853` - Explicit Runge-Kutta 8(5,3) by Dormand-Prince
     - `:odex` - GBS extrapolation-algorithm based on the midpoint rule
     - `:seulex` - extrapolation-algorithm bsed on the linear implicit Euler method
-    - `:radau` - implicit Runge-Kutta (Rdau IIA) of variable order between 5 and 13
+    - `:radau` - implicit Runge-Kutta (Radau IIA) of variable order between 5 and 13
     - `:radau5` - implicit Runge-Kutta method (Radau IIA) of order 5
 
   * ODE.jl
