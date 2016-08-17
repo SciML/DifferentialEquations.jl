@@ -23,7 +23,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 * `progressbar` - Turns on/off the Juno progressbar. Defualt is false.
 * `progress_steps` - Numbers of steps between updates of the progress bar. Default is 1000.
 
-* `alg`: String which defines the solver algorithm. Defult is `:ExplicitRK`. Note that any keyword
+* `alg`: The solver algorithm. Defult is `:DP5`. Note that any keyword
   argument available in the external solvers are accessible via keyword arguemnts. For example,
   for the ODEInterface.jl algorithms, one can specify `SSBETA=0.03` as a keyword argument and it will
   do as it states in the ODEInterface.jl documentation. Common options such as `MAXSS` (max stepsize)
