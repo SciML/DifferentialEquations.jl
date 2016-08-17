@@ -18,7 +18,7 @@ It includes well-optimized implementations classic algorithms and ones from rece
 
 For information on using the package, [see the documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/).
 
-All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
 [can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples). If you find any equation where there seems
 to be an error, please open an issue.
 
