@@ -89,7 +89,8 @@ Without a doubt the winner is the Verner "most efficient".
 The Enright-Verner and other Verner methods all have stability issues near the
 origin in the complex plane and higher error coefficients. Sharp and Smart
 have higher error coefficients. Peter Stone's methods all have higher error.
-It's very clear that the best here is the Tanaka-Yamashita method by far.
+It's very clear that the best here is the Tanaka-Yamashita (efficient, not the stable)
+method by far.
 
 ### Order 8
 
@@ -108,7 +109,7 @@ Thus the final showdown is between DP853 vs the Tsitouras-Papakostas pair.
 ### Order 9
 
 The Tsitouras scheme and the Sharp scheme have funky stability near the origin.
-Verner's schemes are much safer, and with similar error. They are clearly
+Verner's schemes are much safer, and with similar error. They clearly
 dominate this category.
 
 ### Order 10
