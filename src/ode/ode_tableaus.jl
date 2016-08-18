@@ -10,7 +10,8 @@ type ExplicitRKTableau <: Tableau
   αEEst#::Vector{Float64}
   stages::Int
   order::Int
-  ExplicitRKTableau(A,c,α,order;αEEst=Float64[]) = new(A,c,α,αEEst,length(α),order)
+  adaptiveorder::Int #The lower order of the pair. Only used for adaptivity.
+  ExplicitRKTableau(A,c,α,order;adaptiveorder=0,αEEst=Float64[]) = new(A,c,α,αEEst,length(α),order,adaptiveorder)
 end
 
 """
@@ -35,7 +36,7 @@ function constructHuen(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,2,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
 end
 """
 constructRalston()
@@ -72,7 +73,7 @@ function constructRKF(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
 end
 
 """
@@ -92,7 +93,7 @@ function constructBogakiShampine(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,3,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,3,αEEst=αEEst,adaptiveorder=2))
 end
 
 """
@@ -114,7 +115,7 @@ function constructCashKarp(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
 end
 
 """
@@ -133,7 +134,7 @@ function constructDormandPrince(T::Type = Float64)
   c = [0;1//5;3//10;4//5;8//9;1;1]
   α = [35//384;0;500//1113;125//192;-2187//6784;11//84;0]
   αEEst = [5179//57600;0;7571//16695;393//640;-92097//339200;187//2100;1//40]
-  return(ExplicitRKTableau(A,c,α,4,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
 end
 
 """
@@ -162,9 +163,16 @@ function constructRKF8(T::Type = Float64)
     α = map(T,α)
     c = map(T,c)
     αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,8,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,8,αEEst=αEEst,adaptiveorder=7))
 end
 
+"""
+constructDormandPrice8_64bit()
+
+Constructs the tableau object for the Dormand-Prince Order 6/8 method with the
+approximated coefficients from the paper. This works until below 64-bit precision.
+
+"""
 function constructDormandPrince8_64bit(T::Type = Float64)
   A =      [0 0 0 0 0 0 0 0 0 0 0 0 0
             1//18 0 0 0 0 0 0 0 0 0 0 0 0
@@ -186,13 +194,13 @@ function constructDormandPrince8_64bit(T::Type = Float64)
    α = map(T,α)
    c = map(T,c)
    αEEst = map(T,αEEst)
-   return(ExplicitRKTableau(A,c,α,8,αEEst=αEEst))
+   return(ExplicitRKTableau(A,c,α,8,αEEst=αEEst,adaptiveorder=7))
 end
 
 """
 constructDormandPrice8()
 
-Constructs the tableau object for the Dormand-Prince Order 7/8 method.
+Constructs the tableau object for the Dormand-Prince Order 6/8 method.
 """
 function constructDormandPrince8(T::Type = Float64)
   A =      [0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -215,7 +223,7 @@ function constructDormandPrince8(T::Type = Float64)
    α = map(T,α)
    c = map(T,c)
    αEEst = map(T,αEEst)
-   return(ExplicitRKTableau(A,c,α,8,αEEst=αEEst))
+   return(ExplicitRKTableau(A,c,α,8,αEEst=αEEst,adaptiveorder=7))
 end
 
 function constructDP5(T::Type = Float64)
@@ -252,6 +260,95 @@ function constructDP5(T::Type = Float64)
   c5  = T(1)
   c6  = T(1)
   return a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6
+end
+
+function constructDP8(T::Type = Float64)
+  c7     = T(1//4)
+  c8     = T(4//13)
+  c9     = T(127//195)
+  c10    = T(3//5)
+  c11    = T(6//7)
+  c6     = T(4//3 * c7)
+  c5     = T((6+sqrt(6))/10 * c6)
+  c4     = T((6-sqrt(6))/10 * c6)
+  c3     = T(2//3 * c4)
+  c2     = T(2//3 * c3)
+  c14    = T(1//10)
+  c15    = T(2//10)
+  c16    = T(7//9)
+  a0201  = A[2,1]
+  a0301  = A[3,1]
+  a0302  = A[3,2]
+  a0401  = A[4,1]
+  a0403  = A[4,3]
+  a0501  = A[5,1]
+  a0503  = A[5,3]
+  a0504  = A[5,4]
+  a0601  = A[6,1]
+  a0604  = A[6,4]
+  a0605  = A[6,5]
+  a0701  = A[7,1]
+  a0704  = A[7,4]
+  a0705  = A[7,5]
+  a0706  = A[7,6]
+  a0801  = A[8,1]
+  a0804  = A[8,4]
+  a0805  = A[8,5]
+  a0806  = A[8,6]
+  a0807  = A[8,7]
+  a0901  = A[9,1]
+  a0904  = A[9,4]
+  a0905  = A[9,5]
+  a0906  = A[9,6]
+  a0907  = A[9,7]
+  a0908  = A[9,8]
+  a1001  = A[10,1]
+  a1004  = A[10,4]
+  a1005  = A[10,5]
+  a1006  = A[10,6]
+  a1007  = A[10,7]
+  a1008  = A[10,8]
+  a1009  = A[10,9]
+  a1101  = A[11,1]
+  a1104  = A[11,4]
+  a1105  = A[11,5]
+  a1106  = A[11,6]
+  a1107  = A[11,7]
+  a1108  = A[11,8]
+  a1109  = A[11,9]
+  a1110  = A[11,10]
+  a1201  = A[12,1]
+  a1204  = A[12,4]
+  a1205  = A[12,5]
+  a1206  = A[12,6]
+  a1207  = A[12,7]
+  a1208  = A[12,8]
+  a1209  = A[12,9]
+  a1210  = A[12,10]
+  a1211  = A[12,11]
+  a1301  = A[13,1]
+  a1304  = A[13,4]
+  a1305  = A[13,5]
+  a1306  = A[13,6]
+  a1307  = A[13,7]
+  a1308  = A[13,8]
+  a1309  = A[13,9]
+  a1310  = A[13,10]
+  a1311  = A[13,11]
+  a1312  = A[13,12]
+  b1     = α[1]
+  b6     = α[6]
+  b7     = α[7]
+  b8     = α[8]
+  b9     = α[9]
+  b10    = α[10]
+  b11    = α[11]
+  b12    = α[12]
+  b13    = α[13]
+  bhat6  = T(b6/2 + 1)
+  bhat7  = T(b7/2 + 45//100)
+  bhat12 = T(b12/2)
+  return a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,b1,b6,b7,b8,b9,b10,b11,b12,b13,bhat6,bhat7,bhat12
 end
 
 """

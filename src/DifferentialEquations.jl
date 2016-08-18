@@ -94,7 +94,7 @@ module DifferentialEquations
   export constructRalston, constructHuen, constructRKF, constructBogakiShampine,
          constructCashKarp, constructDormandPrince, constructRKF8, constructDormandPrince8,
          constructMSRI1,constructFeagin10, constructFeagin12, constructFeagin14,
-         constructDormandPrince8_64bit 
+         constructDormandPrince8_64bit, constructDP8
 
   #Misc Tools
   export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,

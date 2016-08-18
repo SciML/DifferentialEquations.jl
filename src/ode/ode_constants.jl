@@ -21,7 +21,7 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
                                  :qmin=>0.2,
                                  :qoldinit=>1//10^4,
                                  :fullnormalize=>false,
-                                 :β=>0.04,
+                                 :β=>nothing,
                                  :timechoicealg=>:Lund,
                                  :maxiters => round(Int,1e9),
                                  :Δtmax=>nothing,
@@ -66,10 +66,10 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :RK4=>4,
                                                         :ExplicitRK=>4, #Gets overwritten
                                                         :ExplicitRKVectorized=>4,#Gets overwritten
-                                                        :DP5=>4,
-                                                        :DP5Vectorized=>4,
-                                                        :DP8=>7,
-                                                        :DP8Vectorized=>7,
+                                                        :DP5=>5,
+                                                        :DP5Vectorized=>5,
+                                                        :DP8=>8,
+                                                        :DP8Vectorized=>8,
                                                         :ImplicitEuler=>1,
                                                         :Trapezoid=>2,
                                                         :Rosenbrock32=>3,
@@ -79,6 +79,21 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :Feagin10Vectorized=>10,
                                                         :Feagin12Vectorized=>12,
                                                         :Feagin14Vectorized=>14)
+
+
+const DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS = Dict{Symbol,Int}(:ExplicitRK=>4, #Gets overwritten
+                                                                :ExplicitRKVectorized=>4,#Gets overwritten
+                                                                :DP5=>4,
+                                                                :DP5Vectorized=>4,
+                                                                :DP8=>6,
+                                                                :DP8Vectorized=>6,
+                                                                :Rosenbrock32=>2,
+                                                                :Feagin10=>8,
+                                                                :Feagin12=>10,
+                                                                :Feagin14=>12,
+                                                                :Feagin10Vectorized=>8,
+                                                                :Feagin12Vectorized=>10,
+                                                                :Feagin14Vectorized=>12)
 const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32])
 const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
