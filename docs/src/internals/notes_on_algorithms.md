@@ -131,7 +131,10 @@ convinced they are better than the other methods, or better than the higher orde
 methods which use less steps. The stability is only okay.
 
 The Feagin scheme is fine, but with more error and less stability than the Hairer
-scheme. Thus it seems clear that Hairer's method dominates this category.
+scheme. Thus it seems clear that Hairer's method dominates this category. However,
+that's only because it does not include an error estimate. Feagin's scheme is
+close in error and stability, but includes an error estimate which can be used
+for adaptivity, making it the choice in this category.
 
 ### Order 11
 
