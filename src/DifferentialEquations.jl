@@ -107,7 +107,16 @@ module DifferentialEquations
          constructCurtis8, constructVernerRobust9, constructVernerEfficient9,
          constructSharp9, constructTsitouras9, constructTsitouras92,constructFeagin14Tableau,
          constructFeagin12Tableau, constructCurtis10, constructOno10, constructFeagin10Tableau,
-         constructCurtis10, constructBaker10, constructHairer10
+         constructCurtis10, constructBaker10, constructHairer10, constructButcher63,
+         constructButcher6, constructButcher62, constructVerner6, constructDormandPrince6,
+         constructSharpVerner6, constructVerner9162, constructVerner916, constructVernerRobust6,
+         constructVernerEfficient6, constructPapakostas6, constructLawson6,
+         constructTsitourasPapakostas6, constructDormandLockyerMcCorriganPrince6,
+         constructTanakaKasugaYamashitaYazaki6D, constructTanakaKasugaYamashitaYazaki6C,
+         constructTanakaKasugaYamashitaYazaki6B, constructTanakaKasugaYamashitaYazaki6A,
+         constructMikkawyEisa, constructChummund6, constructChummund62,
+         constructHuta62, constructHuta6
+
 
 
 
