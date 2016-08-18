@@ -21,6 +21,7 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   progressbar::Bool
   tableau::ExplicitRKTableau
   autodiff::Bool
+  adaptiveorder::Int
   order::Int
   atomloaded::Bool
   progress_steps::Int
@@ -35,8 +36,8 @@ end
   local t::tType
   local Δt::tType
   local T::tType
-  local order::Int
-  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor
+  local adaptiveorder::Int
+  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor
   local iter::Int = 0
   sizeu = size(u)
   local utmp::uType
@@ -56,7 +57,7 @@ end
   #local k1::uType; local k7::uType
   local qold::uEltype = qoldinit
 
-  expo1 = 0.2 - β * 0.75
+  expo1 = 1/order - 0.75β
   qminc = inv(qmin)
   qmaxc = inv(qmax)
   FASL = false
@@ -119,7 +120,7 @@ end
         Δt = Δt/min(qminc,q11/γ)
       end
     elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(order))
+      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
       if isinf(standard)
           q = qmax
       else
@@ -167,7 +168,7 @@ end
         Δt = Δt/min(qminc,q11/γ)
       end
     elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(order))
+      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
       if isinf(standard)
           q = qmax
       else
@@ -212,7 +213,7 @@ end
         Δt = Δt/min(qminc,q11/γ)
       end
     elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(order+1))
+      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
       if isinf(standard)
           q = qmax
       else
@@ -250,7 +251,7 @@ end
         Δt = Δt/min(qminc,q11/γ)
       end
     elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(order+1))
+      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
       if isinf(standard)
           q = qmax
       else
@@ -1471,7 +1472,6 @@ end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Rosenbrock32,uType,uEltype,N,tType})
   @ode_preamble
-  order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
   k₁::uType = similar(u)
@@ -1532,7 +1532,6 @@ end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Rosenbrock32,uType,uEltype,N,tType})
   @ode_preamble
-  order = 2
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
   local dT::uType
