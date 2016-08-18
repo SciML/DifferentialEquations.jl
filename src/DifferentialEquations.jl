@@ -106,7 +106,8 @@ module DifferentialEquations
          constructTsitourasPapakostas8, constructdverk78, constructEnrightVerner8,
          constructCurtis8, constructVernerRobust9, constructVernerEfficient9,
          constructSharp9, constructTsitouras9, constructTsitouras92,constructFeagin14Tableau,
-         constructFeagin12Tableau
+         constructFeagin12Tableau, constructCurtis10, constructOno10, constructFeagin10Tableau,
+         constructCurtis10, constructBaker10, constructHairer10
 
 
 
