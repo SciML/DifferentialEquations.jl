@@ -99,7 +99,14 @@ module DifferentialEquations
          constructLutherKonen53, constructPapakostasPapaGeorgiou5, constructPapakostasPapaGeorgiou52,
          constructTsitouras5, constructBogakiShampine5, constructSharpSmart5,
          constructButcher6, constructButcher7, constructDverk, constructClassicVerner6,
-         constructClassicVerner7, constructClassicVerner8
+         constructClassicVerner7, constructClassicVerner8, constructClassicVerner92,
+         constructVernerRobust7, constructEnrightVerner7, constructTanakaYamashitaStable7,
+         constructTanakaYamashitaEfficient7, constructSharpSmart7, constructSharpVerner7,
+         constructVernerEfficient7, constructCooperVerner8, constructCooperVerner82,
+         constructTsitourasPapakostas8, constructdverk78, constructEnrightVerner8,
+         constructCurtis8, constructVernerRobust9, constructVernerEfficient9,
+         constructSharp9, constructTsitouras9, constructTsitouras92
+
 
 
   #Misc Tools
