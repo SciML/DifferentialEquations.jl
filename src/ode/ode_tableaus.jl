@@ -123,7 +123,7 @@ constructRKF()
 
 Constructs the tableau object for the Runge-Kutta-Fehlberg Order 4/5 method.
 """
-function constructRKF(T::Type = Float64)
+function constructRKF5(T::Type = Float64)
   A = [0 0 0 0 0 0
       1//4 0 0 0 0 0
       3//32 9//32 0 0 0 0
@@ -402,7 +402,7 @@ end
  Mathematics of Computation,Volume 65, Number 215, July 1996, Pages 1165-1181.
 
 """
-function constructPapakostasPapaGeorgiou(T::Type = Float64)
+function constructPapakostasPapaGeorgiou5(T::Type = Float64)
   A = zeros(6,6)
   c = zeros(6)
   α = zeros(6)
@@ -463,7 +463,7 @@ end
  Mathematics of Computation,Volume 65, Number 215, July 1996, Pages 1165-1181.
 
 """
-function constructPapakostasPapaGeorgiou2(T::Type = Float64)
+function constructPapakostasPapaGeorgiou52(T::Type = Float64)
   A = zeros(6,6)
   c = zeros(6)
   α = zeros(6)
@@ -521,7 +521,7 @@ end
 Runge–Kutta pairs of orders 5(4) using the minimal set of simplifying assumptions,
  by Ch. Tsitouras, TEI of Chalkis, Dept. of Applied Sciences, GR34400, Psahna, Greece.
 """
-function constructTsitouras(T::Type = Float64)
+function constructTsitouras5(T::Type = Float64)
   A = zeros(6,6)
   c = zeros(6)
   α = zeros(6)

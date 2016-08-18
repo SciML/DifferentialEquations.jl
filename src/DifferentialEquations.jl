@@ -91,10 +91,16 @@ module DifferentialEquations
           meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
   #Tableus
-  export constructRalston, constructHuen, constructRKF, constructBogakiShampine,
+  export constructRalston, constructHuen, constructRKF, constructBogakiShampine3,
          constructCashKarp, constructDormandPrince, constructRKF8, constructDormandPrince8,
          constructMSRI1,constructFeagin10, constructFeagin12, constructFeagin14,
-         constructDormandPrince8_64bit, constructDP8
+         constructDormandPrince8_64bit, constructDP8, constructRKF5, constructRungeFirst5,
+         constructCassity5, constructLawson5, constructLutherKonen5, constructLutherKonen52,
+         constructLutherKonen53, constructPapakostasPapaGeorgiou5, constructPapakostasPapaGeorgiou52,
+         constructTsitouras5, constructBogakiShampine5, constructSharpSmart5,
+         constructButcher6, constructButcher7, constructDverk, constructClassicVerner6,
+         constructClassicVerner7, constructClassicVerner8
+
 
   #Misc Tools
   export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,

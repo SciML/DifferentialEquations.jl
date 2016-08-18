@@ -23,6 +23,9 @@ for i = 1:2
   bool2 = abs(sim2.𝒪est[:l∞]-2) < testTol
   sim3 = test_convergence(Δts,prob,alg=:RK4)
   bool3 = abs(sim3.𝒪est[:l∞]-4) < testTol
+
+  ### Tableau Tests
+
   tab = constructHuen()
   sim4 = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
   bool4 = abs(sim4.𝒪est[:l∞]-2) < testTol
@@ -30,14 +33,14 @@ for i = 1:2
   tab = constructRalston()
   sim5 = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
   bool5 = abs(sim5.𝒪est[:l∞]-2) < testTol
-
-  tab = constructBogakiShampine()
+  tab = constructBogakiShampine3()
   sim6 = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
   bool6 = abs(sim6.𝒪est[:l∞]-3) < testTol
 
   println("Higher Order")
   Δts = 1.//2.^(7:-1:4)
-  tab = constructRKF()
+
+  tab = constructRKF5()
   sim7 = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
   bool7 = abs(sim7.𝒪est[:l∞]-5) < testTol
 
