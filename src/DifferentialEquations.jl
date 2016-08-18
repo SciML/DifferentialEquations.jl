@@ -105,7 +105,8 @@ module DifferentialEquations
          constructVernerEfficient7, constructCooperVerner8, constructCooperVerner82,
          constructTsitourasPapakostas8, constructdverk78, constructEnrightVerner8,
          constructCurtis8, constructVernerRobust9, constructVernerEfficient9,
-         constructSharp9, constructTsitouras9, constructTsitouras92
+         constructSharp9, constructTsitouras9, constructTsitouras92,constructFeagin14Tableau,
+         constructFeagin12Tableau
 
 
 
