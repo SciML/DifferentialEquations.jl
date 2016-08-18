@@ -264,6 +264,7 @@ Pages = [
   "internals/fem_tools.md",
   "internals/extras.md",
   "internals/solver_helpers.md"
+  "internals/notes_on_algorithms.md"
 ]
 Depth = 2
 ```
