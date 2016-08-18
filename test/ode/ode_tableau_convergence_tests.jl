@@ -72,7 +72,95 @@ tab = constructButcher6()
 sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
 push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
+tab = constructButcher62()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructButcher63()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
 Δts = 1.//2.^(5:-1:2)
+tab = constructDormandPrince6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructSharpVerner6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructVerner916()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructVerner9162()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructVernerRobust6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructVernerEfficient6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructPapakostas6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructLawson6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructTsitourasPapakostas6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructDormandLockyerMcCorriganPrince6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructTanakaKasugaYamashitaYazaki6D()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructTanakaKasugaYamashitaYazaki6C()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructTanakaKasugaYamashitaYazaki6B()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructTanakaKasugaYamashitaYazaki6A()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructMikkawyEisa()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructChummund6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructChummund62()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructHuta6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructHuta62()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
+tab = constructVerner6()
+sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
+push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
+
 tab = constructDverk()
 sim = test_convergence(Δts,prob,alg=:ExplicitRK,tableau=tab)
 push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)

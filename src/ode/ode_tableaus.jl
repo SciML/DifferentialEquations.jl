@@ -147,9 +147,9 @@ Runge's First Order 5 method
 
 """
 function constructRungeFirst5(T::Type=Float64)
-  A = zeros(6,6)
-  c = zeros(6)
-  α = zeros(6)
+  A = zeros(T,6,6)
+  c = zeros(T,6)
+  α = zeros(T,6)
   c[2]=1//5
   c[3]=2//5
   c[4]=1
@@ -187,9 +187,9 @@ end
 Cassity's Order 5 method
 """
 function constructCassity5(T::Type=Float64)
-  A = zeros(6,6)
-  c = zeros(6)
-  α = zeros(6)
+  A = zeros(T,6,6)
+  c = zeros(T,6)
+  α = zeros(T,6)
   c[2]=1//7
   c[3]=5//14
   c[4]=9//14
@@ -231,9 +231,9 @@ An Order Five Runge Kutta Process with Extended Region of Stability, J. Douglas 
 
 """
 function constructLawson5(T::Type=Float64)
-  A = zeros(6,6)
-  c = zeros(6)
-  α = zeros(6)
+  A = zeros(T,6,6)
+  c = zeros(T,6)
+  α = zeros(T,6)
   c[2]=1//12
   c[3]=1//4
   c[4]=1//2
@@ -274,9 +274,9 @@ Some Fifth-Order Classical Runge Kutta Formulas, H.A.Luther and H.P.Konen,
 
 """
 function constructLutherKonen5(T::Type = Float64)
-  A = zeros(6,6)
-  c = zeros(6)
-  α = zeros(6)
+  A = zeros(T,6,6)
+  c = zeros(T,6)
+  α = zeros(T,6)
   c[2]=1/2
   c[3]=1/2-1/10*5^(1/2)
   c[4]=1/2
@@ -317,9 +317,9 @@ Some Fifth-Order Classical Runge Kutta Formulas, H.A.Luther and H.P.Konen,
 
 """
 function constructLutherKonen52(T::Type = Float64)
-  A = zeros(6,6)
-  c = zeros(6)
-  α = zeros(6)
+  A = zeros(T,6,6)
+  c = zeros(T,6)
+  α = zeros(T,6)
   c[2]=2/5
   c[3]=1/2
   c[4]=1
@@ -360,9 +360,9 @@ Some Fifth-Order Classical Runge Kutta Formulas, H.A.Luther and H.P.Konen,
 
 """
 function constructLutherKonen53(T::Type = Float64)
-  A = zeros(6,6)
-  c = zeros(6)
-  α = zeros(6)
+  A = zeros(T,6,6)
+  c = zeros(T,6)
+  α = zeros(T,6)
   c[2]=3/25
   c[3]=5/18
   c[4]=45/89
@@ -404,10 +404,10 @@ end
 
 """
 function constructPapakostasPapaGeorgiou5(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
-  αEEst = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
+  αEEst = zeros(T,7)
   c[2]=64//315
   c[3]=115//381
   c[4]=762//935
@@ -465,10 +465,10 @@ end
 
 """
 function constructPapakostasPapaGeorgiou52(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
-  αEEst = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
+  αEEst = zeros(T,7)
 
   c[2]=35//159
   c[3]=42//131
@@ -523,10 +523,10 @@ Runge–Kutta pairs of orders 5(4) using the minimal set of simplifying assumpti
  by Ch. Tsitouras, TEI of Chalkis, Dept. of Applied Sciences, GR34400, Psahna, Greece.
 """
 function constructTsitouras5(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
-  αEEst = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
+  αEEst = zeros(T,7)
   c[2]=           T(parse(BigFloat,".2315720808871493803000652315720808871493803000652315720808871493803000652315720808871"))
   c[3]=           T(parse(BigFloat,".2122524752475247524752475247524752475247524752475247524752475247524752475247524752475"))
   c[4]=           T(parse(BigFloat,".5966934957581031107243854687839895584076571677180770067435283880791820752664781379160"))
@@ -580,11 +580,11 @@ An Efficient Runge-Kutta (4,5) Pair by P.Bogacki and L.F.Shampine
  Computers and Mathematics with Applications, Vol. 32, No. 6, 1996, pages 15 to 28
 """
 function constructBogakiShampine5(T::Type = Float64)
-  A = zeros(8,8)
-  c = zeros(8)
-  α = zeros(8)
-  αEEst = zeros(8)
-  αEEst2 = zeros(8)
+  A = zeros(T,8,8)
+  c = zeros(T,8)
+  α = zeros(T,8)
+  αEEst = zeros(T,8)
+  αEEst2 = zeros(T,8)
   c[2]=1//6
   c[3]=2//9
   c[4]=3//7
@@ -656,11 +656,11 @@ Explicit Runge-Kutta Pairs with One More Derivative Evaluation than the Minimum,
 
 """
 function constructSharpSmart5(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
-  αEEst = zeros(7)
-  αEEst2 = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
+  αEEst = zeros(T,7)
+  αEEst2 = zeros(T,7)
   c[2]=16//105
   c[3]=8//35
   c[4]=9//20
@@ -801,9 +801,9 @@ On Runge-Kutta Processes of High Order, by J. C. Butcher,
  Journal of the Australian Mathematical Society, Vol. 4, (1964), pages 179 to 194
 """
 function constructButcher6(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=1//2-1//10*5^(1//2)
   c[3]=1//2+1//10*5^(1//2)
@@ -855,9 +855,9 @@ On Runge-Kutta Processes of High Order, by J. C. Butcher,
  Journal of the Australian Mathematical Society, Vol. 4, (1964), pages 179 to 194
 """
 function constructButcher62(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=1//3
   c[3]=2//3
@@ -910,10 +910,10 @@ A Contrast of a New RK56 pair with DP56, by Jim Verner,
 
 """
 function constructVerner6(T::Type = Float64)
-  A = zeros(8,8)
-  c = zeros(8)
-  α = zeros(8)
-  αEEst = zeros(8)
+  A = zeros(T,8,8)
+  c = zeros(T,8)
+  α = zeros(T,8)
+  αEEst = zeros(T,8)
 
   c[2]=1//7
   c[3]=2//9
@@ -982,10 +982,10 @@ P.J. Prince and J. R. Dormand, High order embedded Runge-Kutta formulae,
 Journal of Computational and Applied Mathematics . 7 (1981), pp. 67-75.
 """
 function constructDormandPrince6(T::Type = Float64)
-  A = zeros(8,8)
-  c = zeros(8)
-  α = zeros(8)
-  αEEst = zeros(8)
+  A = zeros(T,8,8)
+  c = zeros(T,8)
+  α = zeros(T,8)
+  αEEst = zeros(T,8)
 
   c[2]=1//10
   c[3]=2//9
@@ -1056,10 +1056,10 @@ Completely Imbedded Runge-Kutta Pairs, by P. W. Sharp and J. H. Verner,
  SIAM Journal on Numerical Analysis, Vol. 31, No. 4. (Aug., 1994), pages. 1169 to 1190.
 """
 function constructSharpVerner6(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//12
   c[3]=2//15
@@ -1139,10 +1139,10 @@ Some Ruge-Kutta Formula Pairs, by J.H.Verner,
  SIAM Journal on Numerical Analysis, Vol. 28, No. 2 (April 1991), pages 496 to 511.
 """
 function constructVerner9162(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//8
   c[3]=1//6
@@ -1221,10 +1221,10 @@ Some Ruge-Kutta Formula Pairs, by J.H.Verner,
  SIAM Journal on Numerical Analysis, Vol. 28, No. 2 (April 1991), pages 496 to 511.
 """
 function constructVerner916(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//8
   c[3]=4//9-4//45*10^(1//2)
@@ -1301,10 +1301,10 @@ end
 From Verner's Website
 """
 function constructVernerRobust6(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=9//50
   c[3]=1//6
@@ -1380,10 +1380,10 @@ end
 From Verner's Website
 """
 function constructVernerEfficient6(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=3//50
   c[3]=1439//15000
@@ -1463,10 +1463,10 @@ On Phase-Fitted modified Runge-Kutta Pairs of order 6(5), by Ch. Tsitouras and I
  International Conference of Numerical Analysis and Applied Mathematics, Crete, (2006)
 """
 function constructPapakostas6(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=17//183
   c[3]=12//83
@@ -1546,9 +1546,9 @@ An Order 6 Runge-Kutta Process with an Extended Region of Stability, by J. D. La
  Siam Journal on Numerical Analysis, Vol. 4, No. 4 (Dec. 1967) pages 620-625.
 """
 function constructLawson6(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=26//105-2//315*51^(1//2)
   c[3]=13//35-1//105*51^(1//2)
@@ -1599,10 +1599,10 @@ Cheap Error Estimation for Runge-Kutta methods, by Ch. Tsitouras and S.N. Papako
 Siam Journal on Scientific Computing, Vol. 20, Issue 6, Nov 1999.
 """
 function constructTsitourasPapakostas6(T::Type = Float64)
-  A = zeros(8,8)
-  c = zeros(8)
-  α = zeros(8)
-  αEEst = zeros(8)
+  A = zeros(T,8,8)
+  c = zeros(T,8)
+  α = zeros(T,8)
+  αEEst = zeros(T,8)
 
   c[2]=4//27
   c[3]=2//9
@@ -1671,10 +1671,10 @@ Global Error estimation with Runge-Kutta triples, by J.R.Dormand, M.A.Lockyer, N
  Computers and Mathematics with Applications, 18 (1989) pages 835-846.
 """
 function constructDormandLockyerMcCorriganPrince6(T::Type = Float64)
-  A = zeros(8,8)
-  c = zeros(8)
-  α = zeros(8)
-  αEEst = zeros(8)
+  A = zeros(T,8,8)
+  c = zeros(T,8)
+  α = zeros(T,8)
+  αEEst = zeros(T,8)
 
   c[2]=4//39
   c[3]=2//13
@@ -1757,10 +1757,10 @@ On the Optimization of Some Eight-stage Sixth-order Explicit Runge-Kutta Method,
  Journal of the Information Processing Society of Japan, Vol. 34, No. 1 (1993), pages 62 to 74.
 """
 function constructTanakaKasugaYamashitaYazaki6D(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//250
   c[3]=61//500
@@ -1841,10 +1841,10 @@ On the Optimization of Some Eight-stage Sixth-order Explicit Runge-Kutta Method,
  Journal of the Information Processing Society of Japan, Vol. 34, No. 1 (1993), pages 62 to 74.
 """
 function constructTanakaKasugaYamashitaYazaki6C(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//100
   c[3]=11//100
@@ -1926,10 +1926,10 @@ On the Optimization of Some Eight-stage Sixth-order Explicit Runge-Kutta Method,
  Journal of the Information Processing Society of Japan, Vol. 34, No. 1 (1993), pages 62 to 74.
 """
 function constructTanakaKasugaYamashitaYazaki6B(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//5
   c[3]=3//20
@@ -2011,10 +2011,10 @@ On the Optimization of Some Eight-stage Sixth-order Explicit Runge-Kutta Method,
  Journal of the Information Processing Society of Japan, Vol. 34, No. 1 (1993), pages 62 to 74.
 """
 function constructTanakaKasugaYamashitaYazaki6A(T::Type = Float64)
-  A = zeros(9,9)
-  c = zeros(9)
-  α = zeros(9)
-  αEEst = zeros(9)
+  A = zeros(T,9,9)
+  c = zeros(T,9)
+  α = zeros(T,9)
+  αEEst = zeros(T,9)
 
   c[2]=1//100
   c[3]=63//500
@@ -2097,10 +2097,10 @@ A general four-parameter non-FSAL embedded Runge–Kutta algorithm of orders 6 a
 
 """
 function constructMikkawyEisa(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
-  αEEst = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
+  αEEst = zeros(T,7)
 
   c[2]=3/19
   c[3]=9/38
@@ -2161,9 +2161,9 @@ Numerical Methods and programming, 2001, Vol.2, 2001, pages 159-166
 (Advanced Computing Scientific journal published by the Research Computing Center of the Lomonosov Moscow State Univeristy)
 """
 function constructChummund6(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=4//7
   c[3]=5//7
@@ -2216,9 +2216,9 @@ Numerical Methods and programming, 2001, Vol.2, 2001, pages 159-166
 (Advanced Computing Scientific journal published by the Research Computing Center of the Lomonosov Moscow State Univeristy)
 """
 function constructChummund62(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=750557//18870600
   c[3]=748997//1685240
@@ -2271,9 +2271,9 @@ Acta Fac. Nat. Univ. Comenian Math., Vol. 1, pages 201-224 (1956).
 
 """
 function constructHuta62(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=1//9
   c[3]=1//6
@@ -2335,9 +2335,9 @@ Acta Fac. Nat. Univ. Comenian Math., Vol. 1, pages 201-224 (1956).
 
 """
 function constructHuta6(T::Type = Float64)
-  A = zeros(7,7)
-  c = zeros(7)
-  α = zeros(7)
+  A = zeros(T,7,7)
+  c = zeros(T,7)
+  α = zeros(T,7)
 
   c[2]=1//9
   c[3]=1//6
@@ -2396,10 +2396,10 @@ The Relative Efficiency of Alternative Defect Control Schemes for High-Order Con
 
 """
 function constructEnrightVerner7(T::Type = Float64)
-  A = zeros(10,10)
-  c = zeros(10)
-  α = zeros(10)
-  αEEst = zeros(10)
+  A = zeros(T,10,10)
+  c = zeros(T,10)
+  α = zeros(T,10)
+  αEEst = zeros(T,10)
   c[2]=1//18
   c[3]=1//9
   c[4]=1//6
@@ -2486,10 +2486,10 @@ end
 From Verner's website
 """
 function constructVernerRobust7(T::Type = Float64)
-  A = zeros(10,10)
-  c = zeros(10)
-  α = zeros(10)
-  αEEst = zeros(10)
+  A = zeros(T,10,10)
+  c = zeros(T,10)
+  α = zeros(T,10)
+  αEEst = zeros(T,10)
 
   c[2]=1//200
   c[3]=49//450
@@ -2577,10 +2577,10 @@ end
 From Verner's website
 """
 function constructVernerEfficient7(T::Type = Float64)
-  A = zeros(10,10)
-  c = zeros(10)
-  α = zeros(10)
-  αEEst = zeros(10)
+  A = zeros(T,10,10)
+  c = zeros(T,10)
+  α = zeros(T,10)
+  αEEst = zeros(T,10)
 
 c[2]=1//200
 c[3]=1633//15000
@@ -2669,10 +2669,10 @@ Completely Imbedded Runge-Kutta Pairs, by P.W.Sharp and J.H.Verner, Siam Journal
 (August 1994) pages 1169-1190.
 """
 function constructSharpVerner7(T::Type = Float64)
-  A = zeros(12,12)
-  c = zeros(12)
-  α = zeros(12)
-  αEEst = zeros(12)
+  A = zeros(T,12,12)
+  c = zeros(T,12)
+  α = zeros(T,12)
+  αEEst = zeros(T,12)
 
   c[2]=1//12
   c[3]=4//27
@@ -2788,10 +2788,10 @@ Explicit Runge-Kutta Pairs with One More Derivative Evaluation than the Minimum,
  Siam Journal of Scientific Computing, Vol. 14, No. 2, pages. 338-348, March 1993.
 """
 function constructSharpSmart7(T::Type = Float64)
-  A = zeros(11,11)
-  c = zeros(11)
-  α = zeros(11)
-  αEEst = zeros(11)
+  A = zeros(T,11,11)
+  c = zeros(T,11)
+  α = zeros(T,11)
+  αEEst = zeros(T,11)
 
   c[2]=1//50
   c[3]=27//125
@@ -2888,16 +2888,16 @@ function constructSharpSmart7(T::Type = Float64)
   return(ExplicitRKTableau(A,c,α,7,αEEst=αEEst,adaptiveorder=6))
 end
 
-
+#=
 """
 On the Optimization of Some Nine-Stage Seventh-order Runge-Kutta Method, by M. Tanaka, S. Muramatsu and S. Yamashita,
 Information Processing Society of Japan, Vol. 33, No. 12 (1992) pages 1512-1526.
 """
 function constructTanakaYamashitaEfficient7(T::Type = Float64)
-  A = zeros(10,10)
-  c = zeros(10)
-  α = zeros(10)
-  αEEst = zeros(10)
+  A = zeros(T,10,10)
+  c = zeros(T,10)
+  α = zeros(T,10)
+  αEEst = zeros(T,10)
 
   c[2]=36259//463869
   c[3]=36259//309246
@@ -2979,16 +2979,17 @@ function constructTanakaYamashitaEfficient7(T::Type = Float64)
   αEEst = map(T,αEEst)
   return(ExplicitRKTableau(A,c,α,7,αEEst=αEEst,adaptiveorder=6))
 end
+=#
 
 """
 On the Optimization of Some Nine-Stage Seventh-order Runge-Kutta Method, by M. Tanaka, S. Muramatsu and S. Yamashita,
 Information Processing Society of Japan, Vol. 33, No. 12 (1992) pages 1512-1526.
 """
 function constructTanakaYamashitaStable7(T::Type = Float64)
-  A = zeros(10,10)
-  c = zeros(10)
-  α = zeros(10)
-  αEEst = zeros(10)
+  A = zeros(T,10,10)
+  c = zeros(T,10)
+  α = zeros(T,10)
+  αEEst = zeros(T,10)
 
   c[2]=1288//14535
   c[3]=644//4845
@@ -3077,9 +3078,9 @@ Some Explicit Runge-Kutta Methods of High Order, by G. J. Cooper and J. H. Verne
  SIAM Journal on Numerical Analysis, Vol. 9, No. 3, (September 1972), pages 389 to 405
 """
 function constructCooperVerner8(T::Type = Float64)
-  A = zeros(11,11)
-  c = zeros(11)
-  α = zeros(11)
+  A = zeros(T,11,11)
+  c = zeros(T,11)
+  α = zeros(T,11)
 
   c[2]=1//2
   c[3]=1//2
@@ -3170,9 +3171,9 @@ Some Explicit Runge-Kutta Methods of High Order, by G. J. Cooper and J. H. Verne
  SIAM Journal on Numerical Analysis, Vol. 9, No. 3, (September 1972), pages 389 to 405
 """
 function constructCooperVerner82(T::Type = Float64)
-  A = zeros(11,11)
-  c = zeros(11)
-  α = zeros(11)
+  A = zeros(T,11,11)
+  c = zeros(T,11)
+  α = zeros(T,11)
 
   c[2]=1//2
   c[3]=1//2
@@ -3263,9 +3264,9 @@ An Eighth Order Runge-Kutta process with Eleven Function Evaluations per Step, b
  Numerische Mathematik, Vol. 16, No. 3 (1970), pages 268 to 277
 """
 function constructCurtis8(T::Type = Float64)
-  A = zeros(11,11)
-  c = zeros(11)
-  α = zeros(11)
+  A = zeros(T,11,11)
+  c = zeros(T,11)
+  α = zeros(T,11)
   c[2]=1//192
   c[3]=1295//10302-267//24038*21^(1//2)
   c[4]=1295//6868-801//48076*21^(1//2)
@@ -3354,10 +3355,10 @@ The Relative Efficiency of Alternative Defect Control Schemes for High-Order Con
  W. H. Enright SIAM Journal on Numerical Analysis, Vol. 30, No. 5. (Oct., 1993), pp. 1419-1445.
 """
 function constructEnrightVerner8(T::Type = Float64)
-  A = zeros(13,13)
-  c = zeros(13)
-  α = zeros(13)
-  αEEst = zeros(13)
+  A = zeros(T,13,13)
+  c = zeros(T,13)
+  α = zeros(T,13)
+  αEEst = zeros(T,13)
 
   c[2]=139//2500
   c[3]=473499//4616000
@@ -3488,10 +3489,10 @@ end
 Jim Verner's "Maple" (dverk78)
 """
 function constructdverk78(T::Type = Float64)
-  A = zeros(13,13)
-  c = zeros(13)
-  α = zeros(13)
-  αEEst = zeros(13)
+  A = zeros(T,13,13)
+  c = zeros(T,13)
+  α = zeros(T,13)
+  αEEst = zeros(T,13)
 
   c[2]=1//16
   c[3]=112//1065
@@ -3623,10 +3624,10 @@ Cheap Error Estimation for Runge-Kutta methods, by Ch. Tsitouras and S.N. Papako
  Siam Journal on Scientific Computing, Vol. 20, Issue 6, Nov 1999.
 """
 function constructTsitourasPapakostas8(T::Type = Float64)
-  A = zeros(13,13)
-  c = zeros(13)
-  α = zeros(13)
-  αEEst = zeros(13)
+  A = zeros(T,13,13)
+  c = zeros(T,13)
+  α = zeros(T,13)
+  αEEst = zeros(T,13)
 
   c[2]=9//142
   c[3]=24514//238491
@@ -3756,10 +3757,10 @@ end
 From Verner's Webiste
 """
 function constructVernerRobust9(T::Type = Float64)
-  A = zeros(16,16)
-  c = zeros(16)
-  α = zeros(16)
-  αEEst = zeros(16)
+  A = zeros(T,16,16)
+  c = zeros(T,16)
+  α = zeros(T,16)
+  αEEst = zeros(T,16)
 
   c[2]=1//25
   c[3]=48//335-32//1675*6^(1//2)
@@ -3941,10 +3942,10 @@ end
 From Verner's Webiste
 """
 function constructVernerEfficient9(T::Type = Float64)
-  A = zeros(16,16)
-  c = zeros(16)
-  α = zeros(16)
-  αEEst = zeros(16)
+  A = zeros(T,16,16)
+  c = zeros(T,16)
+  α = zeros(T,16)
+  αEEst = zeros(T,16)
 
   c[2]=1731//50000
   c[3]=7630049//53810000-983539//53810000*6^(1//2)
@@ -4127,10 +4128,10 @@ Journal of Applied Mathematics & Decision Sciences, 4(2), 183-192 (2000),
  "High order explicit Runge-Kutta pairs for ephemerides of the Solar System and the Moon".
 """
 function constructSharp9(T::Type = Float64)
-  A = zeros(16,16)
-  c = zeros(16)
-  α = zeros(16)
-  αEEst = zeros(16)
+  A = zeros(T,16,16)
+  c = zeros(T,16)
+  α = zeros(T,16)
+  αEEst = zeros(T,16)
 
   c[2]=1//50
   c[3]=3837236//48429375+1031368//145288125*6^(1//2)
@@ -4312,10 +4313,10 @@ Optimized explicit Runge-Kutta pairs of order 9(8), by Ch. Tsitouras,
  Applied Numerical Mathematics, 38 (2001) 123-134.
 """
 function constructTsitouras9(T::Type = Float64)
-  A = zeros(16,16)
-  c = zeros(16)
-  α = zeros(16)
-  αEEst = zeros(16)
+  A = zeros(T,16,16)
+  c = zeros(T,16)
+  α = zeros(T,16)
+  αEEst = zeros(T,16)
 
   c[2]=1//49
   c[3]=64//705-16//14805*6^(1//2)
@@ -4499,10 +4500,10 @@ Optimized explicit Runge-Kutta pairs of order 9(8), by Ch. Tsitouras,
  Applied Numerical Mathematics, 38 (2001) 123-134.
 """
 function constructTsitouras92(T::Type = Float64)
-  A = zeros(16,16)
-  c = zeros(16)
-  α = zeros(16)
-  αEEst = zeros(16)
+  A = zeros(T,16,16)
+  c = zeros(T,16)
+  α = zeros(T,16)
+  αEEst = zeros(T,16)
 
   c[2]=1//46
   c[3]=96755252944//718444993695-11256225944//718444993695*6^(1//2)
@@ -4687,10 +4688,10 @@ http://www.scm.tees.ac.uk/users/u0000251/research/researcht.htm
 http://www.scm.tees.ac.uk/users/u0000251/j.r.dormand/t.baker/rk10921m/rk10921m
 """
 function constructBaker10(T::Type = Float64)
-  A = zeros(21,21)
-  c = zeros(21)
-  α = zeros(21)
-  αEEst = zeros(21)
+  A = zeros(T,21,21)
+  c = zeros(T,21)
+  α = zeros(T,21)
+  αEEst = zeros(T,21)
 
   c[2]= T(parse(BigFloat,".2232129192123735665527132860096509572180113541116006004801774831897914255866976731834"))
   c[3]= T(parse(BigFloat,".3348193788185603498290699290144764358270170311674009007202662247846871383800465097751"))
@@ -4747,7 +4748,7 @@ function constructBaker10(T::Type = Float64)
   A[9,5]=T(parse(BigFloat,"0."))
   A[9,6]=T(parse(BigFloat,".1647908558976784212367930935320516004070340774715814512653291320117464889726338996259"))
   A[9,7]=T(parse(BigFloat,".2562758618556534830885936612274458691344630164445656645146446091037555911278059725788"))
-  A[9,8]=T(parse(BigFloat,".2329716296023982055737534602557078340765698480828560679203962114049223355708872997637")
+  A[9,8]=T(parse(BigFloat,".2329716296023982055737534602557078340765698480828560679203962114049223355708872997637"))
   A[10,1]= T(parse(BigFloat,".6609808969751805186432114363691927852621669632797821827493854746683225501745446560252e-1"))
   A[10,2]= T(parse(BigFloat,"0."))
   A[10,3]= T(parse(BigFloat,"0."))
@@ -4921,7 +4922,7 @@ function constructBaker10(T::Type = Float64)
   A[21,17]=T(parse(BigFloat,".5802031535291661528133435810283051023192180079596550160030993013203826047471987749923"))
   A[21,18]=T(parse(BigFloat,"-1.503104563178041688806298917914932279967077722444117887454135595533548208509663052219"))
   A[21,19]=T(parse(BigFloat,"-2.082917406986733532241895178393857460921252779279252368270349439324592549474879051363"))
-  A[21,20]=T(parse(BigFloat,"-.2061249557411945026346720362780411363644917364359743227780446952519376385207652951444")
+  A[21,20]=T(parse(BigFloat,"-.2061249557411945026346720362780411363644917364359743227780446952519376385207652951444"))
   α[1]= T(parse(BigFloat,".3074440935793207675883517938984149786411995438646211366049687901929864736726360396701e-1"))
   α[2]= T(parse(BigFloat,"0."))
   α[3]= T(parse(BigFloat,"0."))
@@ -4976,9 +4977,9 @@ end
 Ono10
 """
 function constructOno10(T::Type = Float64)
-  A = zeros(17,17)
-  c = zeros(17)
-  α = zeros(17)
+  A = zeros(T,17,17)
+  c = zeros(T,17)
+  α = zeros(T,17)
 
   c[2]= T(parse(BigFloat,".3357505083417036184129939488963472892525539577157696170900805997207182929518116563365"))
   c[3]= T(parse(BigFloat,".5263563553500217821118595221339767434067222948292617539626688113669112965383197614021"))
@@ -5162,9 +5163,9 @@ end
 Feagin10 in Tableau form
 """
 function constructFeagin10Tableau(T::Type = Float64)
-  A = zeros(17,17)
-  c = zeros(17)
-  α = zeros(17)
+  A = zeros(T,17,17)
+  c = zeros(T,17)
+  α = zeros(T,17)
 
   c[2]= T(parse(BigFloat,".1"))
   c[3]= T(parse(BigFloat,".5393578408029817875324851978813024368572734497010090155054997959606637421764517472534"))
@@ -5218,106 +5219,106 @@ function constructFeagin10Tableau(T::Type = Float64)
   A[9,6]=T(parse(BigFloat,"-.6057614882550055876209249536555168755263444153543392346194660745470782044984741351417e-1"))
   A[9,7]=T(parse(BigFloat,".3217637056017783901008987990498789040814043686030771292511102949020610017274377990772"))
   A[9,8]=T(parse(BigFloat,".5104857256080630315777590122851234167446721370317523540675895192473116437554194666039"))
-  A[10,1]= T(parse,BigFloat,".1120544147528790048297150027618023630037176111581722293293926514934695608734670818246"))
-  A[10,2]= T(parse,BigFloat,"0."))
-  A[10,3]= T(parse,BigFloat,"0."))
-  A[10,4]= T(parse,BigFloat,"0."))
-  A[10,5]= T(parse,BigFloat,"0."))
-  A[10,6]= T(parse,BigFloat,"-.1449427759028659156723498283409807771816684997485068388761852225169215686873306825460"))
-  A[10,7]= T(parse,BigFloat,"-.3332697190962567065897052114157468717094674239921154979687242221418137519998082528658"))
-  A[10,8]= T(parse,BigFloat,".4992692295568800613533168439699785678602768165926732012403315488354044828766525571429"))
-  A[10,9]= T(parse,BigFloat,".5095046089296861042360986900453862539866432323529896021850604525937102423941190955351"))
-  A[11,1]= T(parse,BigFloat,".1139767839641859861380041867369011638907247525414868316403412210309290664271336257765"))
-  A[11,2]= T(parse,BigFloat,"0."))
-  A[11,3]= T(parse,BigFloat,"0."))
-  A[11,4]= T(parse,BigFloat,"0."))
-  A[11,5]= T(parse,BigFloat,"0."))
-  A[11,6]= T(parse,BigFloat,"-.7688133642033569385862142891208952708213490233909229874063835373263841258915727093324e-1"))
-  A[11,7]= T(parse,BigFloat,".2395273603243906491077114552718823730197413112010041193395628785781224443177793593046"))
-  A[11,8]= T(parse,BigFloat,".3977746623680946390478304624889521045647164163434546399026133008178160445613368390966"))
-  A[11,9]= T(parse,BigFloat,".1075589568736074555506091474414774502571367828232808385470239734312131460138378663157e-1"))
-  A[11,10]=T(parse,BigFloat,"-.3277691241640188741470610873502333953782629923923940719064566523011994227755761389669"))
-  A[12,1]= T(parse,BigFloat,".7983145282801960463514268644864003227587376304234139453562837151408388507380447344593e-1"))
-  A[12,2]= T(parse,BigFloat,"0."))
-  A[12,3]= T(parse,BigFloat,"0."))
-  A[12,4]= T(parse,BigFloat,"0."))
-  A[12,5]= T(parse,BigFloat,"0."))
-  A[12,6]= T(parse,BigFloat,"-.5203296868006030765149498876129590687213114438816835269372978568212814716048923869522e-1"))
-  A[12,7]= T(parse,BigFloat,"-.5769541461685488817327843552834335090661592871529687230218639793413055668210844841955e-1"))
-  A[12,8]= T(parse,BigFloat,".1947819157121041649763062621473828711561429213544093647380902228866390247033946064390"))
-  A[12,9]= T(parse,BigFloat,".1453849231883250697275248259770711948592034675682365238665823980908913337790067458849"))
-  A[12,10]=T(parse,BigFloat,"-.7829427103516707775539867297256924472520770472391605513350159142016458207969788779419e-1"))
-  A[12,11]=T(parse,BigFloat,"-.1145032993610989121843031642905546709701332184056581226746743953737186161533235079226"))
-  A[13,1]= T(parse,BigFloat,".9851156101648572801200415003065172784136466773141955595205285811315908348605429600665"))
-  A[13,2]= T(parse,BigFloat,"0."))
-  A[13,3]= T(parse,BigFloat,"0."))
-  A[13,4]= T(parse,BigFloat,".3308859630407221839488840576587531736482401548384020334486324456561774132656637353804"))
-  A[13,5]= T(parse,BigFloat,".4896629573094501928445070111358982011780154784337900972107904505844628620805256247950"))
-  A[13,6]= T(parse,BigFloat,"-1.378964865748435675821127209307519023539043271485594715263967279333987427873524280873"))
-  A[13,7]= T(parse,BigFloat,"-.8611641950276356666739169996655345733510260609874270933144115020405879169494864941030"))
-  A[13,8]= T(parse,BigFloat,"5.784288136375372200229997854865784360068727896894991726018561768761366739727928637196"))
-  A[13,9]= T(parse,BigFloat,"3.288077619851035668904606159373148054772682529033423565819249490150659566267799708492"))
-  A[13,10]=T(parse,BigFloat,"-2.386339050931363840134223252155278661484014659759541045858065415400776902303795495458"))
-  A[13,11]=T(parse,BigFloat,"-3.254793424836439186545893675877887267477115046747806802699112121425479969838061889986"))
-  A[13,12]=T(parse,BigFloat,"-2.163435416864229823539542113000548208896780364201099991548873084750091865904259172177"))
-  A[14,1]= T(parse,BigFloat,".8950802957716328910496131323365851381481562792415613459917095170757672839845525640729"))
-  A[14,2]= T(parse,BigFloat,"0."))
-  A[14,3]= T(parse,BigFloat,".1979668312271923690681417705103887933706372874633604015557458756877941908534751780490"))
-  A[14,4]= T(parse,BigFloat,"-.7295478473136326291851466715955580230150116089143829614213114788571202431877260745922e-1"))
-  A[14,5]= T(parse,BigFloat,"0."))
-  A[14,6]= T(parse,BigFloat,"-.8512362396620076197390493714459667932893597228757022271661048887740645775128087411721"))
-  A[14,7]= T(parse,BigFloat,".3983201123185333017197186141743736433364809181037739042318564985414294618462922613810"))
-  A[14,8]= T(parse,BigFloat,"3.639372631810356060294129200470900441320273878939778041762287245257885919339182367288"))
-  A[14,9]= T(parse,BigFloat,"1.548228770398303223653016630751745649199817363489734963130650682036414979412951081310"))
-  A[14,10]=T(parse,BigFloat,"-2.122217147040537160260624274604272610253184611462601244015607790107056265271775849169"))
-  A[14,11]=T(parse,BigFloat,"-1.583503985453261727133843496257532127572691889344342379752907276826529676767705433797"))
-  A[14,12]=T(parse,BigFloat,"-1.715616082859362649220318197513490989126158808275519929730335787990138709296569362588"))
-  A[14,13]=T(parse,BigFloat,"-.2440364057501274521354154444122168754655935983709105660691323307479496900414383703505e-1"))
-  A[15,1]= T(parse,BigFloat,"-.9151765613752914405200150192753421543189513876643697205646603979963048584489560617612"))
-  A[15,2]= T(parse,BigFloat,"1.454534402178273228052500217156644591176224837365378736070160193956968600625407809015"))
-  A[15,3]= T(parse,BigFloat,"0."))
-  A[15,4]= T(parse,BigFloat,"0."))
-  A[15,5]= T(parse,BigFloat,"-.7773336436449682335389312285753021378033510536295472863344690943163799350772376765098"))
-  A[15,6]= T(parse,BigFloat,"0."))
-  A[15,7]= T(parse,BigFloat,"-.9108956621551760695932035558074842001118890917701017996479849775333987275797724426330e-1"))
-  A[15,8]= T(parse,BigFloat,"0."))
-  A[15,9]= T(parse,BigFloat,"0."))
-  A[15,10]=T(parse,BigFloat,"0."))
-  A[15,11]=T(parse,BigFloat,"0."))
-  A[15,12]=T(parse,BigFloat,"0."))
-  A[15,13]=T(parse,BigFloat,".9108956621551760695932035558074842001118890917701017996479849775333987275797724426330e-1"))
-  A[15,14]=T(parse,BigFloat,".7773336436449682335389312285753021378033510536295472863344690943163799350772376765098"))
-  A[16,1]= T(parse,BigFloat,".1"))
-  A[16,2]= T(parse,BigFloat,"0."))
-  A[16,3]= T(parse,BigFloat,"-.1571786657997711633670589982731289218671837541267094194096536643481972116830948646637"))
-  A[16,4]= T(parse,BigFloat,"0."))
-  A[16,5]= T(parse,BigFloat,"0."))
-  A[16,6]= T(parse,BigFloat,"0."))
-  A[16,7]= T(parse,BigFloat,"0."))
-  A[16,8]= T(parse,BigFloat,"0."))
-  A[16,9]= T(parse,BigFloat,"0."))
-  A[16,10]=T(parse,BigFloat,"0."))
-  A[16,11]=T(parse,BigFloat,"0."))
-  A[16,12]=T(parse,BigFloat,"0."))
-  A[16,13]=T(parse,BigFloat,"0."))
-  A[16,14]=T(parse,BigFloat,"0."))
-  A[16,15]=T(parse,BigFloat,".1571786657997711633670589982731289218671837541267094194096536643481972116830948646637"))
-  A[17,1]= T(parse,BigFloat,".1817813007000952838884720625822623796504438314631995216649446510802956214784300321820"))
-  A[17,2]= T(parse,BigFloat,".675"))
-  A[17,3]= T(parse,BigFloat,".3427581598471898399422205534138508717423387347039589199372599557781883490612271042488"))
-  A[17,4]= T(parse,BigFloat,"0."))
-  A[17,5]= T(parse,BigFloat,".2591112145483227445129770761917673792677836845431824287781563647721266450257458921699"))
-  A[17,6]= T(parse,BigFloat,"-.3582789667179520890489612767219793977397506346732688024842708024524021503320635232761"))
-  A[17,7]= T(parse,BigFloat,"-1.045948959408833060950500687564099051315881231723784892860799571162295692535474761226"))
-  A[17,8]= T(parse,BigFloat,".9303278454156269832923005644324287771376016511829657946803974409790117863060139928499"))
-  A[17,9]= T(parse,BigFloat,"1.779509594317081024461421067948244539262757432433277905359997500386920301161540307119"))
-  A[17,10]=T(parse,BigFloat,".1"))
-  A[17,11]=T(parse,BigFloat,"-.2825475695390440816124777852222872764084893759762111899528770188407477720704209073106"))
-  A[17,12]=T(parse,BigFloat,"-.1593273501199725491692619843734858592780315421275519314618208481319295132597866290481"))
-  A[17,13]=T(parse,BigFloat,"-.1455158946470015108609919610810841113086501305786264049455713518588525807482385112893"))
-  A[17,14]=T(parse,BigFloat,"-.2591112 145483227445129770761917673792677836845431824287781563647721266450257458921699"))
-  A[17,15]=T(parse,BigFloat,"-.3427581598471898399422205534138508717423387347039589199372599557781883490612271042488"))
-  A[17,16]=T(parse,BigFloat,"-.675"))
+  A[10,1]= T(parse(BigFloat,".1120544147528790048297150027618023630037176111581722293293926514934695608734670818246"))
+  A[10,2]= T(parse(BigFloat,"0."))
+  A[10,3]= T(parse(BigFloat,"0."))
+  A[10,4]= T(parse(BigFloat,"0."))
+  A[10,5]= T(parse(BigFloat,"0."))
+  A[10,6]= T(parse(BigFloat,"-.1449427759028659156723498283409807771816684997485068388761852225169215686873306825460"))
+  A[10,7]= T(parse(BigFloat,"-.3332697190962567065897052114157468717094674239921154979687242221418137519998082528658"))
+  A[10,8]= T(parse(BigFloat,".4992692295568800613533168439699785678602768165926732012403315488354044828766525571429"))
+  A[10,9]= T(parse(BigFloat,".5095046089296861042360986900453862539866432323529896021850604525937102423941190955351"))
+  A[11,1]= T(parse(BigFloat,".1139767839641859861380041867369011638907247525414868316403412210309290664271336257765"))
+  A[11,2]= T(parse(BigFloat,"0."))
+  A[11,3]= T(parse(BigFloat,"0."))
+  A[11,4]= T(parse(BigFloat,"0."))
+  A[11,5]= T(parse(BigFloat,"0."))
+  A[11,6]= T(parse(BigFloat,"-.7688133642033569385862142891208952708213490233909229874063835373263841258915727093324e-1"))
+  A[11,7]= T(parse(BigFloat,".2395273603243906491077114552718823730197413112010041193395628785781224443177793593046"))
+  A[11,8]= T(parse(BigFloat,".3977746623680946390478304624889521045647164163434546399026133008178160445613368390966"))
+  A[11,9]= T(parse(BigFloat,".1075589568736074555506091474414774502571367828232808385470239734312131460138378663157e-1"))
+  A[11,10]=T(parse(BigFloat,"-.3277691241640188741470610873502333953782629923923940719064566523011994227755761389669"))
+  A[12,1]= T(parse(BigFloat,".7983145282801960463514268644864003227587376304234139453562837151408388507380447344593e-1"))
+  A[12,2]= T(parse(BigFloat,"0."))
+  A[12,3]= T(parse(BigFloat,"0."))
+  A[12,4]= T(parse(BigFloat,"0."))
+  A[12,5]= T(parse(BigFloat,"0."))
+  A[12,6]= T(parse(BigFloat,"-.5203296868006030765149498876129590687213114438816835269372978568212814716048923869522e-1"))
+  A[12,7]= T(parse(BigFloat,"-.5769541461685488817327843552834335090661592871529687230218639793413055668210844841955e-1"))
+  A[12,8]= T(parse(BigFloat,".1947819157121041649763062621473828711561429213544093647380902228866390247033946064390"))
+  A[12,9]= T(parse(BigFloat,".1453849231883250697275248259770711948592034675682365238665823980908913337790067458849"))
+  A[12,10]=T(parse(BigFloat,"-.7829427103516707775539867297256924472520770472391605513350159142016458207969788779419e-1"))
+  A[12,11]=T(parse(BigFloat,"-.1145032993610989121843031642905546709701332184056581226746743953737186161533235079226"))
+  A[13,1]= T(parse(BigFloat,".9851156101648572801200415003065172784136466773141955595205285811315908348605429600665"))
+  A[13,2]= T(parse(BigFloat,"0."))
+  A[13,3]= T(parse(BigFloat,"0."))
+  A[13,4]= T(parse(BigFloat,".3308859630407221839488840576587531736482401548384020334486324456561774132656637353804"))
+  A[13,5]= T(parse(BigFloat,".4896629573094501928445070111358982011780154784337900972107904505844628620805256247950"))
+  A[13,6]= T(parse(BigFloat,"-1.378964865748435675821127209307519023539043271485594715263967279333987427873524280873"))
+  A[13,7]= T(parse(BigFloat,"-.8611641950276356666739169996655345733510260609874270933144115020405879169494864941030"))
+  A[13,8]= T(parse(BigFloat,"5.784288136375372200229997854865784360068727896894991726018561768761366739727928637196"))
+  A[13,9]= T(parse(BigFloat,"3.288077619851035668904606159373148054772682529033423565819249490150659566267799708492"))
+  A[13,10]=T(parse(BigFloat,"-2.386339050931363840134223252155278661484014659759541045858065415400776902303795495458"))
+  A[13,11]=T(parse(BigFloat,"-3.254793424836439186545893675877887267477115046747806802699112121425479969838061889986"))
+  A[13,12]=T(parse(BigFloat,"-2.163435416864229823539542113000548208896780364201099991548873084750091865904259172177"))
+  A[14,1]= T(parse(BigFloat,".8950802957716328910496131323365851381481562792415613459917095170757672839845525640729"))
+  A[14,2]= T(parse(BigFloat,"0."))
+  A[14,3]= T(parse(BigFloat,".1979668312271923690681417705103887933706372874633604015557458756877941908534751780490"))
+  A[14,4]= T(parse(BigFloat,"-.7295478473136326291851466715955580230150116089143829614213114788571202431877260745922e-1"))
+  A[14,5]= T(parse(BigFloat,"0."))
+  A[14,6]= T(parse(BigFloat,"-.8512362396620076197390493714459667932893597228757022271661048887740645775128087411721"))
+  A[14,7]= T(parse(BigFloat,".3983201123185333017197186141743736433364809181037739042318564985414294618462922613810"))
+  A[14,8]= T(parse(BigFloat,"3.639372631810356060294129200470900441320273878939778041762287245257885919339182367288"))
+  A[14,9]= T(parse(BigFloat,"1.548228770398303223653016630751745649199817363489734963130650682036414979412951081310"))
+  A[14,10]=T(parse(BigFloat,"-2.122217147040537160260624274604272610253184611462601244015607790107056265271775849169"))
+  A[14,11]=T(parse(BigFloat,"-1.583503985453261727133843496257532127572691889344342379752907276826529676767705433797"))
+  A[14,12]=T(parse(BigFloat,"-1.715616082859362649220318197513490989126158808275519929730335787990138709296569362588"))
+  A[14,13]=T(parse(BigFloat,"-.2440364057501274521354154444122168754655935983709105660691323307479496900414383703505e-1"))
+  A[15,1]= T(parse(BigFloat,"-.9151765613752914405200150192753421543189513876643697205646603979963048584489560617612"))
+  A[15,2]= T(parse(BigFloat,"1.454534402178273228052500217156644591176224837365378736070160193956968600625407809015"))
+  A[15,3]= T(parse(BigFloat,"0."))
+  A[15,4]= T(parse(BigFloat,"0."))
+  A[15,5]= T(parse(BigFloat,"-.7773336436449682335389312285753021378033510536295472863344690943163799350772376765098"))
+  A[15,6]= T(parse(BigFloat,"0."))
+  A[15,7]= T(parse(BigFloat,"-.9108956621551760695932035558074842001118890917701017996479849775333987275797724426330e-1"))
+  A[15,8]= T(parse(BigFloat,"0."))
+  A[15,9]= T(parse(BigFloat,"0."))
+  A[15,10]=T(parse(BigFloat,"0."))
+  A[15,11]=T(parse(BigFloat,"0."))
+  A[15,12]=T(parse(BigFloat,"0."))
+  A[15,13]=T(parse(BigFloat,".9108956621551760695932035558074842001118890917701017996479849775333987275797724426330e-1"))
+  A[15,14]=T(parse(BigFloat,".7773336436449682335389312285753021378033510536295472863344690943163799350772376765098"))
+  A[16,1]= T(parse(BigFloat,".1"))
+  A[16,2]= T(parse(BigFloat,"0."))
+  A[16,3]= T(parse(BigFloat,"-.1571786657997711633670589982731289218671837541267094194096536643481972116830948646637"))
+  A[16,4]= T(parse(BigFloat,"0."))
+  A[16,5]= T(parse(BigFloat,"0."))
+  A[16,6]= T(parse(BigFloat,"0."))
+  A[16,7]= T(parse(BigFloat,"0."))
+  A[16,8]= T(parse(BigFloat,"0."))
+  A[16,9]= T(parse(BigFloat,"0."))
+  A[16,10]=T(parse(BigFloat,"0."))
+  A[16,11]=T(parse(BigFloat,"0."))
+  A[16,12]=T(parse(BigFloat,"0."))
+  A[16,13]=T(parse(BigFloat,"0."))
+  A[16,14]=T(parse(BigFloat,"0."))
+  A[16,15]=T(parse(BigFloat,".1571786657997711633670589982731289218671837541267094194096536643481972116830948646637"))
+  A[17,1]= T(parse(BigFloat,".1817813007000952838884720625822623796504438314631995216649446510802956214784300321820"))
+  A[17,2]= T(parse(BigFloat,".675"))
+  A[17,3]= T(parse(BigFloat,".3427581598471898399422205534138508717423387347039589199372599557781883490612271042488"))
+  A[17,4]= T(parse(BigFloat,"0."))
+  A[17,5]= T(parse(BigFloat,".2591112145483227445129770761917673792677836845431824287781563647721266450257458921699"))
+  A[17,6]= T(parse(BigFloat,"-.3582789667179520890489612767219793977397506346732688024842708024524021503320635232761"))
+  A[17,7]= T(parse(BigFloat,"-1.045948959408833060950500687564099051315881231723784892860799571162295692535474761226"))
+  A[17,8]= T(parse(BigFloat,".9303278454156269832923005644324287771376016511829657946803974409790117863060139928499"))
+  A[17,9]= T(parse(BigFloat,"1.779509594317081024461421067948244539262757432433277905359997500386920301161540307119"))
+  A[17,10]=T(parse(BigFloat,".1"))
+  A[17,11]=T(parse(BigFloat,"-.2825475695390440816124777852222872764084893759762111899528770188407477720704209073106"))
+  A[17,12]=T(parse(BigFloat,"-.1593273501199725491692619843734858592780315421275519314618208481319295132597866290481"))
+  A[17,13]=T(parse(BigFloat,"-.1455158946470015108609919610810841113086501305786264049455713518588525807482385112893"))
+  A[17,14]=T(parse(BigFloat,"-.2591112 145483227445129770761917673792677836845431824287781563647721266450257458921699"))
+  A[17,15]=T(parse(BigFloat,"-.3427581598471898399422205534138508717423387347039589199372599557781883490612271042488"))
+  A[17,16]=T(parse(BigFloat,"-.675"))
   α[1]=T(parse(BigFloat,".3333333333333333333333333333333333333333333333333333333333333333333333333333333333333e-1"))
   α[2]=T(parse(BigFloat,".25e-1"))
   α[3]=T(parse(BigFloat,".3333333333333333333333333333333333333333333333333333333333333333333333333333333333333e-1"))
@@ -5327,14 +5328,14 @@ function constructFeagin10Tableau(T::Type = Float64)
   α[7]=T(parse(BigFloat,".4e-1"))
   α[8]=T(parse(BigFloat,"0."))
   α[9]=T(parse(BigFloat,".1892374781489234901583064041060123262381623469486258303271944256799821862794952728707"))
-  α[10]=T(parse,BigFloat,".2774291885177431765083602625606543404285043197180408363394722409866844803871713937960"))
-  α[11]=T(parse,BigFloat,".2774291885177431765083602625606543404285043197180408363394722409866844803871713937960"))
-  α[12]=T(parse,BigFloat,".1892374781489234901583064041060123262381623469486258303271944256799821862794952728707"))
-  α[13]=T(parse,BigFloat,"-.4e-1"))
-  α[14]=T(parse,BigFloat,"-.5e-1"))
-  α[15]=T(parse,BigFloat,"-.3333333333333333333333333333333333333333333333333333333333333333333333333333333333333e-1"))
-  α[16]=T(parse,BigFloat,"-.25e-1"))
-  α[17]=T(parse,BigFloat,".3333333333333333333333333333333333333333333333333333333333333333333333333333333333333e-1"))
+  α[10]=T(parse(BigFloat,".2774291885177431765083602625606543404285043197180408363394722409866844803871713937960"))
+  α[11]=T(parse(BigFloat,".2774291885177431765083602625606543404285043197180408363394722409866844803871713937960"))
+  α[12]=T(parse(BigFloat,".1892374781489234901583064041060123262381623469486258303271944256799821862794952728707"))
+  α[13]=T(parse(BigFloat,"-.4e-1"))
+  α[14]=T(parse(BigFloat,"-.5e-1"))
+  α[15]=T(parse(BigFloat,"-.3333333333333333333333333333333333333333333333333333333333333333333333333333333333333e-1"))
+  α[16]=T(parse(BigFloat,"-.25e-1"))
+  α[17]=T(parse(BigFloat,".3333333333333333333333333333333333333333333333333333333333333333333333333333333333333e-1"))
 
   A = map(T,A)
   α = map(T,α)
@@ -5346,9 +5347,9 @@ end
 A Runge-Kutta Method of Order 10, E. Hairer, J. Inst. Maths Applics (1978) 21, 47-59.
 """
 function constructHairer10(T::Type = Float64)
-  A = zeros(17,17)
-  c = zeros(17)
-  α = zeros(17)
+  A = zeros(T,17,17)
+  c = zeros(T,17)
+  α = zeros(T,17)
 
   c[2]= T(parse(BigFloat,".5233584004620047139632937023215170497515953383496781610502942213792083195573343614542"))
   c[3]= T(parse(BigFloat,".5265091001416125727329516734775408259523008085442588621240322448552569517961160776999"))
@@ -5530,9 +5531,9 @@ end
 High-order Explicit Runge-Kutta Formulae, Their uses, and Limitations, A.R.Curtis, J. Inst. Maths Applics (1975) 16, 35-55.
 """
 function constructCurtis10(T::Type = Float64)
-  A = zeros(18,18)
-  c = zeros(18)
-  α = zeros(18)
+  A = zeros(T,18,18)
+  c = zeros(T,18)
+  α = zeros(T,18)
   c[2]= T(parse(BigFloat,".1452518960316150517617548528770033320314511251329947060838468741983976455607179673401"))
   c[3]= T(parse(BigFloat,".1452518960316150517617548528770033320314511251329947060838468741983976455607179673401"))
   c[4]= T(parse(BigFloat,".2178778440474225776426322793155049980471766876994920591257703112975964683410769510101"))
@@ -5733,9 +5734,9 @@ On the 25 stage 12th order explicit Runge-Kutta method, by Hiroshi Ono.
 Transactions of the Japan Society for Industrial and applied Mathematics, Vol. 6, No. 3, (2006) pages 177 to 186
 """
 function constructOno12(T::Type = Float64)
-  A = zeros(25,25)
-  c = zeros(25)
-  α = zeros(25)
+  A = zeros(T,25,25)
+  c = zeros(T,25)
+  α = zeros(T,25)
 
   c[2]= T(parse(BigFloat,".25"))
   c[3]= T(parse(BigFloat,".4444444444444444444444444444444444444444444444444444444444444444444444444444444444444"))
@@ -5797,7 +5798,7 @@ function constructOno12(T::Type = Float64)
   A[9,6]= T(parse(BigFloat,".7957154880008160975236540766621611282548264517609854377598122975695595623677029405014e-1"))
   A[9,7]= T(parse(BigFloat,".4507214087766488746701444843200598485120376014363895694204088380480167395865728052023e-5"))
   A[9,8]= T(parse(BigFloat,".9974907654907712890966184600490005170073988116014004264165587607592902930792610781210e-1"))
-  A[10,1]= T(parse,BigFloat,"-.3322925324853517529956086668161082115483929413336137015414300233353633578589390840556e-1"))
+  A[10,1]= T(parse(BigFloat,"-.3322925324853517529956086668161082115483929413336137015414300233353633578589390840556e-1"))
   A[10,2]= T(parse(BigFloat,"0."))
   A[10,3]= T(parse(BigFloat,"0."))
   A[10,4]= T(parse(BigFloat,"0."))
@@ -6097,11 +6098,11 @@ end
 Tableau form of Feagin12
 """
 function constructFeagin12Tableau(T::Type = Float64)
-  A = zeros(25,25)
-  c = zeros(25)
-  α = zeros(25)
-  αEEst = zeros(25)
-  c[2]=.  T(parse(BigFloat,"2"))
+  A = zeros(T,25,25)
+  c = zeros(T,25)
+  α = zeros(T,25)
+  αEEst = zeros(T,25)
+  c[2]=   T(parse(BigFloat,"2"))
   c[3]=   T(parse(BigFloat,".5555555555555555555555555555555555555555555555555555555555555555555555555555555555556"))
   c[4]=   T(parse(BigFloat,".8333333333333333333333333333333333333333333333333333333333333333333333333333333333333"))
   c[5]=   T(parse(BigFloat,".3333333333333333333333333333333333333333333333333333333333333333333333333333333333333"))
@@ -6462,10 +6463,10 @@ end
 Tableau form of Feagin14
 """
 function constructFeagin14Tableau(T::Type = Float64)
-  A = zeros(35,35)
-  c = zeros(35)
-  α = zeros(35)
-  αEEst = zeros(35)
+  A = zeros(T,35,35)
+  c = zeros(T,35)
+  α = zeros(T,35)
+  αEEst = zeros(T,35)
 
   c[2]  = T(parse(BigFloat,".1111111111111111111111111111111111111111111111111111111111111111111111111111111111111"))
   c[3]  = T(parse(BigFloat,".5555555555555555555555555555555555555555555555555555555555555555555555555555555555556"))
@@ -6785,7 +6786,7 @@ function constructFeagin14Tableau(T::Type = Float64)
   A[25,6]= T(parse(BigFloat,"0."))
   A[25,7]= T(parse(BigFloat,"0."))
   A[25,8]= T(parse(BigFloat,"0."))
-  A[25,9]=.T(parse(BigFloat,"2104519120236273856090970119990106557888074052256267000419050051487632641518018732685"))
+  A[25,9]= T(parse(BigFloat,"2104519120236273856090970119990106557888074052256267000419050051487632641518018732685"))
   A[25,10]=T(parse(BigFloat,"1.034274520572304119364829268288257099386679996983247401666929134177931632176349026735"))
   A[25,11]=T(parse(BigFloat,".6003036458644224870512404482066405749390780924061569454673075686417142117164254262878e-2"))
   A[25,12]=T(parse(BigFloat,".8559381250996195375780121060024077289150626526164160058172684354881277648341960563008"))
@@ -7145,7 +7146,7 @@ function constructButcher7(T::Type = Float64)
   t=sqrt(T(21))
   c2=(7+t)/42;c6=(7-t)/14;c3=2c2
   c = [0;c2;c3;3c2;1/2;c6;1/2;3c2;1]
-  A = zeros(9,9)
+  A = zeros(T,9,9)
   A[2,1]=c2
   A[3,2]=c3
   A[4,1:3]=[(7+t)/56;0;(21+3t)/56]
