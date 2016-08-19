@@ -167,6 +167,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       else
         β = 0.4 / order
       end
+    else
+      β = o[:β]
     end
     fsal = false
     if alg ∈ DIFFERENTIALEQUATIONSJL_FASLALGS
@@ -230,11 +232,11 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
-      f = (t,u,du) -> (du[:] = prob.f(u,t))
+      f! = (t,u,du) -> (du[:] = prob.f(u,t))
     else
-      f = (t,u,du) -> (prob.f(du,u,t))
+      f! = (t,u,du) -> (prob.f(du,u,t))
     end
-    ode  = ODE.ExplicitODE(t,u,f)
+    ode  = ODE.ExplicitODE(t,u,f!)
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
     if alg==:ode23
