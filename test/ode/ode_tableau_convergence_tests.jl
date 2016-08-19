@@ -47,7 +47,9 @@ for i = 1:3
 
   # Order 4
 
-
+  tab = constructRKF4()
+  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-4) < testTol)
 
   # Order 5
 

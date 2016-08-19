@@ -115,7 +115,8 @@ module DifferentialEquations
          constructTanakaKasugaYamashitaYazaki6D, constructTanakaKasugaYamashitaYazaki6C,
          constructTanakaKasugaYamashitaYazaki6B, constructTanakaKasugaYamashitaYazaki6A,
          constructMikkawyEisa, constructChummund6, constructChummund62,
-         constructHuta62, constructHuta6
+         constructHuta62, constructHuta6, constructRKF4, constructVern6, constructTsit5,
+         constructBS5, constructTanYam7, constructTsitPap8, constructVern9
 
 
 
