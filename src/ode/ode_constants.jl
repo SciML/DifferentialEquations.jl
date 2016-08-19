@@ -6,6 +6,8 @@ Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
 const ODE_DEFAULT_TABLEAU = constructDormandPrince()
 
 const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
+
+const DIFFERENTIALEQUATIONSJL_FASLALGS = Set([:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized])
 const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seulex])
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 

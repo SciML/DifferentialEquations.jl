@@ -29,6 +29,7 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   timechoicealg::Symbol
   qoldinit::uEltype
   normfactor::uEltype
+  fsal::Bool
 end
 
 @def ode_preamble begin
@@ -37,18 +38,18 @@ end
   local Δt::tType
   local T::tType
   local adaptiveorder::Int
-  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor
+  @unpack integrator: f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal
   local iter::Int = 0
   sizeu = size(u)
   local utmp::uType
   if uType <: Number
     utmp = zero(uType)
-    faslfirst = zero(uType)
-    fasllast = zero(uType)
+    fsalfirst = zero(uType)
+    fsallast = zero(uType)
   else
     utmp = zeros(u)
-    faslfirst::uType = similar(u)
-    fasllast::uType = similar(u)
+    fsalfirst::uType = similar(u)
+    fsallast::uType = similar(u)
   end
   local standard::uEltype = zero(eltype(u))
   local q::uEltype = zero(eltype(u))
@@ -60,7 +61,6 @@ end
   expo1 = 1/order - 0.75β
   qminc = inv(qmin)
   qmaxc = inv(qmax)
-  FASL = false
   #local Eest::uType = zero(eltype(u))
   if adaptive
     @unpack integrator: abstol,reltol,qmax,Δtmax,Δtmin,internalnorm
@@ -113,8 +113,8 @@ end
         @ode_savevalues
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        if FASL
-          copy!(faslfirst,fasllast)
+        if fsal
+          copy!(fsalfirst,fsallast)
         end
       else # Reject
         Δt = Δt/min(qminc,q11/γ)
@@ -130,8 +130,8 @@ end
         t = t + Δt
         copy!(u, utmp)
         @ode_savevalues
-        if FASL
-          copy!(faslfirst,fasllast)
+        if fsal
+          copy!(fsalfirst,fsallast)
         end
       end
       Δtpropose = min(Δtmax,q*Δt)
@@ -140,8 +140,8 @@ end
   else #Not adaptive
     t += Δt
     @ode_savevalues
-    if FASL
-      copy!(faslfirst,fasllast)
+    if fsal
+      copy!(fsalfirst,fsallast)
     end
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
@@ -161,8 +161,8 @@ end
         @ode_savevalues
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        if FASL
-          faslfirst = fasllast
+        if fsal
+          fsalfirst = fsallast
         end
       else # Reject
         Δt = Δt/min(qminc,q11/γ)
@@ -178,8 +178,8 @@ end
         t = t + Δt
         u = utmp
         @ode_savevalues
-        if FASL
-          faslfirst = fasllast
+        if fsal
+          fsalfirst = fsallast
         end
       end
       Δtpropose = min(Δtmax,q*Δt)
@@ -188,8 +188,8 @@ end
   else #Not adaptive
     t += Δt
     @ode_savevalues
-    if FASL
-      faslfirst = fasllast
+    if fsal
+      fsalfirst = fsallast
     end
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
@@ -539,18 +539,17 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
   local k7::uType
   local utilde::uType
   local EEst::uType
-  FASL = true
-  faslfirst = f(u,t) # Pre-start FASL
+  fsalfirst = f(u,t) # Pre-start fsal
   @inbounds while t<T
     @ode_loopheader
-    k1 = Δt*faslfirst
+    k1 = Δt*fsalfirst
     k2 = Δt*f(u+a21*k1,t+c1*Δt)
     k3 = Δt*f(u+a31*k1+a32*k2,t+c2*Δt)
     k4 = Δt*f(u+a41*k1+a42*k2+a43*k3,t+c3*Δt)
     k5 = Δt*f(u+(a51*k1+a52*k2+a53*k3+a54*k4),t+c4*Δt)
     k6 = Δt*f((u+a61*k1+a62*k2+a63*k3)+(a64*k4+a65*k5),t+Δt)
     utmp = (u+a71*k1+a73*k3)+(a74*k4+a75*k5+a76*k6)
-    fasllast = f(utmp,t+Δt); k7 = Δt*fasllast
+    fsallast = f(utmp,t+Δt); k7 = Δt*fsallast
     if adaptive
       utilde = (u + b1*k1 + b3*k3) + (b4*k4 + b5*k5 + b6*k6 + b7*k7)
       EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
@@ -573,20 +572,18 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   k6 = similar(u)
   k7 = similar(u)
   utilde = similar(u)
-  faslfirst = similar(u); fasllast = similar(u)
-  FASL = true
   local EEst::uEltype
-  f(faslfirst,u,t); #Pre-start FASL
+  f(fsalfirst,u,t); #Pre-start fsal
   @inbounds while t<T
     @ode_loopheader
-    k1=Δt*faslfirst
+    k1=Δt*fsalfirst
     f(k2,u+a21*k1,t+c1*Δt); k2*=Δt
     f(k3,u+a31*k1+a32*k2,t+c2*Δt); k3*=Δt
     f(k4,u+a41*k1+a42*k2+a43*k3,t+c3*Δt); k4*=Δt
     f(k5,u+(a51*k1+a52*k2+a53*k3+a54*k4),t+c4*Δt); k5*=Δt
     f(k6,(u+a61*k1+a62*k2+a63*k3)+(a64*k4+a65*k5),t+c5*Δt); k6*=Δt
     utmp = (u+a71*k1+a73*k3)+(a74*k4+a75*k5+a76*k6)
-    f(fasllast,utmp,t+c6*Δt); k7=Δt*fasllast
+    f(fsallast,utmp,t+c6*Δt); k7=Δt*fsallast
     if adaptive
       utilde = (u + b1*k1 + b3*k3) + (b4*k4 + b5*k5 + b6*k6 + b7*k7)
       EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
@@ -611,14 +608,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   utilde = similar(u)
   tmp = similar(u)
   uidx = eachindex(u)
-  fasllast = similar(u); faslfirst = similar(u)
   local EEst::uEltype
-  FASL = true
-  f(faslfirst,u,t);  # Pre-start FASL
+  f(fsalfirst,u,t);  # Pre-start fsal
   @inbounds while t<T
     @ode_loopheader
     for i in uidx
-      k1[i] = Δt*faslfirst[i]
+      k1[i] = Δt*fsalfirst[i]
       tmp[i] = u[i]+a21*k1[i]
     end
     f(k2,tmp,t+c1*Δt); k2*=Δt
@@ -641,9 +636,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     for i in uidx
       utmp[i] = (u[i]+a71*k1[i]+a73*k3[i])+(a74*k4[i]+a75*k5[i]+a76*k6[i])
     end
-    f(fasllast,utmp,t+c6*Δt);
+    f(fsallast,utmp,t+c6*Δt);
     for i in uidx
-      k7[i]=Δt*fasllast[i]
+      k7[i]=Δt*fsallast[i]
     end
     if adaptive
       for i in uidx

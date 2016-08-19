@@ -168,14 +168,21 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
         β = 0.4 / order
       end
     end
+    fsal = false
+    if alg ∈ DIFFERENTIALEQUATIONSJL_FASLALGS
+      fsal = true
+    elseif alg == :ExplicitRK
+      @unpack o[:tableau]: fsal
+    end
+
     T = tType(T)
     t = tType(t)
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
-    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor))
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor))
+    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
 
     (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
 
