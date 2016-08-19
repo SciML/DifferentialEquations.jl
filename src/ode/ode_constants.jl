@@ -5,9 +5,9 @@ Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
 """
 const ODE_DEFAULT_TABLEAU = constructDormandPrince()
 
-const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
+const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 
-const DIFFERENTIALEQUATIONSJL_FASLALGS = Set([:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized])
+const DIFFERENTIALEQUATIONSJL_FASLALGS = Set([:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:Tsit5,:Tsit5Vectorized,:Vern6,:Vern6Vectorized])
 const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seulex])
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 
@@ -70,10 +70,22 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :ExplicitRKVectorized=>4,#Gets overwritten
                                                         :BS3=>3,
                                                         :BS3Vectorized=>3,
+                                                        :BS5=>5,
+                                                        :BS5Vectorized=>5,
                                                         :DP5=>5,
                                                         :DP5Vectorized=>5,
                                                         :DP8=>8,
                                                         :DP8Vectorized=>8,
+                                                        :Vern6=>6,
+                                                        :Vern6Vectorized=>6,
+                                                        :Tsit5=>5,
+                                                        :Tsit5Vectorized=>5,
+                                                        :TanYam7=>7,
+                                                        :TanYam7Vectorized=>7,
+                                                        :TsitPap8=>8,
+                                                        :TsitPap8Vectorized=>8,
+                                                        :Vern9=>9,
+                                                        :Vern9Vectorized=>9,
                                                         :ImplicitEuler=>1,
                                                         :Trapezoid=>2,
                                                         :Rosenbrock32=>3,
@@ -93,6 +105,18 @@ const DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS = Dict{Symbol,Int}(:ExplicitRK=>4, 
                                                                 :DP5Vectorized=>4,
                                                                 :DP8=>6,
                                                                 :DP8Vectorized=>6,
+                                                                :BS5=>4,
+                                                                :BS5Vectorized=>4,
+                                                                :Vern6=>5,
+                                                                :Vern6Vectorized=>5,
+                                                                :Tsit5=>4,
+                                                                :Tsit5Vectorized=>4,
+                                                                :TanYam7=>6,
+                                                                :TanYam7Vectorized=>6,
+                                                                :TsitPap8=>7,
+                                                                :TsitPap8Vectorized=>7,
+                                                                :Vern9=>8,
+                                                                :Vern9Vectorized=>8,
                                                                 :Rosenbrock32=>2,
                                                                 :Feagin10=>8,
                                                                 :Feagin12=>10,
@@ -100,7 +124,7 @@ const DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS = Dict{Symbol,Int}(:ExplicitRK=>4, 
                                                                 :Feagin10Vectorized=>8,
                                                                 :Feagin12Vectorized=>10,
                                                                 :Feagin14Vectorized=>12)
-const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
+const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32])
 const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
   :LOGIO            => "logio",
