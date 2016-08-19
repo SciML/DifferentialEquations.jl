@@ -527,6 +527,106 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   return u,t,timeseries,ts
 end
 
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:BS3,uType,uEltype,N,tType})
+  @ode_preamble
+  a21,a32,a41,a42,a43,c1,c2,b1,b2,b3,b4  = constructBS3(eltype(u))
+  local k1::uType
+  local k2::uType
+  local k3::uType
+  local k4::uType
+  local utilde::uType
+  local EEst::uType
+  fsalfirst = f(u,t) # Pre-start fsal
+  @inbounds while t<T
+    @ode_loopheader
+    k1 = Δt*fsalfirst
+    k2 = Δt*f(u+a21*k1,t+c1*Δt)
+    k3 = Δt*f(u+a32*k2,t+c2*Δt)
+    utmp = u+a41*k1+a42*k2+a43*k3
+    fsallast = f(utmp,t+Δt); k4 = Δt*fsallast
+    if adaptive
+      utilde = u + b1*k1 + b2*k2 + b3*k3 + b4*k4
+      EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
+    else
+      u = utmp
+    end
+    @ode_numberloopfooter
+  end
+  return u,t,timeseries,ts
+end
+
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:BS3Vectorized,uType,uEltype,N,tType})
+  @ode_preamble
+  a21,a32,a41,a42,a43,c1,c2,b1,b2,b3,b4  = constructBS3(eltype(u))
+  k1 = similar(u)
+  k2 = similar(u)
+  k3 = similar(u)
+  k4 = similar(u)
+  local utilde::uType
+  local EEst::uType
+  f(fsalfirst,u,t) # Pre-start fsal
+  @inbounds while t<T
+    @ode_loopheader
+    k1 = Δt*fsalfirst
+    f(k2,u+a21*k1,t+c1*Δt); k2*=Δt
+    f(k3,u+a32*k2,t+c2*Δt); k3*=Δt
+    utmp = u+a41*k1+a42*k2+a43*k3
+    f(fsallast,utmp,t+Δt); k4 = Δt*fsallast
+    if adaptive
+      utilde = u + b1*k1 + b2*k2 + b3*k3 + b4*k4
+      EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
+    else
+      u = utmp
+    end
+    @ode_numberloopfooter
+  end
+  return u,t,timeseries,ts
+end
+
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:BS3,uType,uEltype,N,tType})
+  @ode_preamble
+  a21,a32,a41,a42,a43,c1,c2,b1,b2,b3,b4  = constructBS3(eltype(u))
+  k1 = similar(u)
+  k2 = similar(u)
+  k3 = similar(u)
+  k4 = similar(u)
+  utilde = similar(u)
+  local EEst::uType
+  uidx = eachindex(u)
+  tmp = similar(u)
+  f(fsalfirst,u,t) # Pre-start fsal
+  @inbounds while t<T
+    @ode_loopheader
+    for i in uidx
+      k1[i] = Δt*fsalfirst[i]
+      tmp[i] = u[i]+a21*k1[i]
+    end
+    f(k2,tmp,t+c1*Δt); k2*=Δt
+    for i in uidx
+      tmp[i] = u[i]+a32*k2[i]
+    end
+    f(k3,tmp,t+c2*Δt); k3*=Δt
+    for i in uidx
+      utmp[i] = u[i]+a41*k1[i]+a42*k2[i]+a43*k3[i]
+    end
+    f(fsallast,utmp,t+Δt);
+    for i in uidx
+      k4[i] = Δt*fsallast[i]
+    end
+    if adaptive
+      for i in uidx
+        utilde[i] = u[i] + b1*k1[i] + b2*k2[i] + b3*k3[i] + b4*k4[i]
+        tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol[i]))^2
+      end
+      EEst = sqrt( sum(tmp) * normfactor)
+    else
+      u = utmp
+    end
+    @ode_numberloopfooter
+  end
+  return u,t,timeseries,ts
+end
+
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:DP5,uType,uEltype,N,tType})
   @ode_preamble
   a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(eltype(u))
