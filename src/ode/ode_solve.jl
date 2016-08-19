@@ -232,7 +232,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if !isinplace && typeof(u)<:AbstractArray
       f = (t,u,du) -> (du[:] = prob.f(u,t))
     else
-      f = prob.f
+      f = (t,u,du) -> (prob.f(du,u,t))
     end
     ode  = ODE.ExplicitODE(t,u,f)
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
