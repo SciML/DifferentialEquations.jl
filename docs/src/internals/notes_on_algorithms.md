@@ -114,7 +114,7 @@ dominate this category.
 
 ### Order 10
 
-Curtis' scheme has more function evalulations than needed, and Peter Stone's
+Curtis' scheme has more function evaluations than needed, and Peter Stone's
 modification reduces the truncation error by a lot but adds three more function
 evaluations. Thus Hairer's 17 stage scheme (whose error and stability is similar
 to Curtis') is clearly better. Once again Peter Stone's modification adds three
@@ -125,7 +125,7 @@ Tom Baker's method increases the stability region to something which is more tha
 necessary but adds 4 function evaluations to do so (without lowering the error
 very much). Ono's scheme minimizes the error more than Hairer's here, with
 all else being basically the same. The Peter Stone methods add a lot of function
-evalulations (5+) and so they would only be useful in the case where the function
+evaluations (5+) and so they would only be useful in the case where the function
 evaluations are quick yet you still want really small error. Even then I'm not
 convinced they are better than the other methods, or better than the higher order
 methods which use less steps. The stability is only okay.
