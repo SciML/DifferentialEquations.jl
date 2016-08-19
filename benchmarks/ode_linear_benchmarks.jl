@@ -22,8 +22,9 @@ sol1 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:DP5,timechoicealg=:Simple)
 sol1 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:DP5,timechoicealg=:Lund)
 sol1 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:ExplicitRK,timechoicealg=:Lund)
 sol3 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:ode45)
+sol3 =solve(prob2::ODEProblem,[0,10];Δt=1/2^(4),alg=:ode45)
+sol4 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:dopri5)
 sol4 =solve(prob2::ODEProblem,[0,10];Δt=1/2^(4),alg=:dopri5)
-
 ## Standard Tolerance
 
 elapsed1 = @elapsed sol1 =solve(prob::ODEProblem,[0,10];alg=:DP5)
@@ -86,7 +87,7 @@ rat5 = eff4/eff3
 ## Number
 
 elapsed1 = @elapsed sol1 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:DP5)
-elapsed2 = @elapsed sol2 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:ExplicitRK)
+elapsed2 = @elapsed sol2 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:ExplicitRK,β=0.04)
 
 elapsed3 = @elapsed sol3 =solve(probnum::ODEProblem,[0,10];abstol=1e-6,roltol=1e-6,alg=:ode45)
 elapsed4 = @elapsed sol4 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:dopri5)
