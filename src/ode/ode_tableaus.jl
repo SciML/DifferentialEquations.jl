@@ -886,7 +886,7 @@ end
 Runge-Kutta-Fehberg Order 4/3
 """
 function constructRKF4(T::Type = Float64)
-  c = [0 1//4 4//9 6//7 1]
+  c = [0;1//4;4//9;6//7;1]
   A = [0           0          0          0         0
          1//4         0          0          0         0
          4//81        32//81      0          0         0
