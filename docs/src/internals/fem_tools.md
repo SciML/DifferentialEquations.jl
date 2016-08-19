@@ -1,11 +1,5 @@
 # Internal Finite Element Tools
 
-## General
-
-```@docs
-DifferentialEquations
-```
-
 ## Mesh Tools
 
 ```@docs

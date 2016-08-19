@@ -161,7 +161,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Vectorized
-        β = 0.04 # Hairer's suggestion
+        β = 0.06 # More than Hairer's suggestion
       elseif alg == :DP8 || alg == :DP8Vectorized
         β = 0.04 # Hairer's suggestion
       else
@@ -193,22 +193,28 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if typeof(u) <: Number
       u = [u]
     end
-    f = prob.f
+    if !isinplace && typeof(u)<:AbstractArray
+      f! = (t,u,du) -> (du[:] = vec(prob.f(reshape(u,sizeu),t)); nothing)
+    else
+      f! = (t,u,du) -> (prob.f(reshape(du,sizeu),reshape(u,sizeu),t); u = vec(u); du=vec(du); nothing)
+    end
     initialize_backend(:ODEInterface)
+    o[:RHS_CALLMODE] = ODEInterface.RHS_CALL_INSITU
     dict = buildOptions(o,ODEINTERFACE_OPTION_LIST,ODEINTERFACE_ALIASES,ODEINTERFACE_ALIASES_REVERSED)
     opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
+    du = similar(u)
     if alg==:dopri5
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,f!,Float64[t,T],vec(u),opts)
     elseif alg==:dop853
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,f!,Float64[t,T],vec(u),opts)
     elseif alg==:odex
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.odex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.odex,f!,Float64[t,T],vec(u),opts)
     elseif alg==:seulex
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,f!,Float64[t,T],vec(u),opts)
     elseif alg==:radau
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,f!,Float64[t,T],vec(u),opts)
     elseif alg==:radau5
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,(t,u)->vec(f(reshape(u,sizeu),t)),Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,f!,Float64[t,T],vec(u),opts)
     end
     t = ts[end]
     if typeof(u₀)<:AbstractArray
