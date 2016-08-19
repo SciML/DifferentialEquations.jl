@@ -23,8 +23,10 @@ for i = 1:2
   bool2 = abs(sim2.𝒪est[:l∞]-2) < testTol
   sim3 = test_convergence(Δts,prob,alg=:RK4)
   bool3 = abs(sim3.𝒪est[:l∞]-4) < testTol
+  sim4 = test_convergence(Δts,prob,alg=:BS3)
+  bool4 = abs(sim3.𝒪est[:l∞]-4) < testTol
 
-  superbool1 = bool1 && bool2 && bool3
+  superbool1 = bool1 && bool2 && bool3 && bool4
 
   println("Tests pass: $superbool1")
   ### Stiff Solvers

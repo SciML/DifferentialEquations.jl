@@ -737,6 +737,29 @@ function constructBogakiShampine3(T::Type = Float64)
 end
 
 """
+constructBogakiShampine3()
+
+Constructs the tableau object for the Bogakai-Shampine Order 2/3 method.
+"""
+function constructBS3(T::Type = Float64)
+
+  a21 = T(1//2)
+  a32 = T(3//4)
+  a41 = T(2//9)
+  a42 = T(1//3)
+  a43 = T(4//9)
+
+  c1 = T(1//2)
+  c2 = T(3//4)
+
+  b1 = T(7//24)
+  b2 = T(1//4)
+  b3 = T(1//3)
+  b4 = T(1//8)
+  return a21,a32,a41,a42,a43,c1,c2,b1,b2,b3,b4
+end
+
+"""
 constructCashKarp()
 
 Constructs the tableau object for the Cash-Karp Order 4/5 method.
