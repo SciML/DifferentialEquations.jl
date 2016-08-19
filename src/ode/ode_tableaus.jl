@@ -1,3 +1,10 @@
+#=
+
+Classic Verner 8(9) excluded since it's just hard to write from the paper.
+If anyone wants to add them I'd accept them.
+
+=#
+
 """
 ExplicitRKTableau
 
@@ -452,7 +459,7 @@ function constructPapakostasPapaGeorgiou5(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4,fasl=true))
 end
 
 """
@@ -515,7 +522,7 @@ function constructPapakostasPapaGeorgiou52(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4,fasl=true))
 end
 
 """
@@ -571,7 +578,7 @@ function constructTsitouras5(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4,fasl=true))
 end
 
 """
@@ -1127,7 +1134,7 @@ function constructSharpVerner6(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,6,adaptiveorder=5,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,6,adaptiveorder=5,αEEst=αEEst,fasl=true))
 end
 
 
@@ -1535,7 +1542,7 @@ function constructPapakostas6(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,6,adaptiveorder=5,αEEst=αEEst))
+  return(ExplicitRKTableau(A,c,α,6,adaptiveorder=5,αEEst=αEEst,fasl=true))
 end
 
 """
@@ -1744,7 +1751,7 @@ function constructDormandLockyerMcCorriganPrince6(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,6))
+  return(ExplicitRKTableau(A,c,α,6,fasl=true))
 end
 
 
@@ -2780,7 +2787,7 @@ function constructSharpVerner7(T::Type = Float64)
   α = map(T,α)
   c = map(T,c)
   αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,7,αEEst=αEEst,adaptiveorder=6))
+  return(ExplicitRKTableau(A,c,α,7,αEEst=αEEst,adaptiveorder=6,fasl=true))
 end
 
 """
@@ -7265,47 +7272,6 @@ end
 
 
 """
-EXPLICIT RUNGE-KUTFA METHODS WITH
-ESTIMATES OF THE LOCAL TRUNCATION ERROR
-
-"""
-function constructClassicVerner9(T::Type = Float64)
-
-  A = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-       1//12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-       ]
-  c = [1//12;1//9;1//6;2/15;6/15;6/15;2//3;1//2;1//3;1//4;4//3;5//6;1;1//6;1]
-  α = [103//1680;0;0;0;0;0;0;-27//140;76//105;-201//280;1024//1365;3//7280;12//35;9//280]
-  αEEst = [23//525;0;0;0;0;0;0;171//1400;86//525;93//280;-2048//6825;-3//18200;39//175;0;9//25;233//4200]
-  A = map(T,A)
-  α = map(T,α)
-  c = map(T,c)
-  αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,9,αEEst=αEEst,adaptiveorder=8))
-end
-
-"""
-EXPLICIT RUNGE-KUTFA METHODS WITH
-ESTIMATES OF THE LOCAL TRUNCATION ERROR
-
-"""
-function constructClassicVerner92(T::Type = Float64)
-
-  A = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-       1//12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-       ]
-  c = [1//12;1//9;1//6;2/15;6/15;6/15;2//3;1//2;1//3;1//4;4//3;5//6;1;1//6;1]
-  α = [103//1680;0;0;0;0;0;0;-27//140;76//105;-201//280;1024//1365;3//7280;12//35;9//280]
-  αEEst = [23//525;0;0;0;0;0;0;171//1400;86//525;93//280;-2048//6825;-3//18200;39//175;0;9//25;233//4200]
-  A = map(T,A)
-  α = map(T,α)
-  c = map(T,c)
-  αEEst = map(T,αEEst)
-  return(ExplicitRKTableau(A,c,α,9,αEEst=αEEst,adaptiveorder=8))
-end
-
-
-"""
 constructDormandPrince()
 
 Constructs the tableau object for the Dormand-Prince Order 4/5 method.
@@ -7321,7 +7287,7 @@ function constructDormandPrince(T::Type = Float64)
   c = [0;1//5;3//10;4//5;8//9;1;1]
   α = [35//384;0;500//1113;125//192;-2187//6784;11//84;0]
   αEEst = [5179//57600;0;7571//16695;393//640;-92097//339200;187//2100;1//40]
-  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4))
+  return(ExplicitRKTableau(A,c,α,5,αEEst=αEEst,adaptiveorder=4,fasl=true))
 end
 
 """
@@ -7464,78 +7430,106 @@ function constructDP8(T::Type = Float64)
   c15    = T(2//10)
   c16    = T(7//9)
 
-  a0201  = A[2,1]
-  a0301  = A[3,1]
-  a0302  = A[3,2]
-  a0401  = A[4,1]
-  a0403  = A[4,3]
-  a0501  = A[5,1]
-  a0503  = A[5,3]
-  a0504  = A[5,4]
-  a0601  = A[6,1]
-  a0604  = A[6,4]
-  a0605  = A[6,5]
-  a0701  = A[7,1]
-  a0704  = A[7,4]
-  a0705  = A[7,5]
-  a0706  = A[7,6]
-  a0801  = A[8,1]
-  a0804  = A[8,4]
-  a0805  = A[8,5]
-  a0806  = A[8,6]
-  a0807  = A[8,7]
-  a0901  = A[9,1]
-  a0904  = A[9,4]
-  a0905  = A[9,5]
-  a0906  = A[9,6]
-  a0907  = A[9,7]
-  a0908  = A[9,8]
-  a1001  = A[10,1]
-  a1004  = A[10,4]
-  a1005  = A[10,5]
-  a1006  = A[10,6]
-  a1007  = A[10,7]
-  a1008  = A[10,8]
-  a1009  = A[10,9]
-  a1101  = A[11,1]
-  a1104  = A[11,4]
-  a1105  = A[11,5]
-  a1106  = A[11,6]
-  a1107  = A[11,7]
-  a1108  = A[11,8]
-  a1109  = A[11,9]
-  a1110  = A[11,10]
-  a1201  = A[12,1]
-  a1204  = A[12,4]
-  a1205  = A[12,5]
-  a1206  = A[12,6]
-  a1207  = A[12,7]
-  a1208  = A[12,8]
-  a1209  = A[12,9]
-  a1210  = A[12,10]
-  a1211  = A[12,11]
-  a1301  = A[13,1]
-  a1304  = A[13,4]
-  a1305  = A[13,5]
-  a1306  = A[13,6]
-  a1307  = A[13,7]
-  a1308  = A[13,8]
-  a1309  = A[13,9]
-  a1310  = A[13,10]
-  a1311  = A[13,11]
-  a1312  = A[13,12]
-  b1     = α[1]
-  b6     = α[6]
-  b7     = α[7]
-  b8     = α[8]
-  b9     = α[9]
-  b10    = α[10]
-  b11    = α[11]
-  b12    = α[12]
-  b13    = α[13]
-  bhat6  = T(b6/2 + 1)
-  bhat7  = T(b7/2 + 45//100)
-  bhat12 = T(b12/2)
+  b1 =  T(parse(BigFloat," 5.42937341165687622380535766363e-2"))
+  b6 =  T(parse(BigFloat," 4.45031289275240888144113950566"))
+  b7 =  T(parse(BigFloat," 1.89151789931450038304281599044"))
+  b8 =  T(parse(BigFloat,"-5.8012039600105847814672114227"))
+  b9 =  T(parse(BigFloat," 3.1116436695781989440891606237e-1"))
+  b10 = T(parse(BigFloat,"-1.52160949662516078556178806805e-1"))
+  b11 = T(parse(BigFloat," 2.01365400804030348374776537501e-1"))
+  b12 = T(parse(BigFloat," 4.47106157277725905176885569043e-2"))
+
+  bhh1 = T(parse(BigFloat,"0.244094488188976377952755905512"))
+  bhh2 = T(parse(BigFloat,"0.733846688281611857341361741547"))
+  bhh3 = T(parse(BigFloat,"0.220588235294117647058823529412e-01"))
+
+  er1  = T(parse(BigFloat," 0.1312004499419488073250102996e-01"))
+  er6  = T(parse(BigFloat,"-0.1225156446376204440720569753e+01"))
+  er7  = T(parse(BigFloat,"-0.4957589496572501915214079952"))
+  er8  = T(parse(BigFloat," 0.1664377182454986536961530415e+01"))
+  er9  = T(parse(BigFloat,"-0.3503288487499736816886487290"))
+  er10 = T(parse(BigFloat," 0.3341791187130174790297318841"))
+  er11 = T(parse(BigFloat," 0.8192320648511571246570742613e-01"))
+  er12 = T(parse(BigFloat,"-0.2235530786388629525884427845e-01"))
+
+  a0201 =   T(parse(BigFloat," 5.26001519587677318785587544488e-2"))
+  a0301 =   T(parse(BigFloat," 1.97250569845378994544595329183e-2"))
+  a0302 =   T(parse(BigFloat," 5.91751709536136983633785987549e-2"))
+  a0401 =   T(parse(BigFloat," 2.95875854768068491816892993775e-2"))
+  a0403 =   T(parse(BigFloat," 8.87627564304205475450678981324e-2"))
+  a0501 =   T(parse(BigFloat," 2.41365134159266685502369798665e-1"))
+  a0503 =   T(parse(BigFloat,"-8.84549479328286085344864962717e-1"))
+  a0504 =   T(parse(BigFloat," 9.24834003261792003115737966543e-1"))
+  a0601 =   T(parse(BigFloat," 3.7037037037037037037037037037e-2"))
+  a0604 =   T(parse(BigFloat," 1.70828608729473871279604482173e-1"))
+  a0605 =   T(parse(BigFloat," 1.25467687566822425016691814123e-1"))
+  a0701 =   T(parse(BigFloat," 3.7109375e-2"))
+  a0704 =   T(parse(BigFloat," 1.70252211019544039314978060272e-1"))
+  a0705 =   T(parse(BigFloat," 6.02165389804559606850219397283e-2"))
+  a0706 =   T(parse(BigFloat,"-1.7578125e-2"))
+
+  a0801 =   T(parse(BigFloat," 3.70920001185047927108779319836e-2"))
+  a0804 =   T(parse(BigFloat," 1.70383925712239993810214054705e-1"))
+  a0805 =   T(parse(BigFloat," 1.07262030446373284651809199168e-1"))
+  a0806 =   T(parse(BigFloat,"-1.53194377486244017527936158236e-2"))
+  a0807 =   T(parse(BigFloat," 8.27378916381402288758473766002e-3"))
+  a0901 =   T(parse(BigFloat," 6.24110958716075717114429577812e-1"))
+  a0904 =   T(parse(BigFloat,"-3.36089262944694129406857109825"))
+  a0905 =   T(parse(BigFloat,"-8.68219346841726006818189891453e-1"))
+  a0906 =   T(parse(BigFloat," 2.75920996994467083049415600797e1"))
+  a0907 =   T(parse(BigFloat," 2.01540675504778934086186788979e1"))
+  a0908 =   T(parse(BigFloat,"-4.34898841810699588477366255144e1"))
+  a1001 =  T(parse(BigFloat," 4.77662536438264365890433908527e-1"))
+  a1004 =  T(parse(BigFloat,"-2.48811461997166764192642586468e0"))
+  a1005 =  T(parse(BigFloat,"-5.90290826836842996371446475743e-1"))
+  a1006 =  T(parse(BigFloat," 2.12300514481811942347288949897e1"))
+  a1007 =  T(parse(BigFloat," 1.52792336328824235832596922938e1"))
+  a1008 =  T(parse(BigFloat,"-3.32882109689848629194453265587e1"))
+  a1009 =  T(parse(BigFloat,"-2.03312017085086261358222928593e-2"))
+
+  a1101 =  T(parse(BigFloat,"-9.3714243008598732571704021658e-1"))
+  a1104 =  T(parse(BigFloat," 5.18637242884406370830023853209e0"))
+  a1105 =  T(parse(BigFloat," 1.09143734899672957818500254654e0"))
+  a1106 =  T(parse(BigFloat,"-8.14978701074692612513997267357e0"))
+  a1107 =  T(parse(BigFloat,"-1.85200656599969598641566180701e1"))
+  a1108 =  T(parse(BigFloat," 2.27394870993505042818970056734e1"))
+  a1109 =  T(parse(BigFloat," 2.49360555267965238987089396762e0"))
+  a1110 = T(parse(BigFloat,"-3.0467644718982195003823669022e0"))
+  a1201 = T(parse(BigFloat,"  2.27331014751653820792359768449e0"))
+  a1204 = T(parse(BigFloat," -1.05344954667372501984066689879e1"))
+  a1205 = T(parse(BigFloat," -2.00087205822486249909675718444e0"))
+  a1206 = T(parse(BigFloat," -1.79589318631187989172765950534e1"))
+  a1207 = T(parse(BigFloat,"  2.79488845294199600508499808837e1"))
+  a1208 = T(parse(BigFloat," -2.85899827713502369474065508674e0"))
+  a1209 = T(parse(BigFloat," -8.87285693353062954433549289258e0"))
+  a1210 = T(parse(BigFloat," 1.23605671757943030647266201528e1"))
+  a1211 = T(parse(BigFloat," 6.43392746015763530355970484046e-1"))
+
+  a1401 = T(parse(BigFloat," 5.61675022830479523392909219681e-2"))
+  a1407 = T(parse(BigFloat," 2.53500210216624811088794765333e-1"))
+  a1408 = T(parse(BigFloat,"-2.46239037470802489917441475441e-1"))
+  a1409 = T(parse(BigFloat,"-1.24191423263816360469010140626e-1"))
+  a1410 = T(parse(BigFloat," 1.5329179827876569731206322685e-1"))
+  a1411 = T(parse(BigFloat," 8.20105229563468988491666602057e-3"))
+  a1412 = T(parse(BigFloat," 7.56789766054569976138603589584e-3"))
+  a1413 = T(parse(BigFloat,"-8.298e-3"))
+
+  a1501 = T(parse(BigFloat," 3.18346481635021405060768473261e-2"))
+  a1506 = T(parse(BigFloat," 2.83009096723667755288322961402e-2"))
+  a1507 = T(parse(BigFloat," 5.35419883074385676223797384372e-2"))
+  a1508 = T(parse(BigFloat,"-5.49237485713909884646569340306e-2"))
+  a1511 = T(parse(BigFloat,"-1.08347328697249322858509316994e-4"))
+  a1512 = T(parse(BigFloat," 3.82571090835658412954920192323e-4"))
+  a1513 = T(parse(BigFloat,"-3.40465008687404560802977114492e-4"))
+  a1514 = T(parse(BigFloat," 1.41312443674632500278074618366e-1"))
+  a1601 = T(parse(BigFloat,"-4.28896301583791923408573538692e-1"))
+  a1606 = T(parse(BigFloat,"-4.69762141536116384314449447206e0"))
+  a1607 = T(parse(BigFloat," 7.68342119606259904184240953878e0"))
+  a1608 = T(parse(BigFloat," 4.06898981839711007970213554331e0"))
+  a1609 = T(parse(BigFloat," 3.56727187455281109270669543021e-1"))
+  a1613 = T(parse(BigFloat,"-1.39902416515901462129418009734e-3"))
+  a1614 = T(parse(BigFloat," 2.9475147891527723389556272149e0"))
+  a1615 = T(parse(BigFloat,"-9.15095847217987001081870187138e0"))
   return a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,b1,b6,b7,b8,b9,b10,b11,b12,b13,bhat6,bhat7,bhat12
 end
 
