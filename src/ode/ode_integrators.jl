@@ -391,16 +391,34 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::OD
   local αEEst::Vector{uEltype}
   local stages::Int
   @unpack integrator.tableau: A,c,α,αEEst,stages
+  A = A' # Transpose A to column major looping
   ks = Array{typeof(u)}(stages)
+  if fsal
+    fsalfirst = f(u,t)
+  end
   @inbounds while t < T
     @ode_loopheader
-    for i = 1:stages
+    # Calc First
+    if fsal
+      ks[1] = Δt*fsalfirst
+    else
+      ks[1] = Δt*f(u,t)
+    end
+    # Calc Middle
+    for i = 2:stages-1
       utilde = zero(u)
       for j = 1:i-1
-        utilde += A[i,j]*ks[j]
+        utilde += A[j,i]*ks[j]
       end
       ks[i] = f(u+utilde,t+c[i]*Δt); ks[i]*=Δt
     end
+    #Calc Last
+    utilde = zero(u)
+    for j = 1:stages-1
+      utilde += A[j,end]*ks[j]
+    end
+    fsallast = f(u+utilde,t+c[end]*Δt); ks[end]=Δt*fsallast # Uses fsallast as temp even if not fsal
+    # Accumulate Result
     utilde = α[1]*ks[1]
     for i = 2:stages
       utilde += α[i]*ks[i]
@@ -429,6 +447,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   local stages::Int
   uidx = eachindex(u)
   @unpack integrator.tableau: A,c,α,αEEst,stages
+  A = A' # Transpose A to column major looping
   ks = Vector{typeof(u)}(0)
   for i = 1:stages
     push!(ks,similar(u))
@@ -437,13 +456,25 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   tmp = similar(u)
   utmp = zeros(u)
   uEEst = similar(u)
+  if fsal
+    f(fsalfirst,u,t)
+  end
   @inbounds while t < T
     @ode_loopheader
-    for i = 1:stages
+    # First
+    if fsal
+      for k in uidx
+        ks[1][k] = Δt*fsalfirst[k]
+      end
+    else
+      f(ks[1],u,t); ks[1]*=Δt
+    end
+    # Middle
+    for i = 2:stages-1
       utilde[:] = zero(eltype(u))
       for j = 1:i-1
         for k in uidx
-          utilde[k] += A[i,j]*ks[j][k]
+          utilde[k] += A[j,i]*ks[j][k]
         end
       end
       for k in uidx
@@ -451,6 +482,21 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       end
       f(ks[i],tmp,t+c[i]*Δt); ks[i]*=Δt
     end
+    #Last
+    utilde[:] = zero(eltype(u))
+    for j = 1:stages-1
+      for k in uidx
+        utilde[k] += A[j,end]*ks[j][k]
+      end
+    end
+    for k in uidx
+      tmp[k] = u[k]+utilde[k]
+    end
+    f(fsallast,tmp,t+c[end]*Δt); #fsallast is tmp even if not fsal
+    for k in uidx
+      ks[end][k]= Δt*fsallast[k]
+    end
+    #Accumulate
     utilde[:] = α[1]*ks[1]
     for i = 2:stages
       for k in uidx
@@ -494,33 +540,52 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   for i = 1:stages
     push!(ks,similar(u))
   end
+  A = A' # Transpose A to column major looping
   utilde = similar(u)
   tmp = similar(u)
   utmp = zeros(u)
   uEEst = similar(u)
+  if fsal
+    f(fsalfirst,u,t)
+  end
   @inbounds while t < T
     @ode_loopheader
-    for i = 1:stages
+    #First
+    if fsal
+      ks[1] = Δt*fsalfirst
+    else
+      f(ks[1],u,t); ks[1]*=Δt
+    end
+    #Middle
+    for i = 2:stages-1
       utilde[:] = zero(eltype(u))
       for j = 1:i-1
-        utilde += A[i,j]*ks[j]
+        utilde += A[j,i]*ks[j]
       end
-      tmp = u+Δt*utilde
-      f(ks[i],tmp,t+c[i]*Δt)
+      tmp = u+utilde
+      f(ks[i],tmp,t+c[i]*Δt); ks[i]*=Δt
     end
+    # Last
+    utilde[:] = zero(eltype(u))
+    for j = 1:stages-1
+      utilde += A[j,end]*ks[j]
+    end
+    tmp = u+utilde
+    f(fsallast,tmp,t+c[end]*Δt); ks[end]=fsallast*Δt
+    #Accumulate
     utilde[:] = α[1]*ks[1]
     for i = 2:stages
       utilde += α[i]*ks[i]
     end
     if adaptive
-      utmp = u + Δt*utilde
+      utmp = u + utilde
       uEEst[:] = αEEst[1]*ks[1]
       for i = 2:stages
         uEEst += αEEst[i]*ks[i]
       end
       EEst = sqrt( sum(((utilde-uEEst)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
     else
-      u = u + Δt*utilde
+      u = u + utilde
     end
     @ode_loopfooter
   end
