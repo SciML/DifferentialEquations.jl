@@ -50,7 +50,8 @@ const ODEINTERFACE_OPTION_LIST = Set([:RTOL,:ATOL,:OUTPUTFCN,:OUTPUTMODE,
                                 :NEWTONSTARTZERO,:NEWTONSTOPCRIT,:DIMFIND1VAR,
                                 :MAXSTAGES,:MINSTAGES,:INITSTAGES,:STEPSIZESTRATEGY,
                                 :FREEZESSLEFT,:FREEZESSRIGHT,:ORDERDECFACTOR,
-                                :ORDERINCFACTOR,:ORDERDECCSTEPFAC1,:ORDERDECSTEPFAC2
+                                :ORDERINCFACTOR,:ORDERDECCSTEPFAC1,:ORDERDECSTEPFAC2,
+                                :RHS_CALLMODE
                                 ])
 
 const ODEINTERFACE_ALIASES = Dict{Symbol,Symbol}(:RTOL=>:reltol,
