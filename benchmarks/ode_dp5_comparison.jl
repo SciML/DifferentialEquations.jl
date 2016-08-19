@@ -10,6 +10,8 @@ sim = test_convergence(Δts,prob,alg=:DP5)
 @time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,adaptive=false,save_timeseries=false)
 @time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false)
 
+sol1.u - sol2.u < 1e-10
+
 @time sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5Vectorized,adaptive=false,save_timeseries=false)
 @time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,adaptive=false,save_timeseries=false)
 
@@ -17,7 +19,9 @@ sim = test_convergence(Δts,prob,alg=:DP5)
 @time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false)
 
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5)
-sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK)
+sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04)
+
 
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK)
+sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized)

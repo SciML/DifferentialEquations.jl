@@ -14,14 +14,14 @@ b5 = @benchmark sol1 =solve(prob2::ODEProblem,[0,1];Δt=1/2^(10),alg=:RK4,save_t
 
 # Test Progressbar
 
-sol =solve(prob::ODEProblem,[0,10],Δt=1/2^(4),alg=:DP5,abstol=1e-6,reltol=1e-6,progressbar=true,progress_steps=1)
+sol =solve(prob::ODEProblem,[0,10],Δt=1/2^(4),alg=:DP5,abstol=1e-6,reltol=1e-3,progressbar=true,progress_steps=1)
 
 # Precompile
 
 sol1 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:DP5,timechoicealg=:Simple)
 sol1 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:DP5,timechoicealg=:Lund)
 sol1 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:ExplicitRK,timechoicealg=:Lund)
-sol3 =solve(prob2::ODEProblem,[0,10];Δt=1/2^(4),alg=:ode45)
+sol3 =solve(prob::ODEProblem,[0,10];Δt=1/2^(4),alg=:ode45)
 sol4 =solve(prob2::ODEProblem,[0,10];Δt=1/2^(4),alg=:dopri5)
 
 ## Standard Tolerance
@@ -34,7 +34,7 @@ elapsed4 = @elapsed sol4 =solve(prob2::ODEProblem,[0,10];alg=:dopri5)
 elapsed2 = @elapsed sol2 =solve(prob::ODEProblem,[0,10];alg=:DP5Vectorized)
 elapsed5 = @elapsed sol5 =solve(prob::ODEProblem,[0,10];alg=:DP5,timechoicealg=:Simple)
 elapsed6 = @elapsed sol6 =solve(prob::ODEProblem,[0,10];fullnormalize=true,alg=:DP5)
-elapsed7 = @elapsed sol7 =solve(prob::ODEProblem,[0,10];alg=:ExplicitRK)
+elapsed7 = @elapsed sol7 =solve(prob::ODEProblem,[0,10];alg=:ExplicitRK,β=0.04) # Higher β by default
 
 eff1 = 1/(sol1.errors[:final]*elapsed1)
 eff2 = 1/(sol2.errors[:final]*elapsed2)
