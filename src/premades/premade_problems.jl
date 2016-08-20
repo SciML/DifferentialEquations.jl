@@ -7,10 +7,10 @@ function linearODEExample(;α=1,u₀=1/2)
   return(ODEProblem(f,u₀,analytic=analytic))
 end
 
-"""Van der Pol Equations"""
-function vanDerPolExample(u₀=[0;sqrt(3)])
+"""Van der Pol Equations. For difficult version, use α=1e6"""
+function vanDerPolExample(α=1,u₀=[0;sqrt(3)])
   function f(du,u,t)
-    du[1] = (1-u[2].^2)*u[1] - u[2]
+    du[1] = ((1-u[2].^2)*u[1] - u[2])*α
     du[2] = u[1]
   end
   return(ODEProblem(f,u₀))
@@ -48,6 +48,50 @@ function lorenzAttractorODEExample!(;σ=10.,ρ=28.,β=8//3,u₀=ones(3))
     du[1] = σ*(u[2]-u[1])
     du[2] = u[1]*(ρ-u[3]) - u[2]
     du[3] = u[1]*u[2] - β*u[3]
+  end
+  return(ODEProblem(f,u₀))
+end
+
+"""
+The Robertson biochemical reactions
+
+http://www.radford.edu/~thompson/vodef90web/problems/demosnodislin/Single/DemoRobertson/demorobertson.pdf
+
+Or from Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 129
+
+Usually solved on [0,1e11]
+"""
+function ROBERODEExample(u₀=[1.0;0.0;0.0],k₁=0.04,k₂=3e7,k₃=1e4)
+  function f(du,u,t)
+    du[1] = -k₁*u[1]+k₃*u[2]*u[3]
+    du[2] =  k₁*u[1]-k₂*(u[2])^2-k₃*u[2]*u[3]
+    du[3] =  k₂*(u[2])^2
+    nothing
+  end
+  return(ODEProblem(f,u₀))
+end
+
+"""
+From Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 129
+
+Usually solved on t₀ = 0.0; T = parse(BigFloat,"17.0652165601579625588917206249")
+Periodic with that setup
+"""
+function threebodyODEExample(u₀=[0.994, 0.0, 0.0, parse(BigFloat,"-2.00158510637908252240537862224")])
+  μ = parse(BigFloat,"0.012277471"); μ′ = 1 - μ
+  ToT = 3/2
+  function f(du,u,t)
+    # 1 = y₁
+    # 2 = y₂
+    # 3 = y₁'
+    # 4 = y₂'
+    D₁ = ((u[1]+μ)^2 + u[2]^2)^ToT
+    D₂ = ((u[1]-μ′)^2 + u[2]^2)^ToT
+    du[1] = u[3]
+    du[2] = u[4]
+    du[3] = u[1] + 2u[4] - μ′*(u[1]+μ)/D₁ - μ*(u[1]-μ′)/D₂
+    du[4] = u[2] - 2u[3] - μ′*u[2]/D₁ - μ*u[2]/D₂
+    nothing
   end
   return(ODEProblem(f,u₀))
 end

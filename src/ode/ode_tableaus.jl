@@ -726,19 +726,11 @@ function constructBS5(T::Type = Float64)
   a75    =T(-29421//29068)
   a76    =T(482048//414219)
   a81    =T(587//8064)
-
   a83    =T(4440339//15491840)
   a84    =T(24353//124800)
   a85    =T(387//44800)
   a86    =T(2152//5985)
   a87    =T(7267//94080)
-  b1     =T(587//8064)
-
-  b3     =T(4440339//15491840)
-  b4     =T(24353//124800)
-  b5     =T(387//44800)
-  b6     =T(2152//5985)
-  b7     =T(7267//94080)
 
   bhat1  =T(6059//80640)
   bhat2  =T(0)
@@ -755,7 +747,7 @@ function constructBS5(T::Type = Float64)
   btilde6=T(2272//6561)
   btilde7=T(79937//1113912)
   btilde8=T(3293//556956)
-  return c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,b1,b3,b4,b5,b6,b7,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8
+  return c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8
 end
 
 """

@@ -161,7 +161,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Vectorized
-        β = 0.06 # More than Hairer's suggestion
+        β = 0.10 # More than Hairer's suggestion
       elseif alg == :DP8 || alg == :DP8Vectorized
         β = 0.04 # Hairer's suggestion
       else
