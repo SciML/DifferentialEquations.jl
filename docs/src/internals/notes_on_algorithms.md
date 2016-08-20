@@ -32,7 +32,8 @@ disabled). `:DP5` performs much better than `:dopri5`, which vastly outperform
 For this reason, the DifferentialEquations.jl non-stiff algorithms are the recommended
 implementations. ODEInterface non-stiff algorithms are only recommended for historical
 purposes (i.e. to match previous results). The ODE.jl algorithms are not recommended
-for any serious use.
+for any serious use (the package is essentially deprecated: it's slow, gets high error,
+the timestepping algorithm is not robust, and doesn't implement many methods).
 
 ### Order 4-
 

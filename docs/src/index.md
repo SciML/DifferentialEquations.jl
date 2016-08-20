@@ -82,7 +82,7 @@ with matrices), then the solver will use the matrices without error.
 
     * These solvers are defined by tableaus. For a list of pre-defined tableaus, see [the ODE Solver options](/solvers/ode_solve).
 
-  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl) and optionally [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl). See [Conditional Dependencies](/man/conditional_dependencies).
+  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl). See [Conditional Dependencies](/man/conditional_dependencies).
 
     * Implicit Euler
     * Trapezoidal

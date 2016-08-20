@@ -6,6 +6,9 @@ solve(::ODEProblem,::AbstractArray)
 
 ## Recommended Methods
 
+Currently, a total of 118 algorithm choices are available. This guide is to help
+you choose the right one.
+
 ### Non-Stiff Problems
 
 For non-stiff problems, the native DifferentialEquations.jl algorithms are vastly
@@ -111,7 +114,7 @@ Tableau docstrings should have appropriate citations (if not, file an issue).
 stability regions for a given tableau, and calculate the coefficient of the highest
 order truncation error term.]
 
-* `constructHuen` Huen's order 2 method.
+* `constructHuen()` Huen's order 2 method.
 * `constructRalston()` - Ralston's order 2 method.
 * `constructBogakiShampine3()` - Bogakai-Shampine's 2/3 method.
 * `constructRKF4()` - Runge-Kutta-Fehlberg 3/4.

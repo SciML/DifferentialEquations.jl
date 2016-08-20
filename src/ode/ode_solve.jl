@@ -13,7 +13,8 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 * `γ` - The risk-factor γ in the q equation for adaptive timestepping. Default is .9.
 * `timechoicealg` - Chooses the method which is used for making the adaptive timestep choices.
   Default is `:Lund` for Lund stabilization (PI stepsize control). The other
-  option is `:Simple` for the standard simple error-based rejection control.
+  option is `:Simple` for the standard simple error-based rejection
+* `β` - The Lund stabilization β parameter. Defaults are algorithm-dependent.
 * `qmax` - Defines the maximum value possible for the adaptive q. Default is 10.
 * `ablstol` - Absolute tolerance in adaptive timestepping. Defaults to 1e-3.
 * `reltol` - Relative tolerance in adaptive timestepping. Defaults to 1e-6.
@@ -120,7 +121,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       if alg == :DP5 || alg == :DP5Vectorized
         β = 0.10 # More than Hairer's suggestion
       elseif alg == :DP8 || alg == :DP8Vectorized
-        β = 0.04 # Hairer's suggestion
+        β = 0.07 # More than Hairer's suggestion
       else
         β = 0.4 / order
       end
@@ -203,25 +204,25 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
     if alg==:ode23
-      stepper = ODE.RKIntegrator{FoA,:rk23}
+      solver = ODE.RKIntegrator{FoA,:rk23}
     elseif alg==:ode45
-      stepper = ODE.RKIntegrator{FoA,:dopri5}
+      solver = ODE.RKIntegrator{FoA,:dopri5}
     elseif alg==:ode78
-      stepper = ODE.RKIntegrator{FoA,:feh78}
+      solver = ODE.RKIntegrator{FoA,:feh78}
     elseif alg==:ode23s
-      stepper = ODE.ModifiedRosenbrockIntegrator
+      solver = ODE.ModifiedRosenbrockIntegrator
     elseif alg==:ode1
-      stepper = ODE.RKIntegratorFixed{:feuler}
+      solver = ODE.RKIntegratorFixed{:feuler}
     elseif alg==:ode2_midpoint
-      stepper = ODE.RKIntegratorFixed{:midpoint}
+      solver = ODE.RKIntegratorFixed{:midpoint}
     elseif alg==:ode2_heun
-      stepper = ODE.RKIntegratorFixed{:heun}
+      solver = ODE.RKIntegratorFixed{:heun}
     elseif alg==:ode4
-      stepper = ODE.RKIntegratorFixed{:rk4}
+      solver = ODE.RKIntegratorFixed{:rk4}
     elseif alg==:ode45_fe
-      stepper = ODE.RKIntegrator{FoA,:rk45}
+      solver = ODE.RKIntegrator{FoA,:rk45}
     end
-    out = collect(ODE.solve(ode,stepper;opts...))
+    out = collect(ODE.solve(ode;solver=solver,opts...))
     timeseries = GrowableArray(u₀)
     ts = Vector{typeof(out[1][1])}(0)
     push!(ts,t)
