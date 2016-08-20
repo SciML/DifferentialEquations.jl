@@ -107,6 +107,10 @@ Note that user-defined tableaus also are accepted.
 To see how to define a tableau, checkout the [premade tableau source code](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/ode/ode_tableaus.jl).
 Tableau docstrings should have appropriate citations (if not, file an issue).
 
+[Note: I hope to in the near future implement plot recipes which will plot the
+stability regions for a given tableau, and calculate the coefficient of the highest
+order truncation error term.]
+
 * `constructHuen` Huen's order 2 method.
 * `constructRalston()` - Ralston's order 2 method.
 * `constructBogakiShampine3()` - Bogakai-Shampine's 2/3 method.
