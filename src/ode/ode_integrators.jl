@@ -1307,6 +1307,78 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   return u,t,timeseries,ts
 end
 
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:TsitPap8,uType,uEltype,N,tType})
+  @ode_preamble
+  c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,b1,b6,b7,b8,b9,b10,b11,b12,bhat1,bhat6,bhat7,bhat8,bhat9,bhat10,bhat13 = constructTsitPap8(eltype(u))
+  local k1::uType; local k2::uType; local k3::uType; local k4::uType;
+  local k5::uType; local k6::uType; local k7::uType; local k8::uType;
+  local k9::uType; local k10::uType; local k11::uType; local k12::uType;
+  local k13::uType; local utilde::uType; local EEst::uEltype
+  @inbounds while t<T
+    @ode_loopheader
+    k1 = Δt*f(u,t)
+    k2 = Δt*f(u+a0201*k1,t+c1*Δt)
+    k3 = Δt*f(u+a0301*k1+a0302*k2,t+c2*Δt)
+    k4 = Δt*f(u+a0401*k1       +a0403*k3,t+c3*Δt)
+    k5 = Δt*f(u+a0501*k1       +a0503*k3+a0504*k4,t+c4*Δt)
+    k6 = Δt*f(u+a0601*k1                +a0604*k4+a0605*k5,t+c5*Δt)
+    k7 = Δt*f(u+a0701*k1                +a0704*k4+a0705*k5+a0706*k6,t+c6*Δt)
+    k8 = Δt*f(u+a0801*k1                +a0804*k4+a0805*k5+a0806*k6+a0807*k7,t+c7*Δt)
+    k9 = Δt*f(u+a0901*k1                +a0904*k4+a0905*k5+a0906*k6+a0907*k7+a0908*k8,t+c8*Δt)
+    k10 =Δt*f(u+a1001*k1                +a1004*k4+a1005*k5+a1006*k6+a1007*k7+a1008*k8+a1009*k9,t+c9*Δt)
+    k11= Δt*f(u+a1101*k1                +a1104*k4+a1105*k5+a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10,t+c10*Δt)
+    k12= Δt*f(u+a1201*k1                +a1204*k4+a1205*k5+a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11,t+Δt)
+    k13= Δt*f(u+a1301*k1                +a1304*k4+a1305*k5+a1306*k6+a1307*k7+a1308*k8+a1309*k9+a1310*k10,t+Δt)
+    update = b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12
+    utmp = u + update
+    if adaptive
+      EEst = abs((update - k1*bhat1 - k6*bhat6 - k7*bhat7 - k8*bhat8 - k9*bhat9 - k10*bhat10 - k13*bhat13)/(abstol+max(u,utmp)*reltol) * normfactor) # Order 5
+    else
+      u = utmp
+    end
+    @ode_numberloopfooter
+  end
+  return u,t,timeseries,ts
+end
+
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Vern9,uType,uEltype,N,tType})
+  @ode_preamble
+  c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0806,a0807,a0901,a0906,a0907,a0908,a1001,a1006,a1007,a1008,a1009,a1101,a1106,a1107,a1108,a1109,a1110,a1201,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,b1,b8,b9,b10,b11,b12,b13,b14,b15,bhat1,bhat8,bhat9,bhat10,bhat11,bhat12,bhat13,bhat16 = constructVern9(eltype(u))
+  local k1::uType; local k2::uType; local k3::uType; local k4::uType;
+  local k5::uType; local k6::uType; local k7::uType; local k8::uType;
+  local k9::uType; local k10::uType; local k11::uType; local k12::uType;
+  local k13::uType; local k14::uType; local k15::uType; local k16::uType;
+  local utilde::uType; local EEst::uEltype
+  @inbounds while t<T
+    @ode_loopheader
+    k1 = Δt*f(u,t)
+    k2 = Δt*f(u+a0201*k1,t+c1*Δt)
+    k3 = Δt*f(u+a0301*k1+a0302*k2,t+c2*Δt)
+    k4 = Δt*f(u+a0401*k1       +a0403*k3,t+c3*Δt)
+    k5 = Δt*f(u+a0501*k1       +a0503*k3+a0504*k4,t+c4*Δt)
+    k6 = Δt*f(u+a0601*k1                +a0604*k4+a0605*k5,t+c5*Δt)
+    k7 = Δt*f(u+a0701*k1                +a0704*k4+a0705*k5+a0706*k6,t+c6*Δt)
+    k8 = Δt*f(u+a0801*k1                +a0804*k4+a0805*k5+a0806*k6+a0807*k7,t+c7*Δt)
+    k9 = Δt*f(u+a0901*k1                                  +a0906*k6+a0907*k7+a0908*k8,t+c8*Δt)
+    k10 =Δt*f(u+a1001*k1                                  +a1006*k6+a1007*k7+a1008*k8+a1009*k9,t+c9*Δt)
+    k11= Δt*f(u+a1101*k1                                  +a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10,t+c10*Δt)
+    k12= Δt*f(u+a1201*k1                                  +a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11,t+c11*Δt)
+    k13= Δt*f(u+a1301*k1                                  +a1306*k6+a1307*k7+a1308*k8+a1309*k9+a1310*k10+a1311*k11+a1312*k12,t+c12*Δt)
+    k14= Δt*f(u+a1401*k1                                  +a1406*k6+a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13,t+c13*Δt)
+    k15= Δt*f(u+a1501*k1                                  +a1506*k6+a1507*k7+a1508*k8+a1509*k9+a1510*k10+a1511*k11+a1512*k12+a1513*k13+a1514*k14,t+Δt)
+    k16= Δt*f(u+a1601*k1                                  +a1606*k6+a1607*k7+a1608*k8+a1609*k9+a1610*k10+a1611*k11+a1612*k12+a1613*k13,t+Δt)
+    update = k1*b1+k8*b8+k9*b9+k10*b10+k11*b11+k12*b12+k13*b13+k14*b14+k15*b15
+    utmp = u + update
+    if adaptive
+      EEst = abs((update - k1*bhat1 - k8*bhat8 - k9*bhat9 - k10*bhat10 - k11*bhat11 - k12*bhat12 - k13*bhat13 - k16*bhat16)/(abstol+max(u,utmp)*reltol) * normfactor) # Order 5
+    else
+      u = utmp
+    end
+    @ode_numberloopfooter
+  end
+  return u,t,timeseries,ts
+end
+
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Feagin10Vectorized,uType,uEltype,N,tType})
   @ode_preamble
   adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b,c = constructFeagin10(eltype(u))
