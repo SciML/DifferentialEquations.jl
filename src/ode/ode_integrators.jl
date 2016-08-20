@@ -1779,6 +1779,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     for i in uidx
       update[i] = k1[i]*b1+k8[i]*b8+k9[i]*b9+k10[i]*b10+k11[i]*b11+k12[i]*b12+k13[i]*b13+k14[i]*b14+k15[i]*b15
       utmp[i] = u[i] + update[i]
+    end
     if adaptive
       for i in uidx
         tmp[i] = ((update[i] - k1[i]*bhat1 - k8[i]*bhat8 - k9[i]*bhat9 - k10[i]*bhat10 - k11[i]*bhat11 - k12[i]*bhat12 - k13[i]*bhat13 - k16[i]*bhat16)/(abstol+max(u,utmp)*reltol))^2
