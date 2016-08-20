@@ -1719,7 +1719,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
     for i in uidx
       tmp[i] = u[i]+a0201*k1[i]
     end
-    f(k2,,t+c1*Δt); k2*=Δt
+    f(k2,tmp,t+c1*Δt); k2*=Δt
     for i in uidx
       tmp[i] = u[i]+a0301*k1[i]+a0302*k2[i]
     end
