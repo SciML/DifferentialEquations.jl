@@ -45,5 +45,10 @@ specify the true solution. When this is given to the solver, the solution
 object returns with many error calculations. An array of solutions
 can be made into a `ConvergenceSimulation` (or the test_convergence functions
 can be used) which then generates all of the convergence test results and
-allows for plotting (great for developing new methods!). Lastly, `BenchmarkSimulations`
-allows one to compare between methods and easily plot the results.
+allows for plotting (great for developing new methods!).
+
+Near Future:
+
+The `BenchmarkSimulations` allows one to compare between methods and easily plot
+the results. Also, recipes are provided for Runge-Kutta tableaus to plot stability
+regions and calculate the coefficient of the highest order truncation error term.

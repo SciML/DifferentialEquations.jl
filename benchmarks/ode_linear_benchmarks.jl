@@ -95,7 +95,6 @@ t5 = @elapsed sol5 =solve(prob::ODEProblem,[0,10],alg=:BS3,reltol=1e-6)
 e5 = sol5.errors[:final]
 eff5 = 1/(t5*e5)
 
-tab = constructBogakiShampine5()
 t6 = @elapsed sol5 =solve(prob::ODEProblem,[0,10],alg=:BS5,reltol=1e-6)
 e6 = sol5.errors[:final]
 eff6 = 1/(t6*e6)
@@ -107,6 +106,20 @@ eff7 = 1/(t7*e7)
 eff1/eff5
 eff1/eff6
 eff1/eff7
+
+# Higher Order
+
+t8 = @elapsed sol8 =solve(prob::ODEProblem,[0,10],alg=:DP8,reltol=1e-6,β=0.07)
+e8 = sol8.errors[:final]
+eff8 = 1/(t8*e8)
+
+t9 = @elapsed sol9 =solve(prob::ODEProblem,[0,10],alg=:dop853,reltol=1e-6)
+e9 = sol9.errors[:final]
+eff9 = 1/(t9*e9)
+
+t9 = @elapsed sol9 =solve(prob::ODEProblem,[0,10],alg=:ode78,reltol=1e-6)
+e9 = sol9.errors[:final]
+eff9 = 1/(t9*e9)
 
 ## Number
 
