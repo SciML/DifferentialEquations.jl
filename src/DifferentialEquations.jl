@@ -55,7 +55,8 @@ module DifferentialEquations
   #Types
   export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
          ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
-         SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRK, MonteCarloSimulation
+         SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau, MonteCarloSimulation,
+         ImplicitRKTableau
 
   #SDE Example Problems
   export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,

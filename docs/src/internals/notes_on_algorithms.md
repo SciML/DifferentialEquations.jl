@@ -9,7 +9,32 @@ were ignored.
 From what I can tell, this is by far the most comprehensive comparison of
 Explicit Runge-Kutta ODE algorithms that you'll find.
 
-## Order 4-
+### Implementations
+
+The different implementations have been benchmarked against each other. The efficiency
+was calculated by weighing both the time and error on classic test problems.
+To make clear distinctions, solver options were tweaked to many different settings,
+including:
+
+  * Matching errors
+  * Matching runtimes
+  * Matching settings
+  * Low/High tolerance
+
+The DifferentialEquations.jl implementations of the explicit Runge-Kutta solvers
+are by a good margin the most efficient implementations of the given algorithms.
+They utilize many extra tricks, nice caching, and threading if available, to
+vastly outperform the other methods in terms of efficiency (even with threading
+disabled). `:DP5` performs much better than `:dopri5`, which vastly outperform
+`ode45` (whose stepsize algorithm tends to have issues on some quasi-stiff problems).
+`:DP8` performs better than `dop853` which vastly outperforms `ode78`.
+
+For this reason, the DifferentialEquations.jl non-stiff algorithms are the recommended
+implementations. ODEInterface non-stiff algorithms are only recommended for historical
+purposes (i.e. to match previous results). The ODE.jl algorithms are not recommended
+for any serious use.
+
+### Order 4-
 
 At this stage, coefficient of the truncation error seems to win out, or you are
 willing to live with low tolerance anyways. Thus Bogacki-Shampine is the clear

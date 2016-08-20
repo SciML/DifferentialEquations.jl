@@ -344,12 +344,6 @@ for i = 1:3
   # Order 9
 
   #=
-  tab = constructClassicVerner9()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
-
-  #=
   tab = constructVernerRobust9()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)

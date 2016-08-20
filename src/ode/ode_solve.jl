@@ -10,7 +10,10 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 * `timeseries_steps`: Denotes how many steps between saving a value for the timeseries. Defaults to 1.
 * `tableau`: The tableau for an `:ExplicitRK` algorithm. Defaults to a Dormand-Prince 4/5 method.
 * `adaptive` - Turns on adaptive timestepping for appropriate methods. Default is true.
-* `γ` - The risk-factor γ in the q equation for adaptive timestepping. Default is 2.
+* `γ` - The risk-factor γ in the q equation for adaptive timestepping. Default is .9.
+* `timechoicealg` - Chooses the method which is used for making the adaptive timestep choices.
+  Default is `:Lund` for Lund stabilization (PI stepsize control). The other
+  option is `:Simple` for the standard simple error-based rejection control.
 * `qmax` - Defines the maximum value possible for the adaptive q. Default is 10.
 * `ablstol` - Absolute tolerance in adaptive timestepping. Defaults to 1e-3.
 * `reltol` - Relative tolerance in adaptive timestepping. Defaults to 1e-6.
@@ -29,53 +32,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
   do as it states in the ODEInterface.jl documentation. Common options such as `MAXSS` (max stepsize)
   are aliased to one can use the DifferentialEquations.jl syntax `Δtmax` or `MAXSS`. The possibilities for the solvers are:
 
-  * DifferentialEquations.jl
-
-    - `:Euler`- The canonical forward Euler method.
-    - `:Midpoint` - The second order midpoint method.
-    - `:RK4` - The canonical Runge-Kutta Order 4 method.
-    - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
-    - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
-    - `:Feagin14` - Feagin's 14th-order Runge-Kutta method.
-    - `:Feagin10Vectorized` - Feagin's 10th-order Runge-Kutta method. Not as optimized as the other implementation.
-    - `:Feagin12Vectorized` - Feagin's 12th-order Runge-Kutta method. Not as optimized as the other implementation.
-    - `:Feagin14Vectorized` - Feagin's 14th-order Runge-Kutta method. Not as optimized as the other implementation.
-    - `:ExplicitRK` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive. Tableaus
-      are specified via the keyword argument `tab=tableau`. The default tableau is
-      for Dormand-Prine 4/5. Other supplied tableaus include:
-
-      * `constructRalston()` - Returns a tableau for Ralston's method
-      * `constructRKF()` - Returns a tableau for Runge-Kutta-Fehlberg 4/5
-      * `constructBogakiShampine()` - Returns a tableau for Bogakai-Shampine's 2/3 method.
-      * `constructCashKarp()` - Returns a tableau for the Cash-Karp method 4/5.
-      * `constructDormandPrince()` - Returns a tableau for Dormand-Prince 4/5.
-      * `constructRKF8()` - Returns a tableau for Runge-Kutta-Fehlberg Order 7/8 method.
-      * `constructDormandPrice8()` - Returns a tableau for the Dormand-Prince Order 7/8 method.
-
-    - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
-    - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
-    - `:Rosenbrock32` - A fast solver which is good for stiff equations.
-
-  * ODEInterface.jl
-
-    - `:dopri5` - Hairer's classic implementation of the Dormand-Prince 4/5 method.
-    - `:dop853` - Explicit Runge-Kutta 8(5,3) by Dormand-Prince
-    - `:odex` - GBS extrapolation-algorithm based on the midpoint rule
-    - `:seulex` - extrapolation-algorithm bsed on the linear implicit Euler method
-    - `:radau` - implicit Runge-Kutta (Radau IIA) of variable order between 5 and 13
-    - `:radau5` - implicit Runge-Kutta method (Radau IIA) of order 5
-
-  * ODE.jl
-
-    - `:ode23` - Bogakai-Shampine's 2/3 method
-    - `:ode45` - Dormand-Prince's 4/5 method
-    - `:ode78` - Runge-Kutta-Fehlberg 7/8 method
-    - `:ode23s` - Rosenbrock's 2/3 method
-    - `:ode1` - Forward Euler
-    - `:ode2_midpoint` - Midpoint Method
-    - `:ode2_heun` - Heun's Method
-    - `:ode4` - RK4
-    - `:ode45_fe` - Runge-Kutta-Fehlberg 4/5 method
+For a full list of algorithms, please see the solver documentation.
 """
 function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProblem{uType,uEltype},tspan::AbstractArray=[0,1];kwargs...)
   tspan = vec(tspan)

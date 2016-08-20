@@ -51,6 +51,8 @@ stochastic variants for handling Gaussian Space-time white noise SPDEs.
 
 ## Implemented Solvers
 
+For help with choosing a solver algorithm, please see the solver options pages.
+
 For PDEs, [method] denotes an additional version for handling stochastic partial
 differential equations. SDE solvers and ODE solvers take in general sized inputs.
 For example, if u₀ is a matrix (and your problem functions are designed to work
@@ -58,26 +60,27 @@ with matrices), then the solver will use the matrices without error.
 
 * ODEs
 
-  * Optimized Explicit Solvers
+  * Optimized Explicit Runge-Kutta Methods
 
-    * Euler
-    * Midpoint Method
-    * RK4
-    * DP5 - An optimized implementation of the Dormand-Prince 4/5 method
-    * Feagin's Order 10/8 Method
-    * Feagin's Order 12/10 Method
-    * Feagin's Order 14/12 Method
+    * Euler - The Order 1 Euler Method
+    * Midpoint - The Order 2 Midpoint Method
+    * RK4 - The classic Runge-Kutta Order 4 Method
+    * BS3 - Bogacki-Shampine 2/3
+    * DP5 - Dormand-Prince 4/5
+    * Tsit5 - Tsitouras 4/5
+    * BS5 - Bogacki-Shampine 4/5
+    * Vern6 - Verner's "Most Efficient" 5/6
+    * TanYam7 - Tanaka-Yamashita 7
+    * DP8 - Hairer's 8/5/3 adaption of the Dormand-Prince 8 method
+    * TsitPap8 - Tsitouras-Papakostas 8/7
+    * Vern9 - Verner's "Most Efficient" 9/8
+    * Feagin10 - Feagin's Order 10/8 Method
+    * Feagin12 - Feagin's Order 12/10 Method
+    * Feagin14 - Feagin's Order 14/12 Method
 
   * General Explicit (Adaptive) Runge-Kutta Methods
 
-    * Huen's Method
-    * Cash-Karp
-    * Runge-Kutta-Fehlberg (RKF) 4/5
-    * Ralston's Method
-    * Bogaki-Shampine
-    * Dormand-Prince 4/5
-    * Runge-Kutta-Fehlberg (RKF) 7/8
-    * Dormand-Prince 7/8
+    * These solvers are defined by tableaus. For a list of pre-defined tableaus, see [the ODE Solver options](/solvers/ode_solve).
 
   * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl) and optionally [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl). See [Conditional Dependencies](/man/conditional_dependencies).
 
