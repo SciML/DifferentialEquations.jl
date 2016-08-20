@@ -6,8 +6,8 @@ solvers.
 ## ODE Solver Extras
 
 ```@docs
-Base.length(::ExplicitRK)
-DifferentialEquations.ExplicitRK
+Base.length(::ExplicitRKTableau)
+DifferentialEquations.ExplicitRKTableau
 DifferentialEquations.ODE_DEFAULT_TABLEAU
 DifferentialEquations.constructCashKarp
 DifferentialEquations.constructRalston

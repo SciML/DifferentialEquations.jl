@@ -3,9 +3,9 @@ using DifferentialEquations
 probArr = Vector{DEProblem}(2)
 bigprobArr = Vector{DEProblem}(2)
 probArr[1] = linearODEExample()
-probArr[2] = twoDimlinearODEExample()
+probArr[2] = twoDimlinearODEExample!()
 bigprobArr[1] = linearODEExample(u₀=BigFloat(1),α=BigFloat(1))
-bigprobArr[2] = twoDimlinearODEExample(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
+bigprobArr[2] = twoDimlinearODEExample!(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
 setprecision(400)
 srand(100)
 ## Convergence Testing
