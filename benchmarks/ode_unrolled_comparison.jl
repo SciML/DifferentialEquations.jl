@@ -169,7 +169,7 @@ sim = test_convergence(Δts,probbig,alg=:DP8)
 sim = test_convergence(Δts,probnum,alg=:TsitPap8)
 sim = test_convergence(Δts,prob,alg=:TsitPap8)
 
-tab = constructTsitouras5()
+tab = constructTsitPap5()
 @time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:TsitPap8,adaptive=false,save_timeseries=false)
 @time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
@@ -193,7 +193,7 @@ minimum(sol1.u - sol2.u .< 1e-10)
 sim = test_convergence(Δts,probnum,alg=:Vern9)
 sim = test_convergence(Δts,prob,alg=:Vern9)
 
-tab = constructTsitouras5()
+tab = constructVern9()
 @time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9,adaptive=false,save_timeseries=false)
 @time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
