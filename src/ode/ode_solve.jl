@@ -46,8 +46,10 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   o[:Ts] = tspan[2:end]
   @unpack prob: u₀,knownanalytic,analytic,numvars,isinplace
 
-
-  command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
+  command_opts = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
+  for (k,v) in o
+    command_opts[k]=v
+  end
   # Get the control variables
   @materialize save_timeseries, progressbar = command_opts
 
@@ -137,9 +139,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if typeof(u) <: Number
       u = [u]
     end
-    o[:T] = float(o[:T])
+    o[:Ts] = float(o[:Ts])
     o[:t] = float(o[:t])
-    t = o[:t]; T = o[:T]
+    t = o[:t]; Ts = o[:Ts]
     if !isinplace && typeof(u)<:AbstractArray
       f! = (t,u,du) -> (du[:] = vec(prob.f(reshape(u,sizeu),t)); nothing)
     else
@@ -151,17 +153,17 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     opts = ODEInterface.OptionsODE([Pair(ODEINTERFACE_STRINGS[k],v) for (k,v) in dict]...) #Convert to the strings
     du = similar(u)
     if alg==:dopri5
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,f!,Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dopri5,f!,[t;Ts],vec(u),opts)
     elseif alg==:dop853
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,f!,Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.dop853,f!,[t;Ts],vec(u),opts)
     elseif alg==:odex
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.odex,f!,Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.odex,f!,[t;Ts],vec(u),opts)
     elseif alg==:seulex
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,f!,Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.seulex,f!,[t;Ts],vec(u),opts)
     elseif alg==:radau
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,f!,Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,f!,[t;Ts],vec(u),opts)
     elseif alg==:radau5
-      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,f!,Float64[t,T],vec(u),opts)
+      ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,f!,[t;Ts],vec(u),opts)
     end
     t = ts[end]
     if typeof(u₀)<:AbstractArray
@@ -179,9 +181,10 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       u = [u]
     end
     # Needs robustness
-    o[:T] = float(o[:T])
+    o[:Ts] = float(o[:Ts])
     o[:t] = float(o[:t])
-    t = o[:t]; T = o[:T]
+    t = o[:t]; Ts = o[:Ts]
+    o[:T] = Ts[end]
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
