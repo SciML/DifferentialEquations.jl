@@ -1459,8 +1459,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       else
         u = utmp
       end
-    end
-    @ode_loopfooter
+      @ode_loopfooter
+    end    
   end
   # Dense output: a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615
   return u,t,timeseries,ts
@@ -1539,8 +1539,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       else
         u = utmp
       end
+      @ode_loopfooter
     end
-    @ode_loopfooter
   end
   # Dense output: a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615
   return u,t,timeseries,ts

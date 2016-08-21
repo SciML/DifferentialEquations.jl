@@ -14,7 +14,7 @@ b5 = @benchmark sol1 =solve(prob::ODEProblem,[0,1];Δt=1/2^(10),alg=:RK4,save_ti
 
 # Test Progressbar
 
-sol =solve(prob::ODEProblem,[0,10],Δt=1/2^(4),alg=:DP5,abstol=1e-6,reltol=1e-3,progressbar=true,progress_steps=1)
+sol =solve(prob::ODEProblem,[0,1,10],Δt=1/2^(4),alg=:DP5,abstol=1e-6,reltol=1e-3,progressbar=true,progress_steps=1)
 
 # Precompile
 
@@ -123,7 +123,7 @@ eff9 = 1/(t9*e9)
 
 ## Number
 
-elapsed1 = @elapsed sol1 =solve(probnum::ODEProblem,[0,1,10];reltol=1e-6,alg=:DP5)
+elapsed1 = @elapsed sol1 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:DP5)
 elapsed2 = @elapsed sol2 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:ExplicitRK,β=0.06)
 
 elapsed3 = @elapsed sol3 =solve(probnum::ODEProblem,[0,10];abstol=1e-6,roltol=1e-6,alg=:ode45)
