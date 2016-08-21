@@ -109,6 +109,10 @@ with matrices), then the solver will use the matrices without error.
     * ode4 - RK4
     * ode45_fe - Runge-Kutta-Fehlberg 4/5
 
+  * Wrappers for Sundials.jl. See [Conditional Dependences](/man/conditional_dependencies).
+
+    * cvode - The Lawrence Livermore CVODE mixed Adams-Moulton / BDF solver.
+
 
 * SODEs
 

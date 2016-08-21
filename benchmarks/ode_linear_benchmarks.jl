@@ -123,7 +123,7 @@ eff9 = 1/(t9*e9)
 
 ## Number
 
-elapsed1 = @elapsed sol1 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:DP5)
+elapsed1 = @elapsed sol1 =solve(probnum::ODEProblem,[0,1,10];reltol=1e-6,alg=:DP5)
 elapsed2 = @elapsed sol2 =solve(probnum::ODEProblem,[0,10];reltol=1e-6,alg=:ExplicitRK,β=0.06)
 
 elapsed3 = @elapsed sol3 =solve(probnum::ODEProblem,[0,10];abstol=1e-6,roltol=1e-6,alg=:ode45)

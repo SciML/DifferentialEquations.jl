@@ -23,17 +23,17 @@ sol4 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=
 tab = constructDormandPrince8_64bit(Float64)
 sol5 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:ExplicitRK,abstol=1,reltol=0,tableau=tab)
 
-bool7 = 1e-10 < float(sol5.u) - sol3.u < 1e-9
+bool7 = 1e-10 < abs(float(sol5.u) - sol3.u) < 3e-9
 bool8 = typeof(sol5.u) == Rational{BigInt}
 
 sol6 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:ExplicitRK,adaptive=true,abstol=1,reltol=0,tableau=tab)
 
-bool9 = 1e-10 < float(sol6.u) - sol3.u < 1e-9
+bool9 = 1e-10 < abs(float(sol6.u) - sol3.u) < 3e-9
 bool10 = typeof(sol6.u) == Rational{BigInt}
 
 prob = linearODEExample(u₀=BigInt(1)/BigInt(2))
 sol7 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:ExplicitRK,adaptive=true,abstol=1,reltol=0,tableau=tab)
-bool11 = 1e-10 < float(sol7.u) - sol3.u < 1e-9
+bool11 = 1e-10 < abs(float(sol7.u) - sol3.u) < 3e-9
 bool12 = typeof(sol7.u) == BigFloat
 
 bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10 && bool11 && bool12

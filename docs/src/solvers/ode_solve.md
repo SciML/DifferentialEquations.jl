@@ -31,11 +31,8 @@ solver, all Julia-defined numbers will work. This method uses ForwardDiff to
 automatically guess the Jacobian. For faster solving when the Jacobian is known,
 use `radau`. For highly stiff problems where Julia-defined numbers need to be used
 (SIUnits, Arbs), `:Trapezoid` is the current best choice. However, for the most
-efficient non-stiff solver, use `:radau`.
-
-(In the near future, LSODE and CVODE will be wrapped and will be other good choices
-for stiff solvers. Also native BDF and NDF methods methods with switching to ABM
-are being developed.)
+efficient non-stiff solvers, use `:radau` or `:cvode` (note: the current Sundials
+wrapper for cvode does not include adaptive stepping. That is coming soon!)
 
 ## Full List of Methods
 
