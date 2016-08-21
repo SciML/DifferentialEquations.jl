@@ -52,6 +52,7 @@ Currently these include:
 
 - ODE.jl
 - ODEInterface.jl
+- Sundials.jl
 
 ## Installation Instructions
 
@@ -72,5 +73,4 @@ at JuliaODE/ODE.jl. To install this version of ODE.jl, use the following command
 
 ```julia
 Pkg.clone("https://github.com/JuliaODE/ODE.jl")
-Pkg.checkout("ODE","dev")
 ```

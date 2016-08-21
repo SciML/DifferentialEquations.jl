@@ -37,31 +37,19 @@ For a full list of algorithms, please see the solver documentation.
 """
 function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProblem{uType,uEltype},tspan::AbstractArray=[0,1];kwargs...)
   tspan = vec(tspan)
-  if tspan[2]-tspan[1]<0 || length(tspan)>2
-    error("tspan must be two numbers and final time must be greater than starting time. Aborting.")
+  if tspan[end]-tspan[1]<0
+    error("final time must be greater than starting time. Aborting.")
   end
   atomloaded = isdefined(Main,:Atom)
   o = KW(kwargs)
-  t = tspan[1]
-  T = tspan[2]
-  o[:t] = t
-  o[:T] = tspan[2]
+  o[:t] = tspan[1]
+  o[:Ts] = tspan[2:end]
   @unpack prob: u₀,knownanalytic,analytic,numvars,isinplace
 
 
   command_opts = merge(o,DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   # Get the control variables
-  @materialize save_timeseries = command_opts
-
-  #=
-  if typeof(u₀)<:Number
-    uElType = typeof(u₀)
-  elseif typeof(u₀) <: AbstractArray
-    uEltype = eltype(u₀)
-  else
-    error("u₀ must be a number or an array")
-  end
-  =#
+  @materialize save_timeseries, progressbar = command_opts
 
   u = copy(u₀)
 
@@ -107,7 +95,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     tType=typeof(Δt)
 
     if o[:Δtmax] == nothing
-      o[:Δtmax] = tType((tspan[2]-tspan[1])/2)
+      o[:Δtmax] = tType((tspan[end]-tspan[1]))
     end
     if o[:Δtmin] == nothing
       o[:Δtmin] = tType(1//10^(10))
@@ -135,22 +123,23 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       @unpack o[:tableau]: fsal
     end
 
-    T = tType(T)
-    t = tType(t)
+    Ts = map(tType,o[:Ts])
+    t = tType(o[:t])
     timeseries = GrowableArray(u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progressbar,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
     #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-
-    (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
     if typeof(u) <: Number
       u = [u]
     end
+    o[:T] = float(o[:T])
+    o[:t] = float(o[:t])
+    t = o[:t]; T = o[:T]
     if !isinplace && typeof(u)<:AbstractArray
       f! = (t,u,du) -> (du[:] = vec(prob.f(reshape(u,sizeu),t)); nothing)
     else
@@ -192,7 +181,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     # Needs robustness
     o[:T] = float(o[:T])
     o[:t] = float(o[:t])
-    t = o[:t]
+    t = o[:t]; T = o[:T]
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -236,7 +225,37 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     t = ts[end]
     u = timeseries[end]
+  elseif alg ∈ SUNDIALS_ALGORITHMS
+    sizeu = size(u)
+    if typeof(u) <: Number
+      u = [u]
+    end
+    # Needs robustness
+    o[:Ts] = map(Float64,o[:Ts])
+    o[:t] = map(Float64,o[:t])
+    t = o[:t]; Ts = o[:Ts]
+    initialize_backend(:Sundials)
+    opts = buildOptions(o,SUNDIALS_OPTION_LIST,SUNDIALS_ALIASES,SUNDIALS_ALIASES_REVERSED)
+    if !isinplace && typeof(u)<:AbstractArray
+      f! = (t,u,du) -> (du[:] = vec(prob.f(reshape(u,sizeu),t)); 0)
+    else
+      f! = (t,u,du) -> (prob.f(reshape(du,sizeu),reshape(u,sizeu),t); u = vec(u); du=vec(du); 0)
+    end
+    ts = [t;Ts] # No adaptive
+    vectimeseries = Sundials.cvode(f!,vec(u),ts)
+    t = ts[end]
+    if typeof(u₀)<:AbstractArray
+      timeseries = GrowableArray(u₀;initvalue=false)
+      for i=1:size(vectimeseries,1)
+        push!(timeseries,reshape(vectimeseries[i,:]',sizeu))
+      end
+    else
+      timeseries = vectimeseries
+    end
+    u = timeseries[end]
   end
+
+  (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
 
   if knownanalytic
     u_analytic = analytic(u₀,t)

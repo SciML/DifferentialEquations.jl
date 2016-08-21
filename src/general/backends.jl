@@ -25,13 +25,6 @@ init_package(b::backend{:ODEJL}) = @eval begin
       export ODE
     end
 
-#=
-init_package(b::backend{:ForwardDiff}) = @eval begin
-      import ForwardDiff
-      export ForwardDiff
-    end
-=#
-
 init_package(b::backend{:NLsolve}) = @eval begin
       import NLsolve
       export NLsolve
@@ -45,4 +38,9 @@ init_package(b::backend{:ResettableStacks}) = @eval begin
 init_package(b::backend{:DataStructures}) = @eval begin
       import DataStructures
       export DataStructures
+    end
+
+init_package(b::backend{:Sundials}) = @eval begin
+      import Sundials
+      export Sundials
     end

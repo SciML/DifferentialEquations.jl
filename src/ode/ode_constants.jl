@@ -5,6 +5,8 @@ Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
 """
 const ODE_DEFAULT_TABLEAU = constructDormandPrince()
 
+const SUNDIALS_ALGORITHMS = Set([:cvode])
+
 const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 
 const DIFFERENTIALEQUATIONSJL_FASLALGS = Set([:DP5,:DP5Vectorized,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:Tsit5,:Tsit5Vectorized,:Vern6,:Vern6Vectorized])
@@ -36,6 +38,11 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
 const ODEJL_OPTION_LIST = Set([:tout,:tstop,:reltol,:abstol,:minstep,:maxstep,:initstep,:norm,:maxiters,:isoutofdomain])
 const ODEJL_ALIASES = Dict{Symbol,Symbol}(:minstep=>:Δtmin,:maxstep=>:Δtmax,:initstep=>:Δt,:tstop=>:T)
 const ODEJL_ALIASES_REVERSED = Dict{Symbol,Symbol}([(v,k) for (k,v) in ODEJL_ALIASES])
+
+const SUNDIALS_OPTION_LIST = Set([:reltol,:abstol])
+const SUNDIALS_ALIASES = Dict{Symbol,Symbol}()
+const SUNDIALS_ALIASES_REVERSED = Dict{Symbol,Symbol}([(v,k) for (k,v) in SUNDIALS_ALIASES])
+
 const ODEINTERFACE_OPTION_LIST = Set([:RTOL,:ATOL,:OUTPUTFCN,:OUTPUTMODE,
                                 :MAXSTEPS,:STEST,:EPS,:RHO,:SSMINSEL,
                                 :SSMAXSEL,:SSBETA,:MAXSS,:INITIALSS,
