@@ -242,7 +242,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     # Needs robustness
     o[:Ts] = map(Float64,o[:Ts])
     o[:t] = map(Float64,o[:t])
-    t = o[:t]; Ts = o[:Ts]
+    o[:Δt] = map(Float64,o[:Δt])
+    t = o[:t]; Ts = o[:Ts]; Δt = o[:Δt]
     initialize_backend(:Sundials)
     opts = buildOptions(o,SUNDIALS_OPTION_LIST,SUNDIALS_ALIASES,SUNDIALS_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -250,8 +251,17 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     else
       f! = (t,u,du) -> (prob.f(reshape(du,sizeu),reshape(u,sizeu),t); u = vec(u); du=vec(du); 0)
     end
-    ts = [t;Ts] # No adaptive
-    ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator)
+    ts = [t;Ts]
+    if command_opts[:adaptive]
+      ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator)
+    else
+      ts = collect(t:Δt:Ts[end])
+      if length(Ts)>1
+        ts = [ts;Ts[1:end-1]]
+        sort(ts)
+      end
+      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator)
+    end
     t = ts[end]
     timeseries = GrowableArray(u₀;initvalue=false)
     if typeof(u₀)<:AbstractArray
