@@ -1125,7 +1125,68 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       if adaptive
         for i in uidx
           utilde[i] = (u[i] + b1*k1[i] + b3*k3[i]) + (b4*k4[i] + b5*k5[i] + b6*k6[i] + b7*k7[i])
-          tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol[i]))^2
+          tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol))^2
+        end
+        EEst = sqrt( sum(tmp) * normfactor)
+      else
+        u = utmp
+      end
+      @ode_loopfooter
+    end
+  end
+  return u,t,timeseries,ts
+end
+
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:DP5Threaded,uType,uEltype,N,tType})
+  @ode_preamble
+  a21::uEltype,a31::uEltype,a32::uEltype,a41::uEltype,a42::uEltype,a43::uEltype,a51::uEltype,a52::uEltype,a53::uEltype,a54::uEltype,a61::uEltype,a62::uEltype,a63::uEltype,a64::uEltype,a65::uEltype,a71::uEltype,a73::uEltype,a74::uEltype,a75::uEltype,a76::uEltype,b1::uEltype,b3::uEltype,b4::uEltype,b5::uEltype,b6::uEltype,b7::uEltype,c1::uEltype,c2::uEltype,c3::uEltype,c4::uEltype,c5::uEltype,c6::uEltype = constructDP5(eltype(u))
+  k1::uType = similar(u)
+  k2::uType = similar(u)
+  k3::uType = similar(u)
+  k4::uType = similar(u)
+  k5::uType = similar(u)
+  k6::uType = similar(u)
+  k7::uType = similar(u)
+  utilde = similar(u)
+  tmp = similar(u)
+  uidx::Base.OneTo{Int64} = eachindex(u)
+  local EEst::uEltype
+  f(fsalfirst,u,t);  # Pre-start fsal
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      Threads.@threads for i in uidx
+        k1[i] = Δt*fsalfirst[i]
+        tmp[i] = u[i]+a21*k1[i]
+      end
+      f(k2,tmp,t+c1*Δt); k2*=Δt
+      Threads.@threads for i in eachindex(u)
+        tmp[i] = u[i]+a31*k1[i]+a32*k2[i]
+      end
+      f(k3,tmp,t+c2*Δt); k3*=Δt
+      Threads.@threads for i in uidx
+        tmp[i] = u[i]+a41*k1[i]+a42*k2[i]+a43*k3[i]
+      end
+      f(k4,tmp,t+c3*Δt); k4*=Δt
+      Threads.@threads for i in uidx
+        tmp[i] =(u[i]+a51*k1[i])+(a52*k2[i]+a53*k3[i]+a54*k4[i])
+      end
+      f(k5,tmp,t+c4*Δt); k5*=Δt
+      Threads.@threads for i in uidx
+        tmp[i] = (u[i]+a61*k1[i]+a62*k2[i]+a63*k3[i])+(a64*k4[i]+a65*k5[i])
+      end
+      f(k6,tmp,t+Δt); k6*=Δt
+      Threads.@threads for i in uidx
+        utmp[i] = (u[i]+a71*k1[i]+a73*k3[i])+(a74*k4[i]+a75*k5[i]+a76*k6[i])
+      end
+      f(fsallast,utmp,t+Δt);
+      Threads.@threads for i in uidx
+        k7[i]=Δt*fsallast[i]
+      end
+      if adaptive
+        for i in uidx
+          utilde[i] = (u[i] + b1*k1[i] + b3*k3[i]) + (b4*k4[i] + b5*k5[i] + b6*k6[i] + b7*k7[i])
+          tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol))^2
         end
         EEst = sqrt( sum(tmp) * normfactor)
       else
@@ -1460,7 +1521,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
         u = utmp
       end
       @ode_loopfooter
-    end    
+    end
   end
   # Dense output: a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615
   return u,t,timeseries,ts

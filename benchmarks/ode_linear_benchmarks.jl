@@ -38,6 +38,7 @@ elapsed6 = @elapsed sol6 =solve(prob::ODEProblem,[0,10];fullnormalize=true,alg=:
 elapsed7 = @elapsed sol7 =solve(prob::ODEProblem,[0,10];alg=:ExplicitRK) # Higher β by default
 elapsed8 = @elapsed sol8 =solve(prob::ODEProblem,[0,10];alg=:DP5,β=0.04) # Higher β by default
 elapsed9 = @elapsed sol9 =solve(prob::ODEProblem,[0,10];alg=:BS3,β=0.04) # Higher β by default
+elapsed10 = @elapsed sol10 =solve(prob::ODEProblem,[0,10];alg=:cvode_Adams)
 
 eff1 = 1/(sol1.errors[:final]*elapsed1)
 eff2 = 1/(sol2.errors[:final]*elapsed2)
@@ -47,7 +48,8 @@ eff5 = 1/(sol5.errors[:final]*elapsed5)
 eff6 = 1/(sol6.errors[:final]*elapsed6)
 eff7 = 1/(sol7.errors[:final]*elapsed7)
 eff8 = 1/(sol8.errors[:final]*elapsed8)
-eff9 = 1/(sol8.errors[:final]*elapsed9)
+eff9 = 1/(sol9.errors[:final]*elapsed9)
+eff10= 1/(sol10.errors[:final]*elapsed10)
 
 rat2 = eff1/eff3
 rat3 = eff1/eff4
