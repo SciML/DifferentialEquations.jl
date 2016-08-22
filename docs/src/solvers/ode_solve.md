@@ -6,7 +6,7 @@ solve(::ODEProblem,::AbstractArray)
 
 ## Recommended Methods
 
-Currently, a total of 118 algorithm choices are available. This guide is to help
+Currently, a total of 120 algorithm choices are available. This guide is to help
 you choose the right one.
 
 ### Non-Stiff Problems
@@ -31,8 +31,7 @@ solver, all Julia-defined numbers will work. This method uses ForwardDiff to
 automatically guess the Jacobian. For faster solving when the Jacobian is known,
 use `radau`. For highly stiff problems where Julia-defined numbers need to be used
 (SIUnits, Arbs), `:Trapezoid` is the current best choice. However, for the most
-efficient non-stiff solvers, use `:radau` or `:cvode` (note: the current Sundials
-wrapper for cvode does not include adaptive stepping. That is coming soon!)
+efficient non-stiff solvers, use `:radau` or `:cvode`.
 
 ## Full List of Methods
 
@@ -95,6 +94,11 @@ wrapper for cvode does not include adaptive stepping. That is coming soon!)
   - `:ode2_heun` - Heun's Method
   - `:ode4` - RK4
   - `:ode45_fe` - Runge-Kutta-Fehlberg 4/5 method
+
+* Sundials.jl
+
+ - `:cvode_BDF` - CVode Backward Differentiation Formula (BDF) solver.
+ - `:cvode_Adams` - CVode Adams-Moulton solver
 
 ## List of Supplied Tableaus
 
