@@ -111,7 +111,8 @@ with matrices), then the solver will use the matrices without error.
 
   * Wrappers for Sundials.jl. See [Conditional Dependences](/man/conditional_dependencies).
 
-    * cvode - The Lawrence Livermore CVODE mixed Adams-Moulton / BDF solver.
+    * cvode_BDF - The Lawrence Livermore CVODE BDF solver.
+    * cvode_Adams - The Lawrence Livermore CVODE BDF solver Adams-Moulton solver.
 
 
 * SODEs
