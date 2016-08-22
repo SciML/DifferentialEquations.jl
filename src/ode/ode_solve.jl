@@ -108,7 +108,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       normfactor = 1
     end
     if o[:β] == nothing # Use default β
-      if alg == :DP5 || alg == :DP5Vectorized
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
         β = 0.10 # More than Hairer's suggestion
       elseif alg == :DP8 || alg == :DP8Vectorized
         β = 0.07 # More than Hairer's suggestion
@@ -131,7 +131,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ts = Vector{tType}(0)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
-    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,T,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
     u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
@@ -229,6 +229,12 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     t = ts[end]
     u = timeseries[end]
   elseif alg ∈ SUNDIALS_ALGORITHMS
+    if alg == :cvode_BDF
+      integrator = :BDF
+    elseif alg ==  :cvode_Adams
+      integrator = :Adams
+    end
+
     sizeu = size(u)
     if typeof(u) <: Number
       u = [u]
@@ -245,15 +251,17 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       f! = (t,u,du) -> (prob.f(reshape(du,sizeu),reshape(u,sizeu),t); u = vec(u); du=vec(du); 0)
     end
     ts = [t;Ts] # No adaptive
-    vectimeseries = Sundials.cvode(f!,vec(u),ts)
+    ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator)
     t = ts[end]
+    timeseries = GrowableArray(u₀;initvalue=false)
     if typeof(u₀)<:AbstractArray
-      timeseries = GrowableArray(u₀;initvalue=false)
       for i=1:size(vectimeseries,1)
-        push!(timeseries,reshape(vectimeseries[i,:]',sizeu))
+        push!(timeseries,reshape(vectimeseries[i],sizeu))
       end
     else
-      timeseries = vectimeseries
+      for i=1:size(vectimeseries,1)
+        push!(timeseries,vectimeseries[i][1])
+      end
     end
     u = timeseries[end]
   end

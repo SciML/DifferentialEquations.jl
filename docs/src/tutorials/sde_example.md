@@ -11,7 +11,7 @@ du = f(u,t)dt + Σσᵢ(u,t)dWⁱ
 ```
 
 where ``f(u,t)=αu`` and ``σ(u,t)=βu``. We know via Stochastic Calculus that the
-solution to this equation is ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``. To solve this
+solution to this equation is ``u(t,W)=u₀\exp((α-\frac{β^2}{2})t+βW)``. To solve this
 numerically, we define a problem type by giving it the equation and the initial
 condition:
 
