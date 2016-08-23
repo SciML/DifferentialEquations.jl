@@ -1,4 +1,10 @@
-### ODE Examples
+### ODE Example
+α=1.01; const u₀=1/2
+ex_ode_linear_f(u,t,α) = α*u
+ex_ode_linear_ana(u₀,t) = u₀*exp(α*t)
+ex_ode_linear = ODEProblem(ex_ode_linear_f,u₀,analytic=ex_ode_linear_ana)
+
+ex_ode_linear_f2 = (u,t) -> ex_ode_linear_f(u,t,α)
 
 """Example problem with solution ``u(t)=u₀*exp(α*t)``"""
 function linearODEExample(;α=1,u₀=1/2)

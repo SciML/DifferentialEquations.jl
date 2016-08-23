@@ -705,7 +705,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
       if adaptive
         for i in uidx
           utilde[i] = u[i] + b1*k1[i] + b2*k2[i] + b3*k3[i] + b4*k4[i]
-          tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol[i]))^2
+          tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol))^2
         end
         EEst = sqrt( sum(tmp) * normfactor)
       else

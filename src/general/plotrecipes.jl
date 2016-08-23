@@ -101,7 +101,7 @@ end
     vals = [x for x in values(sim.errors)]
   end
   seriestype --> :path
-  label  --> [key for key in keys(sim.errors)]
+  label  --> [string(key) for key in keys(sim.errors)]'
   xguide  --> "Convergence Axis"
   yguide  --> "Error"
   xscale --> :log10
@@ -109,6 +109,39 @@ end
   sim.convergence_axis, vals
 end
 
+@recipe function f(shoot::Shootout)
+  seriestype --> :bar
+  legend := false
+  xguide --> "Time (s)"
+  yguide --> "Efficiency"
+  shoot.names,shoot.effs
+end
+
+@recipe function f(wp::WorkPrecision)
+  seriestype --> :path
+  label -->  wp.names'
+  xguide --> "Time (s)"
+  yguide --> "Error"
+  xscale --> :log10
+  yscale --> :log10
+  wp.times, wp.errors
+end
+
+@recipe function f(wp_set::WorkPrecisionSet)
+  seriestype --> :path
+  label -->  wp_set.names'
+  xguide --> "Time (s)"
+  yguide --> "Error"
+  xscale --> :log10
+  yscale --> :log10
+  errors = Vector{Any}(0)
+  times = Vector{Any}(0)
+  for i in 1:length(wp_set)
+    push!(errors,wp_set[i].errors)
+    push!(times,wp_set[i].times)
+  end
+  times,errors
+end
 
 @recipe function f(mesh::Mesh)
   seriestype --> :surface #:plot_trisurf

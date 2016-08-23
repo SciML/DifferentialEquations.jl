@@ -60,7 +60,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   else
     alg = :DP5 # Default algorithm
   end
-
   if alg ∈ DIFFERENTIALEQUATIONSJL_ALGORITHMS
     o2 = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
     for (k,v) in o
@@ -192,6 +191,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     else
       f! = (t,u,du) -> (prob.f(du,u,t))
     end
+    @code_llvm f!(1.0,1.5,1.0)
     ode  = ODE.ExplicitODE(t,u,f!)
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
@@ -253,26 +253,37 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     ts = [t;Ts]
     if command_opts[:adaptive]
-      ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator)
+      ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator=integrator)
+      timeseries = GrowableArray(u₀;initvalue=false)
+      if typeof(u₀)<:AbstractArray
+        for i=1:size(vectimeseries,1)
+          push!(timeseries,reshape(vectimeseries[i],sizeu))
+        end
+      else
+        for i=1:size(vectimeseries,1)
+          push!(timeseries,vectimeseries[i][1])
+        end
+      end
     else
       ts = collect(t:Δt:Ts[end])
       if length(Ts)>1
         ts = [ts;Ts[1:end-1]]
         sort(ts)
       end
-      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator)
+      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator)
+      timeseries = GrowableArray(u₀;initvalue=false)
+      if typeof(u₀)<:AbstractArray
+        for i=1:size(vectimeseries,1)
+          push!(timeseries,reshape(vectimeseries[i,:],sizeu))
+        end
+      else
+        for i=1:size(vectimeseries,1)
+          push!(timeseries,vectimeseries[i])
+        end
+      end
     end
     t = ts[end]
-    timeseries = GrowableArray(u₀;initvalue=false)
-    if typeof(u₀)<:AbstractArray
-      for i=1:size(vectimeseries,1)
-        push!(timeseries,reshape(vectimeseries[i],sizeu))
-      end
-    else
-      for i=1:size(vectimeseries,1)
-        push!(timeseries,vectimeseries[i][1])
-      end
-    end
+    println(vectimeseries)
     u = timeseries[end]
   end
 

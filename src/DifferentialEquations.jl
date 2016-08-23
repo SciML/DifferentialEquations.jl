@@ -49,14 +49,15 @@ module DifferentialEquations
   include("ode/ode_constants.jl")
   include("ode/ode_integrators.jl")
   include("ode/ode_solve.jl")
-  include("general/plotrecipes.jl")
   include("sde/sde_tableaus.jl")
+  include("general/benchmark.jl")
+  include("general/plotrecipes.jl")
 
   #Types
   export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
          ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
          SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau, MonteCarloSimulation,
-         ImplicitRKTableau
+         ImplicitRKTableau, Shootout, ShootoutSet
 
   #SDE Example Problems
   export linearSDEExample, cubicSDEExample, waveSDEExample, additiveSDEExample,
@@ -80,6 +81,9 @@ module DifferentialEquations
   export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,
           meshExample_Lshapemesh, meshExample_Lshapeunstructure, meshExample_oilpump,
           meshExample_wavymesh, meshExample_wavyperturbmesh
+
+  #Benchmark Functions
+  export ode_shootout, ode_shootoutset, ode_workprecision, ode_workprecision_set
 
   #Plot Functions
   export  plot, animate

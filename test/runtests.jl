@@ -29,6 +29,8 @@ println("Solver Interface Tests")
 (VERSION >= v"0.5-") && (@time @test include("internals/solution_get_tests.jl"))
 println("Run other Premades")
 @time @test include("internals/other_premades_tests.jl")
+println("Benchmark Tests")
+@time @test include("internals/benchmark_tests.jl")
 
 #ODE
 println("Linear ODE Tests")
@@ -51,6 +53,8 @@ println("Sundians.jl Tests")
 (TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl.jl")
 println("ODE Number Type Tests")
 @time @test include("ode/ode_numbertype_tests.jl")
+#println("ODE Unrolled Tests")
+#@time @test include("ode/ode_unrolled_comparison_tests.jl") # No until segfault fix
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
 println("ODE In-Place Tests")
