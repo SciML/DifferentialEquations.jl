@@ -74,3 +74,11 @@ at JuliaODE/ODE.jl. To install this version of ODE.jl, use the following command
 ```julia
 Pkg.clone("https://github.com/JuliaODE/ODE.jl")
 ```
+
+### Sundials.jl
+The wrapper works on my fork until a PR goes through. You can install this via:
+
+```julia
+Pkg.clone("https://github.com/ChrisRackauckas/Sundials")
+Pkg.checkout("Sundials","handles")
+```
