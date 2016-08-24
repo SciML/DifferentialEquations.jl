@@ -238,11 +238,11 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if typeof(u) <: Number
       u = [u]
     end
+    u = map(Float64,u) # Needs Float64
     # Needs robustness
     o[:Ts] = map(Float64,o[:Ts])
     o[:t] = map(Float64,o[:t])
-    o[:Δt] = map(Float64,o[:Δt])
-    t = o[:t]; Ts = o[:Ts]; Δt = o[:Δt]
+    t = o[:t]; Ts = o[:Ts];
     initialize_backend(:Sundials)
     opts = buildOptions(o,SUNDIALS_OPTION_LIST,SUNDIALS_ALIASES,SUNDIALS_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -282,7 +282,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       end
     end
     t = ts[end]
-    println(vectimeseries)
     u = timeseries[end]
   end
 

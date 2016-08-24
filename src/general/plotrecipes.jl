@@ -112,7 +112,7 @@ end
 @recipe function f(shoot::Shootout)
   seriestype --> :bar
   legend := false
-  xguide --> "Time (s)"
+  xguide --> "Algorithms"
   yguide --> "Efficiency"
   shoot.names,shoot.effs
 end
