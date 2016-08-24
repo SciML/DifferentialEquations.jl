@@ -23,7 +23,7 @@ sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode4)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode45_fe)
 
-prob = twoDimlinearODEExample()
+prob = prob_ode_2Dlinear
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode1)
 TEST_PLOT && plot(sol,plot_analytic=true)
@@ -45,7 +45,7 @@ sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode4)
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode45_fe)
 
-prob = twoDimlinearODEExample!()
+prob = prob_ode_2Dlinear
 
 sol =solve(prob::ODEProblem,[0,1];Δt=Δt,save_timeseries=true,alg=:ode1)
 TEST_PLOT && plot(sol,plot_analytic=true)

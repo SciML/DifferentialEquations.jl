@@ -1,11 +1,8 @@
 # This definitely needs cleaning
 using DifferentialEquations
 probArr = Vector{DEProblem}(2)
-bigprobArr = Vector{DEProblem}(2)
-probArr[1] = linearODEExample()
-probArr[2] = twoDimlinearODEExample()
-bigprobArr[1] = linearODEExample(u₀=BigFloat(1),α=BigFloat(1))
-bigprobArr[2] = twoDimlinearODEExample(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
+probArr[1] = prob_ode_linear
+probArr[2] = prob_ode_2Dlinear
 srand(100)
 ## Convergence Testing
 println("Convergence Test on Linear")
@@ -15,7 +12,6 @@ superduperbool = Vector{Bool}(2)
 
 for i = 1:2
   prob = probArr[i]
-  bigprob = bigprobArr[i]
   println("Special RKs")
   sim = test_convergence(Δts,prob,alg=:Euler)
   bool1 = abs(sim.𝒪est[:final]-1) < testTol

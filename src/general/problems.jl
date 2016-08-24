@@ -9,7 +9,7 @@ u_t = Δu + f
 
 with bounday conditions `gD` on the dirichlet boundary and gN on the neumann boundary.
 Linearity is determined by whether the forcing function `f` is a function of two
-variables `(x,t)` or three `(u,x,t)` (with `x=[:,1]` and `y=[:,2]`).
+variables `(t,x)` or three `(t,x,u)` (with `x=[:,1]` and `y=[:,2]`).
 
 If they keyword `σ` is given, then this wraps the data that define a 2D stochastic heat equation
 
@@ -25,10 +25,10 @@ u_t = Δu + f + σdW_t
 * `HeatProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and `f`.
   If your initial data is a vector, wrap it as `u₀(x) = vector`.
 
-Note: If all functions are of `(x,t)`, then the program assumes it's linear. Write
+Note: If all functions are of `(t,x)`, then the program assumes it's linear. Write
 your functions using the math to program syntrax translation: ``x`` `= x[:,1]` and ``y`` `= x[:,2]`.
-Use `f=f(u,x,t)` and `σ=σ(u,x,t)` (if specified) for nonlinear problems
-(with the boundary conditions still (x,t)). Systems of equations can be specified
+Use `f=f(t,x,u)` and `σ=σ(t,x,u)` (if specified) for nonlinear problems
+(with the boundary conditions still (t,x)). Systems of equations can be specified
 with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
 ###Keyword Arguments
@@ -71,17 +71,17 @@ type HeatProblem <: DEProblem
   function HeatProblem(analytic,Du,f;gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     islinear = numparameters(f)==2
     knownanalytic = true
-    u₀(x) = analytic(x,0)
+    u₀(x) = analytic(0,x)
     numvars = size(u₀([0 0
                        0 0
                        0 0]),2)
     gD = analytic
     if gN == nothing
-      gN=(x,t)->zeros(size(x,1),numvars)
+      gN=(t,x)->zeros(size(x,1),numvars)
     end
     if σ==nothing
       stochastic=false
-      σ=(x,t)->zeros(size(x,1),numvars)
+      σ=(t,x)->zeros(size(x,1),numvars)
     else
       stochastic=true
     end
@@ -97,7 +97,7 @@ type HeatProblem <: DEProblem
   function HeatProblem(u₀,f;gD=nothing,gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     if σ==nothing
       stochastic=false
-      σ=(x,t)->zeros(size(x,1))
+      σ=(t,x)->zeros(size(x,1))
     else
       stochastic=true
     end
@@ -108,10 +108,10 @@ type HeatProblem <: DEProblem
         u₀=(x)->zeros(size(x,1))
       end
       if gD == nothing
-        gD=(x,t)->zeros(size(x,1))
+        gD=(t,x)->zeros(size(x,1))
       end
       if gN == nothing
-        gN=(x,t)->zeros(size(x,1))
+        gN=(t,x)->zeros(size(x,1))
       end
       if D == nothing
         D = 1.0
@@ -124,10 +124,10 @@ type HeatProblem <: DEProblem
         numvars = 1
         u₀=(x)->zeros(size(x,1),numvars)
         if gD == nothing
-          gD=(x,t)->zeros(size(x,1),numvars)
+          gD=(t,x)->zeros(size(x,1),numvars)
         end
         if gN == nothing
-          gN=(x,t)->zeros(size(x,1),numvars)
+          gN=(t,x)->zeros(size(x,1),numvars)
         end
         if D == nothing
           D = 1.0
@@ -135,10 +135,10 @@ type HeatProblem <: DEProblem
       elseif u₀==nothing #numvars!=nothing
         u₀=(x)->zeros(size(x,1),numvars) #Default to zero
         if gD == nothing
-          gD=(x,t)->zeros(size(x,1),numvars)
+          gD=(t,x)->zeros(size(x,1),numvars)
         end
         if gN == nothing
-          gN=(x,t)->zeros(size(x,1),numvars)
+          gN=(t,x)->zeros(size(x,1),numvars)
         end
         if D == nothing
           D = ones(1,numvars)
@@ -342,7 +342,7 @@ type SDEProblem <: DEProblem
     isinplace = numparameters(f)==3
     if analytic==nothing
       knownanalytic = false
-      analytic=(u,t,W)->0
+      analytic=(t,u,W)->0
     else
       knownanalytic = true
     end
@@ -395,7 +395,7 @@ function ODEProblem(f::Function,u₀;analytic=nothing)
   isinplace = numparameters(f)==3
   if analytic==nothing
     knownanalytic = false
-    analytic=(du,u,t)->0
+    analytic=(t,u,du)->0
   else
     knownanalytic = true
   end

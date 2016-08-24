@@ -2,11 +2,11 @@ using DifferentialEquations
 
 ## Setup Tests
 
-prob = linearODEExample()
+prob = prob_ode_linear
 
 probs = Vector{ODEProblem}(2)
 probs[1] = prob
-probs[2] = twoDimlinearODEExample!()
+probs[2] = prob_ode_2Dlinear
 
 tspan = [0,1]
 tspans = Vector{Vector{Int64}}(2)

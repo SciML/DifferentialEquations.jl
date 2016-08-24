@@ -508,7 +508,7 @@ end
 
 function getL2error(fem_mesh::FEMmesh,sol,u)
   if fem_mesh.evolutionEq
-    return(getL2error(fem_mesh.node,fem_mesh.elem,x->sol(x,fem_mesh.T),u))
+    return(getL2error(fem_mesh.node,fem_mesh.elem,x->sol(fem_mesh.T,x),u))
   else
     return(getL2error(fem_mesh.node,fem_mesh.elem,sol,u))
   end
@@ -516,7 +516,7 @@ end
 
 function getH1error(fem_mesh::FEMmesh,Du,u)
   if fem_mesh.evolutionEq
-    return(getH1error(fem_mesh.node,fem_mesh.elem,x->Du(x,fem_mesh.T),u))
+    return(getH1error(fem_mesh.node,fem_mesh.elem,x->Du(fem_mesh.T,x),u))
   else
     return(getH1error(fem_mesh.node,fem_mesh.elem,Du,u))
   end

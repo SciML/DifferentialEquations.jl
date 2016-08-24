@@ -7,10 +7,10 @@ folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/
 In this example we will solve the equation
 
 ```math
-du = f(u,t)dt + Σσᵢ(u,t)dWⁱ
+du = f(t,u)dt + Σσᵢ(t,u)dWⁱ
 ```
 
-where ``f(u,t)=αu`` and ``σ(u,t)=βu``. We know via Stochastic Calculus that the
+where ``f(t,u)=αu`` and ``σ(t,u)=βu``. We know via Stochastic Calculus that the
 solution to this equation is ``u(t,W)=u₀\exp((α-\frac{β^2}{2})t+βW)``. To solve this
 numerically, we define a problem type by giving it the equation and the initial
 condition:
@@ -20,8 +20,8 @@ using DifferentialEquations
 α=1
 β=1
 u₀=1/2
-f(u,t) = α*u
-σ(u,t) = β*u
+f(t,u) = α*u
+σ(t,u) = β*u
 Δt = 1//2^(4) #The initial timestepping size. It will automatically assigned if not given.
 tspan = [0,1] # The timespan. This is the default if not given.
 ```
@@ -32,7 +32,7 @@ a good way to judge how accurate the algorithms are, or is used to test converge
 of the algorithms for methods developers. Thus we define the problem object with:
 
 ```julia
-analytic(u₀,t,W) = u₀*exp((α-(β^2)/2)*t+β*W)
+analytic(t,u₀,W) = u₀*exp((α-(β^2)/2)*t+β*W)
 prob = SDEProblem(f,σ,u₀,analytic=analytic)
 ```
 

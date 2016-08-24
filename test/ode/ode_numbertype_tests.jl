@@ -1,10 +1,10 @@
 using DifferentialEquations, Plots
 srand(100)
 
-prob = linearODEExample()
+prob = prob_ode_linear
 sol3 =solve(prob::ODEProblem,[0,1],Δt=1/2^(6),save_timeseries=true,alg=:RK4,abstol=1,reltol=0)
 
-prob = linearODEExample(u₀=BigInt(1)//BigInt(2))
+prob = prob_ode_bigfloatlinear
 sol =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:RK4,abstol=1,reltol=0)
 sol2 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)/BigInt(2)^(6),save_timeseries=true,alg=:RK4,abstol=1,reltol=0)
 
@@ -31,7 +31,7 @@ sol6 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=
 bool9 = 1e-10 < abs(float(sol6.u) - sol3.u) < 3e-9
 bool10 = typeof(sol6.u) == Rational{BigInt}
 
-prob = linearODEExample(u₀=BigInt(1)/BigInt(2))
+prob = prob_ode_bigfloatlinear
 sol7 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)//BigInt(2)^(6),save_timeseries=true,alg=:ExplicitRK,adaptive=true,abstol=1,reltol=0,tableau=tab)
 bool11 = 1e-10 < abs(float(sol7.u) - sol3.u) < 3e-9
 bool12 = typeof(sol7.u) == BigFloat

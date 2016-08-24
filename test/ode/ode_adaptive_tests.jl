@@ -1,5 +1,5 @@
 using DifferentialEquations,Plots
-prob = twoDimlinearODEExample()
+prob = prob_ode_2Dlinear
 ## Solve and plot
 println("Solve and Plot")
 sol =solve(prob::ODEProblem,[0,1],Δt=1/2^4,save_timeseries=true,alg=:Rosenbrock32,adaptive=true)

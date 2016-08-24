@@ -9,7 +9,7 @@ a HeatProblem which contains the function ``f`` and the boundary conditions. We
 specify one as follows:
 
 ```julia
-f(u,x,t)  = ones(size(x,1)) - .5u
+f(t,x,u)  = ones(size(x,1)) - .5u
 u₀(x) = zeros(size(x,1))
 prob = HeatProblem(u₀,f)
 ```

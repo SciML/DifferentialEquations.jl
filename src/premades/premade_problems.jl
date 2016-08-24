@@ -1,63 +1,73 @@
-### ODE Example
-α=1.01; const u₀=1/2
-ex_ode_linear_f(u,t,α) = α*u
-ex_ode_linear_ana(u₀,t) = u₀*exp(α*t)
-ex_ode_linear = ODEProblem(ex_ode_linear_f,u₀,analytic=ex_ode_linear_ana)
+srand(100)
 
-ex_ode_linear_f2 = (u,t) -> ex_ode_linear_f(u,t,α)
+### ODE Examples
 
-"""Example problem with solution ``u(t)=u₀*exp(α*t)``"""
-function linearODEExample(;α=1,u₀=1/2)
-  f(u,t) = α*u
-  analytic(u₀,t) = u₀*exp(α*t)
-  return(ODEProblem(f,u₀,analytic=analytic))
-end
+# Linear ODE
+f = (t,u) -> (1.01*u)
+analytic = (t,u₀) -> u₀*exp(1.01*t)
+"""Linear ODE on Float64"""
+prob_ode_linear = ODEProblem(f,1/2,analytic=analytic)
 
-"""Van der Pol Equations. For difficult version, use α=1e6"""
-function vanDerPolExample(α=1,u₀=[0;sqrt(3)])
-  function f(du,u,t)
-    du[1] = ((1-u[2].^2)*u[1] - u[2])*α
-    du[2] = u[1]
+const linear_bigα = parse(BigFloat,"1.01")
+f = (t,u) -> (linear_bigα*u)
+analytic = (t,u₀) -> u₀*exp(linear_bigα*t)
+"""Linear ODE on Float64"""
+prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),analytic=analytic)
+
+f = (t,u,du) -> begin
+  for i in 1:length(u)
+    du[i] = 1.01*u[i]
   end
-  return(ODEProblem(f,u₀))
 end
-
-"""Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
-function twoDimlinearODEExample(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
-  f(u,t) = α.*u
-  analytic(u₀,t) = u₀.*exp(α.*t)
-  return(ODEProblem(f,u₀,analytic=analytic))
-end
-
-"""Example problem of 8 linear ODEs (as a 4x2 matrix) with solution ``u(t)=exp(α.*t)`` and random initial conditions"""
-function twoDimlinearODEExample!(;α=ones(4,2),u₀=rand(4,2).*ones(4,2)/2)
-  function f(du,u,t)
-    @inbounds for i in eachindex(u)
-      du[i] = α[i]*u[i]
-    end
-    du
+analytic = (t,u₀) -> u₀*exp(1.01*t)
+"""2D Linera ODE, standard 4x2"""
+prob_ode_2Dlinear = ODEProblem(f,rand(4,2),analytic=analytic)
+"""2D Linear ODE, 100x100"""
+prob_ode_large2Dlinear = ODEProblem(f,rand(100,100),analytic=analytic)
+"""2D Linaer ODE, bigfloats"""
+f = (t,u,du) -> begin
+  for i in 1:length(u)
+    du[i] = linear_bigα*u[i]
   end
-  analytic(u₀,t) = u₀.*exp(α.*t)
-  return(ODEProblem(f,u₀,analytic=analytic))
 end
+prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
+f = (t,u) -> 1.01*u
+"""2D Linear ODE, not in place."""
+prob_ode_2Dlinear_notinplace = ODEProblem(f,rand(4,2),analytic=analytic)
 
-function lorenzAttractorODEExample(;σ=10.,ρ=28.,β=8//3,u₀=ones(3))
-  f₁(u,t) = σ*(u[2]-u[1])
-  f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
-  f₃(u,t) = u[1]*u[2] - β*u[3]
-  f(u,t) = [f₁(u,t);f₂(u,t);f₃(u,t)]
-  return(ODEProblem(f,u₀))
+#Van der Pol Equations
+
+f = (t,u,du) -> begin
+  du[1] = ((1-u[2].^2)*u[1] - u[2])
+  du[2] = u[1]
 end
-
-function lorenzAttractorODEExample!(;σ=10.,ρ=28.,β=8//3,u₀=ones(3))
-  function f(du,u,t)
-    du[1] = σ*(u[2]-u[1])
-    du[2] = u[1]*(ρ-u[3]) - u[2]
-    du[3] = u[1]*u[2] - β*u[3]
-  end
-  return(ODEProblem(f,u₀))
+"""Van der Pol Equations. For non-stiff version"""
+prob_ode_vanderpol = ODEProblem(f,[0;sqrt(3)])
+f = (t,u,du) -> begin
+  du[1] = ((1-u[2].^2)*u[1] - u[2])*1e6
+  du[2] = u[1]
 end
+"""Van der Pol Equations. For difficult version."""
+prob_ode_vanderpol_stiff = ODEProblem(f,[0;sqrt(3)])
 
+# Lorenz Attractor
+
+f = (t,u,du) -> begin
+ du[1] = 10.0(u[2]-u[1])
+ du[2] = u[1]*(28.0-u[3]) - u[2]
+ du[3] = u[1]*u[2] - 8/3u[3]
+end
+"""Lorenz Attractor"""
+prob_ode_lorenz = ODEProblem(f,ones(3))
+
+# ROBER
+
+f = (t,u,du) -> begin
+  du[1] = -0.04*u[1]+1e4*u[2]*u[3]
+  du[2] =  0.04*u[1]-3e7*(u[2])^2-1e4*u[2]*u[3]
+  du[3] =  3e7*(u[2])^2
+  nothing
+end
 """
 The Robertson biochemical reactions
 
@@ -67,97 +77,87 @@ Or from Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstif
 
 Usually solved on [0,1e11]
 """
-function ROBERODEExample(u₀=[1.0;0.0;0.0],k₁=0.04,k₂=3e7,k₃=1e4)
-  function f(du,u,t)
-    du[1] = -k₁*u[1]+k₃*u[2]*u[3]
-    du[2] =  k₁*u[1]-k₂*(u[2])^2-k₃*u[2]*u[3]
-    du[3] =  k₂*(u[2])^2
-    nothing
-  end
-  return(ODEProblem(f,u₀))
-end
+prob_ode_rober = ODEProblem(f,[1.0;0.0;0.0])
 
+# Three Body
+const threebody_μ = parse(BigFloat,"0.012277471"); const threebody_μ′ = 1 - threebody_μ
+
+f = (t,u,du) -> begin
+  # 1 = y₁
+  # 2 = y₂
+  # 3 = y₁'
+  # 4 = y₂'
+  D₁ = ((u[1]+threebody_μ)^2 + u[2]^2)^(3/2)
+  D₂ = ((u[1]-threebody_μ′)^2 + u[2]^2)^(3/2)
+  du[1] = u[3]
+  du[2] = u[4]
+  du[3] = u[1] + 2u[4] - threebody_μ′*(u[1]+threebody_μ)/D₁ - threebody_μ*(u[1]-threebody_μ′)/D₂
+  du[4] = u[2] - 2u[3] - threebody_μ′*u[2]/D₁ - threebody_μ*u[2]/D₂
+end
 """
 From Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 129
 
 Usually solved on t₀ = 0.0; T = parse(BigFloat,"17.0652165601579625588917206249")
 Periodic with that setup
 """
-function threebodyODEExample(u₀=[0.994, 0.0, 0.0, parse(BigFloat,"-2.00158510637908252240537862224")])
-  μ = parse(BigFloat,"0.012277471"); μ′ = 1 - μ
-  ToT = 3/2
-  function f(du,u,t)
-    # 1 = y₁
-    # 2 = y₂
-    # 3 = y₁'
-    # 4 = y₂'
-    D₁ = ((u[1]+μ)^2 + u[2]^2)^ToT
-    D₂ = ((u[1]-μ′)^2 + u[2]^2)^ToT
-    du[1] = u[3]
-    du[2] = u[4]
-    du[3] = u[1] + 2u[4] - μ′*(u[1]+μ)/D₁ - μ*(u[1]-μ′)/D₂
-    du[4] = u[2] - 2u[3] - μ′*u[2]/D₁ - μ*u[2]/D₂
-    nothing
-  end
-  return(ODEProblem(f,u₀))
-end
+prob_ode_threebody = ODEProblem(f,[0.994, 0.0, 0.0, parse(BigFloat,"-2.00158510637908252240537862224")])
 
 ### SDE Examples
 
 """Example problem with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
 function linearSDEExample(;α=1,β=1,u₀=1/2)
-  f(u,t) = α*u
-  σ(u,t) = β*u
-  analytic(u₀,t,W) = u₀*exp((α-(β^2)/2)*t+β*W)
+  f(t,u) = α*u
+  σ(t,u) = β*u
+  analytic(t,u₀,W) = u₀*exp((α-(β^2)/2)*t+β*W)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
 """Example problem of 8 linear SDEs (as a 4x2 matrix) with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
 function twoDimlinearSDEExample(;α=ones(4,2),β=ones(4,2),u₀=ones(4,2)/2)
-  f(u,t) = α.*u
-  σ(u,t) = β.*u
-  analytic(u₀,t,W) = u₀.*exp((α-(β.^2)./2).*t+β.*W)
+  f(t,u) = α.*u
+  σ(t,u) = β.*u
+  analytic(t,u₀,W) = u₀.*exp((α-(β.^2)./2).*t+β.*W)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
 """Example problem with solution ``u(t,W)=((1+u₀)*exp(W)+u₀-1)./((1+u₀)*exp(W)+1-u₀)``"""
 function cubicSDEExample(;u₀=1/2)
-  f(u,t) = -.25*u.*(1-u.^2)
-  σ(u,t) = .5*(1-u.^2)
-  analytic(u₀,t,W) = ((1+u₀)*exp(W)+u₀-1)./((1+u₀)*exp(W)+1-u₀)
+  f(t,u) = -.25*u.*(1-u.^2)
+  σ(t,u) = .5*(1-u.^2)
+  analytic(t,u₀,W) = ((1+u₀)*exp(W)+u₀-1)./((1+u₀)*exp(W)+1-u₀)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
 """Example problem with solution ``u(t,W)=atan(0.1*W + tan(u₀))``"""
 function waveSDEExample(;u₀=1.)
-  f(u,t) = -0.01*sin(u).*cos(u).^3
-  σ(u,t) = 0.1*cos(u).^2
-  analytic(u₀,t,W) = atan(0.1*W + tan(u₀))
+  f(t,u) = -0.01*sin(u).*cos(u).^3
+  σ(t,u) = 0.1*cos(u).^2
+  analytic(t,u₀,W) = atan(0.1*W + tan(u₀))
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
 """Example additive noise problem with solution ``u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)``"""
 function additiveSDEExample(;α=0.1,β=0.05,u₀=1.)
-  f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
-  σ(u,t) = α*β./sqrt(1+t)
-  analytic(u₀,t,W) = u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)
+  f(t,u) = β./sqrt(1+t) - u./(2*(1+t))
+  σ(t,u) = α*β./sqrt(1+t)
+  analytic(t,u₀,W) = u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
 """Multiple Ito dimension extension of additiveSDEExample"""
 function multiDimAdditiveSDEExample(;α=[0.1;0.1;0.1;0.1],β=[0.5;0.25;0.125;0.1115],u₀=[1.;1.;1.;1.])
-  f(u,t) = β./sqrt(1+t) - u./(2*(1+t))
-  σ(u,t) = α.*β./sqrt(1+t)
-  analytic(u₀,t,W) = u₀./sqrt(1+t) + β.*(t+α.*W)/sqrt(1+t)
+  f(t,u) = β./sqrt(1+t) - u./(2*(1+t))
+  σ(t,u) = α.*β./sqrt(1+t)
+  analytic(t,u₀,W) = u₀./sqrt(1+t) + β.*(t+α.*W)/sqrt(1+t)
   return(SDEProblem(f,σ,u₀,analytic=analytic))
 end
 
 function lorenzAttractorSDEExample(;α=10.,ρ=28.,β=8//3,u₀=ones(3),σ₀=1)
-  f₁(u,t) = α*(u[2]-u[1])
-  f₂(u,t) = u[1]*(ρ-u[3]) - u[2]
-  f₃(u,t) = u[1]*u[2] - β*u[3]
-  f(u,t) = [f₁(u,t);f₂(u,t);f₃(u,t)]
-  σ(u,t) = σ₀ #Additive
+  f₁(t,u) = α*(u[2]-u[1])
+  f₂(t,u) = u[1]*(ρ-u[3]) - u[2]
+  f₃(t,u) = u[1]*u[2] - β*u[3]
+  f(t,u) = [f₁(t,u);f₂(t,u);f₃(t,u)]
+  σ(t,u) = σ₀ #Additive
   return(SDEProblem(f,σ,u₀))
 end
 
@@ -241,7 +241,7 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,noiseLevel=1)
   nSO=2.
   nzo=2.
   GE = 1.
-  function f(y,t)
+  function f(t,y)
     # y(1) = snailt
     # y(2) = SNAIL
     # y(3) = miR34t
@@ -285,14 +285,14 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,noiseLevel=1)
     return(dy)
   end
 
-  function σ1(y,t)
+  function σ1(t,y)
     dσ = zeros(19)
     dσ[1] = noiseLevel*1.5y[1]
     dσ[18]= noiseLevel*6y[18]
     return(dσ)
   end
 
-  function σ2(y,t)
+  function σ2(t,y)
     dσ = zeros(19)
     dσ[1] = 0.02y[1]
     dσ[16]= 0.02y[16]
@@ -319,9 +319,9 @@ end
 
 "Example problem with solution: ``u(x,y,t)=0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x-t+0.5).^2 + (y-t+0.5).^2))``"
 function heatProblemExample_moving()
-  analytic(x,t) = 0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))
-  Du(x,t) = -50[analytic(x,t).*(0.5-t+x[:,1]) analytic(x,t).*(0.5-t+x[:,2])]
-  f(x,t) = (-5).*exp((-25).*((3/2)+6.*t.^2+x[:,1]+x[:,1].^2+x[:,2]+x[:,2].^2+(-2).*t.*(3+x[:,1]+
+  analytic(t,x) = 0.1*(1-exp(-100*(t-0.5).^2)).*exp(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))
+  Du(t,x) = -50[analytic(t,x).*(0.5-t+x[:,1]) analytic(t,x).*(0.5-t+x[:,2])]
+  f(t,x) = (-5).*exp((-25).*((3/2)+6.*t.^2+x[:,1]+x[:,1].^2+x[:,2]+x[:,2].^2+(-2).*t.*(3+x[:,1]+
     x[:,2]))).*((-20)+(-100).*t.^2+(-49).*x[:,1]+(-50).*x[:,1].^2+(-49).*x[:,2]+(-50).*
     x[:,2].^2+2.*t.*(47+50.*x[:,1]+50.*x[:,2])+exp(25.*(1+(-2).*t).^2).*(22+
     100.*t.^2+49.*x[:,1]+50.*x[:,1].^2+49.*x[:,2]+50.*x[:,2].^2+(-2).*t.*(49+50.*x[:,1]+50.*x[:,2])))
@@ -330,58 +330,58 @@ end
 
 "Example problem with solution: ``u(x,y,t)=exp(-10((x-.5).^2 + (y-.5).^2 )-t)``"
 function heatProblemExample_diffuse()
-  analytic(x,t) = exp(-10((x[:,1]-.5).^2 + (x[:,2]-.5).^2 )-t)
-  f(x,t)   = exp(-t-5*(1-2x[:,1]+2x[:,1].^2 - 2x[:,2] +2x[:,2].^2)).*(-161 + 400*(x[:,1] - x[:,1].^2 + x[:,2] - x[:,2].^2))
-  Du(x,t) = -20[analytic(x,t).*(x[:,1]-.5) analytic(x,t).*(x[:,2]-.5)]
+  analytic(t,x) = exp(-10((x[:,1]-.5).^2 + (x[:,2]-.5).^2 )-t)
+  f(t,x)   = exp(-t-5*(1-2x[:,1]+2x[:,1].^2 - 2x[:,2] +2x[:,2].^2)).*(-161 + 400*(x[:,1] - x[:,1].^2 + x[:,2] - x[:,2].^2))
+  Du(t,x) = -20[analytic(t,x).*(x[:,1]-.5) analytic(t,x).*(x[:,2]-.5)]
   return(HeatProblem(analytic,Du,f))
 end
 
 "Example problem which starts with 1 at (0.5,0.5) and solves with ``f=gD=0``"
 function heatProblemExample_pure()
-  f(x,t)  = zeros(size(x,1))
+  f(t,x)  = zeros(size(x,1))
   u₀(x) = float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) #Only mass at middle of (0,1)^2
   return(HeatProblem(u₀,f))
 end
 
 "Example problem which starts with 0 and solves with ``f(u)=1-u/2``"
 function heatProblemExample_birthdeath()
-  f(u,x,t)  = ones(size(x,1)) - .5u
+  f(t,x,u)  = ones(size(x,1)) - .5u
   u₀(x) = zeros(size(x,1))
   return(HeatProblem(u₀,f))
 end
 
 "Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=1-v``"
 function heatProblemExample_birthdeathsystem()
-  f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
-  f₂(u,x,t)  = ones(size(x,1)) -   u[:,2]
-  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  f₁(t,x,u)  = ones(size(x,1)) - .5u[:,1]
+  f₂(t,x,u)  = ones(size(x,1)) -   u[:,2]
+  f(t,x,u) = [f₁(t,x,u) f₂(t,x,u)]
   u₀(x) = ones(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
   return(HeatProblem(u₀,f))
 end
 
 "Example problem which solves the homogeneous Heat equation with all mass starting at (1/2,1/2) with two different diffusion constants."
 function heatProblemExample_diffusionconstants(;D=[.01 .001],max=1)
-  f₁(u,x,t)  = zeros(size(x,1))
-  f₂(u,x,t)  = zeros(size(x,1))
-  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  f₁(t,x,u)  = zeros(size(x,1))
+  f₂(t,x,u)  = zeros(size(x,1))
+  f(t,x,u) = [f₁(t,x,u) f₂(t,x,u)]
   u₀(x) = [max*float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) max*float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6))]  # size (x,2), 2 meaning 2 variables
   return(HeatProblem(u₀,f,D=D))
 end
 
 "Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=.5u-v``"
 function heatProblemExample_birthdeathinteractingsystem()
-  f₁(u,x,t)  = ones(size(x,1)) - .5u[:,1]
-  f₂(u,x,t)  = .5u[:,1] -   u[:,2]
-  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  f₁(t,x,u)  = ones(size(x,1)) - .5u[:,1]
+  f₂(t,x,u)  = .5u[:,1] -   u[:,2]
+  f(t,x,u) = [f₁(t,x,u) f₂(t,x,u)]
   u₀(x) = ones(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
   return(HeatProblem(u₀,f))
 end
 
 "Example problem which solves the Gray-Scott equations with quasi-random initial conditions"
 function heatProblemExample_grayscott(;ρ=.03,k=.062,D=[1e-3 .5e-3])
-  f₁(u,x,t)  = + u[:,1].*u[:,2].*u[:,2] + ρ*(1-u[:,2])
-  f₂(u,x,t)  = u[:,1].*u[:,2].*u[:,2] -(ρ+k).*u[:,2]
-  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  f₁(t,x,u)  = + u[:,1].*u[:,2].*u[:,2] + ρ*(1-u[:,2])
+  f₂(t,x,u)  = u[:,1].*u[:,2].*u[:,2] -(ρ+k).*u[:,2]
+  f(t,x,u) = [f₁(t,x,u) f₂(t,x,u)]
   u₀(x) = [ones(size(x,1))+rand(size(x,1)) .25.*float(((.2.<x[:,1].<.6) &
           (.2.<x[:,2].<.6)) | ((.85.<x[:,1]) & (.85.<x[:,2])))] # size (x,2), 2 meaning 2 variables
   return(HeatProblem(u₀,f,D=D))
@@ -389,9 +389,9 @@ end
 
 "Example problem which solves the Gierer-Meinhardt equations wtih quasi-random initial perturbations."
 function heatProblemExample_gierermeinhardt(;a=1,α=1,D=[0.01 1.0],ubar=1,vbar=0,β=10,startNoise=0.01)
-  f₁(u,x,t)  = a*u[:,1].*u[:,1]./u[:,2] + ubar - α*u[:,1]
-  f₂(u,x,t)  = a*u[:,1].*u[:,1] + vbar -β.*u[:,2]
-  f(u,x,t) = [f₁(u,x,t) f₂(u,x,t)]
+  f₁(t,x,u)  = a*u[:,1].*u[:,1]./u[:,2] + ubar - α*u[:,1]
+  f₂(t,x,u)  = a*u[:,1].*u[:,1] + vbar -β.*u[:,2]
+  f(t,x,u) = [f₁(t,x,u) f₂(t,x,u)]
   uss = (ubar +β)/α
   vss = (α/β)*uss.^2
   u₀(x) = [uss*ones(size(x,1))+startNoise*rand(size(x,1)) vss*ones(size(x,1))] # size (x,2), 2 meaning 2 variables
@@ -400,9 +400,9 @@ end
 
 "Example problem which starts with 0 and solves with ``f(u)=1-u/2`` with noise ``σ(u)=10u^2``"
 function heatProblemExample_stochasticbirthdeath()
-  f(u,x,t)  = ones(size(x,1)) - .5u
+  f(t,x,u)  = ones(size(x,1)) - .5u
   u₀(x) = zeros(size(x,1))
-  σ(u,x,t) = 1u.^2
+  σ(t,x,u) = 1u.^2
   return(HeatProblem(u₀,f,σ=σ))
 end
 
@@ -425,25 +425,25 @@ end
 
 "Example problem for nonlinear Poisson equation. Uses ``f(u)=1-u/2``."
 function poissonProblemExample_birthdeath()
-  f(u,x)  = ones(size(x,1)) - .5u
+  f(x,u)  = ones(size(x,1)) - .5u
   numvars = 1
   return(PoissonProblem(f,numvars=numvars))
 end
 
 "Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=1-v``"
 function poissonProblemExample_birthdeathsystem()
-  f₁(u,x)  = ones(size(x,1)) - .5u[:,1]
-  f₂(u,x)  = ones(size(x,1)) -   u[:,2]
-  f(u,x) = [f₁(u,x) f₂(u,x)]
+  f₁(x,u)  = ones(size(x,1)) - .5u[:,1]
+  f₂(x,u)  = ones(size(x,1)) -   u[:,2]
+  f(x,u) = [f₁(x,u) f₂(x,u)]
   u₀(x) = .5*ones(size(x,1),2) # size (x,2), 2 meaning 2 variables
   return(PoissonProblem(f,u₀=u₀))
 end
 
 "Example problem which starts with 1/2 and solves the system ``f(u)=1-u/2`` and ``f(v)=.5u-v``"
 function poissonProblemExample_birthdeathinteractingsystem()
-  f₁(u,x)  = ones(size(x,1)) - .5u[:,1]
-  f₂(u,x)  = .5u[:,1] -   u[:,2]
-  f(u,x) = [f₁(u,x) f₂(u,x)]
+  f₁(x,u)  = ones(size(x,1)) - .5u[:,1]
+  f₂(x,u)  = .5u[:,1] -   u[:,2]
+  f(x,u) = [f₁(x,u) f₂(x,u)]
   u₀(x) = ones(size(x,1),2).*[.5 .5] # size (x,2), 2 meaning 2 variables
   return(PoissonProblem(f,u₀=u₀))
 end
