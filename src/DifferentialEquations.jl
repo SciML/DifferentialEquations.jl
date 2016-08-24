@@ -65,8 +65,12 @@ module DifferentialEquations
          lorenzAttractorSDEExample
 
   #ODE Example Problems
-  export twoDimlinearODEExample, twoDimlinearODEExample!, linearODEExample,
-        lorenzAttractorODEExample, lorenzAttractorODEExample!, vanDerPolExample,
+  export prob_ode_linear, prob_ode_bigfloatlinear, prob_ode_2Dlinear,
+         prob_ode_large2Dlinear, prob_ode_bigfloat2Dlinear,
+         prob_ode_2Dlinear_notinplace, prob_ode_vanderpol, prob_ode_vanderpol_stiff,
+         prob_ode_lorenz, prob_ode_rober, prob_ode_threebody
+
+  export lorenzAttractorODEExample, lorenzAttractorODEExample!, vanDerPolExample,
         ROBERODEExample, ropeODEExample, threebodyODEExample
 
   #FEM Example Problems
@@ -131,7 +135,8 @@ module DifferentialEquations
   export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,
          constructSRIW1, constructSRA1, def
 
+  #=
    include("precompile.jl")
    __precompile__()
-
+   =#
 end # module

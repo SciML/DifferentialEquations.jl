@@ -56,8 +56,8 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   end
   u = copy(u₀)
   if !isinplace && typeof(u)<:AbstractArray
-    f = (du,u,t) -> (du[:] = prob.f(u,t))
-    σ = (du,u,t) -> (du[:] = prob.σ(u,t))
+    f = (t,u,du) -> (du[:] = prob.f(t,u))
+    σ = (t,u,du) -> (du[:] = prob.σ(t,u))
   else
     f = prob.f
     σ = prob.σ
@@ -138,11 +138,11 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
 
   if knownanalytic
-    u_analytic = analytic(u₀,t,W)
+    u_analytic = analytic(t,u₀,W)
     if save_timeseries
-      timeseries_analytic = GrowableArray(analytic(u₀,ts[1],Ws[1]))
+      timeseries_analytic = GrowableArray(analytic(ts[1],u₀,Ws[1]))
       for i in 2:size(Ws,1)
-        push!(timeseries_analytic,analytic(u₀,ts[i],Ws[i]))
+        push!(timeseries_analytic,analytic(ts[i],u₀,Ws[i]))
       end
       Ws = copy(Ws)
       timeseries = copy(timeseries)

@@ -197,11 +197,11 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
     numvars = size(u,2)
     prob.numvars = numvars #Mutate problem to be correct.
     if gD == nothing
-      gD=(x,t)->zeros(size(x,1),numvars)
+      gD=(t,x)->zeros(size(x,1),numvars)
     end
     prob.gD = gD
     if gN == nothing
-      gN=(x,t)->zeros(size(x,1),numvars)
+      gN=(t,x)->zeros(size(x,1),numvars)
     end
     prob.gN = gN
     if D == nothing
@@ -237,13 +237,12 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 
   #Heat Equation Loop
   u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
-
   if knownanalytic #True Solution exists
     if save_timeseries
       timeSeries = FEMSolutionTS(timeseries,numvars)
-      return(FEMSolution(fem_mesh,u,analytic(node,fem_mesh.T),analytic,Du,timeSeries,ts,prob))
+      return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,timeSeries,ts,prob))
     else
-      return(FEMSolution(fem_mesh,u,analytic(node,fem_mesh.T),analytic,Du,prob))
+      return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,prob))
     end
   else #No true solution
     if save_timeseries
@@ -270,9 +269,9 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann
     u1 = (u[vec(elem[:,2]),:]+u[vec(elem[:,3]),:])/2
     u2 = (u[vec(elem[:,3]),:]+u[vec(elem[:,1]),:])/2
     u3 = (u[vec(elem[:,1]),:]+u[vec(elem[:,2]),:])/2
-    bt1 = area.*(f(u2,mid[:,:,2])+f(u3,mid[:,:,3]))/6
-    bt2 = area.*(f(u3,mid[:,:,3])+f(u1,mid[:,:,1]))/6
-    bt3 = area.*(f(u1,mid[:,:,1])+f(u2,mid[:,:,2]))/6
+    bt1 = area.*(f(mid[:,:,2],u2)+f(mid[:,:,3],u3))/6
+    bt2 = area.*(f(mid[:,:,3],u3)+f(mid[:,:,1],u1))/6
+    bt3 = area.*(f(mid[:,:,1],u1)+f(mid[:,:,2],u2))/6
   end
 
   for i = 1:numvars # accumarray the bt's

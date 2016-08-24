@@ -39,9 +39,9 @@ it due to 1st order "Milstein" effects), gaining more noise as it increases.
 This is specified as follows:
 
 ```julia
-f(u,x,t)  = ones(size(x,1)) - .5u
+f(t,x,u)  = ones(size(x,1)) - .5u
 u₀(x) = zeros(size(x,1))
-σ(u,x,t) = 1u.^2
+σ(t,x,u) = 1u.^2
 prob = HeatProblem(u₀,f,σ=σ)
 ```
 

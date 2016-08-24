@@ -1,9 +1,8 @@
 using DifferentialEquations
 using BenchmarkTools
-probnum = linearODEExample(); probnumbig = linearODEExample(u₀=BigFloat(1.0))
-prob    = twoDimlinearODEExample!(;α=ones(100,100),u₀=rand(100,100).*ones(100,100)/2)
-probbig = twoDimlinearODEExample!(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
-prob2   = twoDimlinearODEExample(;α=ones(100,100),u₀=rand(100,100).*ones(100,100)/2)
+probnum = prob_ode_linear; probnumbig = prob_ode_bigfloatlinear
+prob    = prob_ode_large2Dlinear
+probbig = prob_ode_bigfloat2Dlinear
 Δts = 1.//2.^(7:-1:4)
 
 bools = Vector{Bool}(0)

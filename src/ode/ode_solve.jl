@@ -76,12 +76,12 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       @unpack o[:tableau]: order,adaptiveorder
     end
     if !isinplace && typeof(u)<:AbstractArray
-      f = (du,u,t) -> (du[:] = prob.f(u,t))
+      f! = (t,u,du) -> (du[:] = prob.f(t,u))
     else
-      f = prob.f
+      f! = prob.f
     end
     if Δt==0
-      Δt = ode_determine_initΔt(u₀,float(tspan[1]),o[:abstol],o[:reltol],o[:internalnorm],f,order)
+      Δt = ode_determine_initΔt(u₀,float(tspan[1]),o[:abstol],o[:reltol],o[:internalnorm],f!,order)
     end
     if alg ∉ DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS
       o[:adaptive] = false
@@ -130,8 +130,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ts = Vector{tType}(0)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
-    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
@@ -142,9 +142,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:t] = float(o[:t])
     t = o[:t]; Ts = o[:Ts]
     if !isinplace && typeof(u)<:AbstractArray
-      f! = (t,u,du) -> (du[:] = vec(prob.f(reshape(u,sizeu),t)); nothing)
+      f! = (t,u,du) -> (du[:] = vec(prob.f(t,reshape(u,sizeu))); nothing)
     else
-      f! = (t,u,du) -> (prob.f(reshape(du,sizeu),reshape(u,sizeu),t); u = vec(u); du=vec(du); nothing)
+      f! = (t,u,du) -> (prob.f(t,reshape(u,sizeu),reshape(du,sizeu)); u = vec(u); du=vec(du); nothing)
     end
     initialize_backend(:ODEInterface)
     o[:RHS_CALLMODE] = ODEInterface.RHS_CALL_INSITU
@@ -187,11 +187,10 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
-      f! = (t,u,du) -> (du[:] = prob.f(u,t))
+      f! = (t,u,du) -> (du[:] = prob.f(t,u))
     else
-      f! = (t,u,du) -> (prob.f(du,u,t))
+      f! = prob.f
     end
-    @code_llvm f!(1.0,1.5,1.0)
     ode  = ODE.ExplicitODE(t,u,f!)
     # adaptive==true ? FoA=:adaptive : FoA=:fixed #Currently limied to only adaptive
     FoA = :adaptive
@@ -247,9 +246,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     initialize_backend(:Sundials)
     opts = buildOptions(o,SUNDIALS_OPTION_LIST,SUNDIALS_ALIASES,SUNDIALS_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
-      f! = (t,u,du) -> (du[:] = vec(prob.f(reshape(u,sizeu),t)); 0)
+      f! = (t,u,du) -> (du[:] = vec(prob.f(t,reshape(u,sizeu))); 0)
     else
-      f! = (t,u,du) -> (prob.f(reshape(du,sizeu),reshape(u,sizeu),t); u = vec(u); du=vec(du); 0)
+      f! = (t,u,du) -> (prob.f(t,reshape(u,sizeu),reshape(du,sizeu)); u = vec(u); du=vec(du); 0)
     end
     ts = [t;Ts]
     if command_opts[:adaptive]
@@ -290,11 +289,11 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
 
   if knownanalytic
-    u_analytic = analytic(u₀,t)
+    u_analytic = analytic(t,u₀)
     if save_timeseries
-      timeseries_analytic = GrowableArray(analytic(u₀,ts[1]))
+      timeseries_analytic = GrowableArray(analytic(ts[1],u₀))
       for i in 2:size(timeseries,1)
-        push!(timeseries_analytic,analytic(u₀,ts[i]))
+        push!(timeseries_analytic,analytic(ts[i],u₀))
       end
       timeseries = copy(timeseries)
       timeseries_analytic = copy(timeseries_analytic)
@@ -321,7 +320,7 @@ end
 function ode_determine_initΔt(u₀::AbstractArray,t,abstol,reltol,internalnorm,f,order)
   f₀ = similar(u₀); f₁ = similar(u₀); u₁ = similar(u₀)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
-  f(f₀,u₀,t)
+  f(t,u₀,f₀)
   d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
   if d₀ < 1//10^(5) || d₁ < 1//10^(5)
     Δt₀ = 1//10^(6)
@@ -331,7 +330,7 @@ function ode_determine_initΔt(u₀::AbstractArray,t,abstol,reltol,internalnorm,
   @inbounds for i in eachindex(u₀)
      u₁[i] = u₀[i] + Δt₀*f₀[i]
   end
-  f(f₁,u₁,t+Δt₀)
+  f(t+Δt₀,u₁,f₁)
   d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
@@ -343,7 +342,7 @@ end
 
 function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order)
   d₀ = norm(u₀./(abstol+u₀*reltol),internalnorm)
-  f₀ =f(u₀,t)
+  f₀ =f(t,u₀)
   d₁ = norm(f₀./(abstol+u₀*reltol),internalnorm)
   if d₀ < 1//10^(5) || d₁ < 1//10^(5)
     Δt₀ = 1//10^(6)
@@ -351,7 +350,7 @@ function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order
     Δt₀ = (d₀/d₁)/100
   end
   u₁ = u₀ + Δt₀*f₀
-  f₁ = f(u₁,t+Δt₀)
+  f₁ = f(t+Δt₀,u₁)
   d₂ = norm((f₁-f₀)./(abstol+u₀*reltol),internalnorm)/Δt₀
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))

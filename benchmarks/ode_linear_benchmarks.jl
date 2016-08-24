@@ -1,12 +1,13 @@
 using DifferentialEquations
-probnum = linearODEExample()
-prob = twoDimlinearODEExample!(;α=ones(100,100),u₀=rand(100,100).*ones(100,100)/2)
+probnum = DifferentialEquations.prob_ode_linear
+prob = DifferentialEquations.prob_ode_large2Dlinear
 tspan = [0,1]
 using BenchmarkTools
 
 setups = [Dict(:alg=>:RK4);Dict(:alg=>:ode4)]
 
 shoot = ode_shootout(probnum,tspan,setups;Δt=1/2^(6))
+
 shoot = ode_shootout(prob,tspan,setups;Δt=1/2^(6))
 
 ## Standard Tolerance

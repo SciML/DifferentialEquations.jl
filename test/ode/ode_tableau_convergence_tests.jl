@@ -2,10 +2,10 @@
 using DifferentialEquations
 probArr = Vector{DEProblem}(2)
 bigprobArr = Vector{DEProblem}(2)
-probArr[1] = linearODEExample()
-probArr[2] = twoDimlinearODEExample!()
-bigprobArr[1] = linearODEExample(u₀=BigFloat(1),α=BigFloat(1))
-bigprobArr[2] = twoDimlinearODEExample!(α=ones(BigFloat,4,2),u₀=map(BigFloat,rand(4,2)).*ones(4,2)/2)
+probArr[1] = prob_ode_linear
+probArr[2] = prob_ode_2Dlinear
+bigprobArr[1] = prob_ode_bigfloatlinear
+bigprobArr[2] = prob_ode_bigfloat2Dlinear
 setprecision(400)
 srand(100)
 ## Convergence Testing
@@ -78,7 +78,7 @@ for i = 1:3
   push!(bools,abs(sim.𝒪est[:l∞]-5) < testTol)
 
   tab = constructLawson5()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
+  sim = test_convergence(Δts,prob,alg=alg,tableau=tab) #10
   push!(bools,abs(sim.𝒪est[:l∞]-5) < testTol)
 
   tab = constructLutherKonen5()
@@ -123,7 +123,7 @@ for i = 1:3
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
   tab = constructButcher62()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
+  sim = test_convergence(Δts,prob,alg=alg,tableau=tab) #20
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
   tab = constructButcher63()
@@ -133,7 +133,7 @@ for i = 1:3
   Δts = 1.//2.^(5:-1:1)
   tab = constructDormandPrince6()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-6.7) < testTol) # Better on linear
+  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol) # Better on linear
 
   tab = constructSharpVerner6()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
@@ -220,7 +220,7 @@ for i = 1:3
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
   tab = constructVerner6()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6.7) < testTol) # Better on linear
 
   Δts = 1.//2.^(4:-1:1)

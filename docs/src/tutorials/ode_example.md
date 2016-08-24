@@ -7,10 +7,10 @@ folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/
 In this example we will solve the equation
 
 ```math
-\frac{du}{dt} = f(u,t)
+\frac{du}{dt} = f(t,u)
 ```
 
-where ``f(u,t)=αu``. We know via Calculus that the solution to this equation is
+where ``f(t,u)=αu``. We know via Calculus that the solution to this equation is
 ``u(t)=u₀\exp(αt)``. To solve this numerically, we define a problem type by
 giving it the equation and the initial condition:
 
@@ -18,7 +18,7 @@ giving it the equation and the initial condition:
 using DifferentialEquations
 α=1
 u₀=1/2
-f(u,t) = u
+f(t,u) = u
 prob = ODEProblem(f,u₀)
 ```
 
@@ -109,7 +109,7 @@ as follows:
 ```julia
 u₀=rand(4,2).*ones(4,2)/2
 α=ones(4,2)
-f(u,t) = α.*u
+f(t,u) = α.*u
 prob = ODEProblem(f,u₀)
 ```
 
