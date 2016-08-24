@@ -34,10 +34,10 @@ function ode_shootout(prob::ODEProblem,tspan,setups;endsol=nothing,numruns=20,na
   end
   for i in eachindex(setups)
     tmptimes = Vector{Float64}(numruns)
-    sol = solve(prob::ODEProblem,tspan;setups[i]...,kwargs...) # Compile and get result
-    sol = solve(prob::ODEProblem,tspan;setups[i]...,kwargs...) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
     for j in 1:numruns
-      tmptimes[j] = @elapsed sol = solve(prob::ODEProblem,tspan;setups[i]...,kwargs...)
+      tmptimes[j] = @elapsed sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...)
     end
     if endsol == nothing
       errors[i] = sol.errors[:final]
@@ -70,7 +70,7 @@ function ode_shootoutset(probs::Vector{ODEProblem},tspans,setups;probaux=nothing
     end
   end
   for i in eachindex(probs)
-    shootouts[i] = ode_shootout(probs[i]::ODEProblem,tspans[i],setups;numruns=numruns,names=names,probaux[i]...,kwargs...)
+    shootouts[i] = ode_shootout(probs[i]::ODEProblem,tspans[i],setups;numruns=numruns,names=names,kwargs...,probaux[i]...)
     winners[i] = shootouts[i].winner
   end
   return ShootoutSet(shootouts,probs,tspans,probaux,N,winners)
@@ -143,10 +143,10 @@ function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,n
   end
   for i in 1:N
     tmptimes = Vector{Float64}(numruns)
-    sol = solve(prob::ODEProblem,tspan;kwargs...) # Compile and get result
-    sol = solve(prob::ODEProblem,tspan;kwargs...) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
     for j in 1:numruns
-      tmptimes[j] = @elapsed sol = solve(prob::ODEProblem,tspan;abstol=abstols[i],reltol=reltols[i],kwargs...)
+      tmptimes[j] = @elapsed sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i])
     end
     errors[i] = sol.errors[:final]
     times[i] = mean(tmptimes)
@@ -161,7 +161,7 @@ function ode_workprecision_set(prob::ODEProblem,tspan,abstols,reltols,setups;num
     names = [string(setups[i][:alg]) for i=1:length(setups)]
   end
   for i in 1:N
-    wps[i] = ode_workprecision(prob,tspan,abstols,reltols;numruns=numruns,name=names[i],setups[i]...,kwargs...)
+    wps[i] = ode_workprecision(prob,tspan,abstols,reltols;numruns=numruns,name=names[i],kwargs...,setups[i]...)
   end
   return WorkPrecisionSet(wps,N,abstols,reltols,prob,tspan,setups,names)
 end

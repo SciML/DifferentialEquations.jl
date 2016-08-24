@@ -54,6 +54,7 @@ shoot = ode_shootout(prob,tspan,setups;names=names)
 # Other Methods
 
 setups = [Dict(:alg=>:DP5)
+          Dict(:alg=>:ode23)
           Dict(:alg=>:BS3)
           Dict(:alg=>:BS5)
           Dict(:alg=>:Tsit5)
