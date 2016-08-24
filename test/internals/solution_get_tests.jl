@@ -15,7 +15,7 @@ show(STDOUT,sol)
 srand(100)
 Δts = 1./2.^(10:-1:4) #14->7 good plot
 
-prob2 = waveSDEExample()
+prob2 = prob_sde_wave
 sim = test_convergence(Δts,prob2,numMonte=Int(1e1),alg=:EM)
 
 length(sim)

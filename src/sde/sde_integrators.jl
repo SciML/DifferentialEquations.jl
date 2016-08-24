@@ -432,14 +432,14 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   @inbounds while t<T
     @sde_loopheader
     f(t,u,du1)
-    L = σ(t,u,du2)
+    σ(t,u,L)
     for i in eachindex(u)
       K[i] = u[i] + Δt*du1[i]
       utilde[i] = K[i] + L[i]*sqΔt
     end
-    σ(t,utilde,du1)
+    σ(t,utilde,du2)
     for i in eachindex(u)
-      u[i] = K[i]+L[i]*ΔW[i]+(du1[i]-du2[i])./(2sqΔt).*(ΔW[i].^2 - Δt)
+      u[i] = K[i]+L[i]*ΔW[i]+(du2[i]-L[i])./(2sqΔt).*(ΔW[i].^2 - Δt)
       W[i] = W[i] + ΔW[i]
     end
     t = t + Δt
@@ -457,8 +457,8 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
 
     K = u + Δt.*f(t,u)
     L = σ(t,u)
-    utilde = K + L.*sqΔt
-    u = K+L.*ΔW+(σ(t,utilde)-σ(t,u))./(2sqΔt).*(ΔW.^2 - Δt)
+    utilde = K + L*sqΔt
+    u = K+L*ΔW+(σ(t,utilde)-σ(t,u))/(2sqΔt)*(ΔW^2 - Δt)
 
     t = t + Δt
     W = W + ΔW

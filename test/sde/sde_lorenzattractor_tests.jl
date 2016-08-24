@@ -1,6 +1,6 @@
 using DifferentialEquations, Plots, EllipsisNotation
 srand(100)
-prob = lorenzAttractorSDEExample(σ₀=3)
+prob = prob_sde_lorenz
 
 Tend = 10
 ## Solve and plot

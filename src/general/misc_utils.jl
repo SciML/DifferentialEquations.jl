@@ -170,6 +170,3 @@ DiffCache(u::AbstractArray) = DiffCache(eltype(u),length(u),Val{ForwardDiff.pick
 
 get_du{T<:Dual}(dc::DiffCache, ::Type{T}) = dc.dual_du
 get_du(dc::DiffCache, T) = dc.du
-
-copy_if_possible!(u::Number, utmp::Number) = utmp
-copy_if_possible!(u, utmp) = copy!(u, utmp)

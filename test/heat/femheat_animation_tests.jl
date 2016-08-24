@@ -9,7 +9,7 @@ T = 2
 Δx = 1//2^(3)
 Δt = 1//2^(9)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:dirichlet)
-prob = heatProblemExample_moving()
+prob = prob_femheat_moving
 
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true)
 
