@@ -7,7 +7,7 @@ using DifferentialEquations, Plots
 #Should decrease Δx/Δt for better estimate
 N = 2 #Number of different Δt to solve at, 2 for test speed
 topΔt = 6 # 1//2^(topΔt-1) is the max Δt. Small for test speed
-prob = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
+prob = prob_femheat_moving #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 Δts = 1.//2.^(topΔt-1:-1:N)
 Δxs = 1//2^(5) * ones(Δts) #Run at 2^-7 for best plot
 

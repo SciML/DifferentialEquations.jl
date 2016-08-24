@@ -1,23 +1,19 @@
 # multiDimAdditiveSDEExample()
 
-lorenzAttractorSDEExample()
+prob_sde_lorenz
 
-oval2ModelExample()
+DifferentialEquations.oval2ModelExample()
 
-oval2ModelExample(useBigs=true,largeFluctuations=true)
+DifferentialEquations.oval2ModelExample(useBigs=true,largeFluctuations=true)
 
-heatProblemExample_birthdeathsystem()
+prob_femheat_birthdeathsystem
 
-heatProblemExample_diffusionconstants()
+prob_femheat_diffusionconstants
 
-heatProblemExample_birthdeathinteractingsystem()
+prob_femheat_birthdeathinteractingsystem
 
 heatProblemExample_grayscott()
 
 heatProblemExample_gierermeinhardt()
-
-#poissonProblemExample_birthdeathsystem()
-
-#poissonProblemExample_birthdeathinteractingsystem()
 
 true

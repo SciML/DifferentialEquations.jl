@@ -1,6 +1,6 @@
 using DifferentialEquations
 srand(70)
-prob = twoDimlinearSDEExample()
+prob = prob_sde_2Dlinear
 
 ## Solve and plot
 println("Solve and Plot")

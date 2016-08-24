@@ -1,6 +1,6 @@
 using DifferentialEquations, Plots
 srand(100)
-prob = linearSDEExample()
+prob = prob_sde_linear
 
 ## Solve and plot
 println("Solve and Plot")

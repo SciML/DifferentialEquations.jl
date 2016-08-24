@@ -1,5 +1,5 @@
 using DifferentialEquations, Stats, Distributions, HypothesisTests
-prob = linearSDEExample()
+prob = prob_sde_linear
 srand(200)
 T = 1
 N = 100

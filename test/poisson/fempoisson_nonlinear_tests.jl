@@ -5,7 +5,7 @@ using DifferentialEquations
 
 Δx = 1//2^(3)
 fem_mesh = notime_squaremesh([0 1 0 1],Δx,:neumann)
-prob = poissonProblemExample_birthdeath()
+prob = prob_poisson_birthdeath
 
 sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 

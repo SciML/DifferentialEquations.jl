@@ -14,7 +14,7 @@ N = 4
 topΔx = 7
 =#
 
-prob = heatProblemExample_moving()
+prob = prob_femheat_moving
 
 alg=:Euler; println(alg)
 sim = test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,Δxs;alg=alg)

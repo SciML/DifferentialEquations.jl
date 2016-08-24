@@ -165,8 +165,8 @@ const SDE_ADAPTIVEALGORITHMS = Set([:SRI,:SRIW1Optimized,:SRIVectorized,:SRAVect
 
 function sde_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,σ,order)
   d₀ = norm(u₀./(abstol+u₀*reltol),2)
-  f₀ = f(u₀,t)
-  σ₀ = 3σ(u₀,t)
+  f₀ = f(t,u₀)
+  σ₀ = 3σ(t,u₀)
 
   d₁ = norm(max(abs(f₀+σ₀),abs(f₀-σ₀))./(abstol+u₀*reltol),2)
   if d₀ < 1e-5 || d₁ < 1e-5
@@ -175,8 +175,8 @@ function sde_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,σ,order)
     Δt₀ = 0.01*(d₀/d₁)
   end
   u₁ = u₀ + Δt₀*f₀
-  f₁ = f(u₁,t+Δt₀)
-  σ₁ = 3σ(u₁,t+Δt₀)
+  f₁ = f(t+Δt₀,u₁)
+  σ₁ = 3σ(t+Δt₀,u₁)
   ΔσMax = max(abs(σ₀-σ₁),abs(σ₀+σ₁))
   d₂ = norm(max(abs(f₁-f₀+ΔσMax),abs(f₁-f₀-ΔσMax))./(abstol+u₀*reltol),2)/Δt₀
   if max(d₁,d₂)<=1e-15

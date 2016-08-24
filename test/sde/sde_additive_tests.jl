@@ -1,11 +1,11 @@
 using DifferentialEquations
 srand(100)
 
-prob = additiveSDEExample()
+prob = prob_sde_additive
 sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRA)
 sol =solve(prob::SDEProblem,[0,1],Δt=1/2^(3),save_timeseries=true,alg=:SRA1Optimized)
 
-prob = multiDimAdditiveSDEExample()
+prob = prob_sde_additivesystem
 
 ## Solve and plot
 println("Solve and Plot")
