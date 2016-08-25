@@ -48,8 +48,6 @@ function ode_findreplace(ex,dict,syms,pdict)
 end
 
 macro fem_define(sig,variables,ex,params...)
-  println(sig)
-  println(variables)
   ## Build symbol dictionary
   dict = Dict{Symbol,Int}()
   spot = 1
@@ -64,11 +62,8 @@ macro fem_define(sig,variables,ex,params...)
     pdict[params[i].args[1]] = params[i].args[2] # works for k=3, or k=>3
   end
   # Run find replace
-  println(ex)
   fem_findreplace(ex,dict,syms,pdict)
   # Return the lambda
-  println(ex)
-  println(:(sig -> $(ex)))
   :($(sig) -> $(ex))
 end
 

@@ -437,14 +437,14 @@ Defines the solution to a stationary Stokes problem:
 * `trueknown::Bool`
 """
 type StokesProblem
-  f₁::Function
-  f₂::Function
-  g::Function
-  ugD::Function
-  vgD::Function
-  uanalytic::Function
-  vanalytic::Function
-  panalytic::Function
+  f₁#::Function
+  f₂#::Function
+  g#::Function
+  ugD#::Function
+  vgD#::Function
+  uanalytic#::Function
+  vanalytic#::Function
+  panalytic#::Function
   trueknown::Bool
   StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic) = new(f₁,f₂,g,uanalytic,vanalytic,uanalytic,vanalytic,panalytic,true)
   StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
@@ -456,13 +456,19 @@ numparameters(f)
 Returns the number of parameters of `f` for the method which has the most parameters.
 """
 function numparameters(f)
-  if length(methods(f))>1
-    warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
+  if isgeneric(f) || VERSION >= v"0.5-"
+    if length(methods(f))>1
+      warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
+    end
+    numparm = maximum([length(m.sig.parameters) for m in methods(f)])
+  else
+    numparm = length(Base.uncompressed_ast(f.code).args[1])
   end
-  numparm = maximum([length(m.sig.parameters) for m in methods(f)])
   if VERSION < v"0.5-"
     return numparm
   else
     return (numparm-1) #-1 in v0.5 since it add f as the first parameter.
   end
 end
+
+isgeneric(f) = startswith(string(f), '#')
