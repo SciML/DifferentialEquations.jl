@@ -456,7 +456,7 @@ numparameters(f)
 Returns the number of parameters of `f` for the method which has the most parameters.
 """
 function numparameters(f)
-  if isgeneric(f) || VERSION >= v"0.5-"
+  if VERSION >= v"0.5-"
     if length(methods(f))>1
       warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
     end
