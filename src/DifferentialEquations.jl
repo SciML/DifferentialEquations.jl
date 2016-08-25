@@ -129,7 +129,7 @@ module DifferentialEquations
 
   #Misc Tools
   export numparameters, checkSRIOrder, checkSRAOrder,
-         constructSRIW1, constructSRA1, def, @ode_define
+         constructSRIW1, constructSRA1, def, @ode_define, @fem_define
 
   #=
    include("precompile.jl")

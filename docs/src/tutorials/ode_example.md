@@ -124,3 +124,35 @@ Plots.gui()
 ```
 
 <img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/multiODEplot.png" width="750" align="middle"  />
+
+
+### Defining Systems of Equations Eloquent Using @ode_define
+
+To simplify your life, DifferentialEquations.jl provides the `@ode_define` macro
+for "defining your ODE in psudocode" and getting a function which is efficient
+and runnable. For our example we will use [the Lorenz system](https://en.wikipedia.org/wiki/Lorenz_system).
+The standard way to write this out in most mathematical programs is the following:
+
+```julia
+f = (t,u,du) -> begin
+ du[1] = 10.0(u[2]-u[1])
+ du[2] = u[1]*(28.0-u[3]) - u[2]
+ du[3] = u[1]*u[2] - (8/3)*u[3]
+end
+```
+
+Here for more efficiency we plugged in the parameters. However, this does not
+look like the pretty LaTeX system we see on Wikipedia, and this might make it
+harder to double-check that you defined the system correctly. Using the
+`@ode_define` macro is much nicer:
+
+```julia
+g = @ode_define begin
+  dx = σ*(y-x)
+  dy = x*(ρ-z) - y
+  dz = x*y - β*z
+end σ=>10. ρ=>28. β=>(8/3)
+```
+
+DifferentialEquations.jl will automatically translate this to be exactly the
+same as `f`. The result is more legible code with no performance loss.

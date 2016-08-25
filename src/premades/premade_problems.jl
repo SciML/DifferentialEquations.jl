@@ -37,37 +37,36 @@ prob_ode_2Dlinear_notinplace = ODEProblem(f,rand(4,2),analytic=analytic)
 
 #Van der Pol Equations
 
-f = (t,u,du) -> begin
-  du[1] = ((1-u[2].^2)*u[1] - u[2])
-  du[2] = u[1]
-end
+f = @ode_define begin
+  dy = μ*(1-x^2)*y - x
+  dx = y
+end μ=>1.
 """Van der Pol Equations. For non-stiff version"""
 prob_ode_vanderpol = ODEProblem(f,[0;sqrt(3)])
-f = (t,u,du) -> begin
-  du[1] = ((1-u[2].^2)*u[1] - u[2])*1e6
-  du[2] = u[1]
-end
+f = @ode_define begin
+  dy = μ*(1-x^2)*y - x
+  dx = y
+end μ=>1e6
 """Van der Pol Equations. For difficult version."""
 prob_ode_vanderpol_stiff = ODEProblem(f,[0;sqrt(3)])
 
 # Lorenz Attractor
 
-f = (t,u,du) -> begin
- du[1] = 10.0(u[2]-u[1])
- du[2] = u[1]*(28.0-u[3]) - u[2]
- du[3] = u[1]*u[2] - 8/3u[3]
-end
+f = @ode_define begin
+  dx = σ*(y-x)
+  dy = x*(ρ-z) - y
+  dz = x*y - β*z
+end σ=>10. ρ=>28. β=>(8/3)
 """Lorenz Attractor"""
 prob_ode_lorenz = ODEProblem(f,ones(3))
 
 # ROBER
 
-f = (t,u,du) -> begin
-  du[1] = -0.04*u[1]+1e4*u[2]*u[3]
-  du[2] =  0.04*u[1]-3e7*(u[2])^2-1e4*u[2]*u[3]
-  du[3] =  3e7*(u[2])^2
-  nothing
-end
+f = @ode_define begin
+  dy₁ = -k₁*y₁+k₃*y₂*y₃
+  dy₂ =  k₁*y₁-k₂*y₂^2-k₃*y₂*y₃
+  dy₃ =  k₂*y₂^2
+end k₁=>0.04 k₂=>3e7 k₃=>1e4
 """
 The Robertson biochemical reactions
 
@@ -104,11 +103,11 @@ prob_ode_threebody = ODEProblem(f,[0.994, 0.0, 0.0, parse(BigFloat,"-2.001585106
 
 # Rigid Body Equations
 
-f = (t,u,du) -> begin
-  du[1]  = -2u[2]*u[3]
-  du[2]  = 1.25*u[1]*u[3]
-  du[3]  = -.5u[1]*u[2]
-end
+f = @ode_define begin
+  dy₁  = I₁*y₂*y₃
+  dy₂  = I₂*y₁*y₃
+  dy₃  = I₃*y₁*y₂
+end I₁=>-2 I₂=>1.25 I₃=>-.5
 
 """
 Rigid Body Equations
@@ -208,11 +207,11 @@ analytic = (t,u₀,W) -> u₀./sqrt(1+t) + sde_wave_βvec.*(t+sde_wave_αvec.*W)
 prob_sde_additivesystem = SDEProblem(f,σ,[1.;1.;1.;1.],analytic=analytic)
 
 
-f = (t,u,du) -> begin
- du[1] = 10.0(u[2]-u[1])
- du[2] = u[1]*(28.0-u[3]) - u[2]
- du[3] = u[1]*u[2] - 8/3u[3]
-end
+f = @ode_define begin
+  dx = σ*(y-x)
+  dy = x*(ρ-z) - y
+  dz = x*y - β*z
+end σ=>10. ρ=>28. β=>(8/3)
 σ = (t,u) -> 3.0 #Additive
 """Lorenz Attractor with additive noise"""
 prob_sde_lorenz = SDEProblem(f,σ,ones(3))
@@ -297,7 +296,7 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,noiseLevel=1)
   nSO=2.
   nzo=2.
   GE = 1.
-  function f(t,y)
+  function f(t,y,dy)
     # y(1) = snailt
     # y(2) = SNAIL
     # y(3) = miR34t
@@ -316,7 +315,6 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,noiseLevel=1)
     # y(16) = Ecad
     # y(17) = Ncad
     # y(18) = Ovol2
-    dy = Vector{Float64}(19)
     TGF0=.5(t>100)
     #ODEs
     dy[1]=k0_snail+k_snail*(((y[14]+TGF0)/J_snail0))^2/(1+(((y[14]+TGF0)/J_snail0))^2+(y[19]/J_SO)^nSO)/(1+y[2]/J_snail1)-kd_snail*(y[1]-y[4])-kd_SR1*y[4]
@@ -341,20 +339,16 @@ function oval2ModelExample(;largeFluctuations=false,useBigs=false,noiseLevel=1)
     return(dy)
   end
 
-  function σ1(t,y)
-    dσ = zeros(19)
+  function σ1(t,y,dσ)
     dσ[1] = noiseLevel*1.5y[1]
     dσ[18]= noiseLevel*6y[18]
-    return(dσ)
   end
 
-  function σ2(t,y)
-    dσ = zeros(19)
+  function σ2(t,y,dσ)
     dσ[1] = 0.02y[1]
     dσ[16]= 0.02y[16]
     dσ[18]= 0.2y[18]
     dσ[17]= 0.02y[17]
-    return(dσ)
   end
 
   if largeFluctuations
