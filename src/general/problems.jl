@@ -461,13 +461,10 @@ function numparameters(f)
       warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
     end
     numparm = maximum([length(m.sig.parameters) for m in methods(f)])
+    return (numparm-1) #-1 in v0.5 since it adds f as the first parameter.
   else
     numparm = length(Base.uncompressed_ast(f.code).args[1])
-  end
-  if VERSION < v"0.5-"
     return numparm
-  else
-    return (numparm-1) #-1 in v0.5 since it add f as the first parameter.
   end
 end
 

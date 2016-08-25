@@ -6,7 +6,7 @@ function test_num_parameters()
 
   numpar = numparameters(f) # Should be 2
   g = (x,y) -> x^2
-  numpar = numparameters(g)
+  numpar2 = numparameters(g)
   numpar == 2 && numpar2 == 2
 end
 test_num_parameters()
