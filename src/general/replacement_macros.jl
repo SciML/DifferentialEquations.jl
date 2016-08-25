@@ -47,8 +47,45 @@ function ode_findreplace(ex,dict,syms,pdict)
   end
 end
 
-h = @ode_define begin
-  dx = 10.0(y-x)/k
-  dy = x*(28.0-z) - y
-  dz = x*y - (8/3)*z
-end k=>10 l=>1.1
+macro fem_define(sig,variables,ex,params...)
+  println(sig)
+  println(variables)
+  ## Build symbol dictionary
+  dict = Dict{Symbol,Int}()
+  spot = 1
+  for (i,arg) in enumerate(variables.args) #Every odd line is line number
+    dict[arg] = i # and label it the next int if not seen before
+  end
+  syms = keys(dict)
+
+  pdict = Dict{Symbol,Any}()
+  ## Build parameter dictionary
+  for i in 1:length(params)
+    pdict[params[i].args[1]] = params[i].args[2] # works for k=3, or k=>3
+  end
+  # Run find replace
+  println(ex)
+  fem_findreplace(ex,dict,syms,pdict)
+  # Return the lambda
+  println(ex)
+  println(:(sig -> $(ex)))
+  :($(sig) -> $(ex))
+end
+
+function fem_findreplace(ex,dict,syms,pdict)
+  for (i,arg) in enumerate(ex.args)
+    if isa(arg,Expr)
+      fem_findreplace(arg,dict,syms,pdict)
+    elseif isa(arg,Symbol)
+      if haskey(dict,arg)
+        ex.args[i] = :(u[:,$(dict[arg])])
+      elseif haskey(pdict,arg)
+        ex.args[i] = :($(pdict[arg]))
+      elseif haskey(FEM_SYMBOL_DICT,arg)
+        ex.args[i] = FEM_SYMBOL_DICT[arg]
+      end
+    end
+  end
+end
+
+FEM_SYMBOL_DICT = Dict{Symbol,Expr}(:x=>:(x[:,1]),:y=>:(x[:,2]),:z=>:(x[:,3]))
