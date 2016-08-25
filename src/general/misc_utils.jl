@@ -1,11 +1,3 @@
-macro def(name, definition)
-    return quote
-        macro $name()
-            esc($(Expr(:quote, definition)))
-        end
-    end
-end
-
 #=
 function cg!(x::AbstractMatrix, A, b, Pl=1; tol::Real=size(A,2)*eps(), maxiter::Int=size(A,2))
   for i=1:size(x,2)
