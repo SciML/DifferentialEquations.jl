@@ -48,7 +48,7 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 """
 type HeatProblem <: DEProblem
   "u₀: Initial value function"
-  u₀::Function
+  u₀#::Function
   "Du: Function for the solution gradient [u_x,u_y]"
   Du::Function
   "f: Forcing function in heat equation"
@@ -202,7 +202,7 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 """
 type PoissonProblem <: DEProblem
   "f: Forcing function in the Poisson problem"
-  f::Function
+  f#::Function
   "analytic: Solution to the Poisson problem"
   analytic::Function
   "Du: Gradient of the solution to the Poisson problem"
