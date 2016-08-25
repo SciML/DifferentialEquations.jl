@@ -257,6 +257,8 @@ Pages = [
     "man/mesh.md",
     "man/solution.md",
     "man/plot.md",
+    "man/function_definition_macros.md",
+    "man/benchmarks.md",
     "man/convergence.md",
     "man/conditional_dependencies.md"
     "man/progress_bar.md"

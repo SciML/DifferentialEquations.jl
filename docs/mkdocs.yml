@@ -43,6 +43,8 @@ pages:
   - Meshes: man/mesh.md
   - The Solution Type: man/solution.md
   - Plot Functions: man/plot.md
+  - Function Definition Macros: man/function_definition_macros.md
+  - Benchmark Suite: man/benchmarks.md
   - Convergence Simuations: man/convergence.md
   - Conditional Dependencies: man/conditional_dependencies.md
   - Juno Progress Bar Integration: man/progress_bar.md
