@@ -188,14 +188,12 @@ with matrices), then the solver will use the matrices without error.
 * Performance
 
   * Improve FEM performance
-  * Implement threaded versions
   * Test ParallelAccelerator.jl on solvers
   * Add Xeon Phi / GPU variants
 
 * Misc
 
   * Davie-Gaines convergence analysis
-  * Add benchmarking tools
   * Improve MonteCarloSimulation
 
 
