@@ -118,7 +118,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       β = o[:β]
     end
     fsal = false
-    if alg ∈ DIFFERENTIALEQUATIONSJL_FASLALGS
+    if alg ∈ DIFFERENTIALEQUATIONSJL_FSALALGS
       fsal = true
     elseif alg == :ExplicitRK
       @unpack o[:tableau]: fsal

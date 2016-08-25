@@ -1137,7 +1137,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   return u,t,timeseries,ts
 end
 
-#=
+
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:DP5Threaded,uType,uEltype,N,tType})
   @ode_preamble
   a21::uEltype,a31::uEltype,a32::uEltype,a41::uEltype,a42::uEltype,a43::uEltype,a51::uEltype,a52::uEltype,a53::uEltype,a54::uEltype,a61::uEltype,a62::uEltype,a63::uEltype,a64::uEltype,a65::uEltype,a71::uEltype,a73::uEltype,a74::uEltype,a75::uEltype,a76::uEltype,b1::uEltype,b3::uEltype,b4::uEltype,b5::uEltype,b6::uEltype,b7::uEltype,c1::uEltype,c2::uEltype,c3::uEltype,c4::uEltype,c5::uEltype,c6::uEltype = constructDP5(eltype(u))
@@ -1156,39 +1156,21 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
-      Threads.@threads for i in uidx
-        k1[i] = Δt*fsalfirst[i]
-        tmp[i] = u[i]+a21*k1[i]
-      end
+      dp5threaded_loop1(k1,fsalfirst,u,a21,tmp,Δt,uidx)
       f(t+c1*Δt,tmp,k2); k2*=Δt
-      Threads.@threads for i in eachindex(u)
-        tmp[i] = u[i]+a31*k1[i]+a32*k2[i]
-      end
+      dp5threaded_loop2(tmp,u,a31,k1,a32,k2,uidx)
       f(t+c2*Δt,tmp,k3); k3*=Δt
-      Threads.@threads for i in uidx
-        tmp[i] = u[i]+a41*k1[i]+a42*k2[i]+a43*k3[i]
-      end
+      dp5threaded_loop3(tmp,u,a41,k1,a42,k2,a43,k3,uidx)
       f(t+c3*Δt,tmp,k4); k4*=Δt
-      Threads.@threads for i in uidx
-        tmp[i] =(u[i]+a51*k1[i])+(a52*k2[i]+a53*k3[i]+a54*k4[i])
-      end
+      dp5threaded_loop4(tmp,u,a51,k1,a52,k2,a53,k3,a54,k4,uidx)
       f(t+c4*Δt,tmp,k5); k5*=Δt
-      Threads.@threads for i in uidx
-        tmp[i] = (u[i]+a61*k1[i]+a62*k2[i]+a63*k3[i])+(a64*k4[i]+a65*k5[i])
-      end
+      dp5threaded_loop5(tmp,u,a61,k1,a62,k2,a63,k3,a64,k4,a65,k5,uidx)
       f(t+Δt,tmp,k6); k6*=Δt
-      Threads.@threads for i in uidx
-        utmp[i] = (u[i]+a71*k1[i]+a73*k3[i])+(a74*k4[i]+a75*k5[i]+a76*k6[i])
-      end
+      dp5threaded_loop6(utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,uidx)
       f(t+Δt,utmp,fsallast);
-      Threads.@threads for i in uidx
-        k7[i]=Δt*fsallast[i]
-      end
+      dp5threaded_loop7(k7,Δt,fsallast,uidx)
       if adaptive
-        for i in uidx
-          utilde[i] = (u[i] + b1*k1[i] + b3*k3[i]) + (b4*k4[i] + b5*k5[i] + b6*k6[i] + b7*k7[i])
-          tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol))^2
-        end
+        dp5threaded_adaptiveloop(utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,tmp,utmp,abstol,reltol,uidx)
         EEst = sqrt( sum(tmp) * normfactor)
       else
         u = utmp
@@ -1198,7 +1180,149 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   end
   return u,t,timeseries,ts
 end
-=#
+
+function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number}(integrator::ODEIntegrator{:DP5Threaded,uType,uEltype,N,tType})
+  @ode_preamble
+  a21::uEltype,a31::uEltype,a32::uEltype,a41::uEltype,a42::uEltype,a43::uEltype,a51::uEltype,a52::uEltype,a53::uEltype,a54::uEltype,a61::uEltype,a62::uEltype,a63::uEltype,a64::uEltype,a65::uEltype,a71::uEltype,a73::uEltype,a74::uEltype,a75::uEltype,a76::uEltype,b1::uEltype,b3::uEltype,b4::uEltype,b5::uEltype,b6::uEltype,b7::uEltype,c1::uEltype,c2::uEltype,c3::uEltype,c4::uEltype,c5::uEltype,c6::uEltype = constructDP5(eltype(u))
+  k1::uType = similar(u)
+  k2::uType = similar(u)
+  k3::uType = similar(u)
+  k4::uType = similar(u)
+  k5::uType = similar(u)
+  k6::uType = similar(u)
+  k7::uType = similar(u)
+  utilde = similar(u)
+  tmp = similar(u)
+  uidx::Base.OneTo{Int64} = eachindex(u)
+  local EEst::uEltype
+  f(t,u,fsalfirst);  # Pre-start fsal
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      dp5threaded_loop1(k1,fsalfirst,u,tmp,Δt,uidx)
+      f(t+c1*Δt,tmp,k2); k2*=Δt
+      dp5threaded_loop2(tmp,u,k1,k2,uidx)
+      f(t+c2*Δt,tmp,k3); k3*=Δt
+      dp5threaded_loop3(tmp,u,k1,k2,k3,uidx)
+      f(t+c3*Δt,tmp,k4); k4*=Δt
+      dp5threaded_loop4(tmp,u,k1,k2,k3,k4,uidx)
+      f(t+c4*Δt,tmp,k5); k5*=Δt
+      dp5threaded_loop5(tmp,u,k1,k2,k3,k4,k5,uidx)
+      f(t+Δt,tmp,k6); k6*=Δt
+      dp5threaded_loop6(utmp,u,k1,k3,k4,k5,k6,uidx)
+      f(t+Δt,utmp,fsallast);
+      dp5threaded_loop7(k7,Δt,fsallast,uidx)
+      if adaptive
+        dp5threaded_adaptiveloop(utilde,u,k1,k3,k4,k5,k6,k7,tmp,utmp,abstol,reltol,uidx)
+        EEst = sqrt( sum(tmp) * normfactor)
+      else
+        u = utmp
+      end
+      @ode_loopfooter
+    end
+  end
+  return u,t,timeseries,ts
+end
+
+@noinline function dp5threaded_loop1(k1,fsalfirst,u,a21,tmp,Δt,uidx)
+  Threads.@threads for i in uidx
+    k1[i] = Δt*fsalfirst[i]
+    tmp[i] = u[i]+a21*k1[i]
+  end
+end
+
+@noinline function dp5threaded_loop2(tmp,u,a31,k1,a32,k2,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] = u[i]+a31*k1[i]+a32*k2[i]
+  end
+end
+
+@noinline function dp5threaded_loop3(tmp,u,a41,k1,a42,k2,a43,k3,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] = u[i]+a41*k1[i]+a42*k2[i]+a43*k3[i]
+  end
+end
+
+@noinline function dp5threaded_loop4(tmp,u,a51,k1,a52,k2,a53,k3,a54,k4,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] =(u[i]+a51*k1[i])+(a52*k2[i]+a53*k3[i]+a54*k4[i])
+  end
+end
+
+@noinline function dp5threaded_loop5(tmp,u,a61,k1,a62,k2,a63,k3,a64,k4,a65,k5,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] = (u[i]+a61*k1[i]+a62*k2[i]+a63*k3[i])+(a64*k4[i]+a65*k5[i])
+  end
+end
+
+@noinline function dp5threaded_loop6(utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,uidx)
+  Threads.@threads for i in uidx
+    utmp[i] = (u[i]+a71*k1[i]+a73*k3[i])+(a74*k4[i]+a75*k5[i]+a76*k6[i])
+  end
+end
+
+@noinline function dp5threaded_loop7(k7,Δt,fsallast,uidx)
+  Threads.@threads for i in uidx
+    k7[i]=Δt*fsallast[i]
+  end
+end
+
+@noinline function dp5threaded_adaptiveloop(utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,tmp,utmp,abstol,reltol,uidx)
+  Threads.@threads for i in uidx
+    utilde[i] = (u[i] + b1*k1[i] + b3*k3[i]) + (b4*k4[i] + b5*k5[i] + b6*k6[i] + b7*k7[i])
+    tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol))^2
+  end
+end
+
+@noinline function dp5threaded_loop1{T<:Float64,N}(k1::Array{T,N},fsalfirst,u,tmp,Δt,uidx)
+  Threads.@threads for i in uidx
+    k1[i] = Δt*fsalfirst[i]
+    tmp[i] = u[i]+0.2*k1[i]
+  end
+end
+
+@noinline function dp5threaded_loop2{T<:Float64,N}(tmp::Array{T,N},u,k1,k2,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] = u[i]+0.075*k1[i]+0.225*k2[i]
+  end
+end
+
+@noinline function dp5threaded_loop3{T<:Float64,N}(tmp::Array{T,N},u,k1,k2,k3,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] = u[i]+0.9777777777777777*k1[i]-3.7333333333333334*k2[i]+3.5555555555555554*k3[i]
+  end
+end
+
+@noinline function dp5threaded_loop4{T<:Float64,N}(tmp::Array{T,N},u,k1,k2,k3,k4,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] =(u[i]+ 2.9525986892242035*k1[i])+(-11.595793324188385*k2[i]+9.822892851699436*k3[i]-0.2908093278463649*k4[i])
+  end
+end
+
+@noinline function dp5threaded_loop5{T<:Float64,N}(tmp::Array{T,N},u,k1,k2,k3,k4,k5,uidx)
+  Threads.@threads for i in uidx
+    tmp[i] = (u[i]+2.8462752525252526*k1[i]-10.757575757575758*k2[i]+8.906422717743473*k3[i])+(0.2784090909090909*k4[i]-0.2735313036020583*k5[i])
+  end
+end
+
+@noinline function dp5threaded_loop6{T<:Float64,N}(utmp::Array{T,N},u,k1,k3,k4,k5,k6,uidx)
+  Threads.@threads for i in uidx
+    utmp[i] = (u[i]+0.09114583333333333*k1[i]+0.44923629829290207*k3[i])+(0.6510416666666666*k4[i]-0.322376179245283*k5[i]+0.13095238095238096*k6[i])
+  end
+end
+
+@noinline function dp5threaded_loop7{T<:Float64,N}(k7::Array{T,N},Δt,fsallast,uidx)
+  Threads.@threads for i in uidx
+    k7[i]=Δt*fsallast[i]
+  end
+end
+
+@noinline function dp5threaded_adaptiveloop{T<:Float64,N}(utilde::Array{T,N},u,k1,k3,k4,k5,k6,k7,tmp,utmp,abstol,reltol,uidx)
+  Threads.@threads for i in uidx
+    utilde[i] = (u[i] + 0.08991319444444444*k1[i] + 0.4534890685834082*k3[i]) + (0.6140625*k4[i] - 0.2715123820754717*k5[i] + 0.08904761904761904*k6[i] + 0.025*k7[i])
+    tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(u[i],utmp[i])*reltol))^2
+  end
+end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number}(integrator::ODEIntegrator{:Vern6,uType,uEltype,N,tType})
   @ode_preamble

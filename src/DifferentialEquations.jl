@@ -16,6 +16,7 @@ module DifferentialEquations
   "Tableau: Holds the information for a Runge-Kutta Tableau"
   abstract Tableau
   abstract DEIntegrator
+  abstract DEParameters
   typealias String AbstractString
   typealias KW Dict{Symbol,Any}
   AbstractArrayOrVoid = Union{AbstractArray,Void}
@@ -29,6 +30,7 @@ module DifferentialEquations
   const initialized_backends = Set{Symbol}()
 
   include("general/backends.jl")
+  include("general/replacement_macros.jl")
   include("general/misc_utils.jl")
   include("fem/fem_heatintegrators.jl")
   include("fem/meshes.jl")
@@ -54,7 +56,7 @@ module DifferentialEquations
   include("general/plotrecipes.jl")
 
   #Types
-  export DEProblem, DESolution, HeatProblem, PoissonProblem, FEMSolution, Mesh,
+  export DEProblem, DESolution, DEParameters, HeatProblem, PoissonProblem, FEMSolution, Mesh,
          ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
          SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau, MonteCarloSimulation,
          ImplicitRKTableau, Shootout, ShootoutSet
@@ -125,12 +127,9 @@ module DifferentialEquations
          constructHuta62, constructHuta6, constructRKF4, constructVern6, constructTsit5,
          constructBS5, constructTanYam7, constructTsitPap8, constructVern9
 
-
-
-
   #Misc Tools
-  export quadfbasis2, CG2, numparameters, checkSRIOrder, checkSRAOrder,
-         constructSRIW1, constructSRA1, def
+  export numparameters, checkSRIOrder, checkSRAOrder,
+         constructSRIW1, constructSRA1, def, @ode_define
 
   #=
    include("precompile.jl")

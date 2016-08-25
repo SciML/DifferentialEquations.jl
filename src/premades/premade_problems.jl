@@ -20,7 +20,7 @@ f = (t,u,du) -> begin
   end
 end
 analytic = (t,u₀) -> u₀*exp(1.01*t)
-"""2D Linera ODE, standard 4x2"""
+"""2D Linear ODE, standard 4x2"""
 prob_ode_2Dlinear = ODEProblem(f,rand(4,2),analytic=analytic)
 """2D Linear ODE, 100x100"""
 prob_ode_large2Dlinear = ODEProblem(f,rand(100,100),analytic=analytic)
@@ -101,6 +101,52 @@ Usually solved on t₀ = 0.0; T = parse(BigFloat,"17.065216560157962558891720624
 Periodic with that setup
 """
 prob_ode_threebody = ODEProblem(f,[0.994, 0.0, 0.0, parse(BigFloat,"-2.00158510637908252240537862224")])
+
+# Rigid Body Equations
+
+f = (t,u,du) -> begin
+  du[1]  = -2u[2]*u[3]
+  du[2]  = 1.25*u[1]*u[3]
+  du[3]  = -.5u[1]*u[2]
+end
+
+"""
+Rigid Body Equations
+
+From Solving Differential Equations in R by Karline Soetaert
+
+or Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 244
+
+Usually solved from 0 to 20. Periodic at 10 and 20.
+"""
+prob_ode_rigidbody = ODEProblem(f,[1.0,0.0,0.9])
+
+# Pleiades Problem
+
+f = (t,u,du) -> begin
+  x = view(u,1:7)   # x
+  y = view(u,8:14)  # y
+  v = view(u,15:21) # x′
+  w = view(u,22:28) # y′
+  du[1:7] .= v
+  du[8:14].= w
+  du[14:21]=zero(u)
+  for i=1:7,j=1:7
+    if i != j
+      r = ((x[i]-x[j])^2 + (y[i] - y[j])^2)^(3/2)
+      du[14+i] += j*(x[j] - x[i])/r
+      du[21+i] += j*(y[j] - y[i])/r
+    end
+  end
+end
+"""
+Pleides Problem
+
+From Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 244
+
+Usually solved from 0 to 3.
+"""
+prob_ode_pleides = ODEProblem(f,[3.0,3.0,-1.0,-3.0,2.0,-2.0,2.0,3.0,-3.0,2.0,0,0,-4.0,4.0,0,0,0,0,0,1.75,-1.5,0,0,0,-1.25,1,0,0])
 
 ### SDE Examples
 
