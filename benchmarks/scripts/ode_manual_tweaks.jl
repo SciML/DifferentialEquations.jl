@@ -1,9 +1,9 @@
-### Linear
+## Linear
 
 using DifferentialEquations
-probnum = linearODEExample()
-prob = twoDimlinearODEExample!(;α=ones(100,100),u₀=rand(100,100).*ones(100,100)/2)
-prob2 = twoDimlinearODEExample(;α=ones(100,100),u₀=rand(100,100).*ones(100,100)/2)
+probnum = DifferentialEquations.prob_ode_linear
+prob = DifferentialEquations.prob_ode_large2Dlinear
+tspan = [0,1]
 using BenchmarkTools
 
 
@@ -116,9 +116,21 @@ t8 = @elapsed sol8 =solve(prob::ODEProblem,[0,10],alg=:DP8,reltol=1e-6,β=0.07)
 e8 = sol8.errors[:final]
 eff8 = 1/(t8*e8)
 
-t9 = @elapsed sol9 =solve(prob::ODEProblem,[0,10],alg=:dop853,reltol=1e-6)
+for i = 1:20
+  t9 = @elapsed sol9 =solve(prob::ODEProblem,[0,3],alg=:dop853,reltol=1e-16,abstol=1e-16)
+  println(t9)
+end
 e9 = sol9.errors[:final]
 eff9 = 1/(t9*e9)
+
+setups = [Dict(:alg=>:DP5,:abstol=>1e-5,:reltol=>1e-3)
+          Dict(:alg=>:BS5,:abstol=>1e-6,:reltol=>2e-4)
+          Dict(:alg=>:DP8,:abstol=>1e-5,:reltol=>1e-2)
+          Dict(:alg=>:dop853,:abstol=>1e-16,:reltol=>1e-13)]
+
+shoot = ode_shootout(prob,[0,1],setups)
+println(shoot)
+plot(shoot)
 
 t9 = @elapsed sol9 =solve(prob::ODEProblem,[0,10],alg=:ode78,reltol=1e-6)
 e9 = sol9.errors[:final]

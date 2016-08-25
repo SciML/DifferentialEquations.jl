@@ -33,21 +33,20 @@ function ode_shootout(prob::ODEProblem,tspan,setups;endsol=nothing,numruns=20,na
     names = [string(setups[i][:alg]) for i=1:N]
   end
   for i in eachindex(setups)
-    tmptimes = Vector{Float64}(numruns)
     sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
     sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
-    for j in 1:numruns
-      tmptimes[j] = @elapsed sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...)
+    t = @elapsed for j in 1:numruns
+      sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...)
     end
     if endsol == nothing
       errors[i] = sol.errors[:final]
     else
       errors[i] = norm(sol.u-endsol,2)
     end
-    t = mean(tmptimes)
+    t = t/numruns
     effs[i] = 1/(errors[i]*t)
     solutions[i] = sol
-    times[i] = mean(tmptimes)
+    times[i] = t
   end
   for j in 1:N, i in 1:N
     effratios[i,j] = effs[i]/effs[j]
@@ -142,14 +141,14 @@ function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,n
     name = "WP-Alg"
   end
   for i in 1:N
-    tmptimes = Vector{Float64}(numruns)
     sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
     sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
-    for j in 1:numruns
-      tmptimes[j] = @elapsed sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i])
+    t = @elapsed for j in 1:numruns
+      sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i])
     end
+    t = t/numruns
     errors[i] = sol.errors[:final]
-    times[i] = mean(tmptimes)
+    times[i] = t
   end
   return WorkPrecision(prob,tspan,abstols,reltols,errors,times,name,N)
 end
