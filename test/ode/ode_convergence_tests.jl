@@ -10,6 +10,7 @@ println("Convergence Test on Linear")
 testTol = 0.2
 superduperbool = Vector{Bool}(2)
 
+#i =2
 for i = 1:2
   prob = probArr[i]
   println("Special RKs")

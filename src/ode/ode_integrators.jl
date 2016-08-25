@@ -2914,7 +2914,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number}(integra
   f₂ = similar(u); vectmp3 = similar(vec(u))
   utmp = similar(u); vectmp2 = similar(vec(u))
   dT = similar(u); vectmp = similar(vec(u))
-  J::Matrix{uEltype} = ForwardDiff.jacobian((du1,u)->vecfreturn(t,u,du1),du1,vec(u))
+  J::Matrix{uEltype} = ForwardDiff.jacobian((du1,u)->vecfreturn(t,u,du1),vec(du1),vec(u))
   W = similar(J); tmp2 = similar(u)
   uidx = eachindex(u)
   jidx = eachindex(J)
