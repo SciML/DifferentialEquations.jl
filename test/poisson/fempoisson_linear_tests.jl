@@ -6,7 +6,7 @@ using DifferentialEquations, Plots
 Δx = 1//2^(3)
 fem_mesh = notime_squaremesh([0 1 0 1],Δx,:dirichlet)
 
-f(x)=sin(2π.*x[:,1]).*cos(2π.*x[:,2])
+f = (x) -> sin(2π.*x[:,1]).*cos(2π.*x[:,2])
 prob = PoissonProblem(f)
 
 sol = solve(fem_mesh,prob)
