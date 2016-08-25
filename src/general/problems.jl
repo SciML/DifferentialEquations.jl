@@ -463,7 +463,7 @@ function numparameters(f)
     end
     numparm = maximum([length(m.sig.parameters) for m in methods(f)])
   else
-    numparm = length(Base.uncompressed_ast(f.code).args[1]
+    numparm = length(Base.uncompressed_ast(f.code).args[1])
   end
   if VERSION >= v"0.5-"
     return (numparm-1) #-1 in v0.5 since it adds f as the first parameter
