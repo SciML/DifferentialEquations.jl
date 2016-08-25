@@ -11,7 +11,7 @@ There are two parts to the benchmarking suite: shootouts and work-precision.
 
  A
 shootout is where you compare between algorithms. For example, so see how
-different Runge-Kutta algorithms fair against eachother, one can define a setup
+different Runge-Kutta algorithms fair against each other, one can define a setup
 which is a dictionary of Symbols to Any, where the symbol is the keyword argument.
 Then you call `ode_shootout` on that setup. The code is as follows:
 
@@ -23,25 +23,25 @@ setups = [Dict(:alg=>:DP5)
 prob = DifferentialEquations.prob_ode_large2Dlinear
 names = ["DifferentialEquations";"ODE";"ODEInterface"]
 shoot = ode_shootout(prob,tspan,setups;Δt=1/2^(10),names=names)
- ```
+```
 
- Note that keyword arguments applied to ode_shootout are applie dot every run, so
- in this example every run has the same starting timestep.  Here we explicitly chose names.
- If you don't, then the algorithm name is the default.
- This returns a Shootout type where which holds the times it took for each algorithm
- and the errors. Using these, it calculates the efficiency defnied as
- 1/(error*time), i.e. if the error is low or the run was quick then
- it's efficient. `print(shoot)` will show all of this information,
- and `plot(shoot)` will show the efficiencies of the algorithms
- in comparison to each other.
+Note that keyword arguments applied to ode_shootout are applie dot every run, so
+in this example every run has the same starting timestep.  Here we explicitly chose names.
+If you don't, then the algorithm name is the default.
+This returns a Shootout type where which holds the times it took for each algorithm
+and the errors. Using these, it calculates the efficiency defnied as
+1/(error*time), i.e. if the error is low or the run was quick then
+it's efficient. `print(shoot)` will show all of this information,
+and `plot(shoot)` will show the efficiencies of the algorithms
+in comparison to each other.
 
- For every benchmark function there is a special keyword `numruns` which controls
- the number of runs used in the time estimate. To be more precise, these functions
- by default run the algorithm 20 times on the problem and take the average time.
- This amount can be increased and decreased as needed.
+For every benchmark function there is a special keyword `numruns` which controls
+the number of runs used in the time estimate. To be more precise, these functions
+by default run the algorithm 20 times on the problem and take the average time.
+This amount can be increased and decreased as needed.
 
- A ShootoutSet is a where you define a vector of probs and tspans and run a shootout
- on each of these values.
+A ShootoutSet is a where you define a vector of probs and tspans and run a shootout
+on each of these values.
 
 ### WorkPrecision
 
