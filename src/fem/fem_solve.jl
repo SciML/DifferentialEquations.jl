@@ -214,6 +214,26 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
     prob.D = D
   end
   t = 0
+
+  #Setup timeseries
+
+  timeseries = Vector{typeof(u)}(0)
+  push!(timeseries,u)
+  ts = Float64[t]
+
+  if typeof(Δt) <: Main.SIUnits.SIQuantity
+    Δt = Δt.val
+  end
+  if typeof(t) <: Main.SIUnits.SIQuantity
+    t = t.val
+  end
+  
+  #=
+  if typeof(T) <: Main.SIUnits.SIQuantity
+    T = T.val
+  end
+  =#
+
   sqrtΔt= sqrt(Δt)
   #Setup f quadraturef
   mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
@@ -223,11 +243,6 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 
   islinear ? linearity=:linear : linearity=:nonlinear
   stochastic ? stochasticity=:stochastic : stochasticity=:deterministic
-  #Setup timeseries
-
-  timeseries = Vector{typeof(u)}(0)
-  push!(timeseries,u)
-  ts = Float64[t]
 
   if alg==:Euler && fem_mesh.μ>=0.5
     warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")

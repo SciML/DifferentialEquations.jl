@@ -125,6 +125,15 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
     rands = ChunkedArray(randn,u)
   end
 
+  if typeof(Δt) <: SIUnits.SIQuantity
+    Δt = Δt.val
+  end
+  if typeof(t) <: SIUnits.SIQuantity
+    t = t.val
+  end
+  if typeof(T) <: SIUnits.SIQuantity
+    T = T.val
+  end
   sqΔt = sqrt(Δt)
   iter = 0
   ΔW = sqΔt*next(rands) # Take one first
