@@ -25,7 +25,7 @@ immutable FEMHeatIntegrator{T1,T2,T3}
   noisetype::Symbol
   numiters::Int
   save_timeseries::Bool
-  timeseries::GrowableArray
+  timeseries#::Vector{uType}
   ts::AbstractArray
   atomloaded::Bool
   solver::Symbol
@@ -41,7 +41,7 @@ end
 @def femheat_footer begin
   u[bdnode] = gD(i*Δt,node)[bdnode]
   if save_timeseries && i%timeseries_steps==0
-    push!(timeseries,u)
+    push!(timeseries,copy(u))
     push!(ts,t)
   end
   (atomloaded && progressbar && i%progress_steps==0) ? Main.Atom.progress(i/numiters) : nothing #Use Atom's progressbar if loaded
@@ -306,7 +306,7 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitCra
   lhs = Kp[freenode,freenode]
   rhs(i,u,dW) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x,u)->f((i-.5)*Δt,x,u),(x)->gD((i-.5)*Δt,x),(x)->gN((i-.5)*Δt,x),
               A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
-              (sqrtΔt.*dW.*Minv*quadfbasis((u,x)->σ((i-1)*Δt,x,u),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
+              (sqrtΔt.*dW.*Minv*quadfbasis((x,u)->σ((i-1)*Δt,x,u),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
                           A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
   @femheat_implicitpreamble
   @inbounds for i=1:numiters

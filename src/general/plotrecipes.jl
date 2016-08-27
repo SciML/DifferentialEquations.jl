@@ -37,61 +37,51 @@ end
 end
 
 @recipe function f(sol::SDESolution;plot_analytic=false)
-  if ndims(sol.timeseries) > 2
-    totaldims = 1
-    for i=2:ndims(sol.timeseries)
-      totaldims *= size(sol.timeseries,i)
+  plotseries = Vector{Any}(0)
+  for i in eachindex(sol.u)
+    tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+    for j in 1:length(sol.timeseries)
+      tmp[j] = sol.timeseries[j][i]
     end
-    #println(totaldims)
-    vals = reshape(sol.timeseries,size(sol.timeseries,1),totaldims)
-  else
-    vals = sol.timeseries
+    push!(plotseries,tmp)
   end
   if plot_analytic
-    if ndims(sol.timeseries_analytic) > 2
-      totaldims = 1
-      for i=2:ndims(sol.timeseries)
-        totaldims *= size(sol.timeseries_analytic,i)
+    for i in eachindex(sol.u)
+      tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+      for j in 1:length(sol.timeseries)
+        tmp[j] = sol.timeseries_analytic[j][i]
       end
-      vals = [vals reshape(sol.timeseries_analytic,size(sol.timeseries_analytic,1),totaldims)]
-    else
-      vals = [vals sol.timeseries_analytic]
+      push!(plotseries,tmp)
     end
   end
-  #u = Any[sol.timeseries];
-  #plot_analytic && push!(u, sol.timeseries_analytic);
   seriestype --> :path
   #layout --> length(u)
-  map(Float64,sol.t), map(Float64,vals) #Remove when Tom commits
+  map(Float64,sol.t), plotseries
 end
 
 @recipe function f(sol::ODESolution;plot_analytic=false)
-  if ndims(sol.timeseries) > 2
-    totaldims = 1
-    for i=2:ndims(sol.timeseries)
-      totaldims *= size(sol.timeseries,i)
+  plotseries = Vector{Any}(0)
+  for i in eachindex(sol.u)
+    tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+    for j in 1:length(sol.timeseries)
+      tmp[j] = sol.timeseries[j][i]
     end
-    #println(totaldims)
-    vals = reshape(sol.timeseries,size(sol.timeseries,1),totaldims)
-  else
-    vals = sol.timeseries
+    push!(plotseries,tmp)
   end
   if plot_analytic
-    if ndims(sol.timeseries_analytic) > 2
-      totaldims = 1
-      for i=2:ndims(sol.timeseries)
-        totaldims *= size(sol.timeseries_analytic,i)
+    for i in eachindex(sol.u)
+      tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+      for j in 1:length(sol.timeseries)
+        tmp[j] = sol.timeseries_analytic[j][i]
       end
-      vals = [vals reshape(sol.timeseries_analytic,size(sol.timeseries_analytic,1),totaldims)]
-    else
-      vals = [vals sol.timeseries_analytic]
+      push!(plotseries,tmp)
     end
   end
   #u = Any[sol.timeseries];
   #plot_analytic && push!(u, sol.timeseries_analytic);
   seriestype --> :path
   #layout --> length(u)
-  sol.t, vals
+  sol.t, plotseries
 end
 
 @recipe function f(sim::ConvergenceSimulation)

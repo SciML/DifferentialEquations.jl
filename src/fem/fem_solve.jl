@@ -223,9 +223,10 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 
   islinear ? linearity=:linear : linearity=:nonlinear
   stochastic ? stochasticity=:stochastic : stochasticity=:deterministic
-  #Setup animation
+  #Setup timeseries
 
-  timeseries = GrowableArray(u)
+  timeseries = Vector{typeof(u)}(0)
+  push!(timeseries,u)
   ts = Float64[t]
 
   if alg==:Euler && fem_mesh.μ>=0.5
@@ -237,10 +238,13 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 
   #Heat Equation Loop
   u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
+
+  (atomloaded && progressbar ) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
+
   if knownanalytic #True Solution exists
     if save_timeseries
-      timeSeries = FEMSolutionTS(timeseries,numvars)
-      return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,timeSeries,ts,prob))
+      timeseries = FEMSolutionTS(timeseries,numvars)
+      return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,timeseries,ts,prob))
     else
       return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,prob))
     end

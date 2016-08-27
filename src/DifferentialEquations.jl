@@ -3,7 +3,7 @@ __precompile__()
 module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
-        EllipsisNotation, GrowableArrays, ChunkedArrays, InplaceOps
+        ChunkedArrays, InplaceOps
   import Base: length, size, getindex, endof, show, print
   import ForwardDiff.Dual
 
