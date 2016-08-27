@@ -79,6 +79,6 @@ Pkg.clone("https://github.com/JuliaODE/ODE.jl")
 The wrapper works on my fork until a PR goes through. You can install this via:
 
 ```julia
-Pkg.clone("https://github.com/ChrisRackauckas/Sundials")
+Pkg.clone("https://github.com/alyst/Sundials.jl")
 Pkg.checkout("Sundials","handles")
 ```
