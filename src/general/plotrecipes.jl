@@ -61,20 +61,28 @@ end
 
 @recipe function f(sol::ODESolution;plot_analytic=false)
   plotseries = Vector{Any}(0)
-  for i in eachindex(sol.u)
-    tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
-    for j in 1:length(sol.timeseries)
-      tmp[j] = sol.timeseries[j][i]
-    end
-    push!(plotseries,tmp)
-  end
-  if plot_analytic
+  if typeof(sol.u) <:AbstractArray
     for i in eachindex(sol.u)
       tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
       for j in 1:length(sol.timeseries)
-        tmp[j] = sol.timeseries_analytic[j][i]
+        tmp[j] = sol.timeseries[j][i]
       end
       push!(plotseries,tmp)
+    end
+  else
+    push!(plotseries,sol.timeseries)
+  end
+  if plot_analytic
+    if typeof(sol.u) <: AbstractArray
+      for i in eachindex(sol.u)
+        tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+        for j in 1:length(sol.timeseries)
+          tmp[j] = sol.timeseries_analytic[j][i]
+        end
+        push!(plotseries,tmp)
+      end
+    else
+      push!(plotseries,sol.timeseries_analytic)
     end
   end
   #u = Any[sol.timeseries];

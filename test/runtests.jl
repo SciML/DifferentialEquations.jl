@@ -1,8 +1,8 @@
 #!/usr/bin/env julia
 
 const CPU_FLOPS = peakflops()
-const TEST_PLOT = false
-const LONGER_TESTS = false #Requires JLD
+const TEST_PLOT = true
+const LONGER_TESTS = true #Requires JLD
 const TEST_CONDITIONAL_DEPS = true
 #Start Test Script
 using DifferentialEquations, Compat
@@ -54,15 +54,15 @@ println("ODE.jl Tests")
 println("Sundials.jl Tests")
 (TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl")
 #println("ODE Number Type Tests")
-#@time @test include("ode/ode_numbertype_tests.jl")
+#@time @test include("ode/ode_numbertype_tests.jl") # Bigs problem
 #println("ODE Unrolled Tests")
-#@time @test include("ode/ode_unrolled_comparison_tests.jl") # No until segfault fix
+#@time @test include("ode/ode_unrolled_comparison_tests.jl") # Bigs problem
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
 println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
 #println("ODE Feagin Tests")
-#@time @test include("ode/ode_feagin_tests.jl")
+#@time @test include("ode/ode_feagin_tests.jl") # Bigs problem
 
 #SDE
 println("Linear SDE Tests")
@@ -102,7 +102,7 @@ println("Finite Element Heat Method Tests")
 @time @test include("heat/femheat_methods_tests.jl")
 println("Finite Element Nonlinear Heat Methods Tests")
 @time @test include("heat/femheat_nonlinearmethods_tests.jl")
-println("Finite Element Nonlinear System Heat Tests") #ForwardDiff Issue
+println("Finite Element Nonlinear System Heat Tests") 
 @time @test include("heat/femheat_system_tests.jl")
 println("Heat Animation Test")
 @time @test include("heat/femheat_animation_tests.jl")
@@ -114,7 +114,7 @@ println("Finite Element Poisson Convergence Test")
 @time @test include("poisson/fempoisson_convergence_tests.jl")
 println("Finite Element Nonlinear Poisson Tests")
 @time @test include("poisson/fempoisson_nonlinear_tests.jl")
-println("Finite Element Nonlinear System Poisson Tests") #ForwardDiff Issue
+println("Finite Element Nonlinear System Poisson Tests")
 @time @test include("poisson/fempoisson_nonlinearsystem_tests.jl")
 println("Finite Element Stochastic Poisson")
 @time @test include("poisson/fempoisson_stochastic_tests.jl")
