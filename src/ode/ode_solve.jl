@@ -214,18 +214,16 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     elseif alg==:ode45_fe
       solver = ODE.RKIntegrator{FoA,:rk45}
     end
-    out = collect(ODE.solve(ode;solver=solver,opts...))
-    timeseries = Vector{uType}(0)
-    push!(timeseries,u₀)
-    ts = Vector{typeof(out[1][1])}(0)
-    push!(ts,t)
-    for (t,u,du) in out
-      push!(ts,t)
-      if typeof(u₀) <: AbstractArray
-        push!(timeseries,u)
-      else
-        push!(timeseries,u[1])
+    #out = collect(ode(f!,u,t,solver=solver,opts...))
+    out = ODE.solve(ode;solver=solver,opts...)
+    timeseries = out.y
+    ts = out.t
+    if length(out.y[1])==1
+      tmp = Vector{eltype(out.y[1])}(length(out.y))
+      for i in 1:length(out.y)
+        tmp[i] = out.y[i][1]
       end
+      timeseries = tmp
     end
     t = ts[end]
     u = timeseries[end]
