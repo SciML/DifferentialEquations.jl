@@ -91,7 +91,7 @@ type SDESolution <: DESolution
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-timeseries_analytic)),:l2=>sqrt(mean((timeseries-timeseries_analytic).^2)))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->x.^2,timeseries-timeseries_analytic))))
     end
     return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
@@ -140,7 +140,7 @@ type ODESolution <: DESolution
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-timeseries_analytic)),:l2=>sqrt(mean((timeseries-timeseries_analytic).^2)))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->x.^2,timeseries-timeseries_analytic))))
     end
     return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries))
   end
@@ -194,32 +194,34 @@ function appxTrue!(res::FEMSolution,res2::FEMSolution)
 end
 
 """
-S = FEMSolutionTS(timeseries::GrowableArray,numvars::Int)
+S = FEMSolutionTS(timeseries::Vector{uType},numvars::Int)
 S[i][j] => Variable i at time j.
 """
-function FEMSolutionTS(timeseries::GrowableArray,numvars::Int)
-  G = GrowableArray(timeseries[1][:,1])
+function FEMSolutionTS{uType<:AbstractArray}(timeseries::Vector{uType},numvars::Int)
+  G = Vector{typeof(timeseries[1][:,1])}(0)
+  push!(G,timeseries[1][:,1])
   for j = 2:length(timeseries)
     push!(G,timeseries[j][:,1])
   end
-  ts = GrowableArray(G)
+  timeseries = Vector{typeof(G)}(0)
+  push!(timeseries,G)
   if numvars > 1
     for i=2:numvars
-      G = GrowableArray(timeseries[1][:,i])
-      for j = 2:length(timeseries)
+      G = Vector{typeof(timeseries[1][:,i])}(0)
+      for j = 1:length(timeseries)
         push!(G,timeseries[j][:,i])
       end
-      push!(ts,G)
+      push!(timeseries,G)
     end
   end
-  return(ts)
+  return(timeseries)
 end
 
 Base.length(sol::DESolution) = length(sol.t)
 Base.size(sol::DESolution) = (length(sol.t),size(sol.u))
 Base.endof(sol::DESolution) = length(sol)
-Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i,..]
-Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i,I...]
+Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i]
+Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.timeseries
 
 function print(io::IO, sol::DESolution)
@@ -239,4 +241,18 @@ end
 
 function show(io::IO,sol::DESolution)
   print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol.u)")
+end
+
+function vecvecapply{T<:Number,N}(f::Function,v::Vector{Array{T,N}})
+  res = Vector{eltype(eltype(v))}(0)
+  for i in eachindex(v)
+    for j in eachindex(v[i])
+      push!(res,v[i][j])
+    end
+  end
+  f(res)
+end
+
+function vecvecapply{T<:Number}(f::Function,v::Vector{T})
+  f(v)
 end

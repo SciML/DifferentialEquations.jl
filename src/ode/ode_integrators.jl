@@ -5,7 +5,7 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   Δt::tType
   Ts::Vector{tType}
   maxiters::Int
-  timeseries::GrowableArray{uEltype,uType,N}
+  timeseries::Vector{uType}
   ts::Vector{tType}
   timeseries_steps::Int
   save_timeseries::Bool
@@ -81,14 +81,14 @@ end
 
 @def ode_savevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,u)
+    push!(timeseries,copy(u))
     push!(ts,t)
   end
 end
 
 @def ode_implicitsavevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,reshape(u,sizeu...))
+    push!(timeseries,copy(reshape(u,sizeu...)))
     push!(ts,t)
   end
 end

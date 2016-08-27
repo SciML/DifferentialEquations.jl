@@ -95,20 +95,22 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
 
   T = tType(tspan[2])
   t = tType(tspan[1])
+
+  timeseries = Vector{uType}(0)
+  push!(timeseries,u₀)
+  ts = Vector{tType}(0)
+  Ws = Vector{uType}(0)
+  push!(ts,t)
+
   if numvars == 1
     W = 0.0
     Z = 0.0
+    push!(Ws,W)
   else
     W = zeros(sizeu)
     Z = zeros(sizeu)
+    push!(Ws,copy(W))
   end
-
-
-
-  timeseries = GrowableArray(u)
-  ts = Vector{tType}(0)
-  Ws = GrowableArray(W)
-  push!(ts,t)
 
   #PreProcess
   if (alg==:SRA || alg==:SRAVectorized) && tableau == nothing
@@ -140,13 +142,10 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   if knownanalytic
     u_analytic = analytic(t,u₀,W)
     if save_timeseries
-      timeseries_analytic = GrowableArray(analytic(ts[1],u₀,Ws[1]))
-      for i in 2:size(Ws,1)
+      timeseries_analytic = Vector{uType}(0)
+      for i in 1:size(Ws,1)
         push!(timeseries_analytic,analytic(ts[i],u₀,Ws[i]))
       end
-      Ws = copy(Ws)
-      timeseries = copy(timeseries)
-      timeseries_analytic = copy(timeseries_analytic)
       return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,t=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxstacksize=maxstacksize))
     else
       return(SDESolution(u,u_analytic,W=W,maxstacksize=maxstacksize))

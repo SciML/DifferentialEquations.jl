@@ -31,7 +31,8 @@ solver, all Julia-defined numbers will work. This method uses ForwardDiff to
 automatically guess the Jacobian. For faster solving when the Jacobian is known,
 use `radau`. For highly stiff problems where Julia-defined numbers need to be used
 (SIUnits, Arbs), `:Trapezoid` is the current best choice. However, for the most
-efficient non-stiff solvers, use `:radau` or `:cvode_BDF`.
+efficient non-stiff solvers, use `:radau` or `:cvode_BDF` provided by wrappers
+to the ODEInterface and Sundials packages respectively ([see the conditional dependencies documentation](../man/conditional_dependencies.md) 
 
 ## Full List of Methods
 

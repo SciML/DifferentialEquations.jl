@@ -6,8 +6,8 @@ immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType}
   Δt::tType
   T::tType
   maxiters::Int
-  timeseries::GrowableArray{uEltype,uType,N}
-  Ws::GrowableArray{uEltype,uType,N}
+  timeseries::Vector{uType}
+  Ws::Vector{uType}
   ts::Vector{tType}
   timeseries_steps::Int
   save_timeseries::Bool
@@ -88,9 +88,9 @@ end
 
 @def sde_savevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,u)
+    push!(timeseries,copy(u))
     push!(ts,t)
-    push!(Ws,W)
+    push!(Ws,copy(W))
   end
 end
 

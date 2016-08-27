@@ -126,7 +126,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
 
     Ts = map(tType,o[:Ts])
     t = tType(o[:t])
-    timeseries = GrowableArray(u₀)
+    timeseries = Vector{uType}(0)
+    push!(timeseries,u₀)
     ts = Vector{tType}(0)
     push!(ts,t)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
@@ -166,7 +167,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     t = ts[end]
     if typeof(u₀)<:AbstractArray
-      timeseries = GrowableArray(u₀;initvalue=false)
+      timeseries = Vector{uType}(0)
       for i=1:size(vectimeseries,1)
         push!(timeseries,reshape(vectimeseries[i,:]',sizeu))
       end
@@ -214,7 +215,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       solver = ODE.RKIntegrator{FoA,:rk45}
     end
     out = collect(ODE.solve(ode;solver=solver,opts...))
-    timeseries = GrowableArray(u₀)
+    timeseries = Vector{uType}(0)
+    push!(timeseries,u₀)
     ts = Vector{typeof(out[1][1])}(0)
     push!(ts,t)
     for (t,u,du) in out
@@ -253,7 +255,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ts = [t;Ts]
     if command_opts[:adaptive]
       ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator=integrator)
-      timeseries = GrowableArray(u₀;initvalue=false)
+      timeseries = Vector{uType}(0)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
           push!(timeseries,reshape(vectimeseries[i],sizeu))
@@ -270,7 +272,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
         sort(ts)
       end
       vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator)
-      timeseries = GrowableArray(u₀;initvalue=false)
+      timeseries = Vector{uType}(0)
+      push!(timeseries,u₀)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
           push!(timeseries,reshape(vectimeseries[i,:],sizeu))
@@ -290,12 +293,10 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   if knownanalytic
     u_analytic = analytic(t,u₀)
     if save_timeseries
-      timeseries_analytic = GrowableArray(analytic(ts[1],u₀))
-      for i in 2:size(timeseries,1)
+      timeseries_analytic = Vector{uType}(0)
+      for i in 1:size(timeseries,1)
         push!(timeseries_analytic,analytic(ts[i],u₀))
       end
-      timeseries = copy(timeseries)
-      timeseries_analytic = copy(timeseries_analytic)
       return(ODESolution(u,u_analytic,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic))
     else
       return(ODESolution(u,u_analytic))
