@@ -3,7 +3,7 @@
 const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
 const LONGER_TESTS = false #Requires JLD
-const TEST_CONDITIONAL_DEPS = false
+const TEST_CONDITIONAL_DEPS = true
 #Start Test Script
 using DifferentialEquations, Compat
 using Base.Test
@@ -28,7 +28,7 @@ println("Example Mesh Tests")
 println("Simple Mesh Tests")
 @time @test include("internals/mesh_SimpleMesh_tests.jl")
 println("Solver Interface Tests")
-(VERSION >= v"0.5-") && (@time @test include("internals/solution_get_tests.jl"))
+@time @test include("internals/solution_get_tests.jl")
 println("Run other Premades")
 @time @test include("internals/other_premades_tests.jl")
 println("Benchmark Tests")
@@ -52,7 +52,7 @@ println("ODEInterface Tests")
 println("ODE.jl Tests")
 (TEST_CONDITIONAL_DEPS) && @time @test include("ode/ODEJL_tests.jl")
 println("Sundials.jl Tests")
-(TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl.jl")
+(TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl")
 #println("ODE Number Type Tests")
 #@time @test include("ode/ode_numbertype_tests.jl")
 #println("ODE Unrolled Tests")
@@ -60,7 +60,7 @@ println("Sundials.jl Tests")
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
 println("ODE In-Place Tests")
-(VERSION >= v"0.5-") && (@time @test include("ode/ode_inplace_tests.jl"))
+@time @test include("ode/ode_inplace_tests.jl")
 #println("ODE Feagin Tests")
 #@time @test include("ode/ode_feagin_tests.jl")
 

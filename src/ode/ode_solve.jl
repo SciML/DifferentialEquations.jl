@@ -36,8 +36,8 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 For a full list of algorithms, please see the solver documentation.
 """
 function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProblem{uType,uEltype},tspan::AbstractArray=[0,1];kwargs...)
-  tspan = vec(tspan)
   if tspan[end]-tspan[1]<0
+    tspan = vec(tspan)
     error("final time must be greater than starting time. Aborting.")
   end
   atomloaded = isdefined(Main,:Atom)
@@ -172,7 +172,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
         push!(timeseries,reshape(vectimeseries[i,:]',sizeu))
       end
     else
-      timeseries = vectimeseries
+      timeseries = vec(vectimeseries)
     end
     u = timeseries[end]
 
@@ -266,14 +266,15 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
         end
       end
     else
-      ts = collect(t:Δt:Ts[end])
+      Δt = command_opts[:Δt]
+      ts = float(collect(t:Δt:Ts[end]))
       if length(Ts)>1
-        ts = [ts;Ts[1:end-1]]
+        ts = float([ts;Ts[1:end-1]])
         sort(ts)
       end
+      println(ts)
       vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator)
       timeseries = Vector{uType}(0)
-      push!(timeseries,u₀)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
           push!(timeseries,reshape(vectimeseries[i,:],sizeu))
@@ -289,7 +290,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   end
 
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
-
   if knownanalytic
     u_analytic = analytic(t,u₀)
     if save_timeseries

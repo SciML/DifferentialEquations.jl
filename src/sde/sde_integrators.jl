@@ -363,23 +363,23 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
       A1temp = zero(u)
       B1temp = zero(u)
       for j = 1:i-1
-        A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[..,j])
-        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H1[..,j])
-        A1temp += A₁[i,j]*f(t + c₀[j]*Δt,H0[..,j])
-        B1temp += B₁[i,j]*σ(t + c₁[j]*Δt,H1[..,j])
+        A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[j])
+        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H1[j])
+        A1temp += A₁[i,j]*f(t + c₀[j]*Δt,H0[j])
+        B1temp += B₁[i,j]*σ(t + c₁[j]*Δt,H1[j])
       end
-      H0[..,i] = u + A0temp*Δt + B0temp.*chi2
-      H1[..,i] = u + A1temp*Δt + B1temp*sqΔt
+      H0[i] = u + A0temp*Δt + B0temp.*chi2
+      H1[i] = u + A1temp*Δt + B1temp*sqΔt
     end
     atemp = zero(u)
     btemp = zero(u)
     E₂    = zero(u)
     E₁temp= zero(u)
     for i = 1:stages
-      ftemp = f(t+c₀[i]*Δt,H0[..,i])
+      ftemp = f(t+c₀[i]*Δt,H0[i])
       atemp += α[i]*ftemp
-      btemp += (β₁[i]*ΔW + β₂[i]*chi1).*σ(t+c₁[i]*Δt,H1[..,i])
-      E₂    += (β₃[i]*chi2 + β₄[i]*chi3).*σ(t+c₁[i]*Δt,H1[..,i])
+      btemp += (β₁[i]*ΔW + β₂[i]*chi1).*σ(t+c₁[i]*Δt,H1[i])
+      E₂    += (β₃[i]*chi2 + β₄[i]*chi3).*σ(t+c₁[i]*Δt,H1[i])
       if i<3 #1 or 2
         E₁temp += ftemp
       end
@@ -563,8 +563,8 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
     E₁temp[:]= zero(uEltype)
 
     for i = 1:stages
-      f(t+c₀[i]*Δt,H0[..,i],ftmp)
-      σ(t+c₁[i]*Δt,H0[..,i],σtmp)
+      f(t+c₀[i]*Δt,H0[i],ftmp)
+      σ(t+c₁[i]*Δt,H0[i],σtmp)
       for j in eachindex(u)
         atemp[j] += α[i]*ftmp[j]
         btemp[j] += (β₁[i]*ΔW[j])*σtmp[j]
@@ -601,10 +601,10 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
       A0temp = zero(u)
       B0temp = zero(u)
       for j = 1:i-1
-        A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[..,j])
-        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H0[..,j]) #H0[..,i] argument ignored
+        A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[j])
+        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H0[j]) #H0[..,i] argument ignored
       end
-      H0[..,i] = u + A0temp*Δt + B0temp.*chi2
+      H0[i] = u + A0temp*Δt + B0temp.*chi2
     end
 
     atemp = zero(u)
@@ -613,10 +613,10 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     E₁temp= zero(u)
 
     for i = 1:stages
-      ftemp = f(t+c₀[i]*Δt,H0[..,i])
+      ftemp = f(t+c₀[i]*Δt,H0[i])
       atemp += α[i]*ftemp
-      btemp += (β₁[i]*ΔW ).*σ(t+c₁[i]*Δt,H0[..,i]) #H0[..,i] argument ignored
-      E₂    += (β₂[i]*chi2).*σ(t+c₁[i]*Δt,H0[..,i]) #H0[..,i] argument ignored
+      btemp += (β₁[i]*ΔW ).*σ(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
+      E₂    += (β₂[i]*chi2).*σ(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
 
       E₁temp += ftemp
     end

@@ -1,6 +1,6 @@
 using DifferentialEquations
 
-prob = linearODEExample()
+prob = prob_ode_linear
 Δt = 1/2^(4) #The initial timestepping size. It will automatically assigned if not given.
 tspan = [0,1] # The timespan. This is the default if not given.
 
