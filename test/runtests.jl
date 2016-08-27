@@ -39,8 +39,8 @@ println("Linear ODE Tests")
 @time @test include("ode/ode_twodimlinear_tests.jl")
 println("ODE Convergence Tests")
 @time @test include("ode/ode_convergence_tests.jl")
-#println("ODE Tableau Convergence Tests") # Until bigs are fixed
-#@time @test include("ode/ode_tableau_convergence_tests.jl")
+#println("ODE Tableau Convergence Tests")
+#@time @test include("ode/ode_tableau_convergence_tests.jl") # Bigs problem
 println("ODE Adaptive Tests")
 @time @test include("ode/ode_adaptive_tests.jl")
 println("ODE Tspan Tests")
@@ -63,6 +63,8 @@ println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
 #println("ODE Feagin Tests")
 #@time @test include("ode/ode_feagin_tests.jl") # Bigs problem
+println("ODE Units Tests")
+#@time @test include("ode/ode_units_tests.jl")
 
 #SDE
 println("Linear SDE Tests")
@@ -102,7 +104,7 @@ println("Finite Element Heat Method Tests")
 @time @test include("heat/femheat_methods_tests.jl")
 println("Finite Element Nonlinear Heat Methods Tests")
 @time @test include("heat/femheat_nonlinearmethods_tests.jl")
-println("Finite Element Nonlinear System Heat Tests") 
+println("Finite Element Nonlinear System Heat Tests")
 @time @test include("heat/femheat_system_tests.jl")
 println("Heat Animation Test")
 @time @test include("heat/femheat_animation_tests.jl")

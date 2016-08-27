@@ -7,3 +7,4 @@ GenericSVD 0.0.2
 Compat 0.8.8
 Plots 0.9.0
 InplaceOps 0.0.5
+SIUnits 0.0.6
