@@ -135,34 +135,10 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ts = Vector{tType}(0)
     push!(ts,t)
 
-    # Strip units for run, these only add to themselves so valid
-    # Already typed the array so they will be unit'd at the end anyways
-    if typeof(Δt) <: SIUnits.SIQuantity
-      Δt = Δt.val
-    end
-    if typeof(t) <: SIUnits.SIQuantity
-      t = t.val
-    end
-    if eltype(Ts) <: SIUnits.SIQuantity
-      Ts = [T.val for T in Ts]
-    end
-    if typeof(o[:Δtmax]) <: SIUnits.SIQuantity
-      o[:Δtmax] = o[:Δtmax].val
-    end
-    if typeof(o[:Δtmin]) <: SIUnits.SIQuantity
-      o[:Δtmin] = o[:Δtmin].val
-    end
     if typeof(u) <: SIUnits.SIQuantity
       o[:abstol] = convert(typeof(u),o[:abstol])
     end
-    if tType <: SIUnits.SIQuantity && uType <: Number
-      g = (t,u) -> f!(tType(t),u)
-    elseif tType <: SIUnits.SIQuantity && uType <: AbstractArray
-      g = (t,u,du) -> f!(tType(t),u,du)
-    else
-      g = f!
-    end
-    tTypeNoUnits = typeof(Δt) # Could be different due to units
+
     if uEltype <: SIUnits.SIQuantity
       if uType <: AbstractArray
         uEltypeNoUnits = typeof(u[1].val)
@@ -173,9 +149,13 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       uEltypeNoUnits = uEltype
     end
 
+    rateType = typeof(u/t) ## Can be different if united
+
+    println(alg)
+
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
     #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(g,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,tTypeNoUnits,uEltypeNoUnits}(g,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)

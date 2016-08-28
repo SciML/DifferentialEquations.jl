@@ -47,14 +47,6 @@ println("ODE Tspan Tests")
 @time @test include("ode/ode_tspan_tests.jl")
 println("ODE Lorenz Attractor")
 @time @test include("ode/ode_lorenzattractor_tests.jl")
-println("ODEInterface Tests")
-(TEST_CONDITIONAL_DEPS) && @compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
-println("ODE.jl Tests")
-(TEST_CONDITIONAL_DEPS) && @time @test include("ode/ODEJL_tests.jl")
-println("Sundials.jl Tests")
-(TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl")
-#println("ODE Number Type Tests")
-#@time @test include("ode/ode_numbertype_tests.jl") # Bigs problem
 #println("ODE Unrolled Tests")
 #@time @test include("ode/ode_unrolled_comparison_tests.jl") # Bigs problem
 println("ODE Initial Dt Tests")
@@ -63,8 +55,8 @@ println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
 #println("ODE Feagin Tests")
 #@time @test include("ode/ode_feagin_tests.jl") # Bigs problem
-println("ODE Units Tests")
-#@time @test include("ode/ode_units_tests.jl")
+#println("ODE Number Type Tests")
+#@time @test include("ode/ode_numbertype_tests.jl") # Bigs problem
 
 #SDE
 println("Linear SDE Tests")
@@ -129,5 +121,15 @@ println("Stokes Tests")
 @time @test include("stokes/stokes_tests.jl")
 println("DGS Internals Test")
 @time @test include("stokes/stokes_dgs_tests.jl")
+
+#Optional Items
+println("Units Tests")
+#@time @test include("internals/units_tests.jl")
+println("ODEInterface Tests")
+(TEST_CONDITIONAL_DEPS) && @compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
+println("ODE.jl Tests")
+(TEST_CONDITIONAL_DEPS) && @time @test include("ode/ODEJL_tests.jl")
+println("Sundials.jl Tests")
+(TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl")
 
 toc()
