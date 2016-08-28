@@ -33,6 +33,8 @@ for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
   end
 end
 
+# Stochastic needs ΔW = s^(1/2).
+#=
 β = 0.6
 σ = (t,y) -> β*y/(4.0s)
 u₀ = 1.5Newton
@@ -50,7 +52,7 @@ prob = SDEProblem(f,σ,u₀)
 
 sol =solve(prob::SDEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:EM)
 sol =solve(prob::SDEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:SRIW1Optimized)
-
+=#
 
 ### Setup
 Δx = (1//2^(3))Meter

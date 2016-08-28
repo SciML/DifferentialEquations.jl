@@ -23,6 +23,15 @@ testTol = 1
 println("Feagin RKs")
 sol =solve(prob::ODEProblem,Δt=Δts[1],alg=:Feagin10)
 
+const linear_bigα = parse(BigFloat,"1.01")
+f = (t,u,du) -> begin
+  for i in 1:length(u)
+    du[i] = linear_bigα*u[i]
+  end
+end
+analytic = (t,u₀) -> u₀*exp(linear_bigα*t)
+prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
+
 prob = prob_ode_bigfloat2Dlinear
 
 sim = test_convergence(Δts,prob,alg=:Feagin10)
@@ -40,16 +49,20 @@ sim = test_convergence(Δts,prob,alg=:Feagin14)
 #sim = test_convergence(Δts,prob,alg=:RK4)
 bool6 = abs(sim.𝒪est[:final]-15) < testTol #Upped to 15 for test
 
+f = (t,u) -> (linear_bigα*u)
+prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),analytic=analytic)
 prob = prob_ode_bigfloatlinear
 
+Δts = 1.//2.^(6:-1:3)
 sim = test_convergence(Δts,prob,alg=:Feagin10)
-bool7 = abs(sim.𝒪est[:final]-10) < testTol #Upped to 15 for test
+bool7 = abs(sim.𝒪est[:final]-10) < testTol
 
+Δts = 1.//2.^(4:-1:2)
 sim = test_convergence(Δts,prob,alg=:Feagin12)
-bool8 = abs(sim.𝒪est[:final]-12) < testTol #Upped to 15 for test
+bool8 = abs(sim.𝒪est[:final]-12) < testTol
 
 sim = test_convergence(Δts,prob,alg=:Feagin14)
-bool9 = abs(sim.𝒪est[:final]-16) < testTol #Upped to 15 for test
+bool9 = abs(sim.𝒪est[:final]-15) < testTol #Upped to 15 for test
 
 prob = prob_ode_bigfloat2Dlinear
 

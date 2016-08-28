@@ -140,7 +140,7 @@ type ODESolution <: DESolution
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->x.^2,timeseries-timeseries_analytic))))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
     return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries))
   end

@@ -87,11 +87,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       o[:adaptive] = false
     else
       if o[:adaptive] == true
-        if typeof(Δt) <: SIUnits.SIQuantity
-          Δt = float(Δt)*(Δt/Δt.val) # Keep the units on Δt
-        else
-          Δt = float(Δt)
-        end
+        Δt = 1.0*Δt # Convert to float in a way that keeps units
       end
     end
     if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
@@ -135,22 +131,17 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ts = Vector{tType}(0)
     push!(ts,t)
 
-    if typeof(u) <: SIUnits.SIQuantity
-      o[:abstol] = convert(typeof(u),o[:abstol])
-    end
+    o[:abstol] = convert(uEltype,o[:abstol])
 
-    if uEltype <: SIUnits.SIQuantity
-      if uType <: AbstractArray
-        uEltypeNoUnits = typeof(u[1].val)
-      else
-        uEltypeNoUnits = typeof(u.val)
-      end
+    if uType <: AbstractArray
+      uEltypeNoUnits = eltype(u./u)
     else
-      uEltypeNoUnits = uEltype
+      uEltypeNoUnits = typeof(u./u)
     end
+    rateType = typeof(u/zero(t)) ## Can be different if united
 
-    rateType = typeof(u/t) ## Can be different if united
-
+    println(rateType)
+    println(uType)
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
     #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(g,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
     u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))

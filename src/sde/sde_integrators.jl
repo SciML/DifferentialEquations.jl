@@ -27,7 +27,7 @@ immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,
   atomloaded::Bool
   progress_steps::Int
   rands::ChunkedArray{uEltypeNoUnits,Nm1,N}
-  sqΔt::tTypeNoUnits
+  sqΔt::tType
   W::randType
   Z::randType
   tableau::tableauType
@@ -109,7 +109,7 @@ max_stack_size = 0
 max_stack_size2 = 0
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @inbounds while t<T
     @sde_loopheader
@@ -124,7 +124,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:AbstractArray}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   utmp1 = similar(u); utmp2 = similar(u)
   @inbounds while t<T
@@ -142,7 +142,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:AbstractArray}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
@@ -222,7 +222,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:AbstractArray}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   chi1::randType = similar(ΔW)
   chi2::randType = similar(ΔW)
@@ -285,7 +285,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   local H0::uType
   @sde_adaptiveprelim
@@ -335,7 +335,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
@@ -393,7 +393,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:SRIVectorized,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRIVectorized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
@@ -425,7 +425,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:AbstractArray}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   du1::uType = similar(u); du2::uType = similar(u)
   K::uType = similar(u); utilde::uType = similar(u); L::uType = similar(u)
@@ -449,7 +449,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   local L::uType; local K::uType; local utilde::uType
   @inbounds while t<T
@@ -469,7 +469,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
 end
 
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   H0 = Array{uEltype}(size(u)...,2)
   local k₁::uType; local k₂::uType; local E₁::uType; local E₂::uType
@@ -490,7 +490,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:AbstractArray}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
 
   H0 = Array{uEltype}(size(u)...,2)
@@ -520,7 +520,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:AbstractArray}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
@@ -582,7 +582,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
@@ -628,7 +628,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,tTypeNoUnits<:Number,uEltypeNoUnits<:Number,randType<:Number}(integrator::SDEIntegrator{:SRAVectorized,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType})
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRAVectorized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
