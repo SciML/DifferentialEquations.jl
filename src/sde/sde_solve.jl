@@ -129,25 +129,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   else
     randType = uType
   end
-  # Strip units for run, these only add to themselves so valid
-  # Already typed the array so they will be unit'd at the end anyways
 
-  if typeof(Δt) <: SIUnits.SIQuantity
-    Δt = Δt.val
-  end
-  if typeof(t) <: SIUnits.SIQuantity
-    t = t.val
-  end
-  if typeof(T) <: SIUnits.SIQuantity
-    T = T.val
-  end
-  if typeof(Δtmin) <: SIUnits.SIQuantity
-    Δtmin = Δtmin.val
-  end
-  if typeof(Δtmax) <: SIUnits.SIQuantity
-    Δtmax = Δtmax.val
-  end
-  tTypeNoUnits = typeof(Δt) # Could be different due to units
   if uEltype <: SIUnits.SIQuantity
     if uType <: AbstractArray
       uEltypeNoUnits = typeof(u[1].val)
@@ -184,9 +166,11 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   #EEst = 0
   typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
 
+  rateType = typeof(u/t) ## Can be different if united
+
   #@code_warntype sde_solve(SDEIntegrator{alg,typeof(u),eltype(u),ndims(u),ndims(u)+1,typeof(Δt),typeof(tableau)}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
 
-  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,uType,uEltype,ndims(u),ndims(u)+1,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType}(g,g2,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
+  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,uType,uEltype,ndims(u),ndims(u)+1,tType,tableauType,uEltypeNoUnits,randType,rateType}(g,g2,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
 
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
 

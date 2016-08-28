@@ -2,6 +2,21 @@
 using DifferentialEquations
 probArr = Vector{DEProblem}(2)
 bigprobArr = Vector{DEProblem}(2)
+
+const linear_bigα = parse(BigFloat,"1.01")
+f = (t,u) -> (linear_bigα*u)
+analytic = (t,u₀) -> u₀*exp(linear_bigα*t)
+"""Linear ODE on Float64"""
+prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),analytic=analytic)
+
+f = (t,u,du) -> begin
+  for i in 1:length(u)
+    du[i] = linear_bigα*u[i]
+  end
+end
+"""2D Linear ODE, bigfloats"""
+prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
+
 probArr[1] = prob_ode_linear
 probArr[2] = prob_ode_2Dlinear
 bigprobArr[1] = prob_ode_bigfloatlinear
@@ -151,11 +166,9 @@ for i = 1:3
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
-  #=
-  tab = constructVernerEfficient6()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
-  =#
+  tab = constructVernerEfficient6(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-6.6) < testTol)
 
   tab = constructPapakostas6()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
@@ -167,7 +180,7 @@ for i = 1:3
 
   Δts = 1.//2.^(3:-1:1)
   tab = constructTsitourasPapakostas6()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
+  sim = test_convergence(Δts,prob,alg=alg,tableau=tab) #30
   push!(bools,abs(sim.𝒪est[:l∞]-6.7) < testTol) # Better on linear
 
   Δts = 1.//2.^(5:-1:1)
@@ -175,7 +188,6 @@ for i = 1:3
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
-  #=
   tab = constructTanakaKasugaYamashitaYazaki6D()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
@@ -193,8 +205,6 @@ for i = 1:3
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
-  =#
-
   tab = constructMikkawyEisa()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6.53) < testTol) # Odd behavior
@@ -203,11 +213,9 @@ for i = 1:3
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
-  #=
   tab = constructChummund62()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
-  =#
 
   Δts = 1.//2.^(4:-1:1)
   tab = constructHuta6()
@@ -216,7 +224,7 @@ for i = 1:3
 
   Δts = 1.//2.^(5:-1:1)
   tab = constructHuta62()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
+  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)#40
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
   tab = constructVerner6()
@@ -244,45 +252,37 @@ for i = 1:3
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
 
-  #=
   tab = constructVernerRobust7()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
+
 
   Δts = 1.//2.^(5:-1:1)
   tab = constructEnrightVerner7()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7.15) < testTol) # Better on linear
 
-  #=
   tab = constructTanakaYamashitaStable7()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
+  push!(bools,abs(sim.𝒪est[:l∞]-7.3) < testTol)
 
-  #=
-  tab = constructTanakaYamashitaEfficient7()
+  tab = constructTanakaYamashitaEfficient7(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
 
-  #=
-  tab = constructSharpSmart7()
-  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  Δts = 1.//2.^(8:-1:3)
+  tab = constructSharpSmart7(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab) #50
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
 
-  Δts = 1.//2.^(4:-1:1)
+  Δts = 1.//2.^(3:-1:1)
   tab = constructSharpVerner7()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6.5) < testTol) # Coefficients aren't accurate enough, drop off error
 
-  #=
   tab = constructVernerEfficient7()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
 
   # Order 8
   Δts = 1.//2.^(4:-1:1)
@@ -290,35 +290,29 @@ for i = 1:3
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
 
-  Δts = 1.//2.^(3:-1:1)
+  Δts = 1.//2.^(4:-1:1)
   tab = constructCooperVerner8()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7.75) < testTol) #Coefficients not accurate enough
+  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol) #Coefficients not accurate enough
 
   Δts = 1.//2.^(4:-1:1)
   tab = constructCooperVerner82()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
+  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol) #Coefficients not accurate enough
 
-  #=
-  tab = constructTsitourasPapakostas8()
+  tab = constructTsitourasPapakostas8(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
-  =#
 
-  #=
   Δts = 1.//2.^(4:-1:1)
-  tab = constructdverk78()
+  tab = constructdverk78(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
-  =#
 
-  #=
   Δts = 1.//2.^(4:-1:1)
-  tab = constructEnrightVerner8()
+  tab = constructEnrightVerner8(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
-  =#
 
   Δts = 1.//2.^(4:-1:1)
   tab = constructCurtis8()
@@ -330,11 +324,9 @@ for i = 1:3
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
 
-  #=
   tab = constructDormandPrince8(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
-  =#
+  push!(bools,abs(sim.𝒪est[:l∞]-8.4) < testTol)
 
   Δts = 1.//2.^(3:-1:1)
   tab = constructDormandPrince8_64bit(BigFloat)
@@ -343,46 +335,39 @@ for i = 1:3
 
   # Order 9
 
-  #=
-  tab = constructVernerRobust9()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
+  tab = constructVernerRobust9(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-9) < testTol)
 
-  #=
-  tab = constructVernerEfficient9()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
+  tab = constructVernerEfficient9(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-9) < testTol)
 
-  Δts = 1.//2.^(4:-1:1)
-  #=
-  tab = constructSharp9()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
-  #=
-  tab = constructTsitouras9()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
+  Δts = 1.//2.^(3:-1:1)
+  tab = constructSharp9(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-9) < testTol) #Only works to Float64 precision
 
-  #=
-  tab = constructTsitouras92()
-  sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
-  =#
+  Δts = 1.//2.^(2:-1:1)
+  tab = constructTsitouras9(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-10.5) < testTol) #Only works to Float64
+
+  Δts = 1.//2.^(1:-1:0)
+  tab = constructTsitouras92(BigFloat)
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)  #Only works to Float64
 
   ## Order 10
 
   Δts = 1.//2.^(5:-1:1)
   tab = constructCurtis10()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-10) < testTol) #Coefficients too crude
+  push!(bools,abs(sim.𝒪est[:l∞]-10) < testTol)
 
   tab = constructOno10()
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-10) < testTol) #Coefficients too crude
+  push!(bools,abs(sim.𝒪est[:l∞]-10) < testTol)
 
   Δts = 1.//2.^(5:-1:1)
   tab = constructFeagin10Tableau()

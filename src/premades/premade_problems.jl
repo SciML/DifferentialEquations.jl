@@ -24,12 +24,13 @@ analytic = (t,u₀) -> u₀*exp(1.01*t)
 prob_ode_2Dlinear = ODEProblem(f,rand(4,2),analytic=analytic)
 """2D Linear ODE, 100x100"""
 prob_ode_large2Dlinear = ODEProblem(f,rand(100,100),analytic=analytic)
-"""2D Linaer ODE, bigfloats"""
+
 f = (t,u,du) -> begin
   for i in 1:length(u)
     du[i] = linear_bigα*u[i]
   end
 end
+"""2D Linear ODE, bigfloats"""
 prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
 f = (t,u) -> 1.01*u
 """2D Linear ODE, not in place."""
