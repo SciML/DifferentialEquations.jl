@@ -1,6 +1,21 @@
 using DifferentialEquations
-using BenchmarkTools
-probnum = prob_ode_linear; probnumbig = prob_ode_bigfloatlinear
+
+const linear_bigα = parse(BigFloat,"1.01")
+f = (t,u) -> (linear_bigα*u)
+analytic = (t,u₀) -> u₀*exp(linear_bigα*t)
+"""Linear ODE on Float64"""
+prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),analytic=analytic)
+
+f = (t,u,du) -> begin
+  for i in 1:length(u)
+    du[i] = linear_bigα*u[i]
+  end
+end
+"""2D Linear ODE, bigfloats"""
+prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
+
+probnum = prob_ode_linear
+probnumbig = prob_ode_bigfloatlinear
 prob    = prob_ode_large2Dlinear
 probbig = prob_ode_bigfloat2Dlinear
 Δts = 1.//2.^(7:-1:4)
@@ -103,20 +118,20 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 ### Vern6
 
 Δts = 1.//2.^(6:-1:3)
-sim = test_convergence(Δts,probnum,alg=:Vern6)
-sim = test_convergence(Δts,prob,alg=:Vern6)
+sim = test_convergence(Δts,probnumbig,alg=:Vern6)
+sim = test_convergence(Δts,probbig,alg=:Vern6)
 
-tab = constructTsitouras5()
-@time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern6,adaptive=false,save_timeseries=false)
-@time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+tab = constructVernerEfficient6(BigFloat)
+@time sol1 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern6,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
 push!(bools,sol1.u - sol2.u < 1e-10)
 
-@time sol1 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:Vern6)
-@time sol2 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+@time sol1 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:Vern6)
+@time sol2 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 
-@time sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:Vern6,adaptive=false,save_timeseries=false)
-@time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+@time sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:Vern6,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
 push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 
@@ -127,10 +142,10 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 ### TanYam7
 
 Δts = 1.//2.^(6:-1:3)
-sim = test_convergence(Δts,probnum,alg=:TanYam7)
-sim = test_convergence(Δts,prob,alg=:TanYam7)
+sim = test_convergence(Δts,probnumbig,alg=:TanYam7)
+sim = test_convergence(Δts,probbig,alg=:TanYam7)
 
-tab = constructTsitouras5()
+tab = constructTanakaYamashitaEfficient7(BigFloat)
 @time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:TanYam7,adaptive=false,save_timeseries=false)
 @time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
@@ -139,8 +154,8 @@ push!(bools,sol1.u - sol2.u < 1e-10)
 @time sol1 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:TanYam7)
 @time sol2 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 
-@time sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:TanYam7,adaptive=false,save_timeseries=false)
-@time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+@time sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:TanYam7,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
 push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 
@@ -167,20 +182,20 @@ sim = test_convergence(Δts,probbig,alg=:DP8)
 ### TsitPap8
 
 Δts = 1.//2.^(6:-1:3)
-sim = test_convergence(Δts,probnum,alg=:TsitPap8)
-sim = test_convergence(Δts,prob,alg=:TsitPap8)
+sim = test_convergence(Δts,probnumbig,alg=:TsitPap8)
+sim = test_convergence(Δts,probbig,alg=:TsitPap8)
 
-tab = constructTsitPap5()
-@time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:TsitPap8,adaptive=false,save_timeseries=false)
-@time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+tab = constructTsitourasPapakostas8(BigFloat)
+@time sol1 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:TsitPap8,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
 push!(bools,sol1.u - sol2.u < 1e-10)
 
-@time sol1 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:TsitPap8)
-@time sol2 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+@time sol1 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:TsitPap8)
+@time sol2 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 
-@time sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:TsitPap8,adaptive=false,save_timeseries=false)
-@time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+@time sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:TsitPap8,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
 push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 
@@ -191,25 +206,25 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 ### Vern9
 
 Δts = 1.//2.^(6:-1:3)
-sim = test_convergence(Δts,probnum,alg=:Vern9)
-sim = test_convergence(Δts,prob,alg=:Vern9)
+sim = test_convergence(Δts,probnumbig,alg=:Vern9)
+sim = test_convergence(Δts,probbig,alg=:Vern9)
 
-tab = constructVern9()
-@time sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9,adaptive=false,save_timeseries=false)
-@time sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+tab = constructVernerEfficient9(BigFloat)
+@time sol1 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
-push!(bools,sol1.u - sol2.u < 1e-10)
+push!(bools,abs(sol1.u - sol2.u) < 1e-15)
 
-@time sol1 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:Vern9)
-@time sol2 =solve(probnum::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+@time sol1 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:Vern9)
+@time sol2 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 
-@time sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:Vern9,adaptive=false,save_timeseries=false)
-@time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+@time sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:Vern9,adaptive=false,save_timeseries=false)
+@time sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
 
-push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
+push!(bools,minimum(abs(sol1.u - sol2.u) .< 1e-15))
 
-@time sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9Vectorized)
-@time sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
-@time sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9)
+@time sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9Vectorized)
+@time sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+@time sol3 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern9)
 
 minimum(bools)

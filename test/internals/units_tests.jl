@@ -8,7 +8,7 @@ sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:Mi
 sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:ExplicitRK,adaptive=true)
 
 for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
-  if !contains(string(alg),"Vectorized")
+  if !contains(string(alg),"Vectorized") && !contains(string(alg),"Threaded") && alg ∉ DifferentialEquations.DIFFERENTIALEQUATIONSJL_IMPLICITALGS
     sol = solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=alg,adaptive=true)
   end
 end
@@ -25,15 +25,17 @@ sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:RK
 sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:ExplicitRK)
 sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:DP5)
 
+sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:DP5Threaded)
+
 for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
-  sol = solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=alg,adaptive=true)
+  if alg ∉ DifferentialEquations.DIFFERENTIALEQUATIONSJL_IMPLICITALGS
+    sol = solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=alg,adaptive=true)
+  end
 end
 
-#plot(sol.t,sol[:]) # Doesn't work because no unit recipe
-#plot(sol) #Doesn't work because the one above doesn't work
-
 β = 0.6
-σ = (t,y) -> β*y
+σ = (t,y) -> β*y/(4.0s)
+u₀ = 1.5Newton
 prob = SDEProblem(f,σ,u₀)
 
 sol =solve(prob::SDEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:EM)

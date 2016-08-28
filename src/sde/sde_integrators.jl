@@ -1,10 +1,10 @@
-immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType}
+immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType}
   f::Function
   σ::Function
   u::uType
-  t::tTypeNoUnits
-  Δt::tTypeNoUnits
-  T::tTypeNoUnits
+  t::tType
+  Δt::tType
+  T::tType
   maxiters::Int
   timeseries::Vector{uType}
   Ws::Vector{randType}
@@ -18,11 +18,11 @@ immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType,tTypeNoUnits,uE
   abstol::uEltype
   reltol::uEltypeNoUnits
   qmax::uEltypeNoUnits
-  Δtmax::tTypeNoUnits
-  Δtmin::tTypeNoUnits
+  Δtmax::tType
+  Δtmin::tType
   internalnorm::Int
   numvars::Int
-  discard_length::tTypeNoUnits
+  discard_length::tType
   progressbar::Bool
   atomloaded::Bool
   progress_steps::Int
@@ -35,9 +35,9 @@ end
 
 @def sde_preamble begin
   local u::uType
-  local t::tTypeNoUnits
-  local Δt::tTypeNoUnits
-  local T::tTypeNoUnits
+  local t::tType
+  local Δt::tType
+  local T::tType
   local ΔW::randType
   local ΔZ::randType
   @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
