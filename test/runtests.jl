@@ -4,6 +4,7 @@ const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
 const LONGER_TESTS = true #Requires JLD
 const TEST_CONDITIONAL_DEPS = true
+const FILEIO_ENABLE = false
 #Start Test Script
 using DifferentialEquations, Compat
 using Base.Test
@@ -24,7 +25,7 @@ println("Assembly Tests")
 println("Boundary Tests")
 @time @test include("internals/boundary_tests.jl")
 println("Example Mesh Tests")
-@time @test include("internals/mesh_examples_tests.jl")
+FILEIO_ENABLE && @time @test include("internals/mesh_examples_tests.jl")
 println("Simple Mesh Tests")
 @time @test include("internals/mesh_SimpleMesh_tests.jl")
 println("Solver Interface Tests")
