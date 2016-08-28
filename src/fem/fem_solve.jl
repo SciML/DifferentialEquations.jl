@@ -184,7 +184,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   A,M,area = assemblematrix(fem_mesh,lumpflag=true)
 
   #Unroll some important constants
-  @unpack fem_mesh: Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
+  @unpack fem_mesh: Δt,T,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
   @unpack prob: f,u₀,Du,gD,gN,analytic,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D
 
   #Note if Atom is loaded for progress

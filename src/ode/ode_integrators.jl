@@ -59,9 +59,6 @@ end
   #local k1::uType; local k7::uType
   local qold::uEltypeNoUnits = 0
 
-  if typeof(β) <: SIUnits.SIQuantity
-    β = β.val
-  end
   expo1 = 1/order - 0.75β
   qminc = inv(qmin)
   qmaxc = inv(qmax)
@@ -2311,12 +2308,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       if adaptive
         for i in uidx
           utmp[i] = u[i] + tmp[i]
-          tmp[i] = ((k[2][i] - k[16][i]) * adaptiveConst)./(abstol+u[i]*reltol)
+          atmp[i] = ((k[2][i] - k[16][i]) * adaptiveConst)./(abstol+u[i]*reltol)
         end
         EEst = norm(atmp,internalnorm)
       else #no chance of rejecting, so in-place
         for i in uidx
-          u[i] = u[i] + atmp[i]
+          u[i] = u[i] + tmp[i]
         end
       end
       @ode_loopfooter
@@ -3181,5 +3178,3 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   end
   return u,t,timeseries,ts
 end
-
-max{ND,N,m,kg,s,A,K,mol,cd,rad,sr}(u::Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND},utmp::Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND}) = map((x,y)->SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr}(max(x.val,y.val)),u,utmp)

@@ -29,6 +29,7 @@ module DifferentialEquations
   const atomloaded = isdefined(Main,:Atom)
   const initialized_backends = Set{Symbol}()
 
+  include("general/units.jl")
   include("general/backends.jl")
   include("general/replacement_macros.jl")
   include("general/misc_utils.jl")

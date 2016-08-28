@@ -53,10 +53,10 @@ println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
 println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
-#println("ODE Feagin Tests")
-#@time @test include("ode/ode_feagin_tests.jl") # Bigs problem
-#println("ODE Number Type Tests")
-#@time @test include("ode/ode_numbertype_tests.jl") # Bigs problem
+println("ODE Feagin Tests")
+@time @test include("ode/ode_feagin_tests.jl")
+println("ODE Number Type Tests")
+@time @test include("ode/ode_numbertype_tests.jl")
 
 #SDE
 println("Linear SDE Tests")
@@ -124,7 +124,7 @@ println("DGS Internals Test")
 
 #Optional Items
 println("Units Tests")
-#@time @test include("internals/units_tests.jl")
+@time @test include("internals/units_tests.jl")
 println("ODEInterface Tests")
 (TEST_CONDITIONAL_DEPS) && @compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
 println("ODE.jl Tests")
