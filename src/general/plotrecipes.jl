@@ -168,3 +168,13 @@ end
 end
 # mesh = meshExample_lakemesh()
 # PyPlot.plot_trisurf(mesh.node[:,1],mesh.node[:,2],ones(mesh.node[:,2]),triangles=mesh.elem-1)
+
+@recipe function f(tab::ODERKTableau;Δx=1/100,Δy=1/100,xlim=[-6,1],ylim=[-5,5])
+  x = xlim[1]:Δx:xlim[2]
+  y = ylim[1]:Δy:ylim[2]
+  f = (u,v)-> abs(stability_region(u+v*im,tab))<1
+  seriestype --> :contour
+  fill --> true
+  cbar --> false
+  x,y,f
+end

@@ -10,7 +10,7 @@ ExplicitRKTableau
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
-type ExplicitRKTableau <: Tableau
+type ExplicitRKTableau <: ODERKTableau
   A#::Array{Float64,2}
   c#::Vector{Float64}
   α#::Vector{Float64}
@@ -27,7 +27,7 @@ ImplicitRKTableau
 
 Holds a tableau which defines an implicit Runge-Kutta method.
 """
-type ImplicitRKTableau <: Tableau
+type ImplicitRKTableau <: ODERKTableau
   A#::Array{Float64,2}
   c#::Vector{Float64}
   α#::Vector{Float64}
@@ -39,11 +39,22 @@ type ImplicitRKTableau <: Tableau
 end
 
 """
-Base.length(tab::ExplicitRKTableau)
+Base.length(tab::ODERKTableau)
 
 Defines the length of a Runge-Kutta method to be the number of stages.
 """
-Base.length(tab::ExplicitRKTableau) = tab.stages
+Base.length(tab::ODERKTableau) = tab.stages
+
+"""
+stability_region(z,tab::ODERKTableau)
+
+Calculates the stability function from the tableau at z. Stable if <1.
+
+```math
+r(z) = \frac{\det(I-zA+zeb^T)}{\det(I-zA)}
+```
+"""
+stability_region(z,tab::ODERKTableau) = det(eye(tab.stages)- z*tab.A + z*ones(tab.stages)*tab.α')/det(eye(tab.stages)-z*tab.A)
 
 """
 constructGL2()
@@ -94,11 +105,11 @@ function constructGL6(T::Type = Float64)
 end
 
 """
-constructHuen()
+constructHeun()
 
-Constructs the tableau object for Huen's Order 2 method.
+Constructs the tableau object for Heun's Order 2 method.
 """
-function constructHuen(T::Type = Float64)
+function constructHeun(T::Type = Float64)
   A = [0 0
        1 0]
   c = [0;1]
@@ -126,8 +137,276 @@ function constructRalston(T::Type = Float64)
   return(ExplicitRKTableau(A,c,α,2))
 end
 
+
 """
-constructRKF()
+constructEuler()
+
+Constructs the tableau object for Euler's method.
+"""
+function constructEuler(T::Type = Float64)
+  A = [0]
+  c = [0]
+  α = [1]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ExplicitRKTableau(A,c,α,1))
+end
+
+"""
+constructKutta3()
+
+Constructs the tableau object for Kutta's Order 3 method.
+"""
+function constructKutta3(T::Type = Float64)
+  A = [0 0 0
+       1//2 0 0
+        -1 2 0]
+  c = [0;1//2;1]
+  α = [1//6;2//3;1//6]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ExplicitRKTableau(A,c,α,3))
+end
+
+"""
+constructRK4()
+
+Constructs the tableau object for the classic RK4 method.
+"""
+function constructRK4(T::Type = Float64)
+  A = [0 0 0 0
+       1//2 0 0 0
+        0 1//2 0 0
+        0 0 1 0]
+  c = [0;1//2;1//2;1]
+  α = [1//6;1//3;1//3;1//6]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ExplicitRKTableau(A,c,α,4))
+end
+
+"""
+constructRK438Rule()
+
+Constructs the tableau object for the classic RK4 3/8's rule method.
+"""
+function constructRK438Rule(T::Type = Float64)
+  A = [0 0 0 0
+       1//3 0 0 0
+        -1//3 1 0 0
+        1 -1 1 0]
+  c = [0;1//3;2//3;1]
+  α = [1//8;3//8;3//8;1//8]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ExplicitRKTableau(A,c,α,4))
+end
+
+function constructImplicitEuler(T::Type = Float64)
+  A = [1]
+  c = [1]
+  α = [1]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,1))
+end
+
+function constructMidpointRule(T::Type = Float64)
+  A = [1//2]
+  c = [1//2]
+  α = [1]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,2))
+end
+
+function constructTrapezoidalRule(T::Type = Float64)
+  A = [0 0
+      1//2 1//2]
+  c = [0;1]
+  α = [1//2;1//2]
+  αEEst = [1;0]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
+end
+
+function constructLobattoIIIA4(T::Type = Float64)
+  A = [0 0 0
+      5//24 1//3 -1//24
+      1//6 2//3 1//6]
+  c = [0;1//2;1]
+  α = [1//6;2//3;1//6]
+  αEEst = [-1//2;2;-1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
+end
+
+function constructLobattoIIIB2(T::Type = Float64)
+  A = [1//2 0
+       1//2 0]
+  c = [0;1]
+  α = [1//2;1//2]
+  αEEst = [1;0]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
+end
+
+function constructLobattoIIIB4(T::Type = Float64)
+  A = [1//6 -1//6 0
+       1//6 1//3  0
+       1//6 5//6 0]
+  c = [0;1//2;1]
+  α = [1//6;2//3;1//6]
+  αEEst = [-1//2;2;-1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
+end
+
+function constructLobattoIIIC2(T::Type = Float64)
+  A = [1//2 -1//2
+      1//2 1//2]
+  c = [0;1]
+  α = [1//2;1//2]
+  αEEst = [1;0]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
+end
+
+function constructLobattoIIIC4(T::Type = Float64)
+  A = [1//6 -1//3 1//6
+       1//6 5//12 -1//12
+       1//6 2//3 1//6]
+  c = [0;1//2;1]
+  α = [1//6;2//3;1//6]
+  αEEst = [-1//2;2;-1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
+end
+
+function constructLobattoIIICStar2(T::Type = Float64)
+  A = [0 0
+       1 0]
+  c = [0;1]
+  α = [1//2;1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,2))
+end
+
+function constructLobattoIIICStar4(T::Type = Float64)
+  A = [0 0 0
+       1//4 1//4 0
+        0 1 0]
+  c = [0;1//2;1]
+  α = [1//6;2//3;1//6]
+  αEEst = [-1//2;2;-1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
+end
+
+function constructLobattoIIID2(T::Type = Float64)
+  A = [1//2 1//2
+      -1//2 1//2]
+  c = [0;1]
+  α = [1//2;1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,2))
+end
+
+function constructLobattoIIID4(T::Type = Float64)
+  A = [1//6 0 -1//6
+       1//12 5//12 0
+       1//2 1//3 1//6]
+  c = [0;1//2;1]
+  α = [1//6;2//3;1//6]
+  αEEst = [-1//2;2;-1//2]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  αEEst = map(T,αEEst)
+  return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
+end
+
+function constructRadauIA3(T::Type = Float64)
+  A = [1//4 -1//4
+       1//4 5//12]
+  c = [0;2//3]
+  α = [1//4;3//4]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,3))
+end
+
+function constructRadauIA5(T::Type = Float64)
+  A = [1//9 (-1-sqrt(6))/18 (-1+sqrt(6))/18
+       1//9 11//45+7*sqrt(6)/360 11//45-43*sqrt(6)/360
+       1//9 11//45+43*sqrt(6)/360 11//45-7*sqrt(6)/360]
+  c = [0;3//5-sqrt(6)/10;3//5+sqrt(6)/10]
+  α = [1//9;4//9+sqrt(6)/36;4//9-sqrt(6)/36]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,5))
+end
+
+function constructRadauIIA3(T::Type = Float64)
+  A = [5//12 -1//12
+       3//4 1//4]
+  c = [1//3;1]
+  α = [3//4;1//4]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,3))
+end
+
+function constructRadauIIA5(T::Type = Float64)
+  sq6 = sqrt(6)
+  A = [11//45-7sq6/360 37//225-169sq6/1800 -2//225+sq6/75
+       37//225+169sq6/1800 11//45+7sq6/360 -2//225-sq6/75
+       4//9-sq6/36 4//9+sq6/36 1//9]
+  c = [2//5-sq6/10;2/5+sq6/10;1]
+  α = [4//9-sq6/36;4//9+sq6/36;1//9]
+  A = map(T,A)
+  α = map(T,α)
+  c = map(T,c)
+  return(ImplicitRKTableau(A,c,α,5))
+end
+
+
+"""
+constructRKF5()
 
 Constructs the tableau object for the Runge-Kutta-Fehlberg Order 4/5 method.
 """
