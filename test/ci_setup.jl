@@ -3,3 +3,4 @@ Pkg.checkout("ODE","dev")
 
 Pkg.clone("https://github.com/alyst/Sundials.jl")
 Pkg.checkout("Sundials","handles")
+Pkg.build("Sundials")
