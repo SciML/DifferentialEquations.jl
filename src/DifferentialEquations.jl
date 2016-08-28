@@ -17,6 +17,7 @@ module DifferentialEquations
   abstract Tableau
   abstract DEIntegrator
   abstract DEParameters
+  abstract ODERKTableau
   typealias String AbstractString
   typealias KW Dict{Symbol,Any}
   AbstractArrayOrVoid = Union{AbstractArray,Void}
@@ -90,7 +91,7 @@ module DifferentialEquations
   export ode_shootout, ode_shootoutset, ode_workprecision, ode_workprecision_set
 
   #Plot Functions
-  export  plot, animate
+  export  plot, animate, stability_region
 
   #General Functions
   export appxTrue!, accumarray, solve, test_convergence, monteCarloSim
@@ -101,7 +102,13 @@ module DifferentialEquations
           meshgrid, notime_squaremesh, parabolic_squaremesh, quadpts1
 
   #Tableus
-  export constructRalston, constructHuen, constructRKF, constructBogakiShampine3,
+  export constructEuler, constructKutta3, constructRK4, constructRK438Rule,
+         constructImplicitEuler, constructMidpointRule, constructTrapezoidalRule,
+         constructLobattoIIIA4, constructLobattoIIIB2, constructLobattoIIIB4,
+         constructLobattoIIIC2, constructLobattoIIIC4, constructLobattoIIICStar2,
+         constructLobattoIIICStar4, constructLobattoIIID2, constructLobattoIIID4,
+         constructRadauIA3, constructRadauIA5, constructRadauIIA3, constructRadauIIA5,
+         constructRalston, constructHeun, constructRKF5, constructBogakiShampine3,
          constructCashKarp, constructDormandPrince, constructRKF8, constructDormandPrince8,
          constructMSRI1,constructFeagin10, constructFeagin12, constructFeagin14,
          constructDormandPrince8_64bit, constructDP8, constructRKF5, constructRungeFirst5,
