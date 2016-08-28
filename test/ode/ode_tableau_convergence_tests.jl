@@ -46,7 +46,7 @@ for i = 1:3
 
   # Order 2
 
-  tab = constructHuen()
+  tab = constructHeun()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-2) < testTol)
 
