@@ -2,7 +2,7 @@
 
 const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
-const LONGER_TESTS = false #Requires JLD
+const LONGER_TESTS = true #Requires JLD
 const TEST_CONDITIONAL_DEPS = true
 #Start Test Script
 using DifferentialEquations, Compat
@@ -22,9 +22,9 @@ println("Replacement Macros Test")
 println("Assembly Tests")
 @time @test include("internals/assembly_tests.jl")
 println("Boundary Tests")
-(LONGER_TESTS) && @time @test include("internals/boundary_tests.jl")
+@time @test include("internals/boundary_tests.jl")
 println("Example Mesh Tests")
-(LONGER_TESTS) && @time @test include("internals/mesh_examples_tests.jl")
+@time @test include("internals/mesh_examples_tests.jl")
 println("Simple Mesh Tests")
 @time @test include("internals/mesh_SimpleMesh_tests.jl")
 println("Solver Interface Tests")
@@ -48,13 +48,13 @@ println("ODE Tspan Tests")
 println("ODE Lorenz Attractor")
 @time @test include("ode/ode_lorenzattractor_tests.jl")
 println("ODE Unrolled Tests")
-@time @test include("ode/ode_unrolled_comparison_tests.jl")
+(LONGER_TESTS) && @time @test include("ode/ode_unrolled_comparison_tests.jl")
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
 println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
 println("ODE Feagin Tests")
-@time @test include("ode/ode_feagin_tests.jl")
+(LONGER_TESTS) && @time @test include("ode/ode_feagin_tests.jl")
 println("ODE Number Type Tests")
 @time @test include("ode/ode_numbertype_tests.jl")
 
@@ -124,7 +124,7 @@ println("DGS Internals Test")
 
 #Optional Items
 println("Units Tests")
-@time @test include("internals/units_tests.jl")
+(LONGER_TESTS) && @time @test include("internals/units_tests.jl")
 println("ODEInterface Tests")
 (TEST_CONDITIONAL_DEPS) && @compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
 println("ODE.jl Tests")

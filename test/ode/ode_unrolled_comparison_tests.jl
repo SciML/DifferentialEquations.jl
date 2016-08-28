@@ -179,7 +179,7 @@ sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:DP8,adaptive=false,save_ti
 
 sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8Vectorized)
 sol3 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8)
-sol4 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:dop853)
+#sol4 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:dop853)
 
 ### TsitPap8
 
