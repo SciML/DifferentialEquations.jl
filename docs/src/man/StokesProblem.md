@@ -8,9 +8,9 @@ DifferentialEquations.StokesProblem
 
 ## Example Problems
 
-Examples problems can be found in <a href="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl">src/premades/premade_problems.jl</a>
+Examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl)
 
 ```@docs
-DifferentialEquations.dirichletzeroStokesExample
-DifferentialEquations.homogeneousStokesExample
+DifferentialEquations.prob_stokes_dirichletzero
+DifferentialEquations.prob_stokes_homogenous
 ```

@@ -21,13 +21,14 @@ DifferentialEquations.SDEProblem
 
 ## Example Problems
 
-Examples problems can be found in <a href="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl">src/premades/premade_problems.jl</a>
+Examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl)
 
 ```@docs
-DifferentialEquations.twoDimlinearSDEExample
-DifferentialEquations.cubicSDEExample
-DifferentialEquations.linearSDEExample
-DifferentialEquations.multiDimAdditiveSDEExample
-DifferentialEquations.waveSDEExample
-DifferentialEquations.additiveSDEExample
+DifferentialEquations.prob_sde_linear
+DifferentialEquations.prob_sde_2Dlinear
+DifferentialEquations.prob_sde_additivesystem
+DifferentialEquations.prob_sde_lorenz
+DifferentialEquations.prob_sde_cubic
+DifferentialEquations.prob_sde_additive
+DifferentialEquations.prob_sde_wave
 ```

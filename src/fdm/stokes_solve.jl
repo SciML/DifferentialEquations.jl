@@ -1,7 +1,7 @@
 """
-GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
+`GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)`
 
-Performs a Gauss-Seidel iteration on u.
+Performs a Gauss-Seidel iteration on `u`.
 """
 function GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
   inti = 2:size(u,1)-1; intj = 2:size(u,2)-1 # Coordinates for interior
@@ -23,9 +23,9 @@ function GSu!(u,f₁,Δxs,p,ugD,grids,ux,uy)
 end
 
 """
-GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
+`GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)`
 
-Performs a Gauss-Seidel iteration on v.
+Performs a Gauss-Seidel iteration on `v`.
 """
 function GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
   inti = 2:size(v,1)-1; intj = 2:size(v,2)-1 # Coordinates for interior
@@ -47,9 +47,9 @@ function GSv!(v,f₂,Δxs,p,vgD,grids,vx,vy)
 end
 
 """
-calc_rp!(rp,u,v,Δxs,g,px,py)
+`calc_rp!(rp,u,v,Δxs,g,px,py)`
 
-Calculates the rp from the u and v's.
+Calculates the `rp` from the `u` and `v`'s.
 """
 function calc_rp!(rp,u,v,Δxs,g,px,py)
   for j=1:size(rp,2),i=1:size(rp,1)
@@ -58,9 +58,9 @@ function calc_rp!(rp,u,v,Δxs,g,px,py)
 end
 
 """
-uzawa_p!(p,u,v,Δxs,g,px,py)
+`uzawa_p!(p,u,v,Δxs,g,px,py)`
 
-Solves for p from u and v using an Uzawa update.
+Solves for `p` from `u` and `v` using an Uzawa update.
 """
 function uzawa_p!(p,u,v,Δxs,g,px,py)
   for j=1:size(p,2),i=1:size(p,1)
@@ -69,9 +69,9 @@ function uzawa_p!(p,u,v,Δxs,g,px,py)
 end
 
 """
-GSδq!(δq,rp,Δxs)
+`GSδq!(δq,rp,Δxs)`
 
-Performs a Gauss-Seidel iteration for δq.
+Performs a Gauss-Seidel iteration for `δq`.
 """
 function GSδq!(δq,rp,Δxs)
   for j=2:size(δq,2)-1, i=2:size(δq,1)-1 # Interior
@@ -101,9 +101,9 @@ function GSδq!(δq,rp,Δxs)
 end
 
 """
-update_u!(u,δq,Δxs)
+`update_u!(u,δq,Δxs)`
 
-Updates u given δq
+Updates `u` given `δq`
 """
 function update_u!(u,δq,Δxs)
   for i=1:size(u,1),j=2:size(u,2)-1
@@ -112,9 +112,9 @@ function update_u!(u,δq,Δxs)
 end
 
 """
-update_v!(v,δq,Δxs)
+`update_v!(v,δq,Δxs)`
 
-Updates v given δq
+Updates `v` given `δq`
 """
 function update_v!(v,δq,Δxs)
   for i=2:size(v,1)-1,j=1:size(v,2)
@@ -123,9 +123,9 @@ function update_v!(v,δq,Δxs)
 end
 
 """
-update_p!(p,δq,Δxs)
+`update_p!(p,δq,Δxs)`
 
-Updates p given δq
+Updates `p` given `δq`
 """
 function update_p!(p,δq,Δxs)
   for j=2:size(p,2)-1, i=2:size(p,1)-1 #Interior
@@ -155,7 +155,7 @@ function update_p!(p,δq,Δxs)
 end
 
 """
-stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
+`stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)`
 
 Restricts the Stokes problem to the coarsegrid.
 """
@@ -197,7 +197,7 @@ function stokes_restriction(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
 end
 
 """
-stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)
+`stokes_prolongation(u,v,p,Δxs,grids,mins,maxs,ugD,vgD)`
 
 Prolongates the Stokes problem to the fine grid
 """
@@ -286,7 +286,7 @@ end
 end
 
 """
-solve(prob::StokesProblem,mesh::FDMMesh)
+`solve(prob::StokesProblem,mesh::FDMMesh)`
 
 Solves the given stationary Stokes problem on the given finite difference mesh.
 

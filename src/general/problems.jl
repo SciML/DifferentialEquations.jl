@@ -17,7 +17,7 @@ If they keyword `σ` is given, then this wraps the data that define a 2D stochas
 u_t = Δu + f + σdW_t
 ```
 
-###Constructors
+### Constructors
 
 * `HeatProblem(analytic,Du,f)`: Defines the dirichlet problem with solution `analytic`,
   solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
@@ -31,7 +31,7 @@ Use `f=f(t,x,u)` and `σ=σ(t,x,u)` (if specified) for nonlinear problems
 (with the boundary conditions still (t,x)). Systems of equations can be specified
 with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
-###Keyword Arguments
+### Keyword Arguments
 
 * `gD` = dirichlet boundary function
 
@@ -152,7 +152,7 @@ type HeatProblem <: DEProblem
 end
 
 doc"""
-PoissonProblem
+`PoissonProblem`
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
@@ -170,7 +170,7 @@ If they keyword `σ` is given, then this wraps the data that define a 2D stochas
 -Δu = f + σdW
 ```
 
-###Constructors
+### Constructors
 
 `PoissonProblem(f,analytic,Du)`: Defines the dirichlet problem with analytical solution `analytic`, solution gradient `Du = [u_x,u_y]`,
 and forcing function `f`
@@ -184,7 +184,7 @@ Use `f=f(u,x)` and `σ=σ(u,x)` (if specified) for nonlinear problems
 (with the boundary conditions still (x)). Systems of equations can be specified
 with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
-###Keyword Arguments
+### Keyword Arguments
 
 * `gD` = dirichlet boundary function
 
@@ -303,7 +303,7 @@ type PoissonProblem <: DEProblem
 end
 
 """
-SDEProblem
+`SDEProblem`
 
 Wraps the data which defines an SDE problem
 
@@ -358,12 +358,12 @@ type SDEProblem <: DEProblem
 end
 
 """
-ODEProblem
+`ODEProblem`
 
 Wraps the data which defines an SDE problem
 
 ```math
-du/dt = f(u,t)
+\\frac{du}{dt} = f(u,t)
 ```
 
 with initial condition ``u₀``.
@@ -410,7 +410,7 @@ end
 #ODEProblem{uType<:Union{AbstractArray,Number}}(f,u₀::uType,)
 
 """
-StokesProblem
+`StokesProblem`
 
 Defines the solution to a stationary Stokes problem:
 
@@ -451,7 +451,7 @@ type StokesProblem
 end
 
 """
-numparameters(f)
+`numparameters(f)`
 
 Returns the number of parameters of `f` for the method which has the most parameters.
 """

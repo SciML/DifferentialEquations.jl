@@ -6,7 +6,7 @@ solve(::ODEProblem,::AbstractArray)
 
 ## Recommended Methods
 
-Currently, a total of 120 algorithm choices are available. This guide is to help
+Currently, over 100 algorithm choices are available. This guide is to help
 you choose the right one.
 
 ### Non-Stiff Problems
@@ -32,7 +32,7 @@ automatically guess the Jacobian. For faster solving when the Jacobian is known,
 use `radau`. For highly stiff problems where Julia-defined numbers need to be used
 (SIUnits, Arbs), `:Trapezoid` is the current best choice. However, for the most
 efficient non-stiff solvers, use `:radau` or `:cvode_BDF` provided by wrappers
-to the ODEInterface and Sundials packages respectively ([see the conditional dependencies documentation](../man/conditional_dependencies.md) 
+to the ODEInterface and Sundials packages respectively ([see the conditional dependencies documentation](../man/conditional_dependencies.md))
 
 ## Full List of Methods
 
@@ -118,8 +118,14 @@ Tableau docstrings should have appropriate citations (if not, file an issue).
 stability regions for a given tableau, and calculate the coefficient of the highest
 order truncation error term.]
 
+### Explicit Runge-Kutta Methods
+
 * `constructHuen()` Huen's order 2 method.
 * `constructRalston()` - Ralston's order 2 method.
+* `constructEuler` - Euler's 1st order method.
+* `constructKutta3` - Kutta's classic 3rd order method
+* `constructRK4` - The classic 4th order "Runge-Kutta" method
+* `constructRK438Rule` - The classic 4th order "3/8th's Rule" method
 * `constructBogakiShampine3()` - Bogakai-Shampine's 2/3 method.
 * `constructRKF4()` - Runge-Kutta-Fehlberg 3/4.
 * `constructRKF5()` - Runge-Kutta-Fehlberg 4/5.
@@ -195,6 +201,25 @@ order truncation error term.]
 * `constructOno12()` - Ono's order 12 method.
 * `constructFeagin14Tableau()` Feagin's order 14 method.
 
+### Implicit Runge-Kutta Methods
+
+* `constructImplicitEuler` - The 1st order Implicit Euler method.
+* `constructMidpointRule` - The 2nd order Midpoint method.
+* `constructTrapezoidalRule` - The 2nd order Trapezoidal rule (2nd order LobattoIIIA)
+* `constructLobattoIIIA4` - The 4th order LobattoIIIA
+* `constructLobattoIIIB2` - The 2nd order LobattoIIIB
+* `constructLobattoIIIB4` - The 4th order LobattoIIIB
+* `constructLobattoIIIC2` - The 2nd order LobattoIIIC
+* `constructLobattoIIIC4` - The 4th order LobattoIIIC
+* `constructLobattoIIICStar2` - The 2nd order LobattoIIIC*
+* `constructLobattoIIICStar4` - The 4th order LobattoIIIC*
+* `constructLobattoIIID2` - The 2nd order LobattoIIID
+* `constructLobattoIIID4` - The 4th order LobattoIIID
+* `constructRadauIA3` - The 3rd order RadauIA
+* `constructRadauIA5` - The 5th order RadauIA
+* `constructRadauIIA3` - The 3rd order RadauIIA
+* `constructRadauIIA5` - The 5th order RadauIIA
+
 ## Analysis of Methods
 
-For a walkthrough of the various method pros/cons, see [notes on algorithms](../internals/notes_on_algorithms)
+For an in-depth walkthrough of the various method pros/cons, see [notes on algorithms](../internals/notes_on_algorithms.md)

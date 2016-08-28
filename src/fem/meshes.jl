@@ -13,8 +13,7 @@ can be interpreted as a mesh describing a geometry, see the mesh specification d
 * `bdedge`: Indices of the edges in totaledge which are on the boundary.
 * `is_bdnode`: Boolean which is true for nodes on the boundary.
 * `is_bdelem`: Boolean which is true for elements on the boundary.
-* `bdflag`: Flag which describes the type of boundary condition. 1=> dirichlet,
-2=>neumann, 3=>robin.
+* `bdflag`: Flag which describes the type of boundary condition. 1=> dirichlet, 2=>neumann, 3=>robin.
 * `totaledge`: Vector of the edges.
 * `area`: Vector which is the area for each element.
 * `dirichlet`: Indices for the nodes on the boundary which have a dirichlet boundary condition.
@@ -87,7 +86,7 @@ type FEMmesh <: Mesh
 end
 
 """
-SimpleMesh
+`SimpleMesh`
 
 Holds the information describing a finite element mesh. For information on how (node,elem)
 can be interpreted as a mesh describing a geometry, see [Programming of Finite
@@ -108,21 +107,21 @@ end
 
 
 """
-CFLμ(Δt,Δx)
+`CFLμ(Δt,Δx)``
 
-Computes the CFL-condition μ= Δt/(Δx*Δx)
+Computes the CFL-condition ``μ= Δt/(Δx*Δx)``
 """
 CFLμ(Δt,Δx)=Δt/(Δx*Δx)
 
 """
-CFLν(Δt,Δx)
+`CFLν(Δt,Δx)``
 
-Computes the CFL-condition ν= Δt/Δx
+Computes the CFL-condition ``ν= Δt/Δx``
 """
 CFLν(Δt,Δx)=Δt/Δx
 
 """
-fem_squaremesh(square,h)
+`fem_squaremesh(square,h)`
 
 Returns the grid in the iFEM form of the two arrays (node,elem)
 """
@@ -143,10 +142,10 @@ function fem_squaremesh(square,h)
 end
 
 """
-notime_squaremesh(square,Δx,bdtype)
+`notime_squaremesh(square,Δx,bdtype)`
 
 Computes the (node,elem) square mesh for the square
-with the chosen Δx and boundary settings.
+with the chosen `Δx` and boundary settings.
 
 ###Example
 
@@ -162,11 +161,11 @@ function notime_squaremesh(square,Δx,bdtype)
 end
 
 """
-parabolic_squaremesh(square,Δx,Δt,T,bdtype)
+`parabolic_squaremesh(square,Δx,Δt,T,bdtype)`
 
-Computes the (node,elem) x [0,T] parabolic square mesh
-for the square with the chosen Δx and boundary settings
-and with the constant time intervals Δt.
+Computes the `(node,elem) x [0,T]` parabolic square mesh
+for the square with the chosen `Δx` and boundary settings
+and with the constant time intervals `Δt`.
 
 ###Example
 ```julia
@@ -208,8 +207,8 @@ type FDMMesh
 end
 
 """
-size(mesh::FDMMesh)
+`size(mesh::FDMMesh)`
 
-Returns gridSize.
+Returns `gridSize`.
 """
 size(mesh::FDMMesh) = mesh.gridSize

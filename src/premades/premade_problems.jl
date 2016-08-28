@@ -153,7 +153,7 @@ prob_ode_pleides = ODEProblem(f,[3.0,3.0,-1.0,-3.0,2.0,-2.0,2.0,3.0,-3.0,2.0,0,0
 f = (t,u) -> 1.01*u
 σ = (t,u) -> 0.87*u
 analytic = (t,u₀,W) -> u₀.*exp(0.63155*t+0.87*W)
-"""Example problem with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
+"""Example problem with solution ``u(t,W)=u₀\\exp((α-\\frac{β^2}{2})t+βW)``"""
 prob_sde_linear = SDEProblem(f,σ,1/2,analytic=analytic)
 
 f = (t,u,du) -> begin
@@ -166,20 +166,20 @@ end
     du[i] = .87*u[i]
   end
 end
-"""Example problem of 8 linear SDEs (as a 4x2 matrix) with solution ``u(t,W)=u₀*exp((α-(β^2)/2)*t+β*W)``"""
+"""Example problem of 8 linear SDEs (as a 4x2 matrix) with solution ``u(t,W)=u₀\\exp((α-\\frac{β^2}{2})t+βW)``"""
 prob_sde_2Dlinear = SDEProblem(f,σ,ones(4,2)/2,analytic=analytic)
 
 
 f = (t,u) -> -.25*u*(1-u^2)
 σ = (t,u) -> .5*(1-u^2)
 analytic = (t,u₀,W) -> ((1+u₀).*exp(W)+u₀-1)./((1+u₀).*exp(W)+1-u₀)
-"""Example problem with solution ``u(t,W)=((1+u₀)*exp(W)+u₀-1)./((1+u₀)*exp(W)+1-u₀)``"""
+"""Example problem with solution ``u(t,W)=\\frac{(1+u₀)\\exp(W)+u₀-1}{(1+u₀)\\exp(W)+1-u₀}``"""
 prob_sde_cubic = SDEProblem(f,σ,1/2,analytic=analytic)
 
 f = (t,u) -> -0.01*sin(u).*cos(u).^3
 σ = (t,u) -> 0.1*cos(u).^2
 analytic = (t,u₀,W) -> atan(0.1*W + tan(u₀))
-"""Example problem with solution ``u(t,W)=atan(0.1*W + tan(u₀))``"""
+"""Example problem with solution ``u(t,W)=\\arctan(\\frac{W}{10} + \\tan(u₀))``"""
 prob_sde_wave = SDEProblem(f,σ,1.,analytic=analytic)
 
 const sde_wave_α = 0.1
@@ -187,7 +187,7 @@ const sde_wave_β = 0.05
 f = (t,u) -> sde_wave_β./sqrt(1+t) - u./(2*(1+t))
 σ = (t,u) -> sde_wave_α*sde_wave_β./sqrt(1+t)
 analytic = (t,u₀,W) -> u₀./sqrt(1+t) + sde_wave_β*(t+sde_wave_α*W)./sqrt(1+t)
-"""Example additive noise problem with solution ``u₀./sqrt(1+t) + β*(t+α*W)./sqrt(1+t)``"""
+"""Example additive noise problem with solution ``\\frac{u₀}{\\sqrt{1+t}} + \\frac{β(t+αW)}{\\sqrt{1+t}}``"""
 prob_sde_additive = SDEProblem(f,σ,1.,analytic=analytic)
 
 const sde_wave_αvec = [0.1;0.1;0.1;0.1]

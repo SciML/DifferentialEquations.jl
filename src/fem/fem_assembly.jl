@@ -1,5 +1,5 @@
 """
-assemblematrix(node,elem;lumpflag=false,K=[])
+`assemblematrix(node,elem;lumpflag=false,K=[])`
 
 Assembles the stiffness matrix A as an approximation to Δ
 on the finite element mesh (node,elem). Also generates the
@@ -8,9 +8,10 @@ resulting in a diagonal mass matrix. Specify a diffusion constant
 along the nodes via K.
 
 ### Returns
-A = Stiffness Matrix
-M = Mass Matrix
-area = A vector of the calculated areas for each element.
+
+`A` = Stiffness Matrix
+`M` = Mass Matrix
+`area` = A vector of the calculated areas for each element.
 """
 function assemblematrix(node,elem;lumpflag=false,K=[])
   ## ASSEMBLEMATRIX matrix for diffusion and reaction

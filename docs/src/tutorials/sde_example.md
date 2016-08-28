@@ -46,7 +46,7 @@ plot(sol,plot_analytic=true)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introSDEplot.png" width="750" align="middle"  />
+![SDE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introSDEplot.png)
 
 We can choose a higher-order solver for a more accurate result:
 
@@ -57,4 +57,4 @@ plot(sol,plot_analytic=true)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introSDEplotSRI.png" width="750" align="middle"  />
+![Better SDE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introSDEplotSRI.png)
