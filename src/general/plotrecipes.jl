@@ -1,5 +1,5 @@
 """
-animate(sol::FEMSolution)
+`animate(sol::FEMSolution)`
 
 Plots an animation of the solution. Requires `save_timeseries=true` was enabled in the solver.
 """

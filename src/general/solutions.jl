@@ -1,5 +1,5 @@
 """
-FEMSolution
+`FEMSolution`
 
 Holds the data for the solution to a finite element problem.
 
@@ -12,9 +12,9 @@ Holds the data for the solution to a finite element problem.
 * `errors`: A dictionary of the error calculations.
 * `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
 
@@ -45,7 +45,7 @@ type FEMSolution <: DESolution
 end
 
 """
-SDESolution
+`SDESolution`
 
 Holds the data for the solution to a SDE problem.
 
@@ -56,11 +56,11 @@ Holds the data for the solution to a SDE problem.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `Ws`: All of the W's in the solution. Only saved if `save_timeseries=true` is specified
-in the solver.
+  in the solver.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each save point.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
@@ -100,7 +100,7 @@ type SDESolution <: DESolution
 end
 
 """
-ODESolution
+`ODESolution`
 
 Holds the data for the solution to an ODE problem.
 
@@ -111,9 +111,9 @@ Holds the data for the solution to an ODE problem.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each timestep.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
@@ -147,7 +147,7 @@ type ODESolution <: DESolution
 end
 
 """
-StokesSolution
+`StokesSolution`
 
 Holds the data for the solution to a Stokes problem.
 
@@ -180,9 +180,9 @@ type StokesSolution <: DESolution
 end
 
 """
-appxTrue!(res,res2)
+`appxTrue!(res,res2)`
 
-Adds the solution from res2 to the FEMSolution object res.
+Adds the solution from `res2` to the `FEMSolution` object `res`.
 Useful to add a quasi-true solution when none is known by
 computing once at a very small time/space step and taking
 that solution as the "true" solution
@@ -194,8 +194,8 @@ function appxTrue!(res::FEMSolution,res2::FEMSolution)
 end
 
 """
-S = FEMSolutionTS(timeseries::Vector{uType},numvars::Int)
-S[i][j] => Variable i at time j.
+`S = FEMSolutionTS(timeseries::Vector{uType},numvars::Int)``
+`S[i][j]` => Variable i at time j.
 """
 function FEMSolutionTS{uType<:AbstractArray}(timeseries::Vector{uType},numvars::Int)
   G = Vector{typeof(timeseries[1][:,1])}(0)

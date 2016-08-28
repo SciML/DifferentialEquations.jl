@@ -4,7 +4,7 @@ To define an ODE Problem, you simply need to give the function ``f`` and the ini
 condition ``u₀`` which define an ODE
 
 ```math
-du/dt = f(t,u)
+\frac{du}{dt} = f(t,u)
 ```
 
 `f` should be specified as `f(t,u)` and `u₀` should be an AbstractArray whose
@@ -20,9 +20,20 @@ DifferentialEquations.ODEProblem
 
 ## Example Problems
 
-Examples problems can be found in <a href="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl">src/premades/premade_problems.jl</a>
+Examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl)
 
 ```@docs
-DifferentialEquations.twoDimlinearODEExample
-DifferentialEquations.linearODEExample
+DifferentialEquations.prob_ode_linear
+DifferentialEquations.prob_ode_bigfloat2Dlinear
+DifferentialEquations.prob_ode_large2Dlinear
+DifferentialEquations.prob_ode_rober
+DifferentialEquations.prob_ode_2Dlinear
+DifferentialEquations.prob_ode_bigfloatlinear
+DifferentialEquations.prob_ode_lorenz
+DifferentialEquations.prob_ode_vanderpol
+DifferentialEquations.prob_ode_vanderpol_stiff
+DifferentialEquations.prob_ode_threebody
+DifferentialEquations.prob_ode_2Dlinear_notinplace
+DifferentialEquations.prob_ode_pleides
+DifferentialEquations.prob_ode_rigidbody
 ```

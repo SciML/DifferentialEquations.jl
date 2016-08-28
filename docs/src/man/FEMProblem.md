@@ -30,32 +30,32 @@ HeatProblem
 
 ## Example Problems
 
-Examples problems can be found in <a href="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl">src/premades/premade_problems.jl</a>
+Examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl)
 
 
 ### Poisson Equation
 
 ```@docs
-DifferentialEquations.poissonProblemExample_wave
-DifferentialEquations.poissonProblemExample_noisyWave
-DifferentialEquations.poissonProblemExample_birthdeath
-DifferentialEquations.poissonProblemExample_birthdeathinteractingsystem
-DifferentialEquations.poissonProblemExample_birthdeathsystem
+DifferentialEquations.prob_poisson_birthdeathinteractingsystem
+DifferentialEquations.prob_poisson_noisywave
+DifferentialEquations.prob_poisson_birthdeathsystem
+DifferentialEquations.prob_poisson_wave
+DifferentialEquations.prob_poisson_birthdeath
 ```
 
 ### Heat Equation
 
 ```@docs
-DifferentialEquations.heatProblemExample_diffuse
-DifferentialEquations.heatProblemExample_pure
-DifferentialEquations.heatProblemExample_moving
-DifferentialEquations.heatProblemExample_birthdeath
-DifferentialEquations.heatProblemExample_stochasticbirthdeath
-DifferentialEquations.heatProblemExample_birthdeathinteractingsystem
+DifferentialEquations.prob_femheat_birthdeathsystem
+DifferentialEquations.prob_femheat_birthdeathinteractingsystem
+DifferentialEquations.prob_femheat_diffuse
+DifferentialEquations.prob_femheat_stochasticbirthdeath
+DifferentialEquations.prob_femheat_moving
 DifferentialEquations.heatProblemExample_gierermeinhardt
-DifferentialEquations.heatProblemExample_birthdeathsystem
-DifferentialEquations.heatProblemExample_diffusionconstants
 DifferentialEquations.heatProblemExample_grayscott
+DifferentialEquations.prob_femheat_pure
+DifferentialEquations.prob_femheat_diffusionconstants
+DifferentialEquations.prob_femheat_birthdeath
 ```
 
 ## Related Functions

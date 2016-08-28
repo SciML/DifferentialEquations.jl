@@ -80,7 +80,7 @@ plot(sol)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introODEplot.png" width="750" align="middle"  />
+![Better ODE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introODEplot.png)
 
 
 The `"ExplicitRK"` algorithms are general Runge-Kutta solvers. It defaults to
@@ -96,7 +96,7 @@ plot(sol)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/adaptiveODEplot.png" width="750" align="middle"  />
+![Adaptive ODE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/adaptiveODEplot.png)
 
 ### Systems of Equations
 
@@ -123,7 +123,7 @@ plot(sol)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/multiODEplot.png" width="750" align="middle"  />
+![ODE System Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/multiODEplot.png)
 
 
 ### Defining Systems of Equations Eloquent Using @ode_define
@@ -142,7 +142,7 @@ end
 ```
 
 Here for more efficiency we plugged in the parameters. However, this does not
-look like the pretty LaTeX system we see on Wikipedia, and this might make it
+look like the pretty ``\LaTeX`` system we see on Wikipedia, and this might make it
 harder to double-check that you defined the system correctly. Using the
 `@ode_define` macro is much nicer:
 

@@ -258,7 +258,7 @@ Pages = [
     "man/function_definition_macros.md",
     "man/benchmarks.md",
     "man/convergence.md",
-    "man/conditional_dependencies.md"
+    "man/conditional_dependencies.md",
     "man/progress_bar.md"
 ]
 Depth = 2
@@ -271,7 +271,7 @@ Pages = [
   "internals/contributors_guide.md",
   "internals/fem_tools.md",
   "internals/extras.md",
-  "internals/solver_helpers.md"
+  "internals/solver_helpers.md",
   "internals/notes_on_algorithms.md"
 ]
 Depth = 2

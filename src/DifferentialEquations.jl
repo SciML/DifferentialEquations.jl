@@ -7,18 +7,20 @@ module DifferentialEquations
   import Base: length, size, getindex, endof, show, print, max
   import ForwardDiff.Dual
 
-  "PdeProblem: Defines differential equation problems via its internal functions"
+  "`PdeProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
-  "PdeSolution: Wrapper for the objects obtained from a solver"
+  "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
-  "Mesh: An abstract type which holds a (node,elem) pair and other information for a mesh"
+  "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
-  "Tableau: Holds the information for a Runge-Kutta Tableau"
+  "`Tableau`: Holds the information for a Runge-Kutta Tableau"
   abstract Tableau
+  "`DEIntegrator`: A DifferentialEquations Integrator type, used to initiate a solver."
   abstract DEIntegrator
+  "`DEParameters`: Holds the parameters used in a DifferntialEquations model"
   abstract DEParameters
-  abstract ODERKTableau
-  typealias String AbstractString
+  "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
+  abstract ODERKTableau <: Tableau
   typealias KW Dict{Symbol,Any}
   AbstractArrayOrVoid = Union{AbstractArray,Void}
   NumberOrVoid = Union{Number,Void}

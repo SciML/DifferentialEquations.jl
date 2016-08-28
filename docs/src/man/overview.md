@@ -9,7 +9,7 @@ The general workflow for using the package is as follows:
 
 Problems are specified via a type interface. For example, for the Poisson equation
 ``Δu = f``, one defines a type which holds `f` and the boundary condition functions.
-Many examples problems can be found in <a href="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl">src/premades/premade_problems.jl</a>
+Many examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl)
 
 
 Next, for PDE problems, one generates a mesh. For example, if one wants to solve the Heat equation

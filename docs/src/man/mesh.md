@@ -8,12 +8,12 @@ a triangulation. The nodes are the vertices of the triangle and the elements are
 triangles themselves. These are encoded as follows:
 
 * Row ``i`` of node is an ``(x,y)`` (or ``(x,y,z)``) pair which specifies the coordinates
-of the ``i``th node.
+  of the ``i``th node.
 * Row ``j`` of elem are the indices of the nodes which make the triangle. Thus in
-2D each row has three numbers.
+  2D each row has three numbers.
 
 For example, to know the ``(x,y)`` locations of the vertices of triangle ``j``, we
-would see that ``node[elem[j,i],:]`` are the ``(x,y)`` locations of the ``i``th vertex
+would see that `node[elem[j,i],:]` are the ``(x,y)`` locations of the ``i``th vertex
 for ``i=1,2,3``.
 
 For more information, please see [Programming of Finite
@@ -35,6 +35,7 @@ DifferentialEquations.setboundary
 DifferentialEquations.fem_squaremesh
 DifferentialEquations.notime_squaremesh
 DifferentialEquations.parabolic_squaremesh
+Base.size(::DifferentialEquations.FDMMesh)
 ```
 
 ## Example Meshes
