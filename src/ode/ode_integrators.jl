@@ -1216,7 +1216,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
   k5::uType = similar(u)
   k6::uType = similar(u)
   k7::uType = similar(u)
-  utilde = similar(u)
+  utilde = similar(u); rtmp = rateType(sizeu)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   uidx::Base.OneTo{Int64} = eachindex(u)
   f(t,u,fsalfirst);  # Pre-start fsal
@@ -3077,9 +3077,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   @ode_preamble
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
-  k₁::uType = similar(u)
+  local k₁::uType = similar(u)
   k₂ = similar(u)
-  k₃::uType = similar(u)
+  local k₃::uType = similar(u)
   local tmp::uType
   function vecf(t,u,du)
     f(t,reshape(u,sizeu...),reshape(du,sizeu...))
