@@ -64,13 +64,17 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   end
 
   if adaptive && alg ∈ SDE_ADAPTIVEALGORITHMS
-    tType = Float64
+    if typeof(Δt) <: SIUnits.SIQuantity
+      Δt = float(Δt)*(Δt/Δt.val) # Keep the units on Δt
+    else
+      tType = float(Δt)
+    end
     initialize_backend(:DataStructures)
     if adaptivealg == :RSwM3
       initialize_backend(:ResettableStacks)
     end
   end
-
+  tType=typeof(Δt)
   if Δt == 0.0
     if alg==:Euler
       order = 0.5
@@ -80,7 +84,6 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
       order = 1.5
     end
     Δt = sde_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalnorm,f,σ,order)
-    tType=typeof(Δt)
   end
 
   if Δtmax == nothing
@@ -99,18 +102,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   timeseries = Vector{uType}(0)
   push!(timeseries,u₀)
   ts = Vector{tType}(0)
-  Ws = Vector{uType}(0)
   push!(ts,t)
-
-  if numvars == 1
-    W = 0.0
-    Z = 0.0
-    push!(Ws,W)
-  else
-    W = zeros(sizeu)
-    Z = zeros(sizeu)
-    push!(Ws,copy(W))
-  end
 
   #PreProcess
   if (alg==:SRA || alg==:SRAVectorized) && tableau == nothing
@@ -119,11 +111,26 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
     tableau = constructSRIW1()
   end
 
+  uEltype = eltype(u)
+  tType=typeof(Δt)
+  uType = typeof(u)
+  tableauType = typeof(tableau)
+
   if numvars == 1
     rands = ChunkedArray(randn)
+  elseif uEltype <: SIUnits.SIQuantity
+    rands = ChunkedArray(randn,map((x)->x.val,u))
   else
     rands = ChunkedArray(randn,u)
   end
+
+  if uEltype <: SIUnits.SIQuantity
+    randType = typeof(map((x)->x.val,u))
+  else
+    randType = uType
+  end
+  # Strip units for run, these only add to themselves so valid
+  # Already typed the array so they will be unit'd at the end anyways
 
   if typeof(Δt) <: SIUnits.SIQuantity
     Δt = Δt.val
@@ -134,17 +141,52 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   if typeof(T) <: SIUnits.SIQuantity
     T = T.val
   end
+  if typeof(Δtmin) <: SIUnits.SIQuantity
+    Δtmin = Δtmin.val
+  end
+  if typeof(Δtmax) <: SIUnits.SIQuantity
+    Δtmax = Δtmax.val
+  end
+  tTypeNoUnits = typeof(Δt) # Could be different due to units
+  if uEltype <: SIUnits.SIQuantity
+    if uType <: AbstractArray
+      uEltypeNoUnits = typeof(u[1].val)
+    else
+      uEltypeNoUnits = typeof(u.val)
+    end
+  else
+    uEltypeNoUnits = uEltype
+  end
+
+  if tType <: SIUnits.SIQuantity && uType <: Number
+    g  = (t,u) -> f(tType(t),u)
+    g2 = (t,u) -> σ(tType(t),u)
+  elseif tType <: SIUnits.SIQuantity && uType <: AbstractArray
+    g  = (t,u,du) -> f(tType(t),u,du)
+    g2 = (t,u,du) -> σ(tType(t),u,du)
+  else
+    g = f
+    g2= σ
+  end
+  Ws = Vector{randType}(0)
+  if numvars == 1
+    W = 0.0
+    Z = 0.0
+    push!(Ws,W)
+  else
+    W = zeros(sizeu)
+    Z = zeros(sizeu)
+    push!(Ws,copy(W))
+  end
   sqΔt = sqrt(Δt)
   iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
   maxstacksize = 0
   #EEst = 0
   typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
 
   #@code_warntype sde_solve(SDEIntegrator{alg,typeof(u),eltype(u),ndims(u),ndims(u)+1,typeof(Δt),typeof(tableau)}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
 
-  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,typeof(u),eltype(u),ndims(u),ndims(u)+1,typeof(Δt),typeof(tableau)}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
+  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,uType,uEltype,ndims(u),ndims(u)+1,tType,tableauType,tTypeNoUnits,uEltypeNoUnits,randType}(g,g2,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
 
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
 

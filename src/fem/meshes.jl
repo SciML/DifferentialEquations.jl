@@ -59,7 +59,7 @@ type FEMmesh <: Mesh
     totaledge = [elem[:,[2,3]]; elem[:,[3,1]]; elem[:,[1,2]]]
 
     #Compute the area of each element
-    ve = Array{Float64}(size(node[elem[:,3],:])...,3)
+    ve = Array{eltype(node)}(size(node[elem[:,3],:])...,3)
     ## Compute vedge, edge as a vector, and area of each element
     ve[:,:,1] = node[elem[:,3],:]-node[elem[:,2],:]
     ve[:,:,2] = node[elem[:,1],:]-node[elem[:,3],:]
@@ -140,6 +140,12 @@ function fem_squaremesh(square,h)
   k = t2nidxMap;
   elem = [k+ni k+ni+1 k ; k+1 k k+ni+1];
   return(node,elem)
+end
+
+function fem_squaremesh{N,m,kg,s,A,K,mol,cd,rad,sr}(square,h::SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr})
+  node,elem = fem_squaremesh(square,h.val)
+  node = map((x)->SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr}(x),node)
+  return node,elem
 end
 
 """

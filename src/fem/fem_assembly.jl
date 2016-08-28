@@ -26,7 +26,7 @@ function assemblematrix(node,elem;lumpflag=false,K=[])
       return
   end
 
-  ve = Array{Float64}(size(node[elem[:,3],:])...,3)
+  ve = Array{eltype(node)}(size(node[elem[:,3],:])...,3)
   ## Compute vedge, edge as a vector, and area of each element
   ve[:,:,1] = node[elem[:,3],:]-node[elem[:,2],:]
   ve[:,:,2] = node[elem[:,1],:]-node[elem[:,3],:]
