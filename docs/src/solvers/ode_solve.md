@@ -62,7 +62,7 @@ Choose one of these methods with the `alg` keyword in `solve`.
   - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
   - `:Rosenbrock32` - A fast solver which is good for mildy stiff equations.
 
-  * DifferentialEquations.jl Vectorized Implementations (Not as efficient, allocate, but may be useful for specific purposes)
+* DifferentialEquations.jl Vectorized Implementations (Not as efficient, allocate, but may be useful for specific purposes)
 
     - `ExplicitRKVectorized` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive.
     - `BS3Vectorized` - Bogacki-Shampine 2/3 Runge-Kutta method.
@@ -100,8 +100,8 @@ Choose one of these methods with the `alg` keyword in `solve`.
 
 * Sundials.jl
 
- - `:cvode_BDF` - CVode Backward Differentiation Formula (BDF) solver.
- - `:cvode_Adams` - CVode Adams-Moulton solver
+  - `:cvode_BDF` - CVode Backward Differentiation Formula (BDF) solver.
+  - `:cvode_Adams` - CVode Adams-Moulton solver
 
 ## List of Supplied Tableaus
 
@@ -114,9 +114,7 @@ Note that user-defined tableaus also are accepted.
 To see how to define a tableau, checkout the [premade tableau source code](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/ode/ode_tableaus.jl).
 Tableau docstrings should have appropriate citations (if not, file an issue).
 
-[Note: I hope to in the near future implement plot recipes which will plot the
-stability regions for a given tableau, and calculate the coefficient of the highest
-order truncation error term.]
+A plot recipes is provided which will plot the stability region for a given tableau.
 
 ### Explicit Runge-Kutta Methods
 
