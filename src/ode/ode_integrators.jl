@@ -3078,7 +3078,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
   local k₁::uType = similar(u)
-  k₂ = similar(u)
+  local k₂ = similar(u)
   local k₃::uType = similar(u)
   local tmp::uType
   function vecf(t,u,du)
