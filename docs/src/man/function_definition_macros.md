@@ -60,7 +60,7 @@ l = @fem_define((t,x,u),(u,v),begin
   [ones(length(u))-α*u ones(length(v))-v]
 end,α=>0.5)
 ```
-says there are two equations, one for `u` (`ones(length(u))-α*u`) and one for `v`
+says there are two equations, one for `u`: (`ones(length(u))-α*u`) and one for `v`:
 `(ones(length(v))-v)`. This expands to the equation
 
 ```julia
