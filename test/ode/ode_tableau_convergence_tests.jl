@@ -406,6 +406,8 @@ for i = 1:3
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-15.5) < testTol)
 
+  println("Test results for i=$i")
+  println(bools)
   superduperbool[i] = minimum(bools)
 end
 
