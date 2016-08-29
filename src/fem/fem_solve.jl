@@ -276,7 +276,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 end
 
 """
-quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
+`quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)`
 
 Performs the order 2 quadrature to calculate the vector from the term ``<f,v>`` for linear elements.
 """

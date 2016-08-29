@@ -57,9 +57,7 @@ r(z) = \frac{\det(I-zA+zeb^T)}{\det(I-zA)}
 stability_region(z,tab::ODERKTableau) = det(eye(tab.stages)- z*tab.A + z*ones(tab.stages)*tab.α')/det(eye(tab.stages)-z*tab.A)
 
 """
-constructGL2()
-
-Constructs the tableau object for Gauss-Legendre Order 2.
+Gauss-Legendre Order 2.
 """
 function constructGL2(T::Type = Float64)
   c = [1//2]
@@ -72,9 +70,7 @@ function constructGL2(T::Type = Float64)
 end
 
 """
-constructGL4()
-
-Constructs the tableau object for Gauss-Legendre Order 4.
+Gauss-Legendre Order 4.
 """
 function constructGL4(T::Type = Float64)
   c = [(3-sqrt(3))/6;(3+sqrt(3))/6]
@@ -88,9 +84,7 @@ function constructGL4(T::Type = Float64)
 end
 
 """
-constructGL6()
-
-Constructs the tableau object for Gauss-Legendre Order 6.
+Gauss-Legendre Order 6.
 """
 function constructGL6(T::Type = Float64)
   c = [(5-sqrt(15))/10;1/2;(5+sqrt(15))/10];
@@ -105,9 +99,7 @@ function constructGL6(T::Type = Float64)
 end
 
 """
-constructHeun()
-
-Constructs the tableau object for Heun's Order 2 method.
+Heun's Order 2 method.
 """
 function constructHeun(T::Type = Float64)
   A = [0 0
@@ -122,9 +114,7 @@ function constructHeun(T::Type = Float64)
   return(ExplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
 end
 """
-constructRalston()
-
-Constructs the tableau object for Ralston's Order 2 method.
+Ralston's Order 2 method.
 """
 function constructRalston(T::Type = Float64)
   A = [0 0
@@ -139,9 +129,7 @@ end
 
 
 """
-constructEuler()
-
-Constructs the tableau object for Euler's method.
+Euler's method.
 """
 function constructEuler(T::Type = Float64)
   A = [0]
@@ -154,9 +142,7 @@ function constructEuler(T::Type = Float64)
 end
 
 """
-constructKutta3()
-
-Constructs the tableau object for Kutta's Order 3 method.
+Kutta's Order 3 method.
 """
 function constructKutta3(T::Type = Float64)
   A = [0 0 0
@@ -171,9 +157,7 @@ function constructKutta3(T::Type = Float64)
 end
 
 """
-constructRK4()
-
-Constructs the tableau object for the classic RK4 method.
+Classic RK4 method.
 """
 function constructRK4(T::Type = Float64)
   A = [0 0 0 0
@@ -189,9 +173,7 @@ function constructRK4(T::Type = Float64)
 end
 
 """
-constructRK438Rule()
-
-Constructs the tableau object for the classic RK4 3/8's rule method.
+Classic RK4 3/8's rule method.
 """
 function constructRK438Rule(T::Type = Float64)
   A = [0 0 0 0
@@ -206,6 +188,9 @@ function constructRK438Rule(T::Type = Float64)
   return(ExplicitRKTableau(A,c,α,4))
 end
 
+"""
+Implicit Euler Method
+"""
 function constructImplicitEuler(T::Type = Float64)
   A = [1]
   c = [1]
@@ -216,6 +201,9 @@ function constructImplicitEuler(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,1))
 end
 
+"""
+Order 2 Midpoint Method
+"""
 function constructMidpointRule(T::Type = Float64)
   A = [1//2]
   c = [1//2]
@@ -226,6 +214,9 @@ function constructMidpointRule(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,2))
 end
 
+"""
+Order 2 Trapezoidal Rule (LobattoIIIA2)
+"""
 function constructTrapezoidalRule(T::Type = Float64)
   A = [0 0
       1//2 1//2]
@@ -239,6 +230,9 @@ function constructTrapezoidalRule(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
 end
 
+"""
+LobattoIIIA Order 4 method
+"""
 function constructLobattoIIIA4(T::Type = Float64)
   A = [0 0 0
       5//24 1//3 -1//24
@@ -253,6 +247,9 @@ function constructLobattoIIIA4(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
 end
 
+"""
+LobattoIIIB Order 2 method
+"""
 function constructLobattoIIIB2(T::Type = Float64)
   A = [1//2 0
        1//2 0]
@@ -266,6 +263,10 @@ function constructLobattoIIIB2(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
 end
 
+"""
+LobattoIIIB Order 4 method
+
+"""
 function constructLobattoIIIB4(T::Type = Float64)
   A = [1//6 -1//6 0
        1//6 1//3  0
@@ -280,6 +281,10 @@ function constructLobattoIIIB4(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
 end
 
+"""
+LobattoIIIC Order 2 method
+
+"""
 function constructLobattoIIIC2(T::Type = Float64)
   A = [1//2 -1//2
       1//2 1//2]
@@ -293,6 +298,10 @@ function constructLobattoIIIC2(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,2,αEEst=αEEst,adaptiveorder=1))
 end
 
+"""
+LobattoIIIC Order 4 method
+
+"""
 function constructLobattoIIIC4(T::Type = Float64)
   A = [1//6 -1//3 1//6
        1//6 5//12 -1//12
@@ -307,6 +316,10 @@ function constructLobattoIIIC4(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
 end
 
+"""
+LobattoIIIC* Order 2 method
+
+"""
 function constructLobattoIIICStar2(T::Type = Float64)
   A = [0 0
        1 0]
@@ -318,6 +331,11 @@ function constructLobattoIIICStar2(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,2))
 end
 
+
+"""
+LobattoIIIC* Order 4 method
+
+"""
 function constructLobattoIIICStar4(T::Type = Float64)
   A = [0 0 0
        1//4 1//4 0
@@ -332,6 +350,10 @@ function constructLobattoIIICStar4(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
 end
 
+"""
+LobattoIIID Order 2 method
+
+"""
 function constructLobattoIIID2(T::Type = Float64)
   A = [1//2 1//2
       -1//2 1//2]
@@ -343,6 +365,10 @@ function constructLobattoIIID2(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,2))
 end
 
+"""
+LobattoIIID Order 4 method
+
+"""
 function constructLobattoIIID4(T::Type = Float64)
   A = [1//6 0 -1//6
        1//12 5//12 0
@@ -357,6 +383,10 @@ function constructLobattoIIID4(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,4,αEEst=αEEst,adaptiveorder=3))
 end
 
+"""
+RadauIA Order 3 method
+
+"""
 function constructRadauIA3(T::Type = Float64)
   A = [1//4 -1//4
        1//4 5//12]
@@ -368,6 +398,10 @@ function constructRadauIA3(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,3))
 end
 
+"""
+RadauIA Order 5 method
+
+"""
 function constructRadauIA5(T::Type = Float64)
   A = [1//9 (-1-sqrt(6))/18 (-1+sqrt(6))/18
        1//9 11//45+7*sqrt(6)/360 11//45-43*sqrt(6)/360
@@ -380,6 +414,10 @@ function constructRadauIA5(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,5))
 end
 
+"""
+RadauIIA Order 3 method
+
+"""
 function constructRadauIIA3(T::Type = Float64)
   A = [5//12 -1//12
        3//4 1//4]
@@ -391,6 +429,10 @@ function constructRadauIIA3(T::Type = Float64)
   return(ImplicitRKTableau(A,c,α,3))
 end
 
+"""
+RadauIIA Order 5 method
+
+"""
 function constructRadauIIA5(T::Type = Float64)
   sq6 = sqrt(6)
   A = [11//45-7sq6/360 37//225-169sq6/1800 -2//225+sq6/75
@@ -406,9 +448,7 @@ end
 
 
 """
-constructRKF5()
-
-Constructs the tableau object for the Runge-Kutta-Fehlberg Order 4/5 method.
+Runge-Kutta-Fehlberg Order 4/5 method.
 """
 function constructRKF5(T::Type = Float64)
   A = [0 0 0 0 0 0

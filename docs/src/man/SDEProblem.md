@@ -26,9 +26,9 @@ Examples problems can be found in [src/premades/premade_problems.jl](https://git
 ```@docs
 DifferentialEquations.prob_sde_linear
 DifferentialEquations.prob_sde_2Dlinear
-DifferentialEquations.prob_sde_additivesystem
+DifferentialEquations.prob_sde_wave
 DifferentialEquations.prob_sde_lorenz
 DifferentialEquations.prob_sde_cubic
 DifferentialEquations.prob_sde_additive
-DifferentialEquations.prob_sde_wave
+DifferentialEquations.prob_sde_additivesystem
 ```
