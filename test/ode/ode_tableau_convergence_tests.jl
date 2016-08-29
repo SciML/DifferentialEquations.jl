@@ -137,10 +137,10 @@ for i = 1:3
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol)
 
-  Δts = 1.//2.^(7:-1:4)
+  Δts = 1.//2.^(4:-1:1)
   tab = constructButcher62()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab) #20
-  push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol+.1) # Less stringent
+  push!(bools,abs(sim.𝒪est[:l∞]-6) < testTol) # Less stringent
 
   Δts = 1.//2.^(6:-1:4)
   tab = constructButcher63()
