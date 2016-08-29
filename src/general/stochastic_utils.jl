@@ -1,5 +1,5 @@
 """
-getNoise(N,node,elem;noisetype=:White)
+`getNoise(N,node,elem;noisetype=:White)`
 
 Returns a random vector corresponding to the noise type which was chosen.
 """
@@ -10,19 +10,19 @@ function getNoise(u,node,elem;noisetype=:White)
 end
 
 """
-monteCarloSim(Δt::Number,prob::SDEProblem)
+`monteCarloSim(Δt::Number,prob::SDEProblem)`
 
 Performs a parallel Monte-Carlo simulation to solve the SDE problem with Δt numMonte times.
 Returns a vector of solution objects.
 
 ### Keyword Arguments
-* T - Final time. Default is 1.
-* numMonte - Number of Monte-Carlo simulations to run. Default is 10000
-* save_timeseries - Denotes whether save_timeseries should be turned on in each run. Default is true.
-* alg - Algorithm for solving the SDEs. Default is "EM"
+* `T` - Final time. Default is 1.
+* `numMonte` - Number of Monte-Carlo simulations to run. Default is 10000
+* `save_timeseries` - Denotes whether save_timeseries should be turned on in each run. Default is true.
+* `alg` - Algorithm for solving the SDEs. Default is "EM"
 """
-function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,save_timeseries=false,alg=:SRIW1Optimized,adaptive=false,abstol=1e-3,reltol=1e-2,adaptivealg=:RSwM3,qmax=4)
-  elapsedTime = @elapsed solutions = pmap((i)->solve(prob,tspan,Δt=Δt,save_timeseries=save_timeseries,alg=alg,adaptive=adaptive,abstol=abstol,reltol=reltol,adaptivealg=adaptivealg,qmax=qmax),1:numMonte)
+function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,save_timeseries=false,kwargs...)
+  elapsedTime = @elapsed solutions = pmap((i)->solve(prob,tspan,Δt=Δt,save_timeseries=save_timeseries,kwargs...),1:numMonte)
   solutions = convert(Array{SDESolution},solutions)
   if prob.knownanalytic
     N = size(solutions,1)

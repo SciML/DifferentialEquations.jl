@@ -6,7 +6,7 @@ If anyone wants to add them I'd accept them.
 =#
 
 """
-ExplicitRKTableau
+`ExplicitRKTableau`
 
 Holds a tableau which defines an explicit Runge-Kutta method.
 """
@@ -23,7 +23,7 @@ type ExplicitRKTableau <: ODERKTableau
 end
 
 """
-ImplicitRKTableau
+`ImplicitRKTableau`
 
 Holds a tableau which defines an implicit Runge-Kutta method.
 """
@@ -39,19 +39,19 @@ type ImplicitRKTableau <: ODERKTableau
 end
 
 """
-Base.length(tab::ODERKTableau)
+`Base.length(tab::ODERKTableau)`
 
 Defines the length of a Runge-Kutta method to be the number of stages.
 """
 Base.length(tab::ODERKTableau) = tab.stages
 
 """
-stability_region(z,tab::ODERKTableau)
+`stability_region(z,tab::ODERKTableau)`
 
-Calculates the stability function from the tableau at z. Stable if <1.
+Calculates the stability function from the tableau at `z`. Stable if <1.
 
 ```math
-r(z) = \frac{\det(I-zA+zeb^T)}{\det(I-zA)}
+r(z) = \\frac{\\det(I-zA+zeb^T)}{\\det(I-zA)}
 ```
 """
 stability_region(z,tab::ODERKTableau) = det(eye(tab.stages)- z*tab.A + z*ones(tab.stages)*tab.α')/det(eye(tab.stages)-z*tab.A)
