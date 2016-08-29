@@ -57,9 +57,3 @@ DifferentialEquations.prob_femheat_pure
 DifferentialEquations.prob_femheat_diffusionconstants
 DifferentialEquations.prob_femheat_birthdeath
 ```
-
-## Related Functions
-
-```@docs
-DifferentialEquations.DEProblem
-```

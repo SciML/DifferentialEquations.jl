@@ -408,6 +408,9 @@ for i = 1:3
 
   println("Test results for i=$i")
   println(bools)
+  println("Failures:")
+  println(find((x)->!x,bools))
+  
   superduperbool[i] = minimum(bools)
 end
 

@@ -83,7 +83,7 @@ accordance with his paper.
 
 Lastly, there are the 7-stage schemes. The more recent one is due to Sharp and Smart,
 but I am ignoring this because its error term is almost an order of magnitude
-larger than the BS pair, and its stability reagion is wonky near the origin.
+larger than the BS pair, and its stability region is wonky near the origin.
 Its only plus over the BS pair is that it has a slightly larger stability in the
 real axis, which is not important when paired with adaptive stepping and for
 use on non-stiff problems.
