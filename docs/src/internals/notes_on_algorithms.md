@@ -27,11 +27,12 @@ They utilize many extra tricks, nice caching, and threading if available, to
 vastly outperform the other methods in terms of efficiency (even with threading
 disabled). `:DP5` performs much better than `:dopri5`, which vastly outperform
 `ode45` (whose stepsize algorithm tends to have issues on some quasi-stiff problems).
-`:DP8` performs better than `dop853` which vastly outperforms `ode78`.
+`:DP8` performs better than `dop853` in some cases, worse in others. Both vastly outperform `ode78`.
 
 For this reason, the DifferentialEquations.jl non-stiff algorithms are the recommended
 implementations. ODEInterface non-stiff algorithms are only recommended for historical
-purposes (i.e. to match previous results). The ODE.jl algorithms are not recommended
+purposes (i.e. to match previous results) or to try `dop853` on a problem (work is being
+to find out what the difference is and squash the competition here!). The ODE.jl algorithms are not recommended
 for any serious use (the package is essentially deprecated: it's slow, gets high error,
 the timestepping algorithm is not robust, and doesn't implement many methods).
 
