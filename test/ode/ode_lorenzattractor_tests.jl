@@ -1,5 +1,5 @@
 using DifferentialEquations, Plots, EllipsisNotation
-prob = lorenzAttractorODEExample()
+prob = prob_ode_lorenz
 
 ## Solve and plot
 println("Solve and Plot")

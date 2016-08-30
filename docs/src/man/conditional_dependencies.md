@@ -40,9 +40,8 @@ If all else fails, please ask for help on [via the repository Gitter](https://gi
 ## What Methods Require Conditional Dependencies?
 
 That's a good question! The implicit algorithms implemented in DifferentialEquations.jl
-require [NLsolve.jl](https://github.com/EconForge/NLsolve.jl), and can optionally
-use [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) for increased
-performance. Also, the `load` function for the premade meshes requires [JLD.jl](https://github.com/JuliaIO/JLD.jl).
+require [NLsolve.jl](https://github.com/EconForge/NLsolve.jl). Also, the `load`
+function for the premade meshes requires [JLD.jl](https://github.com/JuliaIO/JLD.jl).
 
 Lastly, there is a special conditional dependency for [Juno](http://junolab.org/). If
 you are using Juno, then the progress bar functionality is works. If you're not
@@ -53,6 +52,7 @@ Currently these include:
 
 - ODE.jl
 - ODEInterface.jl
+- Sundials.jl
 
 ## Installation Instructions
 
@@ -73,5 +73,12 @@ at JuliaODE/ODE.jl. To install this version of ODE.jl, use the following command
 
 ```julia
 Pkg.clone("https://github.com/JuliaODE/ODE.jl")
-Pkg.checkout("ODE","dev")
+```
+
+### Sundials.jl
+The wrapper works on my fork until a PR goes through. You can install this via:
+
+```julia
+Pkg.clone("https://github.com/alyst/Sundials.jl")
+Pkg.checkout("Sundials","handles")
 ```

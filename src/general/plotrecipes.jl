@@ -1,5 +1,5 @@
 """
-animate(sol::FEMSolution)
+`animate(sol::FEMSolution)`
 
 Plots an animation of the solution. Requires `save_timeseries=true` was enabled in the solver.
 """
@@ -37,61 +37,75 @@ end
 end
 
 @recipe function f(sol::SDESolution;plot_analytic=false)
-  if ndims(sol.timeseries) > 2
-    totaldims = 1
-    for i=2:ndims(sol.timeseries)
-      totaldims *= size(sol.timeseries,i)
+  plotseries = Vector{Any}(0)
+  if typeof(sol.u) <:AbstractArray
+    for i in eachindex(sol.u)
+      tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+      for j in 1:length(sol.timeseries)
+        tmp[j] = sol.timeseries[j][i]
+      end
+      push!(plotseries,tmp)
     end
-    #println(totaldims)
-    vals = reshape(sol.timeseries,size(sol.timeseries,1),totaldims)
   else
-    vals = sol.timeseries
+    push!(plotseries,sol.timeseries)
   end
   if plot_analytic
-    if ndims(sol.timeseries_analytic) > 2
-      totaldims = 1
-      for i=2:ndims(sol.timeseries)
-        totaldims *= size(sol.timeseries_analytic,i)
+    if typeof(sol.u) <: AbstractArray
+      for i in eachindex(sol.u)
+        tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+        for j in 1:length(sol.timeseries)
+          tmp[j] = sol.timeseries_analytic[j][i]
+        end
+        push!(plotseries,tmp)
       end
-      vals = [vals reshape(sol.timeseries_analytic,size(sol.timeseries_analytic,1),totaldims)]
     else
-      vals = [vals sol.timeseries_analytic]
+      push!(plotseries,sol.timeseries_analytic)
     end
   end
-  #u = Any[sol.timeseries];
-  #plot_analytic && push!(u, sol.timeseries_analytic);
+  for i in eachindex(plotseries)
+    if eltype(plotseries[i]) <: SIUnits.SIQuantity
+      plotseries[i] = map((x)->x.val,plotseries[i])
+    end
+  end
   seriestype --> :path
   #layout --> length(u)
-  map(Float64,sol.t), map(Float64,vals) #Remove when Tom commits
+  sol.t, plotseries
 end
 
 @recipe function f(sol::ODESolution;plot_analytic=false)
-  if ndims(sol.timeseries) > 2
-    totaldims = 1
-    for i=2:ndims(sol.timeseries)
-      totaldims *= size(sol.timeseries,i)
+  plotseries = Vector{Any}(0)
+  if typeof(sol.u) <:AbstractArray
+    for i in eachindex(sol.u)
+      tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+      for j in 1:length(sol.timeseries)
+        tmp[j] = sol.timeseries[j][i]
+      end
+      push!(plotseries,tmp)
     end
-    #println(totaldims)
-    vals = reshape(sol.timeseries,size(sol.timeseries,1),totaldims)
   else
-    vals = sol.timeseries
+    push!(plotseries,sol.timeseries)
   end
   if plot_analytic
-    if ndims(sol.timeseries_analytic) > 2
-      totaldims = 1
-      for i=2:ndims(sol.timeseries)
-        totaldims *= size(sol.timeseries_analytic,i)
+    if typeof(sol.u) <: AbstractArray
+      for i in eachindex(sol.u)
+        tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
+        for j in 1:length(sol.timeseries)
+          tmp[j] = sol.timeseries_analytic[j][i]
+        end
+        push!(plotseries,tmp)
       end
-      vals = [vals reshape(sol.timeseries_analytic,size(sol.timeseries_analytic,1),totaldims)]
     else
-      vals = [vals sol.timeseries_analytic]
+      push!(plotseries,sol.timeseries_analytic)
     end
   end
-  #u = Any[sol.timeseries];
-  #plot_analytic && push!(u, sol.timeseries_analytic);
+  for i in eachindex(plotseries)
+    if eltype(plotseries[i]) <: SIUnits.SIQuantity
+      plotseries[i] = map((x)->x.val,plotseries[i])
+    end
+  end
   seriestype --> :path
   #layout --> length(u)
-  sol.t, vals
+  sol.t, plotseries
 end
 
 @recipe function f(sim::ConvergenceSimulation)
@@ -101,7 +115,7 @@ end
     vals = [x for x in values(sim.errors)]
   end
   seriestype --> :path
-  label  --> [key for key in keys(sim.errors)]
+  label  --> [string(key) for key in keys(sim.errors)]'
   xguide  --> "Convergence Axis"
   yguide  --> "Error"
   xscale --> :log10
@@ -109,6 +123,39 @@ end
   sim.convergence_axis, vals
 end
 
+@recipe function f(shoot::Shootout)
+  seriestype --> :bar
+  legend := false
+  xguide --> "Algorithms"
+  yguide --> "Efficiency"
+  shoot.names,shoot.effs
+end
+
+@recipe function f(wp::WorkPrecision)
+  seriestype --> :path
+  label -->  wp.names'
+  xguide --> "Time (s)"
+  yguide --> "Error"
+  xscale --> :log10
+  yscale --> :log10
+  wp.times, wp.errors
+end
+
+@recipe function f(wp_set::WorkPrecisionSet)
+  seriestype --> :path
+  label -->  wp_set.names'
+  xguide --> "Time (s)"
+  yguide --> "Error"
+  xscale --> :log10
+  yscale --> :log10
+  errors = Vector{Any}(0)
+  times = Vector{Any}(0)
+  for i in 1:length(wp_set)
+    push!(errors,wp_set[i].errors)
+    push!(times,wp_set[i].times)
+  end
+  times,errors
+end
 
 @recipe function f(mesh::Mesh)
   seriestype --> :surface #:plot_trisurf
@@ -116,5 +163,18 @@ end
   mesh.node[:,1], mesh.node[:,2], ones(mesh.node[:,1])
 end
 
+@recipe function f{ND,N,m,kg,s,A,K,mol,cd,rad,sr}(::Type{Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND}},x::Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND})
+  map((y)->y.val,x)
+end
 # mesh = meshExample_lakemesh()
 # PyPlot.plot_trisurf(mesh.node[:,1],mesh.node[:,2],ones(mesh.node[:,2]),triangles=mesh.elem-1)
+
+@recipe function f(tab::ODERKTableau;Δx=1/100,Δy=1/100,xlim=[-6,1],ylim=[-5,5])
+  x = xlim[1]:Δx:xlim[2]
+  y = ylim[1]:Δy:ylim[2]
+  f = (u,v)-> abs(stability_region(u+v*im,tab))<1
+  seriestype --> :contour
+  fill --> true
+  cbar --> false
+  x,y,f
+end

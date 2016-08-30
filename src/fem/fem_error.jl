@@ -1,9 +1,9 @@
 """
-getL2error(node,elem,uexact,uh,quad𝒪=[])
+`getL2error(node,elem,uexact,uh,quad𝒪=[])`
 
-getL2error(fem_mesh::FEMmesh,sol,u)
+`getL2error(fem_mesh::FEMmesh,sol,u)`
 
-Estimates the L2 error between uexact and uh on the mesh (node,elem). It
+Estimates the L2 error between `uexact` and `uh` on the mesh (node,elem). It
 reads the mesh to estimate the element type and uses this to choose a
 quadrature 𝒪 unless specified.
 """
@@ -133,9 +133,9 @@ return(err)
 end
 
 """
-quadpts(𝒪)
+`quadpts(𝒪)`
 
-Returns the quadrature points and ω's for and 𝒪 ### quadrature in 2D.
+Returns the quadrature points and ω's for and 𝒪  in 2D.
 
 Reference:
 David Dunavant. High degree efficient symmetrical Gaussian
@@ -256,7 +256,7 @@ function quadpts(𝒪)
 end
 
 """
-quadpts1(𝒪)
+`quadpts1(𝒪)`
 
 References:
 Pavel Holoborodko: http://www.holoborodko.com/pavel/numerical-methods/numerical-integration/
@@ -339,13 +339,13 @@ elseif numPts==10
   return(λ,ω)
 end
 """
-function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
+`function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])`
 
-getH1error(fem_mesh::FEMmesh,Du,u)
+`getH1error(fem_mesh::FEMmesh,Du,u)`
 
-Estimates the H1 error between uexact and uh on the mesh (node,elem). It
+Estimates the H1 error between `uexact` and `uh` on the mesh (node,elem). It
 reads the mesh to estimate the element type and uses this to choose a
-quadrature 𝒪 unless specified. If K is specified then it is the
+quadrature 𝒪 unless specified. If `K` is specified then it is the
 diffusion coefficient matrix.
 """
 function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
@@ -465,9 +465,9 @@ function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
 end
 
 """
-∇u(node,elem,u,Dλ=[])
+`∇u(node,elem,u,Dλ=[])`
 
-Estimates ∇u of u on the mesh (node,elem)
+Estimates ``∇u`` on the mesh (node,elem)
 """
 function ∇u(node,elem,u,Dλ=[])
   if isempty(Dλ)
@@ -482,9 +482,9 @@ function ∇u(node,elem,u,Dλ=[])
 end
 
 """
-∇basis(node,elem)
+`∇basis(node,elem)`
 
-Returns the ∇u of the barycentric basis elements.
+Returns ``∇u`` of the barycentric basis elements.
 """
 function ∇basis(node,elem)
   NT = size(elem,1)
@@ -508,7 +508,7 @@ end
 
 function getL2error(fem_mesh::FEMmesh,sol,u)
   if fem_mesh.evolutionEq
-    return(getL2error(fem_mesh.node,fem_mesh.elem,x->sol(x,fem_mesh.T),u))
+    return(getL2error(fem_mesh.node,fem_mesh.elem,x->sol(fem_mesh.T,x),u))
   else
     return(getL2error(fem_mesh.node,fem_mesh.elem,sol,u))
   end
@@ -516,7 +516,7 @@ end
 
 function getH1error(fem_mesh::FEMmesh,Du,u)
   if fem_mesh.evolutionEq
-    return(getH1error(fem_mesh.node,fem_mesh.elem,x->Du(x,fem_mesh.T),u))
+    return(getH1error(fem_mesh.node,fem_mesh.elem,x->Du(fem_mesh.T,x),u))
   else
     return(getH1error(fem_mesh.node,fem_mesh.elem,Du,u))
   end

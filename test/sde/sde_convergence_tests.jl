@@ -2,7 +2,7 @@
 srand(100)
 Δts = 1./2.^(10:-1:4) #14->7 good plot
 
-prob = waveSDEExample()
+prob = prob_sde_wave
 sim = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:EM)
 sim2 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:RKMil)
 sim3 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:SRI)
@@ -11,7 +11,7 @@ sim5 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:SRIVectorized)
 
 bool1 = abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5) + abs(sim4.𝒪est[:final]-1.5) + abs(sim5.𝒪est[:final]-1.5) <.5 #High tolerance since low Δts for testing!
 
-prob = cubicSDEExample()
+prob = prob_sde_cubic
 sim = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:EM)
 sim2 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:RKMil)
 sim3 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:SRI)
@@ -19,7 +19,7 @@ sim4 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:SRIW1Optimized)
 bool2 = abs(sim.𝒪est[:l2]-.5) + abs(sim2.𝒪est[:l∞]-1) + abs(sim3.𝒪est[:final]-1.5) + abs(sim4.𝒪est[:final]-1.5) <.6 #High tolerance since low Δts for testing!
 
 ## Convergence Testing
-prob = additiveSDEExample()
+prob = prob_sde_additive
 sim = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:EM)
 sim2 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:RKMil)
 sim3 = test_convergence(Δts,prob,numMonte=Int(1e1),alg=:SRI)

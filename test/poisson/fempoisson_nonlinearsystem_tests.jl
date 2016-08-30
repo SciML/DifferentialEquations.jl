@@ -5,7 +5,7 @@ using DifferentialEquations
 
 Δx = 1//2^(1)
 fem_mesh = notime_squaremesh([0 1 0 1],Δx,:neumann)
-prob = poissonProblemExample_birthdeathsystem()
+prob = prob_poisson_birthdeathsystem
 
 sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 
@@ -16,7 +16,7 @@ bool1 = maximum(abs(sol.u .- [2 1]))< 1e-8
 
 ### Harder system
 
-prob = poissonProblemExample_birthdeathinteractingsystem()
+prob = prob_poisson_birthdeathinteractingsystem
 
 sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 

@@ -4,7 +4,7 @@ using DifferentialEquations, Plots#, LaTeXStrings,
 
 Δx = 1//2^3 #Super large for quick testing. Lower this for better results.
 mesh = FDMMesh(Δx,mins=[-1;-1],maxs=[1;1])
-prob = homogeneousStokesExample()
+prob = prob_stokes_homogenous
 
 #DGS Convergence
 @time sol = solve(prob,mesh,converrors=true,maxiters=200,alg=:DGS)

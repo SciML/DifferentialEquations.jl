@@ -9,7 +9,7 @@ The general workflow for using the package is as follows:
 
 Problems are specified via a type interface. For example, for the Poisson equation
 ``Δu = f``, one defines a type which holds `f` and the boundary condition functions.
-Many examples problems can be found in <a href="https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl">src/premades/premade_problems.jl</a>
+Many examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl)
 
 
 Next, for PDE problems, one generates a mesh. For example, if one wants to solve the Heat equation
@@ -45,5 +45,7 @@ specify the true solution. When this is given to the solver, the solution
 object returns with many error calculations. An array of solutions
 can be made into a `ConvergenceSimulation` (or the test_convergence functions
 can be used) which then generates all of the convergence test results and
-allows for plotting (great for developing new methods!). Lastly, `BenchmarkSimulations`
-allows one to compare between methods and easily plot the results.
+allows for plotting (great for developing new methods!). The benchmark suite
+allows one to compare between methods and easily plot
+the results. Recipes are provided for Runge-Kutta tableaus to plot stability
+regions.

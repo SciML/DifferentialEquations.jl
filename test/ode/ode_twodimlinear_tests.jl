@@ -1,5 +1,5 @@
 using DifferentialEquations
-prob = twoDimlinearODEExample()
+prob = prob_ode_2Dlinear
 
 ## Solve and plot
 println("Solve and Plot")

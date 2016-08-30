@@ -43,6 +43,8 @@ pages:
   - Meshes: man/mesh.md
   - The Solution Type: man/solution.md
   - Plot Functions: man/plot.md
+  - Function Definition Macros: man/function_definition_macros.md
+  - Benchmark Suite: man/benchmarks.md
   - Convergence Simuations: man/convergence.md
   - Conditional Dependencies: man/conditional_dependencies.md
   - Juno Progress Bar Integration: man/progress_bar.md
@@ -51,3 +53,4 @@ pages:
   - Internal Finite Element Tools: internals/fem_tools.md
   - Extra Functions: internals/extras.md
   - Solver Helpers: internals/solver_helpers.md
+  - Notes on Algorithms: internals/notes_on_algorithms.md

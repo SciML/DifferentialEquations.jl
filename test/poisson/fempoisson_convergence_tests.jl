@@ -4,7 +4,7 @@
 using DifferentialEquations#,LaTeXStrings
 
 Δxs = 1.//2.^(4:-1:2) # 4 for testing, use 7 for good graph
-prob = poissonProblemExample_wave()
+prob = prob_poisson_wave
 
 sim = test_convergence(Δxs::AbstractArray,prob::PoissonProblem)
 

@@ -1,3 +1,78 @@
+immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType}
+  f::Function
+  σ::Function
+  u::uType
+  t::tType
+  Δt::tType
+  T::tType
+  maxiters::Int
+  timeseries::Vector{uType}
+  Ws::Vector{randType}
+  ts::Vector{tType}
+  timeseries_steps::Int
+  save_timeseries::Bool
+  adaptive::Bool
+  adaptivealg::Symbol
+  δ::uEltypeNoUnits
+  γ::uEltypeNoUnits
+  abstol::uEltype
+  reltol::uEltypeNoUnits
+  qmax::uEltypeNoUnits
+  Δtmax::tType
+  Δtmin::tType
+  internalnorm::Int
+  numvars::Int
+  discard_length::tType
+  progressbar::Bool
+  atomloaded::Bool
+  progress_steps::Int
+  rands::ChunkedArray{uEltypeNoUnits,Nm1,N}
+  sqΔt::tType
+  W::randType
+  Z::randType
+  tableau::tableauType
+end
+
+@def sde_preamble begin
+  local u::uType
+  local t::tType
+  local Δt::tType
+  local T::tType
+  local ΔW::randType
+  local ΔZ::randType
+  @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
+  sizeu = size(u)
+  iter = 0
+  max_stack_size = 0
+  max_stack_size2 = 0
+  ΔW = sqΔt*next(rands) # Take one first
+  ΔZ = sqΔt*next(rands) # Take one first
+end
+
+@def sde_sritableaupreamble begin
+  local c₀::Vector{uEltypeNoUnits}
+  local c₁::Vector{uEltypeNoUnits}
+  local A₀::Matrix{uEltypeNoUnits}
+  local A₁::Matrix{uEltypeNoUnits}
+  local B₀::Matrix{uEltypeNoUnits}
+  local B₁::Matrix{uEltypeNoUnits}
+  local α::Vector{uEltypeNoUnits}
+  local β₁::Vector{uEltypeNoUnits}
+  local β₂::Vector{uEltypeNoUnits}
+  local β₃::Vector{uEltypeNoUnits}
+  local β₄::Vector{uEltypeNoUnits}
+end
+
+@def sde_sratableaupreamble begin
+  local c₀::Vector{uEltypeNoUnits}
+  local c₁::Vector{uEltypeNoUnits}
+  local A₀::Matrix{uEltypeNoUnits}
+  local B₀::Matrix{uEltypeNoUnits}
+  local α::Vector{uEltypeNoUnits}
+  local β₁::Vector{uEltypeNoUnits}
+  local β₂::Vector{uEltypeNoUnits}
+end
+
 @def sde_loopheader begin
   iter += 1
   if iter > maxiters
@@ -13,9 +88,9 @@ end
 
 @def sde_savevalues begin
   if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,u)
+    push!(timeseries,copy(u))
     push!(ts,t)
-    push!(Ws,W)
+    push!(Ws,copy(W))
   end
 end
 
@@ -30,34 +105,32 @@ end
 end
 
 @def sde_adaptiveprelim begin
-maxStackSize = 0
-maxStackSize2 = 0
+max_stack_size = 0
+max_stack_size2 = 0
 end
 
-function sde_eulermaruyama(f::Function,σ::Function,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
   @inbounds while t<T
     @sde_loopheader
 
-    u = u + Δt.*f(u,t) + σ(u,t).*ΔW
+    u = u + Δt.*f(t,u) + σ(t,u).*ΔW
 
     t = t + Δt
     W = W + ΔW
     ΔW = sqΔt*next(rands)
     @sde_savevalues
   end
-  u,t,W,timeseries,ts,Ws
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_eulermaruyama(f::Function,σ::Function,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
   utmp1 = similar(u); utmp2 = similar(u)
   @inbounds while t<T
     @sde_loopheader
-    f(utmp1,u,t)
-    σ(utmp2,u,t)
+    f(t,u,utmp1)
+    σ(t,u,utmp2)
     for i in eachindex(u)
       u[i] = u[i] + Δt*utmp1[i] + utmp2[i]*ΔW[i]
       W[i] = W[i] + ΔW[i]
@@ -66,13 +139,12 @@ function sde_eulermaruyama(f::Function,σ::Function,u::AbstractArray,t,Δt,T,ite
     ΔW = sqΔt*next(rands)
     @sde_savevalues
   end
-  u,t,W,timeseries,ts,Ws
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
   stages = length(α)
   H0 = Vector{typeof(u)}(0)
@@ -82,14 +154,14 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
     push!(H1,similar(u))
   end
   #TODO Reduce memory
-  A0temp = similar(u); A1temp = similar(u)
-  B0temp = similar(u); B1temp = similar(u)
-  A0temp2 = similar(u); A1temp2 = similar(u)
-  B0temp2 = similar(u); B1temp2 = similar(u)
-  atemp = similar(u); btemp = similar(u)
-  E₁ = similar(u); E₂ = similar(u); E₁temp = similar(u)
-  ftemp = similar(u); σtemp = similar(u)
-  chi1 = similar(u); chi2 = similar(u); chi3 = similar(u)
+  A0temp::uType = similar(u); A1temp::uType = similar(u)
+  B0temp::uType = similar(u); B1temp::uType = similar(u)
+  A0temp2::uType = similar(u); A1temp2::uType = similar(u)
+  B0temp2::uType = similar(u); B1temp2::uType = similar(u)
+  atemp::uType = similar(u); btemp::uType = similar(u)
+  E₁::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
+  ftemp::uType = similar(u); σtemp::uType = similar(u)
+  chi1::randType = similar(ΔW); chi2::randType = similar(ΔW); chi3::randType = similar(ΔW)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -100,17 +172,17 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
       chi3[i] = 1/6 * (ΔW[i].^3 - 3*ΔW[i]*Δt)/Δt #I_(1,1,1)/h
     end
     for i=1:stages
-      H0[i][:]=zero(eltype(u))
-      H1[i][:]=zero(eltype(u))
+      H0[i][:]=zero(uEltype)
+      H1[i][:]=zero(uEltype)
     end
     for i = 1:stages
-      A0temp[:]=zero(eltype(u))
-      B0temp[:]=zero(eltype(u))
-      A1temp[:]=zero(eltype(u))
-      B1temp[:]=zero(eltype(u))
+      A0temp[:]=zero(uEltype)
+      B0temp[:]=zero(uEltype)
+      A1temp[:]=zero(uEltype)
+      B1temp[:]=zero(uEltype)
       for j = 1:i-1
-        f(ftemp,H0[j],t + c₀[j]*Δt)
-        σ(σtemp,H1[j],t + c₁[j]*Δt)
+        f(t + c₀[j]*Δt,H0[j],ftemp)
+        σ(t + c₁[j]*Δt,H1[j],σtemp)
         for k in eachindex(u)
           A0temp[k] += A₀[i,j]*ftemp[k]
           B0temp[k] += B₀[i,j]*σtemp[k]
@@ -121,13 +193,13 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
       H0[i] = u + A0temp*Δt + B0temp.*chi2
       H1[i] = u + A1temp*Δt + B1temp*sqΔt
     end
-    atemp[:]=zero(eltype(u))
-    btemp[:]=zero(eltype(u))
-    E₂[:]=zero(eltype(u))
-    E₁temp[:]=zero(eltype(u))
+    atemp[:]=zero(uEltype)
+    btemp[:]=zero(uEltype)
+    E₂[:]=zero(uEltype)
+    E₁temp[:]=zero(uEltype)
     for i = 1:stages
-      f(ftemp,H0[i],t+c₀[i]*Δt)
-      σ(σtemp,H1[i],t+c₁[i]*Δt)
+      f(t+c₀[i]*Δt,H0[i],ftemp)
+      σ(t+c₁[i]*Δt,H1[i],σtemp)
       for j in eachindex(u)
         atemp[j] += α[i]*ftemp[j]
         btemp[j] += (β₁[i]*ΔW[j] + β₂[i]*chi1[j])*σtemp[j]
@@ -147,33 +219,29 @@ function sde_sri(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  H0 = Array{eltype(u)}(size(u)...,4)
-  H1 = Array{eltype(u)}(size(u)...,4)
-  chi1 = similar(u)
-  chi2 = similar(u)
-  chi3 = similar(u)
-  fH01o4 = similar(u)
-  σ₁o2 = similar(u)
-  H0 = similar(u)
-  H11 = similar(u)
-  H12 = similar(u)
-  H13 = similar(u)
-  σ₂o3 = similar(u)
-  Fσ₂o3 = similar(u)
-  σ₃o3 = similar(u)
-  Tσ₃o3 = similar(u)
-  mσ₁ = similar(u)
-  E₁ = similar(u)
-  E₂ = similar(u)
-  fH01 = similar(u); fH02 = similar(u)
-  σ₁ = similar(u); σ₂ = similar(u); σ₃ = similar(u); σ₄ = similar(u)
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  chi1::randType = similar(ΔW)
+  chi2::randType = similar(ΔW)
+  chi3::randType = similar(ΔW)
+  fH01o4::uType = similar(u)
+  σ₁o2::uType = similar(u)
+  H0::uType = similar(u)
+  H11::uType = similar(u)
+  H12::uType = similar(u)
+  H13::uType = similar(u)
+  σ₂o3::uType = similar(u)
+  Fσ₂o3::uType = similar(u)
+  σ₃o3::uType = similar(u)
+  Tσ₃o3::uType = similar(u)
+  mσ₁::uType = similar(u)
+  E₁::uType = similar(u)
+  E₂::uType = similar(u)
+  fH01::uType = similar(u); fH02::uType = similar(u)
+  σ₁::uType = similar(u); σ₂::uType = similar(u); σ₃::uType = similar(u); σ₄::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -183,8 +251,8 @@ function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseri
       chi2[i] = (ΔW[i] + ΔZ[i]/sqrt(3))/2 #I_(1,0)/h
       chi3[i] = (ΔW[i].^3 - 3ΔW[i]*Δt)/6Δt #I_(1,1,1)/h
     end
-    f(fH01,u,t);fH01*=Δt
-    σ(σ₁,u,t)
+    f(t,u,fH01);fH01*=Δt
+    σ(t,u,σ₁)
     Δto4 = Δt/4
     for i in eachindex(u)
       fH01o4[i] = fH01[i]/4
@@ -193,14 +261,14 @@ function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseri
       H11[i] = u[i] + fH01o4[i]   + sqΔt*σ₁o2[i]
       H12[i] = u[i] + fH01[i]     - sqΔt*σ₁[i]
     end
-    σ(σ₂,H11,t+Δto4)
-    σ(σ₃,H12,t+Δt)
+    σ(t+Δto4,H11,σ₂)
+    σ(t+Δt,H12,σ₃)
     for i in eachindex(u)
       H13[i] = u[i] + fH01o4[i] + sqΔt*(-5σ₁[i] + 3σ₂[i] + σ₃[i]/2)
     end
 
-    σ(σ₄,H13,t+Δto4)
-    f(fH02,H0,t+3Δto4); fH02*=Δt
+    σ(t+Δto4,H13,σ₄)
+    f(t+3Δto4,H0,fH02); fH02*=Δt
     for i in eachindex(u)
       σ₂o3[i] = σ₂[i]/3
       Fσ₂o3[i] = 4σ₂o3[i]
@@ -214,38 +282,43 @@ function sde_sriw1optimized(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseri
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sriw1optimized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  H0 = Array{eltype(u)}(size(u)...,4)
-  H1 = Array{eltype(u)}(size(u)...,4)
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRIW1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  local H0::uType
   @sde_adaptiveprelim
+  local fH01::uType; local σ₁::uType
+  local fH01o4::uType; local σ₁o2::uType
+  local H11::uType; local H12::uType
+  local σ₂::uType; local σ₃::uType; local σ₄::uType
+  local H13::uType; local fH02::uType
+  local σ₂o3::uType; local Fσ₂o3::uType
+  local σ₃o3::uType; local Tσ₃o3::uType
+  local mσ₁::uType; local E₁::uType; local E₂::uType
   @inbounds while t<T
     @sde_loopheader
 
     chi1 = (ΔW.^2 - Δt)/2sqΔt #I_(1,1)/sqrt(h)
     chi2 = (ΔW + ΔZ/sqrt(3))/2 #I_(1,0)/h
     chi3 = (ΔW.^3 - 3ΔW*Δt)/6Δt #I_(1,1,1)/h
-    fH01 = Δt*f(u,t)
+    fH01 = Δt*f(t,u)
 
-    σ₁ = σ(u,t)
+    σ₁ = σ(t,u)
     fH01o4 = fH01/4
     Δto4 = Δt/4
     σ₁o2 = σ₁/2
     H0 =  u + 3*(fH01o4  + chi2.*σ₁o2)
     H11 = u + fH01o4   + sqΔt*σ₁o2
     H12 = u + fH01     - sqΔt*σ₁
-    σ₂ = σ(H11,t+Δto4)
-    σ₃ = σ(H12,t+Δt)
+    σ₂ = σ(t+Δto4,H11)
+    σ₃ = σ(t+Δt,H12)
     H13 = u + fH01o4 + sqΔt*(-5σ₁ + 3σ₂ + σ₃/2)
 
 
-    σ₄ = σ(H13,t+Δto4)
-    fH02 = Δt*f(H0,t+3Δto4)
+    σ₄ = σ(t+Δto4,H13)
+    fH02 = Δt*f(t+3Δto4,H0)
 
     σ₂o3 = σ₂/3
     Fσ₂o3 = 4σ₂o3
@@ -259,17 +332,21 @@ function sde_sriw1optimized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,t
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sri(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
-  stages = length(α)
+  stages::Int = length(α)
   H0 = Array{typeof(u)}(stages)
   H1 = Array{typeof(u)}(stages)
+  local A0temp::uType; local A1temp::uType
+  local B0temp::uType; local B1temp::uType
+  local atemp::uType;  local btemp::uType
+  local E₁::uType; local E₂::uType
+  local E₁temp::uType; local ftemp::uType
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -286,23 +363,23 @@ function sde_sri(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
       A1temp = zero(u)
       B1temp = zero(u)
       for j = 1:i-1
-        A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
-        B0temp += B₀[i,j]*σ(H1[..,j],t + c₁[j]*Δt)
-        A1temp += A₁[i,j]*f(H0[..,j],t + c₀[j]*Δt)
-        B1temp += B₁[i,j]*σ(H1[..,j],t + c₁[j]*Δt)
+        A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[j])
+        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H1[j])
+        A1temp += A₁[i,j]*f(t + c₀[j]*Δt,H0[j])
+        B1temp += B₁[i,j]*σ(t + c₁[j]*Δt,H1[j])
       end
-      H0[..,i] = u + A0temp*Δt + B0temp.*chi2
-      H1[..,i] = u + A1temp*Δt + B1temp*sqΔt
+      H0[i] = u + A0temp*Δt + B0temp.*chi2
+      H1[i] = u + A1temp*Δt + B1temp*sqΔt
     end
     atemp = zero(u)
     btemp = zero(u)
     E₂    = zero(u)
     E₁temp= zero(u)
     for i = 1:stages
-      ftemp = f(H0[..,i],t+c₀[i]*Δt)
+      ftemp = f(t+c₀[i]*Δt,H0[i])
       atemp += α[i]*ftemp
-      btemp += (β₁[i]*ΔW + β₂[i]*chi1).*σ(H1[..,i],t+c₁[i]*Δt)
-      E₂    += (β₃[i]*chi2 + β₄[i]*chi3).*σ(H1[..,i],t+c₁[i]*Δt)
+      btemp += (β₁[i]*ΔW + β₂[i]*chi1).*σ(t+c₁[i]*Δt,H1[i])
+      E₂    += (β₃[i]*chi2 + β₄[i]*chi3).*σ(t+c₁[i]*Δt,H1[i])
       if i<3 #1 or 2
         E₁temp += ftemp
       end
@@ -313,18 +390,16 @@ function sde_sri(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_srivectorized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  uType = typeof(u)
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRIVectorized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  @sde_sritableaupreamble
   @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
-  stages = length(α)
-  H0 = Array{eltype(u)}(stages)
-  H1 = Array{eltype(u)}(stages)
+  stages::Int = length(α)
+  H0 = Array{uEltype}(stages)
+  H1 = Array{uEltype}(stages)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -335,111 +410,106 @@ function sde_srivectorized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts
     H0[:]=zeros(uType,4)
     H1[:]=zeros(uType,4)
     for i = 1:stages
-      H0temp = u + Δt*dot(vec(A₀[i,:]),f(H0,t + c₀*Δt)) + chi2*dot(vec(B₀[i,:]),σ(H1,t+c₁*Δt))
-      H1[i]  = u + Δt*dot(vec(A₁[i,:]),f(H0,t + c₀*Δt)) + sqΔt*dot(vec(B₁[i,:]),σ(H1,t+c₁*Δt))
+      H0temp = u + Δt*dot(vec(A₀[i,:]),f(t + c₀*Δt,H0)) + chi2*dot(vec(B₀[i,:]),σ(t+c₁*Δt,H1))
+      H1[i]  = u + Δt*dot(vec(A₁[i,:]),f(t + c₀*Δt,H0)) + sqΔt*dot(vec(B₁[i,:]),σ(t+c₁*Δt,H1))
       H0[i] = H0temp
     end
-    fVec = Δt*f(H0,t+c₀*Δt)
+    fVec = Δt*f(t+c₀*Δt,H0)
     E₁ = fVec[1]+fVec[2]
-    E₂ = dot(β₃*chi2 + β₄*chi3,σ(H1,t+c₁*Δt))
+    E₂ = dot(β₃*chi2 + β₄*chi3,σ(t+c₁*Δt,H1))
 
-    u = u + dot(α,fVec) + dot(β₁*ΔW + β₂*chi1,σ(H1,t+c₁*Δt)) + E₂
+    u = u + dot(α,fVec) + dot(β₁*ΔW + β₂*chi1,σ(t+c₁*Δt,H1)) + E₂
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_rkmil(f::Function,σ::Function,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  du1 = similar(u); du2 = similar(u)
-  K = similar(u); utilde = similar(u); L = similar(u)
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  du1::uType = similar(u); du2::uType = similar(u)
+  K::uType = similar(u); utilde::uType = similar(u); L::uType = similar(u)
   @inbounds while t<T
     @sde_loopheader
-    f(du1,u,t)
-    L = σ(du2,u,t)
+    f(t,u,du1)
+    σ(t,u,L)
     for i in eachindex(u)
       K[i] = u[i] + Δt*du1[i]
       utilde[i] = K[i] + L[i]*sqΔt
     end
-    σ(du1,utilde,t)
+    σ(t,utilde,du2)
     for i in eachindex(u)
-      u[i] = K[i]+L[i]*ΔW[i]+(du1[i]-du2[i])./(2sqΔt).*(ΔW[i].^2 - Δt)
+      u[i] = K[i]+L[i]*ΔW[i]+(du2[i]-L[i])./(2sqΔt).*(ΔW[i].^2 - Δt)
       W[i] = W[i] + ΔW[i]
     end
     t = t + Δt
     ΔW = sqΔt*next(rands)
     @sde_savevalues
   end
-  u,t,W,timeseries,ts,Ws
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_rkmil(f::Function,σ::Function,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  local L::uType; local K::uType; local utilde::uType
   @inbounds while t<T
     @sde_loopheader
 
-    K = u + Δt.*f(u,t)
-    L = σ(u,t)
-    utilde = K + L.*sqΔt
-    u = K+L.*ΔW+(σ(utilde,t)-σ(u,t))./(2sqΔt).*(ΔW.^2 - Δt)
+    K = u + Δt.*f(t,u)
+    L = σ(t,u)
+    utilde = K + L*sqΔt
+    u = K+L*ΔW+(σ(t,utilde)-σ(t,u))/(2sqΔt)*(ΔW^2 - Δt)
 
     t = t + Δt
     W = W + ΔW
     ΔW = sqΔt*next(rands)
     @sde_savevalues
   end
-  u,t,W,timeseries,ts,Ws
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
 
-function sde_sra1optimized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  uType = typeof(u)
-  H0 = Array{eltype(u)}(size(u)...,2)
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  H0 = Array{uEltype}(size(u)...,2)
+  local k₁::uType; local k₂::uType; local E₁::uType; local E₂::uType
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
 
     chi2 = (ΔW + ΔZ/sqrt(3))/2 #I_(1,0)/h
-    k₁ = Δt*f(u,t)
-    k₂ = Δt*f(u+3k₁/4 + 3chi2*σ(u,t+Δt)/2,t+3Δt/4)
+    k₁ = Δt*f(t,u)
+    k₂ = Δt*f(t+3Δt/4,u+3k₁/4 + 3chi2*σ(t+Δt,u)/2)
     E₁ = k₁ + k₂
-    E₂ = chi2.*(σ(u,t)-σ(u,t+Δt)) #Only for additive!
+    E₂ = chi2.*(σ(t,u)-σ(t+Δt,u)) #Only for additive!
 
-    u = u + k₁/3 + 2k₂/3 + E₂ + ΔW*σ(u,t+Δt)
+    u = u + k₁/3 + 2k₂/3 + E₂ + ΔW*σ(t+Δt,u)
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sra1optimized(f::Function,σ::Function,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  uType = typeof(u)
-  H0 = Array{eltype(u)}(size(u)...,2)
-  chi2 = similar(u)
-  tmp1 = similar(u)
-  E₁ = similar(u); σt = similar(u); σpΔt = similar(u)
-  E₂ = similar(u); k₁ = similar(u); k₂ = similar(u)
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRA1Optimized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+
+  H0 = Array{uEltype}(size(u)...,2)
+  chi2::randType = similar(ΔW)
+  tmp1::uType = similar(u)
+  E₁::uType = similar(u); σt::uType = similar(u); σpΔt::uType = similar(u)
+  E₂::uType = similar(u); k₁::uType = similar(u); k₂::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
-    σ(σt,u,t)
-    σ(σpΔt,u,t+Δt)
-    f(k₁,u,t); k₁*=Δt
+    σ(t,u,σt)
+    σ(t+Δt,u,σpΔt)
+    f(t,u,k₁); k₁*=Δt
     for i in eachindex(u)
       chi2[i] = (ΔW[i] + ΔZ[i]/sqrt(3))/2 #I_(1,0)/h
       tmp1[i] = u[i]+3k₁[i]/4 + 3chi2[i]*σpΔt[i]/2
     end
 
-    f(k₂,tmp1,t+3Δt/4); k₂*=Δt
+    f(t+3Δt/4,tmp1,k₂); k₂*=Δt
     for i in eachindex(u)
       E₁[i] = k₁[i] + k₂[i]
       E₂[i] = chi2[i]*(σt[i]-σpΔt[i]) #Only for additive!
@@ -447,24 +517,22 @@ function sde_sra1optimized(f::Function,σ::Function,u::AbstractArray,t,Δt,T,ite
     end
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  uType = typeof(u)
+function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
-  stages = length(α)
+  stages::Int = length(α)
   H0 = Vector{typeof(u)}(0)
   for i = 1:stages
     push!(H0,similar(u))
   end
-  A0temp = similar(u); B0temp = similar(u)
-  ftmp = similar(u); σtmp = similar(u); chi2 = similar(u)
-  atemp = similar(u); btemp = similar(u); E₂ = similar(u); E₁temp = similar(u)
-  E₁ = similar(u)
+  A0temp::uType = similar(u); B0temp::uType = similar(u)
+  ftmp::uType = similar(u); σtmp::uType = similar(u); chi2::uType = similar(u)
+  atemp::uType = similar(u); btemp::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
+  E₁::uType = similar(u)
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -472,14 +540,14 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
       chi2[i] = .5*(ΔW[i] + ΔZ[i]/sqrt(3)) #I_(1,0)/h
     end
     for i in 1:stages
-      H0[i][:]=zero(eltype(u))
+      H0[i][:]=zero(uEltype)
     end
     for i = 1:stages
-      A0temp[:] = zero(eltype(u))
-      B0temp[:] = zero(eltype(u))
+      A0temp[:] = zero(uEltype)
+      B0temp[:] = zero(uEltype)
       for j = 1:i-1
-        f(ftmp,H0[j],t + c₀[j]*Δt)
-        σ(σtmp,H0[j],t + c₁[j]*Δt)
+        f(t + c₀[j]*Δt,H0[j],ftmp)
+        σ(t + c₁[j]*Δt,H0[j],σtmp)
         for k in eachindex(u)
           A0temp[k] += A₀[i,j]*ftmp[k]
           B0temp[k] += B₀[i,j]*σtmp[k]
@@ -489,15 +557,14 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
         H0[i][j] = u[j] + A0temp[j]*Δt + B0temp[j]*chi2[j]
       end
     end
-
-    atemp[:] = zero(eltype(u))
-    btemp[:] = zero(eltype(u))
-    E₂[:]    = zero(eltype(u))
-    E₁temp[:]= zero(eltype(u))
+    atemp[:] = zero(uEltype)
+    btemp[:] = zero(uEltype)
+    E₂[:]    = zero(uEltype)
+    E₁temp[:]= zero(uEltype)
 
     for i = 1:stages
-      f(ftmp,H0[..,i],t+c₀[i]*Δt)
-      σ(σtmp,H0[..,i],t+c₁[i]*Δt)
+      f(t+c₀[i]*Δt,H0[i],ftmp)
+      σ(t+c₁[i]*Δt,H0[i],σtmp)
       for j in eachindex(u)
         atemp[j] += α[i]*ftmp[j]
         btemp[j] += (β₁[i]*ΔW[j])*σtmp[j]
@@ -512,17 +579,18 @@ function sde_sra(f,σ,u::AbstractArray,t,Δt,T,iter,maxiters,timeseries,Ws,ts,ti
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sra(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  uType = typeof(u)
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
-  stages = length(α)
-  H0 = Array{eltype(u)}(stages)
+  stages::Int = length(α)
+  H0 = Array{uEltype}(stages)
+  local atemp::uType; local btemp::uType
+  local E₂::uType; local E₁::uType; local E₁temp::uType
+  local ftemp::uType; local A0temp::uType; local B0temp::uType
   @sde_adaptiveprelim
   @inbounds while t<T
     @sde_loopheader
@@ -533,10 +601,10 @@ function sde_sra(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
       A0temp = zero(u)
       B0temp = zero(u)
       for j = 1:i-1
-        A0temp += A₀[i,j]*f(H0[..,j],t + c₀[j]*Δt)
-        B0temp += B₀[i,j]*σ(H0[..,j],t + c₁[j]*Δt) #H0[..,i] argument ignored
+        A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[j])
+        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H0[j]) #H0[..,i] argument ignored
       end
-      H0[..,i] = u + A0temp*Δt + B0temp.*chi2
+      H0[i] = u + A0temp*Δt + B0temp.*chi2
     end
 
     atemp = zero(u)
@@ -545,10 +613,11 @@ function sde_sra(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
     E₁temp= zero(u)
 
     for i = 1:stages
-      ftemp = f(H0[..,i],t+c₀[i]*Δt)
+      ftemp = f(t+c₀[i]*Δt,H0[i])
       atemp += α[i]*ftemp
-      btemp += (β₁[i]*ΔW ).*σ(H0[..,i],t+c₁[i]*Δt) #H0[..,i] argument ignored
-      E₂    += (β₂[i]*chi2).*σ(H0[..,i],t+c₁[i]*Δt) #H0[..,i] argument ignored
+      btemp += (β₁[i]*ΔW ).*σ(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
+      E₂    += (β₂[i]*chi2).*σ(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
+
       E₁temp += ftemp
     end
     E₁ = Δt*E₁temp
@@ -556,33 +625,32 @@ function sde_sra(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeserie
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end
 
-function sde_sravectorized(f,σ,u::Number,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  uType = typeof(u)
+function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRAVectorized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
+  @sde_preamble
+  @sde_sratableaupreamble
   @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
-  stages = length(α)
+  stages::Int = length(α)
   @sde_adaptiveprelim
-  H0 = Array{eltype(u)}(stages)
+  H0 = Array{uEltype}(stages)
+
   @inbounds while t<T
     @sde_loopheader
 
     chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
     H0[:]=zeros(stages)
     for i = 1:stages
-      H0[i] = u + Δt*dot(vec(A₀[i,:]),f(H0,t + c₀*Δt)) + chi2*dot(vec(B₀[i,:]),σ(H0,t+c₁*Δt))
+      H0[i] = u + Δt*dot(vec(A₀[i,:]),f(t + c₀*Δt,H0)) + chi2*dot(vec(B₀[i,:]),σ(t+c₁*Δt,H0))
     end
-    fVec = f(H0,t+c₀*Δt)
+    fVec = f(t+c₀*Δt,H0)
     E₁ = Δt*(fVec[1]+fVec[2])
-    E₂ = dot(β₂*chi2,σ(H0,t+c₁*Δt))
+    E₂ = dot(β₂*chi2,σ(t+c₁*Δt,H0))
 
-    u = u + Δt*dot(α,f(H0,t+c₀*Δt)) + dot(β₁*ΔW,σ(H0,t+c₁*Δt)) + E₂
+    u = u + Δt*dot(α,f(t+c₀*Δt,H0)) + dot(β₁*ΔW,σ(t+c₁*Δt,H0)) + E₂
 
     @sde_loopfooter
   end
-  u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2
+  u,t,W,timeseries,ts,Ws,max_stack_size,max_stack_size2
 end

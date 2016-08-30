@@ -7,10 +7,10 @@ folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/
 In this example we will solve the equation
 
 ```math
-\frac{du}{dt} = f(u,t)
+\frac{du}{dt} = f(t,u)
 ```
 
-where ``f(u,t)=αu``. We know via Calculus that the solution to this equation is
+where ``f(t,u)=αu``. We know via Calculus that the solution to this equation is
 ``u(t)=u₀\exp(αt)``. To solve this numerically, we define a problem type by
 giving it the equation and the initial condition:
 
@@ -18,7 +18,7 @@ giving it the equation and the initial condition:
 using DifferentialEquations
 α=1
 u₀=1/2
-f(u,t) = u
+f(t,u) = u
 prob = ODEProblem(f,u₀)
 ```
 
@@ -80,7 +80,7 @@ plot(sol)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introODEplot.png" width="750" align="middle"  />
+![Better ODE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introODEplot.png)
 
 
 The `"ExplicitRK"` algorithms are general Runge-Kutta solvers. It defaults to
@@ -96,7 +96,7 @@ plot(sol)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/adaptiveODEplot.png" width="750" align="middle"  />
+![Adaptive ODE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/adaptiveODEplot.png)
 
 ### Systems of Equations
 
@@ -109,7 +109,7 @@ as follows:
 ```julia
 u₀=rand(4,2).*ones(4,2)/2
 α=ones(4,2)
-f(u,t) = α.*u
+f(t,u) = α.*u
 prob = ODEProblem(f,u₀)
 ```
 
@@ -123,4 +123,36 @@ plot(sol)
 Plots.gui()
 ```
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/multiODEplot.png" width="750" align="middle"  />
+![ODE System Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/multiODEplot.png)
+
+
+### Defining Systems of Equations Eloquent Using @ode_define
+
+To simplify your life, DifferentialEquations.jl provides the `@ode_define` macro
+for "defining your ODE in psudocode" and getting a function which is efficient
+and runnable. For our example we will use [the Lorenz system](https://en.wikipedia.org/wiki/Lorenz_system).
+The standard way to write this out in most mathematical programs is the following:
+
+```julia
+f = (t,u,du) -> begin
+ du[1] = 10.0(u[2]-u[1])
+ du[2] = u[1]*(28.0-u[3]) - u[2]
+ du[3] = u[1]*u[2] - (8/3)*u[3]
+end
+```
+
+Here for more efficiency we plugged in the parameters. However, this does not
+look like the pretty ``\LaTeX`` system we see on Wikipedia, and this might make it
+harder to double-check that you defined the system correctly. Using the
+`@ode_define` macro is much nicer:
+
+```julia
+g = @ode_define begin
+  dx = σ*(y-x)
+  dy = x*(ρ-z) - y
+  dz = x*y - β*z
+end σ=>10. ρ=>28. β=>(8/3)
+```
+
+DifferentialEquations.jl will automatically translate this to be exactly the
+same as `f`. The result is more legible code with no performance loss.

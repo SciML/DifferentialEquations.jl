@@ -26,13 +26,12 @@ solves the stochastic Poisson equation ``-Δu = f + σdW``.
 function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,autodiff::Bool=false,method=:trust_region,show_trace=false,iterations=1000)
   #Assemble Matrices
   A,M,area = assemblematrix(fem_mesh,lumpflag=true)
-
   #Unroll some important constants
   @unpack fem_mesh: Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
   @unpack prob: f,Du,f,gD,gN,analytic,knownanalytic,islinear,u₀,numvars,σ,stochastic,noisetype,D
 
   #Setup f quadrature
-  mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
+  mid = Array{eltype(node)}(size(node[vec(elem[:,2]),:])...,3)
   mid[:,:,1] = (node[vec(elem[:,2]),:]+node[vec(elem[:,3]),:])/2
   mid[:,:,2] = (node[vec(elem[:,3]),:]+node[vec(elem[:,1]),:])/2
   mid[:,:,3] = (node[vec(elem[:,1]),:]+node[vec(elem[:,2]),:])/2
@@ -69,11 +68,11 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
   else #Not Stochastic
     rhs = (u) -> quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)
   end
-  Dinv = D.^(-1)
+  Dinv = map((x)->inv(x),D) # Special form so that units work
   #Solve
   if islinear
     if solver==:Direct
-      u[freenode,:]=D.*(A[freenode,freenode]\rhs(u)[freenode])
+      u[freenode,:]=A[freenode,freenode]\(Dinv.*rhs(u))[freenode]
     elseif solver==:CG
       for i = 1:size(u,2)
         u[freenode,i],ch=cg!(u[freenode,i],A[freenode,freenode],Dinv.*rhs(u)[freenode,i]) # Needs diffusion constant
@@ -185,7 +184,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   A,M,area = assemblematrix(fem_mesh,lumpflag=true)
 
   #Unroll some important constants
-  @unpack fem_mesh: Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
+  @unpack fem_mesh: Δt,T,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
   @unpack prob: f,u₀,Du,gD,gN,analytic,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D
 
   #Note if Atom is loaded for progress
@@ -197,11 +196,11 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
     numvars = size(u,2)
     prob.numvars = numvars #Mutate problem to be correct.
     if gD == nothing
-      gD=(x,t)->zeros(size(x,1),numvars)
+      gD=(t,x)->zeros(size(x,1),numvars)
     end
     prob.gD = gD
     if gN == nothing
-      gN=(x,t)->zeros(size(x,1),numvars)
+      gN=(t,x)->zeros(size(x,1),numvars)
     end
     prob.gN = gN
     if D == nothing
@@ -214,22 +213,41 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
     prob.D = D
   end
   t = 0
+
+  #Setup timeseries
+
+  timeseries = Vector{typeof(u)}(0)
+  push!(timeseries,u)
+  ts = Float64[t]
+
+  if typeof(Δt) <: Main.SIUnits.SIQuantity
+    Δt = Δt.val
+  end
+  if typeof(t) <: Main.SIUnits.SIQuantity
+    t = t.val
+  end
+  if typeof(T) <: Main.SIUnits.SIQuantity
+    T = T.val
+  end
+
   sqrtΔt= sqrt(Δt)
   #Setup f quadraturef
-  mid = Array{Float64}(size(node[vec(elem[:,2]),:])...,3)
+  mid = Array{eltype(node)}(size(node[vec(elem[:,2]),:])...,3)
   mid[:,:,1] = (node[vec(elem[:,2]),:]+node[vec(elem[:,3]),:])/2
   mid[:,:,2] = (node[vec(elem[:,3]),:]+node[vec(elem[:,1]),:])/2
   mid[:,:,3] = (node[vec(elem[:,1]),:]+node[vec(elem[:,2]),:])/2
 
   islinear ? linearity=:linear : linearity=:nonlinear
   stochastic ? stochasticity=:stochastic : stochasticity=:deterministic
-  #Setup animation
 
-  timeseries = GrowableArray(u)
-  ts = Float64[t]
+  if typeof(fem_mesh.μ) <: SIUnits.SIQuantity
+    testμ = fem_mesh.μ.val
+  else
+    testμ = fem_mesh.μ
+  end
 
-  if alg==:Euler && fem_mesh.μ>=0.5
-    warn("Euler method chosen but μ>=.5 => Unstable. Results may be wrong.")
+  if alg==:Euler && testμ >=0.5
+    warn("Euler method chosen but μ = $testμ >=.5 => Unstable. Results may be wrong.")
   end
 
   #Setup for Calculations
@@ -238,12 +256,14 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   #Heat Equation Loop
   u,timeseres,ts=femheat_solve(FEMHeatIntegrator{linearity,alg,stochasticity}(N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,sqrtΔt,σ,noisetype,fem_mesh.numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps))
 
+  (atomloaded && progressbar ) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
+
   if knownanalytic #True Solution exists
     if save_timeseries
-      timeSeries = FEMSolutionTS(timeseries,numvars)
-      return(FEMSolution(fem_mesh,u,analytic(node,fem_mesh.T),analytic,Du,timeSeries,ts,prob))
+      timeseries = FEMSolutionTS(timeseries,numvars)
+      return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,timeseries,ts,prob))
     else
-      return(FEMSolution(fem_mesh,u,analytic(node,fem_mesh.T),analytic,Du,prob))
+      return(FEMSolution(fem_mesh,u,analytic(fem_mesh.T,node),analytic,Du,prob))
     end
   else #No true solution
     if save_timeseries
@@ -256,12 +276,12 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
 end
 
 """
-quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
+`quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)`
 
 Performs the order 2 quadrature to calculate the vector from the term ``<f,v>`` for linear elements.
 """
 function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars;gNquad𝒪=2)
-  b = zeros(u) #size(bt1,2) == numvars
+  b = zeros(area[1].*u) #size(bt1,2) == numvars #area is for units
   if islinear
     bt1 = area.*(f(mid[:,:,2])+f(mid[:,:,3]))/6
     bt2 = area.*(f(mid[:,:,3])+f(mid[:,:,1]))/6
@@ -270,9 +290,9 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann
     u1 = (u[vec(elem[:,2]),:]+u[vec(elem[:,3]),:])/2
     u2 = (u[vec(elem[:,3]),:]+u[vec(elem[:,1]),:])/2
     u3 = (u[vec(elem[:,1]),:]+u[vec(elem[:,2]),:])/2
-    bt1 = area.*(f(u2,mid[:,:,2])+f(u3,mid[:,:,3]))/6
-    bt2 = area.*(f(u3,mid[:,:,3])+f(u1,mid[:,:,1]))/6
-    bt3 = area.*(f(u1,mid[:,:,1])+f(u2,mid[:,:,2]))/6
+    bt1 = area.*(f(mid[:,:,2],u2)+f(mid[:,:,3],u3))/6
+    bt2 = area.*(f(mid[:,:,3],u3)+f(mid[:,:,1],u1))/6
+    bt3 = area.*(f(mid[:,:,1],u1)+f(mid[:,:,2],u2))/6
   end
 
   for i = 1:numvars # accumarray the bt's
@@ -287,10 +307,21 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann
     end
   end
 
+
   if(!isempty(dirichlet))
-    uz = zeros(u)
+    uz = zeros(b)
     uz[bdnode,:] = gD(node[bdnode,:])
-    b = b-A*uz
+    #=
+    if eltype(b) <: SIUnits.SIQuantity
+      A = full(A) #Sparse multiplication does not work for SI Units
+    end
+    =#
+    if eltype(uz) <: SIUnits.SIQuantity
+      uzdeval = map((x)->x.val,uz)
+      b = b-((A*uzdeval).*(uz./uzdeval)) # Take units away for sparse mult, put them back
+    else
+      b = b-A*uz
+    end
   end
 
   if(!isempty(neumann))
@@ -298,7 +329,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann
     λgN,ωgN = quadpts1(gNquad𝒪)
     ϕgN = λgN                # linear bases
     nQuadgN = size(λgN,1)
-    ge = zeros(size(neumann,1),2,numvars)
+    ge = zeros(size(neumann,1),2,numvars) # Does this need units?
 
     for pp = 1:nQuadgN
         # quadrature points in the x-y coordinate

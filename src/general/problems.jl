@@ -9,7 +9,7 @@ u_t = Δu + f
 
 with bounday conditions `gD` on the dirichlet boundary and gN on the neumann boundary.
 Linearity is determined by whether the forcing function `f` is a function of two
-variables `(x,t)` or three `(u,x,t)` (with `x=[:,1]` and `y=[:,2]`).
+variables `(t,x)` or three `(t,x,u)` (with `x=[:,1]` and `y=[:,2]`).
 
 If they keyword `σ` is given, then this wraps the data that define a 2D stochastic heat equation
 
@@ -17,7 +17,7 @@ If they keyword `σ` is given, then this wraps the data that define a 2D stochas
 u_t = Δu + f + σdW_t
 ```
 
-###Constructors
+### Constructors
 
 * `HeatProblem(analytic,Du,f)`: Defines the dirichlet problem with solution `analytic`,
   solution gradient `Du = [u_x,u_y]`, and the forcing function `f`.
@@ -25,13 +25,13 @@ u_t = Δu + f + σdW_t
 * `HeatProblem(u₀,f)`: Defines the problem with initial value `u₀` (as a function) and `f`.
   If your initial data is a vector, wrap it as `u₀(x) = vector`.
 
-Note: If all functions are of `(x,t)`, then the program assumes it's linear. Write
+Note: If all functions are of `(t,x)`, then the program assumes it's linear. Write
 your functions using the math to program syntrax translation: ``x`` `= x[:,1]` and ``y`` `= x[:,2]`.
-Use `f=f(u,x,t)` and `σ=σ(u,x,t)` (if specified) for nonlinear problems
-(with the boundary conditions still (x,t)). Systems of equations can be specified
+Use `f=f(t,x,u)` and `σ=σ(t,x,u)` (if specified) for nonlinear problems
+(with the boundary conditions still (t,x)). Systems of equations can be specified
 with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
-###Keyword Arguments
+### Keyword Arguments
 
 * `gD` = dirichlet boundary function
 
@@ -48,7 +48,7 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 """
 type HeatProblem <: DEProblem
   "u₀: Initial value function"
-  u₀::Function
+  u₀#::Function
   "Du: Function for the solution gradient [u_x,u_y]"
   Du::Function
   "f: Forcing function in heat equation"
@@ -71,17 +71,17 @@ type HeatProblem <: DEProblem
   function HeatProblem(analytic,Du,f;gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     islinear = numparameters(f)==2
     knownanalytic = true
-    u₀(x) = analytic(x,0)
+    u₀(x) = analytic(0,x)
     numvars = size(u₀([0 0
                        0 0
                        0 0]),2)
     gD = analytic
     if gN == nothing
-      gN=(x,t)->zeros(size(x,1),numvars)
+      gN=(t,x)->zeros(size(x,1),numvars)
     end
     if σ==nothing
       stochastic=false
-      σ=(x,t)->zeros(size(x,1),numvars)
+      σ=(t,x)->zeros(size(x,1),numvars)
     else
       stochastic=true
     end
@@ -97,7 +97,7 @@ type HeatProblem <: DEProblem
   function HeatProblem(u₀,f;gD=nothing,gN=nothing,σ=nothing,noisetype=:White,numvars=nothing,D=nothing)
     if σ==nothing
       stochastic=false
-      σ=(x,t)->zeros(size(x,1))
+      σ=(t,x)->zeros(size(x,1))
     else
       stochastic=true
     end
@@ -108,10 +108,10 @@ type HeatProblem <: DEProblem
         u₀=(x)->zeros(size(x,1))
       end
       if gD == nothing
-        gD=(x,t)->zeros(size(x,1))
+        gD=(t,x)->zeros(size(x,1))
       end
       if gN == nothing
-        gN=(x,t)->zeros(size(x,1))
+        gN=(t,x)->zeros(size(x,1))
       end
       if D == nothing
         D = 1.0
@@ -124,10 +124,10 @@ type HeatProblem <: DEProblem
         numvars = 1
         u₀=(x)->zeros(size(x,1),numvars)
         if gD == nothing
-          gD=(x,t)->zeros(size(x,1),numvars)
+          gD=(t,x)->zeros(size(x,1),numvars)
         end
         if gN == nothing
-          gN=(x,t)->zeros(size(x,1),numvars)
+          gN=(t,x)->zeros(size(x,1),numvars)
         end
         if D == nothing
           D = 1.0
@@ -135,10 +135,10 @@ type HeatProblem <: DEProblem
       elseif u₀==nothing #numvars!=nothing
         u₀=(x)->zeros(size(x,1),numvars) #Default to zero
         if gD == nothing
-          gD=(x,t)->zeros(size(x,1),numvars)
+          gD=(t,x)->zeros(size(x,1),numvars)
         end
         if gN == nothing
-          gN=(x,t)->zeros(size(x,1),numvars)
+          gN=(t,x)->zeros(size(x,1),numvars)
         end
         if D == nothing
           D = ones(1,numvars)
@@ -152,7 +152,7 @@ type HeatProblem <: DEProblem
 end
 
 doc"""
-PoissonProblem
+`PoissonProblem`
 
 Wraps the data that define a 2D linear Poisson equation problem:
 
@@ -170,7 +170,7 @@ If they keyword `σ` is given, then this wraps the data that define a 2D stochas
 -Δu = f + σdW
 ```
 
-###Constructors
+### Constructors
 
 `PoissonProblem(f,analytic,Du)`: Defines the dirichlet problem with analytical solution `analytic`, solution gradient `Du = [u_x,u_y]`,
 and forcing function `f`
@@ -184,7 +184,7 @@ Use `f=f(u,x)` and `σ=σ(u,x)` (if specified) for nonlinear problems
 (with the boundary conditions still (x)). Systems of equations can be specified
 with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 
-###Keyword Arguments
+### Keyword Arguments
 
 * `gD` = dirichlet boundary function
 
@@ -202,7 +202,7 @@ with `u_i = u[:,i]` as the ith variable. See the example problems for more help.
 """
 type PoissonProblem <: DEProblem
   "f: Forcing function in the Poisson problem"
-  f::Function
+  f#::Function
   "analytic: Solution to the Poisson problem"
   analytic::Function
   "Du: Gradient of the solution to the Poisson problem"
@@ -303,7 +303,7 @@ type PoissonProblem <: DEProblem
 end
 
 """
-SDEProblem
+`SDEProblem`
 
 Wraps the data which defines an SDE problem
 
@@ -342,7 +342,7 @@ type SDEProblem <: DEProblem
     isinplace = numparameters(f)==3
     if analytic==nothing
       knownanalytic = false
-      analytic=(u,t,W)->0
+      analytic=(t,u,W)->0
     else
       knownanalytic = true
     end
@@ -358,12 +358,12 @@ type SDEProblem <: DEProblem
 end
 
 """
-ODEProblem
+`ODEProblem`
 
 Wraps the data which defines an SDE problem
 
 ```math
-du/dt = f(u,t)
+\\frac{du}{dt} = f(u,t)
 ```
 
 with initial condition ``u₀``.
@@ -380,38 +380,37 @@ defines the solution if analytic is given.
 * `analytic`: A function which describes the solution.
 * `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
-* `sizeu`: The size of the initial condition (and thus `u`)
 
 """
-type ODEProblem <: DEProblem
+type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: DEProblem
   f::Function
-  u₀#::AbstractArray
+  u₀::uType
   analytic::Function
   knownanalytic::Bool
   numvars::Int
-  sizeu#::Tuple
   isinplace::Bool
-  function ODEProblem(f,u₀;analytic=nothing)
-    isinplace = numparameters(f)==3
-    if analytic==nothing
-      knownanalytic = false
-      analytic=(du,u,t)->0
-    else
-      knownanalytic = true
-    end
-    if typeof(u₀) <: Number
-      sizeu = (1,)
-      numvars = 1
-    else
-      sizeu = size(u₀)
-      numvars = size(u₀)[end]
-    end
-    new(f,u₀,analytic,knownanalytic,numvars,sizeu,isinplace)
-  end
 end
 
+function ODEProblem(f::Function,u₀;analytic=nothing)
+  isinplace = numparameters(f)==3
+  if analytic==nothing
+    knownanalytic = false
+    analytic=(t,u,du)->0
+  else
+    knownanalytic = true
+  end
+  if typeof(u₀) <: Number
+    sizeu = (1,)
+    numvars = 1
+  else
+    numvars = size(u₀)[end]
+  end
+  ODEProblem{typeof(u₀),eltype(u₀)}(f,u₀,analytic,knownanalytic,numvars,isinplace)
+end
+#ODEProblem{uType<:Union{AbstractArray,Number}}(f,u₀::uType,)
+
 """
-StokesProblem
+`StokesProblem`
 
 Defines the solution to a stationary Stokes problem:
 
@@ -438,21 +437,21 @@ Defines the solution to a stationary Stokes problem:
 * `trueknown::Bool`
 """
 type StokesProblem
-  f₁::Function
-  f₂::Function
-  g::Function
-  ugD::Function
-  vgD::Function
-  uanalytic::Function
-  vanalytic::Function
-  panalytic::Function
+  f₁#::Function
+  f₂#::Function
+  g#::Function
+  ugD#::Function
+  vgD#::Function
+  uanalytic#::Function
+  vanalytic#::Function
+  panalytic#::Function
   trueknown::Bool
   StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic) = new(f₁,f₂,g,uanalytic,vanalytic,uanalytic,vanalytic,panalytic,true)
   StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
 end
 
 """
-numparameters(f)
+`numparameters(f)`
 
 Returns the number of parameters of `f` for the method which has the most parameters.
 """
@@ -460,10 +459,6 @@ function numparameters(f)
   if length(methods(f))>1
     warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
   end
-  numparm = maximum([length(m.sig.parameters) for m in methods(f)])
-  if VERSION < v"0.5-"
-    return numparm
-  else
-    return (numparm-1) #-1 in v0.5 since it add f as the first parameter.
-  end
+  numparm = maximum([length(m.sig.parameters) for m in methods(f)]) #in v0.5, all are generic
+  return (numparm-1) #-1 in v0.5 since it adds f as the first parameter
 end

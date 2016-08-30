@@ -8,7 +8,7 @@ T = 1
 Δx = 1//2^(3)
 Δt = 1//2^(7)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
-prob = heatProblemExample_birthdeath()
+prob = prob_femheat_birthdeath
 
 
 #Solve it with a bunch of different algorithms, plot solution
@@ -39,7 +39,7 @@ T = 1
 Δx = 1//2^(3)
 Δt = 1//2^(7)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
-prob = heatProblemExample_stochasticbirthdeath()
+prob = prob_femheat_stochasticbirthdeath
 
 
 #Solve it with a bunch of different algorithms, plot solution

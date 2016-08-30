@@ -1,11 +1,3 @@
-macro def(name, definition)
-    return quote
-        macro $name()
-            esc($(Expr(:quote, definition)))
-        end
-    end
-end
-
 #=
 function cg!(x::AbstractMatrix, A, b, Pl=1; tol::Real=size(A,2)*eps(), maxiter::Int=size(A,2))
   for i=1:size(x,2)
@@ -170,6 +162,3 @@ DiffCache(u::AbstractArray) = DiffCache(eltype(u),length(u),Val{ForwardDiff.pick
 
 get_du{T<:Dual}(dc::DiffCache, ::Type{T}) = dc.dual_du
 get_du(dc::DiffCache, T) = dc.du
-
-copy_if_possible!(u::Number, utmp::Number) = utmp
-copy_if_possible!(u, utmp) = copy!(u, utmp)

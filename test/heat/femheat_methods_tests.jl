@@ -8,7 +8,7 @@ T = 1
 Δx = 1//2^(3)
 Δt = 1//2^(7)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:dirichlet)
-prob = heatProblemExample_moving() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
+prob = prob_femheat_moving #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 
 #Solve it with a bunch of different algorithms, plot solution
 println("Euler")
@@ -53,7 +53,7 @@ T = 1
 Δx = 1//2^(3)
 Δt = 1//2^(7)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:dirichlet)
-prob = heatProblemExample_diffuse() #also try heatProblemExample_pure() or heatProblemExample_diffuse()
+prob = prob_femheat_diffuse #also try heatProblemExample_pure() or heatProblemExample_diffuse()
 
 #Solve it with a bunch of different algorithms, plot solution
 println("Euler")
@@ -64,7 +64,7 @@ T = 1//2^(5)
 Δx = 1//2^(3)
 Δt = 1//2^(9)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:dirichlet)
-prob = heatProblemExample_pure()
+prob = prob_femheat_pure
 
 #Solve with Euler Method
 println("Euler")
