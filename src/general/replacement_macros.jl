@@ -9,7 +9,6 @@ end
 macro ode_define(ex,params...)
   ## Build symbol dictionary
   dict = Dict{Symbol,Int}()
-  spot = 1
   for i in 2:2:length(ex.args) #Every odd line is line number
     arg = ex.args[i].args[1] #Get the first thing, should be dsomething
     nodarg = symbol(string(arg)[2:end]) #Take off the d
@@ -47,12 +46,13 @@ function ode_findreplace(ex,dict,syms,pdict)
   end
 end
 
-macro fem_define(sig,variables,ex,params...)
+macro fem_define(sig,ex,params...)
   ## Build symbol dictionary
   dict = Dict{Symbol,Int}()
-  spot = 1
-  for (i,arg) in enumerate(variables.args) #Every odd line is line number
-    dict[arg] = i # and label it the next int if not seen before
+  for (i,arg) in enumerate(ex.args)
+    if i%2 == 0
+      dict[symbol(string(arg.args[1])[2:end])] = i/2 # Change du->u, Fix i counting
+    end
   end
   syms = keys(dict)
 
@@ -63,6 +63,14 @@ macro fem_define(sig,variables,ex,params...)
   end
   # Run find replace
   fem_findreplace(ex,dict,syms,pdict)
+
+  funcs = Vector{Expr}(0) # Get all of the functions
+  for (i,arg) in enumerate(ex.args)
+    if i%2 == 0
+      push!(funcs,arg.args[2])
+    end
+  end
+  ex = Expr(:hcat,funcs...)
   # Return the lambda
   :($(sig) -> $(ex))
 end
