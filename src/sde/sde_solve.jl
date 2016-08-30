@@ -28,7 +28,7 @@ Solves the SDE as defined by prob on the time interval tspan. If not given, tspa
     - `:EM`- The Euler-Maruyama method.
     - `:RKMil` - An explicit Runge-Kutta discretization of the strong Order 1.0 Milstein method.
     - `:SRA` - The strong Order 2.0 methods for additive SDEs due to Rossler. Not yet implemented.
-        Default tableau is for SRA1.
+      Default tableau is for SRA1.
     - `:SRI` - The strong Order 1.5 methods for diagonal/scalar SDEs due to Rossler.
       Default tableau is for SRIW1.
     - `:SRIW1Optimized` - An optimized version of SRIW1. Strong Order 1.5.
@@ -56,21 +56,21 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
   end
   u = copy(u₀)
   if !isinplace && typeof(u)<:AbstractArray
-    f = (du,u,t) -> (du[:] = prob.f(u,t))
-    σ = (du,u,t) -> (du[:] = prob.σ(u,t))
+    f = (t,u,du) -> (du[:] = prob.f(t,u))
+    σ = (t,u,du) -> (du[:] = prob.σ(t,u))
   else
     f = prob.f
     σ = prob.σ
   end
 
   if adaptive && alg ∈ SDE_ADAPTIVEALGORITHMS
-    tType = Float64
+    Δt = 1.0*Δt
     initialize_backend(:DataStructures)
     if adaptivealg == :RSwM3
       initialize_backend(:ResettableStacks)
     end
   end
-
+  tType=typeof(Δt)
   if Δt == 0.0
     if alg==:Euler
       order = 0.5
@@ -80,7 +80,6 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
       order = 1.5
     end
     Δt = sde_determine_initΔt(u₀,float(tspan[1]),abstol,reltol,internalnorm,f,σ,order)
-    tType=typeof(Δt)
   end
 
   if Δtmax == nothing
@@ -95,82 +94,80 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
 
   T = tType(tspan[2])
   t = tType(tspan[1])
-  if numvars == 1
-    W = 0.0
-    Z = 0.0
-  else
-    W = zeros(sizeu)
-    Z = zeros(sizeu)
-  end
 
-
-
-  timeseries = GrowableArray(u)
+  timeseries = Vector{uType}(0)
+  push!(timeseries,u₀)
   ts = Vector{tType}(0)
-  Ws = GrowableArray(W)
   push!(ts,t)
 
   #PreProcess
   if (alg==:SRA || alg==:SRAVectorized) && tableau == nothing
     tableau = constructSRA1()
-  elseif (alg==:SRI || alg==:SRIVectorized) && tableau == nothing
+  elseif tableau == nothing # && (alg==:SRI || alg==:SRIVectorized)
     tableau = constructSRIW1()
   end
+
+  uEltype = eltype(u)
+  tType=typeof(Δt)
+  uType = typeof(u)
+  tableauType = typeof(tableau)
 
   if numvars == 1
     rands = ChunkedArray(randn)
   else
-    rands = ChunkedArray(randn,u)
+    rands = ChunkedArray(randn,map((x)->x/x,u)) # Strip units
   end
 
+  randType = typeof(map((x)->x/x,u)) # Strip units
+
+  if uType <: AbstractArray
+    uEltypeNoUnits = eltype(u./u)
+  else
+    uEltypeNoUnits = typeof(u./u)
+  end
+
+
+  Ws = Vector{randType}(0)
+  if numvars == 1
+    W = 0.0
+    Z = 0.0
+    push!(Ws,W)
+  else
+    W = zeros(sizeu)
+    Z = zeros(sizeu)
+    push!(Ws,copy(W))
+  end
   sqΔt = sqrt(Δt)
   iter = 0
-  ΔW = sqΔt*next(rands) # Take one first
-  ΔZ = sqΔt*next(rands) # Take one first
-  maxStackSize = 0
+  maxstacksize = 0
   #EEst = 0
+  typeof(u) <: Number ? value_type = :Number : value_type = :AbstractArray
 
-  # This part is a mess. Needs cleaning.
-  if alg==:EM
-    u,t,W,timeseries,ts,Ws = sde_eulermaruyama(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  elseif alg==:RKMil
-    u,t,W,timeseries,ts,Ws = sde_rkmil(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,progressbar,atomloaded,progress_steps,rands,sqΔt,W)
-  elseif alg==:SRI
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =            sde_sri(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRIW1Optimized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 = sde_sriw1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRIVectorized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_srivectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRAVectorized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sravectorized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif alg==:SRA1Optimized
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra1optimized(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  elseif  alg==:SRA
-    u,t,W,timeseries,ts,Ws,maxStackSize,maxStackSize2 =  sde_sra(f,σ,u,t,Δt,T,iter,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,sizeu,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau)
-  end
+  rateType = typeof(u/t) ## Can be different if united
 
-  (atomloaded && progressbar) ? Main.Atom.progress(t/T) : nothing #Use Atom's progressbar if loaded
+  #@code_warntype sde_solve(SDEIntegrator{alg,typeof(u),eltype(u),ndims(u),ndims(u)+1,typeof(Δt),typeof(tableau)}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
+
+  u,t,W,timeseries,ts,Ws,maxstacksize,maxstacksize2 = sde_solve(SDEIntegrator{alg,uType,uEltype,ndims(u),ndims(u)+1,tType,tableauType,uEltypeNoUnits,randType,rateType}(f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau))
+
+  (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
 
   if knownanalytic
-    u_analytic = analytic(u₀,t,W)
+    u_analytic = analytic(t,u₀,W)
     if save_timeseries
-      timeseries_analytic = GrowableArray(analytic(u₀,ts[1],Ws[1]))
-      for i in 2:size(Ws,1)
-        push!(timeseries_analytic,analytic(u₀,ts[i],Ws[i]))
+      timeseries_analytic = Vector{uType}(0)
+      for i in 1:size(Ws,1)
+        push!(timeseries_analytic,analytic(ts[i],u₀,Ws[i]))
       end
-      Ws = copy(Ws)
-      timeseries = copy(timeseries)
-      timeseries_analytic = copy(timeseries_analytic)
-      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,t=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,timeseries=timeseries,t=ts,Ws=Ws,timeseries_analytic=timeseries_analytic,maxstacksize=maxstacksize))
     else
-      return(SDESolution(u,u_analytic,W=W,maxStackSize=maxStackSize))
+      return(SDESolution(u,u_analytic,W=W,maxstacksize=maxstacksize))
     end
   else #No known analytic
     if save_timeseries
       timeseries = copy(timeseries)
-      return(SDESolution(u,timeseries=timeseries,W=W,t=ts,maxStackSize=maxStackSize))
+      return(SDESolution(u,timeseries=timeseries,W=W,t=ts,maxstacksize=maxstacksize))
     else
-      return(SDESolution(u,W=W,maxStackSize=maxStackSize))
+      return(SDESolution(u,W=W,maxstacksize=maxstacksize))
     end
   end
 end
@@ -179,8 +176,8 @@ const SDE_ADAPTIVEALGORITHMS = Set([:SRI,:SRIW1Optimized,:SRIVectorized,:SRAVect
 
 function sde_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,σ,order)
   d₀ = norm(u₀./(abstol+u₀*reltol),2)
-  f₀ = f(u₀,t)
-  σ₀ = 3σ(u₀,t)
+  f₀ = f(t,u₀)
+  σ₀ = 3σ(t,u₀)
 
   d₁ = norm(max(abs(f₀+σ₀),abs(f₀-σ₀))./(abstol+u₀*reltol),2)
   if d₀ < 1e-5 || d₁ < 1e-5
@@ -189,8 +186,8 @@ function sde_determine_initΔt(u₀,t,abstol,reltol,internalnorm,f,σ,order)
     Δt₀ = 0.01*(d₀/d₁)
   end
   u₁ = u₀ + Δt₀*f₀
-  f₁ = f(u₁,t+Δt₀)
-  σ₁ = 3σ(u₁,t+Δt₀)
+  f₁ = f(t+Δt₀,u₁)
+  σ₁ = 3σ(t+Δt₀,u₁)
   ΔσMax = max(abs(σ₀-σ₁),abs(σ₀+σ₁))
   d₂ = norm(max(abs(f₁-f₀+ΔσMax),abs(f₁-f₀-ΔσMax))./(abstol+u₀*reltol),2)/Δt₀
   if max(d₁,d₂)<=1e-15

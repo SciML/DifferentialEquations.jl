@@ -1,6 +1,6 @@
 # DifferentialEquations.jl Documentation
 
-This is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), differential algebraic equations, and differential delay equations. It includes algorithms from very recent research, as well as algorithms optimized for HPC applications. It integrates with the Julia package sphere, for example using Juno's progress meter, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
+ DifferentialEquations.jl is a package for solving numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include ordinary differential equations (ODEs), stochastic ordinary differential equations (SODEs or SDEs), stochastic partial differential equations (SPDEs), partial differential equations (with both finite difference and finite element methods), differential algebraic equations, and differential delay equations. It includes well-optimized implementations classic algorithms and ones from recent research, including algorithms optimized for high-precision and HPC applications. It integrates with the Julia package sphere, for example using Juno's progress meter, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
 
 All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test/](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
 [can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples). If you find any example where there seems
@@ -34,7 +34,7 @@ Codes for the latest features can be found in [test/](https://github.com/ChrisRa
 For the most up to date on using the package information, please contact me [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl)
 or [read the latest documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 
-# Supported Equations
+## Supported Equations
 
 For PDEs, one can optionally specify a noise equation. The solvers currently have
 stochastic variants for handling Gaussian Space-time white noise SPDEs.
@@ -49,7 +49,9 @@ stochastic variants for handling Gaussian Space-time white noise SPDEs.
   * Semi-linear Heat Equation (aka Reaction-Diffusion Equation)
   * Stationary Stokes Equation
 
-# Implemented Solvers
+## Implemented Solvers
+
+For help with choosing a solver algorithm, please see the solver options pages.
 
 For PDEs, [method] denotes an additional version for handling stochastic partial
 differential equations. SDE solvers and ODE solvers take in general sized inputs.
@@ -58,27 +60,29 @@ with matrices), then the solver will use the matrices without error.
 
 * ODEs
 
-  * Optimized Explicit Solvers
+  * Optimized Explicit Runge-Kutta Methods
 
-    * Euler
-    * Midpoint Method
-    * RK4
-    * Feagin's Order 10/8 Method
-    * Feagin's Order 12/10 Method
-    * Feagin's Order 14/12 Method
+    * Euler - The Order 1 Euler Method
+    * Midpoint - The Order 2 Midpoint Method
+    * RK4 - The classic Runge-Kutta Order 4 Method
+    * BS3 - Bogacki-Shampine 2/3
+    * DP5 - Dormand-Prince 4/5
+    * Tsit5 - Tsitouras 4/5
+    * BS5 - Bogacki-Shampine 4/5
+    * Vern6 - Verner's "Most Efficient" 5/6
+    * TanYam7 - Tanaka-Yamashita 7
+    * DP8 - Hairer's 8/5/3 adaption of the Dormand-Prince 8 method
+    * TsitPap8 - Tsitouras-Papakostas 8/7
+    * Vern9 - Verner's "Most Efficient" 9/8
+    * Feagin10 - Feagin's Order 10/8 Method
+    * Feagin12 - Feagin's Order 12/10 Method
+    * Feagin14 - Feagin's Order 14/12 Method
 
   * General Explicit (Adaptive) Runge-Kutta Methods
 
-    * Huen's Method
-    * Cash-Karp
-    * Runge-Kutta-Fehlberg (RKF) 4/5
-    * Ralston's Method
-    * Bogaki-Shampine
-    * Dormand-Prince 4/5
-    * Runge-Kutta-Fehlberg (RKF) 7/8
-    * Dormand-Prince 7/8
+    * These solvers are defined by tableaus. For a list of pre-defined tableaus, see [the ODE Solver options](/solvers/ode_solve).
 
-  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl) and optionally [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl). See [Conditional Dependencies](/man/conditional_dependencies).
+  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl). See [Conditional Dependencies](/man/conditional_dependencies).
 
     * Implicit Euler
     * Trapezoidal
@@ -104,6 +108,11 @@ with matrices), then the solver will use the matrices without error.
     * ode2_heun - Huen's method
     * ode4 - RK4
     * ode45_fe - Runge-Kutta-Fehlberg 4/5
+
+  * Wrappers for Sundials.jl. See [Conditional Dependences](/man/conditional_dependencies).
+
+    * cvode_BDF - The Lawrence Livermore CVODE BDF solver.
+    * cvode_Adams - The Lawrence Livermore CVODE BDF solver Adams-Moulton solver.
 
 
 * SODEs
@@ -140,22 +149,53 @@ with matrices), then the solver will use the matrices without error.
   * Conjugate-Gradient (CG)
   * GMRES
 
-# Roadmap
+## Roadmap
+
+* ODE Solvers
+
+  * Stabilized stiff - ROCK2 and ROCK4
 
 * SODE Solvers
 
   * Adaptive-SRK
 
-
-* Finite difference solvers (Stochastic) PDE Solvers
+* Finite difference solvers
 
   * Semi-linear Heat Equation (Reaction-Diffusion Equation)
   * Semi-linear Poisson Equation
   * Wave Equation
   * Transport Equation
-  * Stokes Equation
+
+* Stochastic PDE Solvers
+
   * Implicit Integration Factor (IIF) Maruyama
   * Implicit Integration Factor (IIF) Milstein
+
+* DDE Solvers
+
+  * Wrap RETARD and RADAR5
+  * Implement standard Runge-Kutta DDE solvers
+
+* Algebraic differential equations
+
+  * Implement standard solvers and add to ODEProblem type
+
+* Linear Solvers
+
+  * Finite Difference Geometric Multigrids
+  * Algebraic Multigrids via pyAMG
+
+* Performance
+
+  * Improve FEM performance
+  * Test ParallelAccelerator.jl on solvers
+  * Add Xeon Phi / GPU variants
+
+* Misc
+
+  * Davie-Gaines convergence analysis
+  * Improve MonteCarloSimulation
+
 
 ## IJulia Notebook Tutorials
 
@@ -215,8 +255,10 @@ Pages = [
     "man/mesh.md",
     "man/solution.md",
     "man/plot.md",
+    "man/function_definition_macros.md",
+    "man/benchmarks.md",
     "man/convergence.md",
-    "man/conditional_dependencies.md"
+    "man/conditional_dependencies.md",
     "man/progress_bar.md"
 ]
 Depth = 2
@@ -229,7 +271,8 @@ Pages = [
   "internals/contributors_guide.md",
   "internals/fem_tools.md",
   "internals/extras.md",
-  "internals/solver_helpers.md"
+  "internals/solver_helpers.md",
+  "internals/notes_on_algorithms.md"
 ]
 Depth = 2
 ```

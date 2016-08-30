@@ -1,20 +1,20 @@
 """
-findboundary(elem,bdflag=[])
+`findboundary(elem,bdflag=[])``
 
-findboundary(fem_mesh::FEMmesh,bdflag=[])
+`findboundary(fem_mesh::FEMmesh,bdflag=[])`
 
 Finds elements which are on the boundary of the domain. If bdflag is given,
 then those indices are added as nodes for a dirichlet boundary condition (useful
 for creating cracks and other cutouts of domains).
 
 ### Returns
-bdnode = Vector of indices for bdnode. Using node[:,bdnode] returns boundary nodes.
+`bdnode` = Vector of indices for bdnode. Using node[:,bdnode] returns boundary nodes.
 
-bdedge = Vector of indices for boundary edges.
+`bdedge` = Vector of indices for boundary edges.
 
-is_bdnode = Vector of booleans size N which donotes which are on the boundary
+`is_bdnode` = Vector of booleans size N which donotes which are on the boundary
 
-is_bdelem = Vector of booleans size NT which denotes which are on the boundary
+`is_bdelem` = Vector of booleans size NT which denotes which are on the boundary
 
 """
 function findboundary(elem::AbstractArray;bdflag=[])
@@ -48,9 +48,9 @@ end
 findboundary(fem_mesh::Mesh,bdflag=[]) = findboundary(fem_mesh.elem,bdflag=bdflag)
 
 """
-setboundary(node::AbstractArray,elem::AbstractArray,bdtype)
+`setboundary(node::AbstractArray,elem::AbstractArray,bdtype)`
 
-setboundary(fem_mesh::FEMmesh,bdtype)
+`setboundary(fem_mesh::FEMmesh,bdtype)`
 
 Takes in the fem_mesh and creates an array bdflag which denotes the boundary types.
 1 stands for dirichlet, 2 for neumann, 3 for robin.

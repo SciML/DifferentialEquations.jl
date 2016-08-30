@@ -1,4 +1,4 @@
-## Finite Element Method Heat Equation Solvers
+# Finite Element Method Heat Equation Solvers
 
 ```@docs
 solve(::FEMmesh,::HeatProblem)

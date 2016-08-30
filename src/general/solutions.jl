@@ -1,5 +1,5 @@
 """
-FEMSolution
+`FEMSolution`
 
 Holds the data for the solution to a finite element problem.
 
@@ -12,9 +12,9 @@ Holds the data for the solution to a finite element problem.
 * `errors`: A dictionary of the error calculations.
 * `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
 
@@ -45,7 +45,7 @@ type FEMSolution <: DESolution
 end
 
 """
-SDESolution
+`SDESolution`
 
 Holds the data for the solution to a SDE problem.
 
@@ -56,11 +56,11 @@ Holds the data for the solution to a SDE problem.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `Ws`: All of the W's in the solution. Only saved if `save_timeseries=true` is specified
-in the solver.
+  in the solver.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each save point.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
@@ -79,28 +79,28 @@ type SDESolution <: DESolution
   timeseries_analytic::AbstractArrayOrVoid
   appxTrue::Bool
   save_timeseries::Bool
-  maxStackSize::Int
+  maxstacksize::Int
   W
-  function SDESolution(u::Union{AbstractArray,Number};timeseries=[],timeseries_analytic=[],t=[],Δt=[],Ws=[],maxStackSize=0,W=0.0)
+  function SDESolution(u::Union{AbstractArray,Number};timeseries=[],timeseries_analytic=[],t=[],Δt=[],Ws=[],maxstacksize=0,W=0.0)
     save_timeseries = timeseries == nothing
     trueknown = false
-    return(new(u,trueknown,nothing,Dict(),timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueknown,nothing,Dict(),timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
-  function SDESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[],Δt=nothing,Ws=[],maxStackSize=0,W=0.0)
+  function SDESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[],Δt=nothing,Ws=[],maxstacksize=0,W=0.0)
     save_timeseries = timeseries != []
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-timeseries_analytic)),:l2=>sqrt(mean((timeseries-timeseries_analytic).^2)))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->x.^2,timeseries-timeseries_analytic))))
     end
-    return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxStackSize,W))
+    return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.t,a.Δt,a.Ws,a.timeseries_analytic,a.appxTrue,a.save_timeseries,a.maxStackSize,a.W)
+  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.t,a.Δt,a.Ws,a.timeseries_analytic,a.appxTrue,a.save_timeseries,a.maxstacksize,a.W)
 end
 
 """
-ODESolution
+`ODESolution`
 
 Holds the data for the solution to an ODE problem.
 
@@ -111,9 +111,9 @@ Holds the data for the solution to an ODE problem.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
-is specified in the solver.
+  is specified in the solver.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each timestep.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
@@ -140,14 +140,14 @@ type ODESolution <: DESolution
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(abs(timeseries-timeseries_analytic)),:l2=>sqrt(mean((timeseries-timeseries_analytic).^2)))
+      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
     return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries))
   end
 end
 
 """
-StokesSolution
+`StokesSolution`
 
 Holds the data for the solution to a Stokes problem.
 
@@ -180,9 +180,9 @@ type StokesSolution <: DESolution
 end
 
 """
-appxTrue!(res,res2)
+`appxTrue!(res,res2)`
 
-Adds the solution from res2 to the FEMSolution object res.
+Adds the solution from `res2` to the `FEMSolution` object `res`.
 Useful to add a quasi-true solution when none is known by
 computing once at a very small time/space step and taking
 that solution as the "true" solution
@@ -194,32 +194,34 @@ function appxTrue!(res::FEMSolution,res2::FEMSolution)
 end
 
 """
-S = FEMSolutionTS(timeseries::GrowableArray,numvars::Int)
-S[i][j] => Variable i at time j.
+`S = FEMSolutionTS(timeseries::Vector{uType},numvars::Int)``
+`S[i][j]` => Variable i at time j.
 """
-function FEMSolutionTS(timeseries::GrowableArray,numvars::Int)
-  G = GrowableArray(timeseries[1][:,1])
+function FEMSolutionTS{uType<:AbstractArray}(timeseries::Vector{uType},numvars::Int)
+  G = Vector{typeof(timeseries[1][:,1])}(0)
+  push!(G,timeseries[1][:,1])
   for j = 2:length(timeseries)
     push!(G,timeseries[j][:,1])
   end
-  ts = GrowableArray(G)
+  timeseries = Vector{typeof(G)}(0)
+  push!(timeseries,G)
   if numvars > 1
     for i=2:numvars
-      G = GrowableArray(timeseries[1][:,i])
-      for j = 2:length(timeseries)
+      G = Vector{typeof(timeseries[1][:,i])}(0)
+      for j = 1:length(timeseries)
         push!(G,timeseries[j][:,i])
       end
-      push!(ts,G)
+      push!(timeseries,G)
     end
   end
-  return(ts)
+  return(timeseries)
 end
 
 Base.length(sol::DESolution) = length(sol.t)
 Base.size(sol::DESolution) = (length(sol.t),size(sol.u))
 Base.endof(sol::DESolution) = length(sol)
-Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i,..]
-Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i,I...]
+Base.getindex(sol::DESolution,i::Int) = sol.timeseries[i]
+Base.getindex(sol::DESolution,i::Int,I::Int...) = sol.timeseries[i][I...]
 Base.getindex(sol::DESolution,::Colon) = sol.timeseries
 
 function print(io::IO, sol::DESolution)
@@ -239,4 +241,18 @@ end
 
 function show(io::IO,sol::DESolution)
   print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol.u)")
+end
+
+function vecvecapply{T<:Number,N}(f::Function,v::Vector{Array{T,N}})
+  res = Vector{eltype(eltype(v))}(0)
+  for i in eachindex(v)
+    for j in eachindex(v[i])
+      push!(res,v[i][j])
+    end
+  end
+  f(res)
+end
+
+function vecvecapply{T<:Number}(f::Function,v::Vector{T})
+  f(v)
 end

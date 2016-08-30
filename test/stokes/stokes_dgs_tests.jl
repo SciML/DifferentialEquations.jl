@@ -1,8 +1,8 @@
 using DifferentialEquations, Parameters, Plots
 Δx = 1//2^3 # Make this much smaller (1^2-5) for your own tests
 mesh = FDMMesh(Δx,mins=[-1;-1],maxs=[1;1])
-prob = dirichletzeroStokesExample()
-prob = homogeneousStokesExample()
+prob = prob_stokes_dirichletzero
+prob = prob_stokes_homogenous
 
 @unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs
 u = zeros(gridSize[1]-1,gridSize[2])

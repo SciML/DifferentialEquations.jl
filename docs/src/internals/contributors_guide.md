@@ -15,24 +15,23 @@ in DifferentialEquations.jl can be found in ode_integrators.jl. For example,
 take a look at the Midpoint method's implementation:
 
 ```julia
-function ode_midpoint(f::Function,u::AbstractArray,t,Δt,T,iter,
-                      maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,progressbar)
-  halfΔt = Δt/2
-  utilde = similar(u)
-  while t < T
-    @ode_loopheader
-    utilde[:] = u+halfΔt.*f(u,t)
-    u = u + Δt.*f(utilde,t+halfΔt)
-    @ode_loopfooter
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number}(integrator::ODEIntegrator{:Midpoint,uType,uEltype,N,tType,uEltypeNoUnits,rateType})
+  @ode_preamble
+  halfΔt::tType = Δt/2
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      u = u + Δt.*f(t+halfΔt,u+halfΔt.*f(t,u))
+      @ode_numberloopfooter
+    end
   end
   return u,t,timeseries,ts
 end
 ```
 
-The parts in the signature are the items you have available. Most are self-explanatory
-(they are from the ODE problem). The extra are for parts of the header and footer
-for exiting at max iterations, and plugging into the Juno progressbar. These are
-done in the `@ode_loopheader` and `@ode_loopfooter` macros, which are defined
+The available items are all unloaded from the `integrator` in the `@ode_preamble`.
+`@ode_loopheader` and `@ode_loopfooter` macros are for exiting at max iterations,
+and plugging into the Juno progressbar. These are all defined
 using the `@def` macro (they essentially copy-paste the code from the line which
 says `@def ode_loopheader begin ... end`). Note that the loopfooter code takes
 care of the code for doing the adaptive timestepping. All that is required for
@@ -54,6 +53,24 @@ the fastest and it is always is useful to have such algorithms (like Simpson's m
 available for demonstration purposes.
 
 Adding algorithms to the other problems is very similar.
+
+### Extras
+
+If the method is a FSAL method
+then it needs to be set it in `DIFFERENTIALEQUATIONSJL_FSALALGS` and `fsalfirst`
+should be defined before the loop, with `fsallast` what's pushed up to `fsalfirst`
+upon a successful step. See `:DP5` for an example.
+
+It's usually wise to dispatch onto Number separately since that uses `f(t,u)`
+instead of `f(t,u,du)`. The dispatch is chosen by setting the `uType` and
+`rateType`, usually to either `<:Number` or `<:AbstractArray` (though they
+should be the same).
+
+If tests fail due to units (i.e. SIUnits), don't worry. I would be willing to fix
+that up. To do so, you have to make sure you keep separate your `rateType`s and
+your `uType`s since the rates from `f` will have units of `u` but divided by
+a unit of time. If you simply try to write these into `u`, the units part will
+fail (normally you have to multiply by a ``Δt``).
 
 ## Adding Conditional Dependencies
 
@@ -92,7 +109,7 @@ dictionary of symbols for the different error estimates (L2,L infinity, etc.)
 There's always more to be. Improved plot recipes and new series recipes are
 always nice to add more default plots. It is always helpful to have benchmarks
 between different algorithms to see "which is best". Adding examples IJulia
-notebooks to `/examples/` is a good way to share knowledge about DifferentialEquations.jl.
+notebooks to `examples/` is a good way to share knowledge about DifferentialEquations.jl.
 Also, please feel free to comb through the solvers and look for ways to make them
 more efficient. Lastly, the documentation could always use improvements. If you
 have any questions on how to help, just ask them in the Gitter!

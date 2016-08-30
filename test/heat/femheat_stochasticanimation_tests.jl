@@ -9,7 +9,7 @@ T = 5
 Δx = 1//2^(3)
 Δt = 1//2^(5)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:neumann)
-prob = heatProblemExample_stochasticbirthdeath()
+prob = prob_femheat_stochasticbirthdeath
 
 sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:SemiImplicitCrankNicholson,save_timeseries=true,solver=:LU)
 

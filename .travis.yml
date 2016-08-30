@@ -5,11 +5,9 @@ os:
   - osx
 julia:
   - nightly
-  - release
-  - 0.4.5
 matrix:
   allow_failures:
-    - julia: nightly
+    - julia: release
 notifications:
   email: false
 script:

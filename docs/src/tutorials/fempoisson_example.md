@@ -12,6 +12,25 @@ gD(x) = sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
 prob = PoissonProblem(f,gD)
 ```
 
+Or we can use the `@fem_define` macro to beautify our code. The first argument is
+the function signature, which here is `(x)`. Second it's a list of variables to
+convert. This makes more sense in the Heat Equation examples, so we put in the
+blank expresion `()` for now. Then we put in our expression, and lastly we define
+the parameter values. `@fem_define` will automatically replace `x` by `x[:,1]` and
+`y` by `x[:,2]`, and will also subtitute in the defined parameters. The previous
+definition using `@fem_define` is as follows:
+
+```julia
+f  = @fem_define((x),(),begin
+  sin(α.*x).*cos(α.*y)
+end,α=>2π)
+gD = @fem_define((x),(),begin
+  sin(α.*x).*cos(α.*y)/β
+end,α=>2π,β=>8π*π)
+```
+
+The linebreaks are not required but I think it makes it more legible!
+
 Here we chose the dirichlet boundary condition `gD` to give the theoretical solution.  Other example problems can be found in [src/examples/exampleProblems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/src/premades/premade_problems.jl). To solve this problem, we first have to generate a mesh. Here we will simply generate a mesh of triangles on the square [0,1]x[0,1] with Δx=2^(-5). To do so, we use the code:
 
 ```julia
@@ -34,4 +53,4 @@ Plots.gui()
 
 Here is the plot shown against the analytical solution to show the accuracy:
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introductionExample.png" width="750" align="middle"  />
+![Poisson Example Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introductionExample.png)

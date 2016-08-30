@@ -4,4 +4,5 @@
 DifferentialEquations.getNoise
 DifferentialEquations.numparameters
 DifferentialEquations.Tableau
+DifferentialEquations.DEProblem
 ```
