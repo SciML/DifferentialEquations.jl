@@ -1,6 +1,8 @@
 # DifferentialEquations.jl
 
-[![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl) [![Build status](https://ci.appveyor.com/api/projects/status/032otj4kh462tq2l/branch/master?svg=true)](https://ci.appveyor.com/project/JuliaDiffEq/differentialequations-jl/branch/master)
+[![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+[![Build Status](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl) 
+[![Build status](https://ci.appveyor.com/api/projects/status/032otj4kh462tq2l/branch/master?svg=true)](https://ci.appveyor.com/project/JuliaDiffEq/differentialequations-jl/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/JuliaDiffEq/DifferentialEquations.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaDiffEq/DifferentialEquations.jl?branch=master)
 [![codecov](https://codecov.io/gh/JuliaDiffEq/DifferentialEquations.jl/coverage.svg?branch=master)](https://codecov.io/gh/ChrisRackauckas/DifferentialEquations.jl)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaDiffEq.github.io/DifferentialEquations.jl/stable)
