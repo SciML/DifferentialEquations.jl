@@ -120,12 +120,50 @@ on Float64. Purposefully not in-place as a test.
 """
 prob_ode_2Dlinear_notinplace = ODEProblem(f,rand(4,2),analytic=analytic)
 
+## Lotka-Voltera
+
+f = @ode_define begin
+  dx = a*x - b*x*y
+  dy = -c*y + d*x*y
+end a=1.5 b=1 c=3 d=1
+
+"""
+Lotka-Voltera Equations
+
+```math
+\\frac{dx}{dt} = ax - bxy
+\\frac{dy}{dt} = -cy + dxy
+```
+
+with initial condition ``x=y=1``
+"""
+prb_ode_lotkavoltera = ODEProblem(f,[1;1])
+
+## Fitzhugh-Nagumo
+
+f = @ode_define begin
+  dv = v - v^3/3 -w + l
+  dw = τinv*(v +  a - b*w)
+end a=0.7 b=0.8 τinv=(1/12.5) l=0.5
+"""
+Fitzhugh-Nagumo
+
+```math
+\\frac{dv}{dt} = v - \\frac{v^3}{3} - w + I_{est}
+τ \\frac{dw}{dt} = v + a -bw
+```
+
+with initial condition ``v=w=1``
+"""
+prob_ode_fitzhughnagumo = ODEProblem(f,[1;1])
+
 #Van der Pol Equations
 
 f = @ode_define begin
   dy = μ*(1-x^2)*y - x
   dx = y
 end μ=>1.
+
 """
 Van der Pol Equations
 
