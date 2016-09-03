@@ -133,19 +133,19 @@ end
 
 @recipe function f(wp::WorkPrecision)
   seriestype --> :path
-  label -->  wp.names'
-  xguide --> "Time (s)"
-  yguide --> "Error"
+  label -->  wp.name
+  yguide --> "Time (s)"
+  xguide --> "Error"
   xscale --> :log10
   yscale --> :log10
-  wp.times, wp.errors
+  wp.errors,wp.times
 end
 
 @recipe function f(wp_set::WorkPrecisionSet)
   seriestype --> :path
   label -->  wp_set.names'
-  xguide --> "Time (s)"
-  yguide --> "Error"
+  yguide --> "Time (s)"
+  xguide --> "Error"
   xscale --> :log10
   yscale --> :log10
   errors = Vector{Any}(0)
@@ -154,7 +154,7 @@ end
     push!(errors,wp_set[i].errors)
     push!(times,wp_set[i].times)
   end
-  times,errors
+  errors,times
 end
 
 @recipe function f(mesh::Mesh)
