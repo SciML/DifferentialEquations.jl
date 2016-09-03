@@ -17,7 +17,6 @@ macro ode_define(ex,params...)
     end
   end
   syms = keys(dict)
-
   pdict = Dict{Symbol,Any}()
   ## Build parameter dictionary
   for i in 1:length(params)
@@ -36,11 +35,11 @@ function ode_findreplace(ex,dict,syms,pdict)
     elseif isa(arg,Symbol)
       if haskey(dict,arg)
         ex.args[i] = :(u[$(dict[arg])])
-      elseif haskey(dict,symbol(string(arg)[2:end])) && symbol(string(arg)[1])==:d
-        tmp = symbol(string(arg)[2:end]) # Remove the first letter, the d
-        ex.args[i] = :(du[$(dict[tmp])])
       elseif haskey(pdict,arg)
         ex.args[i] = :($(pdict[arg]))
+      elseif length(string(arg))>1 && haskey(dict,symbol(string(arg)[2:end])) && symbol(string(arg)[1])==:d
+        tmp = symbol(string(arg)[2:end]) # Remove the first letter, the d
+        ex.args[i] = :(du[$(dict[tmp])])
       end
     end
   end
