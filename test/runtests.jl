@@ -2,7 +2,7 @@
 
 const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
-const LONGER_TESTS = true #Requires JLD
+const LONGER_TESTS = false #Requires JLD
 const TEST_CONDITIONAL_DEPS = true
 const FILEIO_ENABLE = false
 #Start Test Script
@@ -52,6 +52,8 @@ println("ODE Unrolled Tests")
 (LONGER_TESTS) && @time @test include("ode/ode_unrolled_comparison_tests.jl")
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
+println("ODE Initial Dt Tests")
+@time @test include("ode/ode_dense_tests.jl")
 println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
 println("ODE Feagin Tests")

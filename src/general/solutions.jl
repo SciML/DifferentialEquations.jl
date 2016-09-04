@@ -133,10 +133,18 @@ type ODESolution <: DESolution
   k#::uType
   prob#
   alg
+  interp::Function
+  dense::Bool
   function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[])
     save_timeseries = timeseries == []
     trueknown = false
-    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg))
+    dense = k != []
+    if dense # dense
+      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg)
+    else
+      interp = (tvals) -> nothing
+    end
+    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
   end
   function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[])
     save_timeseries = timeseries != []
@@ -145,10 +153,17 @@ type ODESolution <: DESolution
     if save_timeseries
       errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
-    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg))
+    dense = k != []
+    if dense # dense
+      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg)
+    else
+      interp = (tvals) -> nothing
+    end
+    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
   end
 end
 
+(sol::ODESolution)(t) = sol.interp(t)
 """
 `StokesSolution`
 
