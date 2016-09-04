@@ -363,7 +363,7 @@ end
 Wraps the data which defines an SDE problem
 
 ```math
-\\frac{du}{dt} = f(u,t)
+\\frac{du}{dt} = f(t,u)
 ```
 
 with initial condition ``u₀``.
