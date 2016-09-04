@@ -148,25 +148,23 @@ push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 prob = prob_ode_linear
 
-#=
 sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Feagin10,dense=true)
 
 interpd = sol(0:1//2^(4):1)
 
-sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:TsitPap8,dense=true,adaptive=false)
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Feagin10,dense=true,adaptive=false)
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 prob = prob_ode_2Dlinear
 
-sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:TsitPap8,dense=true)
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Feagin10,dense=true)
 
 interpd = sol(0:1//2^(4):1)
 
-sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:TsitPap8,dense=true,adaptive=false)
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Feagin10,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
-=#
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd))) < .2)
 
 
 
