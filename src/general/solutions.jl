@@ -164,6 +164,7 @@ type ODESolution <: DESolution
 end
 
 (sol::ODESolution)(t) = sol.interp(t)
+
 """
 `StokesSolution`
 
