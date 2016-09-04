@@ -728,7 +728,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   local utilde::uType
   local rtmp::rateType = rateType(sizeu)
   f(t,u,fsalfirst) # Pre-start fsal
-  k = fsallast
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -742,6 +741,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
       else
         u = utmp
+      end
+      if dense
+        k = fsallast
       end
       @ode_loopfooter
     end
@@ -971,6 +973,13 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k6::uType
   local k7::uType
   local utilde::uType
+  if dense
+    k = ksEltype()
+    for i in 1:7
+      push!(k,zero(rateType))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
   fsalfirst = f(t,u) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -988,6 +997,15 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         EEst = abs(((utilde-utmp)/(abstol+max(u,utmp)*reltol)) * normfactor)
       else
         u = utmp
+      end
+      if dense
+        k[1] = k1
+        k[2] = k2
+        k[3] = k3
+        k[4] = k4
+        k[5] = k5
+        k[6] = k6
+        k[7] = k7
       end
       @ode_numberloopfooter
     end
@@ -1007,6 +1025,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k7::uType = similar(u)
   utilde::uType = similar(u)
   rtmp = rateType(sizeu)
+  if dense
+    k = ksEltype()
+    for i in 1:7
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1024,6 +1049,15 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
       else
         u = utmp
+      end
+      if dense
+        k[1] = k1
+        k[2] = k2
+        k[3] = k3
+        k[4] = k4
+        k[5] = k5
+        k[6] = k6
+        k[7] = k7
       end
       @ode_loopfooter
     end
@@ -1045,6 +1079,21 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   uidx = eachindex(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   rtmp = rateType(sizeu)
+  if dense
+    k = ksEltype()
+    for i in 1:7
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,copy(k)) #Initialize ks
+    # Setup k pointers
+    k[1] = k1
+    k[2] = k2
+    k[3] = k3
+    k[4] = k4
+    k[5] = k5
+    k[6] = k6
+    k[7] = k7
+  end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1166,14 +1215,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,copy(k)) #Initialize ks
-    # Setup k pointers
-    k[1] = k1
-    # No 2
-    k[2] = k3
-    k[3] = k4
-    k[4] = k5
-    k[5] = k6
-    k[6] = k7
   end
   f(t,u,fsalfirst); #Pre-start fsal
   @inbounds for T in Ts
@@ -1192,6 +1233,15 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         EEst = sqrt( sum(((utilde-utmp)./(abstol+max(u,utmp)*reltol)).^2) * normfactor)
       else
         u = utmp
+      end
+      if dense
+        k[1] = k1
+        # No 2
+        k[2] = k3
+        k[3] = k4
+        k[4] = k5
+        k[5] = k6
+        k[6] = k7
       end
       @ode_loopfooter
     end
@@ -1644,11 +1694,15 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   c1,c2,c3,c4,c5,c6,c7,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a93,a94,a95,a96,a97,a98,a101,a103,a104,a105,a106,a107,a108,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat8,bhat10 = constructTanYam7(uEltypeNoUnits)
   local k1::uType; local k2::uType; local k3::uType; local k4::uType;
   local k5::uType; local k6::uType; local k7::uType; local k8::uType;
-  local k9::uType; local k10::uType
-  local utilde::uType; @inbounds for T in Ts
+  local k9::uType; local k10::uType;
+  local utilde::uType; pop!(ks) # Get rid of the one it starts with
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = Δt*f(t,u)
+      if dense
+        k = k1
+      end
       k2 = Δt*f(t+c1*Δt,u+a21*k1)
       k3 = Δt*f(t+c2*Δt,u+a31*k1+a32*k2)
       k4 = Δt*f(t+c3*Δt,u+a41*k1       +a43*k3)
@@ -1668,6 +1722,10 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       @ode_numberloopfooter
     end
   end
+  if dense
+    k = Δt*f(t,u)
+    push!(ks,k)
+  end
   return u,t,timeseries,ts,ks
 end
 
@@ -1676,12 +1734,15 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   c1,c2,c3,c4,c5,c6,c7,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a93,a94,a95,a96,a97,a98,a101,a103,a104,a105,a106,a107,a108,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat8,bhat10 = constructTanYam7(uEltypeNoUnits)
   k1 = similar(u); k2 = similar(u) ; k3 = similar(u); k4 = similar(u)
   k5 = similar(u); k6 = similar(u) ; k7 = similar(u); k8 = similar(u)
-  k9 = similar(u); k10= similar(u)
-  utilde = similar(u); rtmp = rateType(sizeu)
+  k9 = similar(u); k10= similar(u) ; k  = similar(u)
+  utilde = similar(u); rtmp = rateType(sizeu); pop!(ks) # Get rid of the one it starts with
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,rtmp); k1=Δt*rtmp
+      if dense
+        k = k1
+      end
       f(t+c1*Δt,u+a21*k1,rtmp); k2=Δt*rtmp
       f(t+c2*Δt,u+a31*k1+a32*k2,rtmp); k3=Δt*rtmp
       f(t+c3*Δt,u+a41*k1       +a43*k3,rtmp); k4=Δt*rtmp
@@ -1701,6 +1762,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       @ode_loopfooter
     end
   end
+  if dense
+    f(t,u,rtmp)
+    for i in uidx
+      k[i]=Δt*rtmp[i]
+    end
+    push!(ks,copy(k))
+  end
   return u,t,timeseries,ts,ks
 end
 
@@ -1709,9 +1777,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   c1,c2,c3,c4,c5,c6,c7,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a93,a94,a95,a96,a97,a98,a101,a103,a104,a105,a106,a107,a108,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat8,bhat10 = constructTanYam7(uEltypeNoUnits)
   k1 = similar(u); k2 = similar(u) ; k3 = similar(u); k4 = similar(u)
   k5 = similar(u); k6 = similar(u) ; k7 = similar(u); k8 = similar(u)
-  k9 = similar(u); k10= similar(u)
+  k9 = similar(u); k10= similar(u) ;
   utilde = similar(u); uidx = eachindex(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   rtmp = rateType(sizeu)
+  pop!(ks) # Get rid of the one it starts with
+  k = k1
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1776,6 +1846,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       @ode_loopfooter
     end
+  end
+  if dense
+    f(t,u,rtmp)
+    for i in uidx
+      k[i]=Δt*rtmp[i]
+    end
+    push!(ks,copy(k))
   end
   return u,t,timeseries,ts,ks
 end
