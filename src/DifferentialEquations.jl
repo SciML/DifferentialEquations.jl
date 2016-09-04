@@ -55,6 +55,7 @@ module DifferentialEquations
   include("ode/ode_constants.jl")
   include("ode/ode_integrators.jl")
   include("ode/ode_solve.jl")
+  include("ode/ode_dense.jl")
   include("sde/sde_tableaus.jl")
   include("general/benchmark.jl")
   include("general/plotrecipes.jl")

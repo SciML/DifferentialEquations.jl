@@ -93,7 +93,12 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
       initialize_backend(:NLsolve)
     end
-    tType=typeof(Δt)
+
+    if o[:tType] == nothing # if tType is not specified, grab it from Δt which defaults to 0.0 => Float64
+      tType=typeof(Δt)
+    else
+      tType = o[:tType]
+    end
 
     if o[:Δtmax] == nothing
       o[:Δtmax] = tType((tspan[end]-tspan[1]))
@@ -106,6 +111,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     else
       normfactor = 1
     end
+    saveat = tType[convert(tType,x) for x in o[:saveat]]
+
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
         β = 0.10 # More than Hairer's suggestion
@@ -126,10 +133,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
 
     Ts = map(tType,o[:Ts])
     t = tType(o[:t])
-    timeseries = Vector{uType}(0)
-    push!(timeseries,u₀)
-    ts = Vector{tType}(0)
-    push!(ts,t)
 
     o[:abstol] = convert(uEltype,o[:abstol])
 
@@ -140,9 +143,15 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     rateType = typeof(u/zero(t)) ## Can be different if united
 
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
-    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(g,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+      ksEltype = Vector{rateType} # Store more ks for the special algs
+    else
+      ksEltype = rateType # Makes simple_dense
+    end
+
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
+    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,,uEltypeNoUnits,rateType,ksEltype}(g,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal,dense,saveat))
+    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal,dense,saveat))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)

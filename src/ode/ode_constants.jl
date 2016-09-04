@@ -10,13 +10,18 @@ const SUNDIALS_ALGORITHMS = Set([:cvode_BDF,:cvode_Adams])
 const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized])
 
 const DIFFERENTIALEQUATIONSJL_FSALALGS = Set([:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:Tsit5,:Tsit5Vectorized,:Vern6,:Vern6Vectorized,:Vern9,:Vern9Vectorized])
+
+const DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS = Set([:DP5]) # These algs have a speical dense output, others just Hemite
 const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seulex])
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 
-const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0,
+const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
+                                 :tType => nothing,
                                  :save_timeseries => true,
                                  :timeseries_steps => 1,
                                  :tableau => DifferentialEquations.ODE_DEFAULT_TABLEAU,
+                                 :dense => false,
+                                 :saveat => Float64[],
                                  :adaptive => true,
                                  :γ=>.9,
                                  :abstol=>1//10^6,
