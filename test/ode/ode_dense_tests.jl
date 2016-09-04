@@ -164,7 +164,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Feagin10,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd))) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 
 
