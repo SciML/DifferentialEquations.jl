@@ -54,7 +54,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   @materialize save_timeseries, progressbar = command_opts
 
   u = copy(u₀)
-
+  ks = Vector{uType}(0)
   if :alg ∈ keys(o)
     alg = o[:alg]
   else
@@ -142,7 +142,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
 
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
     #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(g,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
@@ -304,16 +304,15 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       for i in 1:size(timeseries,1)
         push!(timeseries_analytic,analytic(ts[i],u₀))
       end
-      return(ODESolution(u,u_analytic,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic))
+      return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks))
     else
-      return(ODESolution(u,u_analytic))
+      return(ODESolution(u,u_analytic,prob,alg))
     end
   else #No known analytic
     if save_timeseries
-      timeseries = copy(timeseries)
-      return(ODESolution(u,timeseries=timeseries,t=ts))
+      return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks))
     else
-      return(ODESolution(u))
+      return(ODESolution(u,prob,alg))
     end
   end
 end

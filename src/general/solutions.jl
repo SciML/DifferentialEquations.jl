@@ -130,19 +130,22 @@ type ODESolution <: DESolution
   timeseries_analytic::AbstractArrayOrVoid
   appxTrue::Bool
   save_timeseries::Bool
-  function ODESolution(u;timeseries=[],timeseries_analytic=[],t=[])
+  k#::uType
+  prob#
+  alg
+  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[])
     save_timeseries = timeseries == []
     trueknown = false
-    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries))
+    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg))
   end
-  function ODESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[])
+  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[])
     save_timeseries = timeseries != []
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
     if save_timeseries
       errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
-    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries))
+    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg))
   end
 end
 
