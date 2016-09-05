@@ -2,7 +2,7 @@
 
 const CPU_FLOPS = peakflops()
 const TEST_PLOT = false
-const LONGER_TESTS = true #Requires JLD
+const LONGER_TESTS = false #Requires JLD
 const TEST_CONDITIONAL_DEPS = true
 const FILEIO_ENABLE = false
 #Start Test Script

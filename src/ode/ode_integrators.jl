@@ -803,7 +803,7 @@ end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:BS5,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8  = constructBS5(uEltypeNoUnits)
+  c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
   local k1::uType
   local k2::uType
   local k3::uType
@@ -814,6 +814,13 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k8::uType
   local utilde::uType
   local EEst2::uEltypeNoUnits
+  if dense
+    k = ksEltype()
+    for i in 1:8
+      push!(k,zero(rateType))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
   fsalfirst = f(t,u) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -836,6 +843,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else
         u = utmp
       end
+      if dense
+        k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
+      end
       @ode_numberloopfooter
     end
   end
@@ -844,7 +854,7 @@ end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:BS5Vectorized,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8  = constructBS5(uEltypeNoUnits)
+  c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8   = constructBS5(uEltypeNoUnits)
   k1::uType = similar(u)
   k2::uType = similar(u)
   k3::uType = similar(u)
@@ -857,6 +867,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   local utilde::uType
   local uhat::uType
   local EEst2::uEltypeNoUnits
+  if dense
+    k = ksEltype()
+    for i in 1:8
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -879,6 +896,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       else
         u = utmp
       end
+      if dense
+        k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
+      end
       @ode_loopfooter
     end
   end
@@ -887,7 +907,7 @@ end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:BS5,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8  = constructBS5(uEltypeNoUnits)
+  c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
   k1::uType = similar(u)
   k2::uType = similar(u)
   k3::uType = similar(u)
@@ -901,6 +921,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   local EEst2::uEltypeNoUnits
   uidx = eachindex(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); atmptilde = similar(u,uEltypeNoUnits)
+  if dense
+    k = ksEltype()
+    for i in 1:8
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
+  if dense
+    k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
+  end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1560,8 +1590,15 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
   local k1::uType; local k2::uType; local k3::uType; local k4::uType;
   local k5::uType; local k6::uType; local k7::uType; local k8::uType;
-  local k9::uType
+  local k9::uType;
   local utilde::uType; fsalfirst = f(t,u) # Pre-start fsal
+  if dense
+    k = ksEltype()
+    for i in 1:9
+      push!(k,zero(rateType))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1581,6 +1618,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else
         u = utmp
       end
+      if dense
+        k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9
+      end
       @ode_numberloopfooter
     end
   end
@@ -1593,6 +1633,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = similar(u); k2 = similar(u) ; k3 = similar(u); k4 = similar(u)
   k5 = similar(u); k6 = similar(u) ; k7 = similar(u); k8 = similar(u)
   k9 = similar(u)
+  if dense
+    k = ksEltype()
+    for i in 1:9
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,copy(k)) #Initialize ks
+  end
   utilde = similar(u); rtmp = rateType(sizeu)
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
@@ -1614,6 +1661,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       else
         u = utmp
       end
+      if dense
+        k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8; k[9]=k9
+      end
       @ode_loopfooter
     end
   end
@@ -1628,6 +1678,14 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k9 = similar(u);
   utilde = similar(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
   f(t,u,fsalfirst) # Pre-start fsal
+  if dense
+    k = ksEltype()
+    for i in 1:9
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,copy(k)) #Initialize ks
+    k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9 # Set the pointers
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
