@@ -136,7 +136,8 @@ module DifferentialEquations
          constructTanakaKasugaYamashitaYazaki6B, constructTanakaKasugaYamashitaYazaki6A,
          constructMikkawyEisa, constructChummund6, constructChummund62,
          constructHuta62, constructHuta6, constructRKF4, constructVern6, constructTsit5,
-         constructBS5, constructTanYam7, constructTsitPap8, constructVern9
+         constructBS5, constructTanYam7, constructTsitPap8, constructVern9,
+         constructVerner8, constructVerner7
 
   #Misc Tools
   export numparameters, checkSRIOrder, checkSRAOrder,
