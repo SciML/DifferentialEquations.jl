@@ -167,6 +167,37 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Feagin10,dense=true,adaptiv
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 
+### Vern6
+const linear_bigα = parse(BigFloat,"1.01")
+f = (t,u) -> (linear_bigα*u)
+prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"))
+prob = prob_ode_bigfloatlinear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern6,dense=true)
+
+interpd = sol(0:1//2^(7):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(7),alg=:BS5,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+plot(sol2.t,interpd)
+plot!(sol.t,sol[:])
+scatter!(sol.t,sol[:])
+
+prob_ode_bigfloatveclinear = ODEProblem(f,[parse(BigFloat,"0.5")])
+prob = prob_ode_bigfloatveclinear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern6,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern6,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+minimum(bools)
+
 ### BS5
 
 prob = prob_ode_linear
@@ -191,36 +222,26 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:BS5,dense=true,adaptive=fal
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
+### Vern9
 
+prob = prob_ode_linear
 
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern9,dense=true)
 
+interpd = sol(0:1//2^(4):1)
 
-### Vern6
-const linear_bigα = parse(BigFloat,"1.01")
-f = (t,u) -> (linear_bigα*u)
-prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"))
-prob = prob_ode_bigfloatlinear
-
-sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern6,dense=true)
-
-interpd = sol(0:1//2^(7):1)
-
-sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(7),alg=:BS5,dense=true,adaptive=false)
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern9,dense=true,adaptive=false)
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 plot(sol2.t,interpd)
-plot!(sol.t,sol[:])
-scatter!(sol.t,sol[:])
 
 prob = prob_ode_2Dlinear
 
-sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:BS5,dense=true)
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern9,dense=true)
 
 interpd = sol(0:1//2^(4):1)
 
-sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:BS5,dense=true,adaptive=false)
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern9,dense=true,adaptive=false)
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
-
-minimum(bools)

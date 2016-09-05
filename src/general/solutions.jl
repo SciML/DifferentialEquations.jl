@@ -140,7 +140,12 @@ type ODESolution <: DESolution
     trueknown = false
     dense = k != []
     if dense # dense
-      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg,prob.f)
+      if !prob.isinplace && typeof(u)<:AbstractArray
+        f! = (t,u,du) -> (du[:] = prob.f(t,u))
+      else
+        f! = prob.f
+      end
+      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg,f!)
     else
       interp = (tvals) -> nothing
     end
