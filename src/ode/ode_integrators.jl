@@ -121,7 +121,7 @@ end
     push!(timeseries,copy(u))
     push!(ts,t)
     if dense
-      push!(ks,copy(k))
+      push!(ks,deepcopy(k))
     end
   end
 end
@@ -2971,7 +2971,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     end
   end
   if dense
-    k = Δt*f(t,u)
+    k = f(t,u)
     push!(ks,k)
   end
   return u,t,timeseries,ts,ks
@@ -3343,7 +3343,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     end
   end
   if dense
-    k = Δt*f(t,u)
+    k = f(t,u)
     push!(ks,k)
   end
   return u,t,timeseries,ts,ks
