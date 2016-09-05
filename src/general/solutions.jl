@@ -140,7 +140,7 @@ type ODESolution <: DESolution
     trueknown = false
     dense = k != []
     if dense # dense
-      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg)
+      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg,prob.f)
     else
       interp = (tvals) -> nothing
     end
@@ -155,7 +155,7 @@ type ODESolution <: DESolution
     end
     dense = k != []
     if dense # dense
-      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg)
+      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg,prob.f)
     else
       interp = (tvals) -> nothing
     end
