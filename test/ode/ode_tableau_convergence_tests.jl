@@ -286,9 +286,18 @@ for i = 1:3
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
 
+  tab = constructVerner7()
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-7) < testTol)
+
   # Order 8
   Δts = 1.//2.^(4:-1:1)
   tab = constructClassicVerner8()
+  sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
+  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
+
+  Δts = 1.//2.^(5:-1:1)
+  tab = constructVerner8(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)
 
