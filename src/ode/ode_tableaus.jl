@@ -2228,10 +2228,14 @@ function constructVerner7(T::Type = Float64)
   return(ExplicitRKTableau(A,c,α,7,adaptiveorder=6,αEEst=αEEst))
 end
 
+"""
+Verner Efficient 8
+"""
 function constructVerner8(T::Type = Float64)
-  A = zeros(T,10,10)
-  c = zeros(T,10)
-  α = zeros(T,10)
+  A = zeros(T,13,13)
+  c = zeros(T,13)
+  α = zeros(T,13)
+  αEEst = zeros(T,13)
 
   c[2] = 1//20
   c[3] = 341//3200
@@ -6078,7 +6082,10 @@ function Vern9Interp_polyweights(T::Type = Float64)
   r267 = T(parse(BigFloat,"-5597.912448707916639109910311016358007839"))
   r268 = T(parse(BigFloat," 3288.597775149621789973016480733216881572"))
   r269 = T(parse(BigFloat,"-782.8483098245396412116558219612402319811"))
+  return r011,r012,r013,r014,r015,r016,r017,r018,r019,r082,r083,r084,r085,r086,r087,r088,r089,r092,r093,r094,r095,r096,r097,r098,r099,r102,r103,r104,r105,r106,r107,r108,r109,r112,r113,r114,r115,r116,r117,r118,r119,r122,r123,r124,r125,r126,r127,r128,r129,r132,r133,r134,r135,r136,r137,r138,r139,r142,r143,r144,r145,r146,r147,r148,r149,r152,r153,r154,r155,r156,r157,r158,r159,r172,r173,r174,r175,r176,r177,r178,r179,r182,r183,r184,r185,r186,r187,r188,r189,r192,r193,r194,r195,r196,r197,r198,r199,r202,r203,r204,r205,r206,r207,r208,r209,r212,r213,r214,r215,r216,r217,r218,r219,r222,r223,r224,r225,r226,r227,r228,r229,r232,r233,r234,r235,r236,r237,r238,r239,r242,r243,r244,r245,r246,r247,r248,r249,r252,r253,r254,r255,r256,r257,r258,r259,r262,r263,r264,r265,r266,r267,r268,r269
 end
+
+
 
 """
 Journal of Applied Mathematics & Decision Sciences, 4(2), 183-192 (2000),
