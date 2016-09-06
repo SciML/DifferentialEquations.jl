@@ -256,7 +256,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern8,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-10)
 
 plot(sol2.t,interpd)
 
@@ -268,7 +268,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern8,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-9)
 
 ### Vern9
 
@@ -280,7 +280,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern9,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-10)
 
 plot(sol2.t,interpd)
 
@@ -292,4 +292,4 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern9,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-10)
