@@ -99,7 +99,7 @@ end
       push!(ks,f(t,u))
     elseif ksEltype <: AbstractArray
       f(t,u,k)
-      push!(ks,copy(k))
+      push!(ks,deepcopy(k))
     end
   end ## if not simple_dense, you have to initialize k and push the ks[1]!
 
@@ -131,7 +131,7 @@ end
     push!(timeseries,copy(u))
     push!(ts,t)
     if dense
-      push!(ks,copy(k))
+      push!(ks,deepcopy(k))
     end
   end
 end
@@ -141,7 +141,7 @@ end
     push!(timeseries,uhold[1])
     push!(ts,t)
     if dense
-      push!(ks,copy(k))
+      push!(ks,deepcopy(k))
     end
   end
 end
@@ -819,7 +819,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     for i in 1:8
       push!(k,zero(rateType))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   fsalfirst = f(t,u) # Pre-start fsal
   @inbounds for T in Ts
@@ -872,7 +872,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:8
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
@@ -926,7 +926,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:8
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   if dense
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
@@ -1008,7 +1008,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     for i in 1:7
       push!(k,zero(rateType))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   fsalfirst = f(t,u) # Pre-start fsal
   @inbounds for T in Ts
@@ -1060,7 +1060,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:7
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
@@ -1114,7 +1114,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:7
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
     k[1] = k1
     k[2] = k2
@@ -1191,7 +1191,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     for i in 1:6
       push!(k,zero(rateType))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   local utilde::uType
   fsalfirst = f(t,u) # Pre-start fsal
@@ -1244,7 +1244,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:6
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   f(t,u,fsalfirst); #Pre-start fsal
   @inbounds for T in Ts
@@ -1298,7 +1298,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:6
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
     k[1] = k1
     # No 2
@@ -1378,7 +1378,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:6
       push!(k,zero(rateType))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
     k[1] = k1
     # No 2
@@ -1435,7 +1435,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
     for i in 1:6
       push!(k,zero(rateType))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
     k[1] = k1
     # No 2
@@ -1597,7 +1597,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     for i in 1:9
       push!(k,zero(rateType))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   @inbounds for T in Ts
     while t < T
@@ -1638,7 +1638,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:9
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
   end
   utilde = similar(u); rtmp = rateType(sizeu)
   f(t,u,fsalfirst) # Pre-start fsal
@@ -1683,7 +1683,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     for i in 1:9
       push!(k,rateType(sizeu))
     end
-    push!(ks,copy(k)) #Initialize ks
+    push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9 # Set the pointers
   end
   @inbounds for T in Ts
@@ -1742,6 +1742,136 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         u = utmp
       end
       @ode_loopfooter
+    end
+  end
+  return u,t,timeseries,ts,ks
+end
+
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Vern7,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+  @ode_preamble
+  c2,c3,c4,c5,c6,c7,c8,a021,a031,a032,a041,a043,a051,a053,a054,a061,a063,a064,a065,a071,a073,a074,a075,a076,a081,a083,a084,a085,a086,a087,a091,a093,a094,a095,a096,a097,a098,a101,a103,a104,a105,a106,a107,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat10= constructVern7(uEltypeNoUnits)
+  local k1::uType; local k2::uType; local k3::uType; local k4::uType;
+  local k5::uType; local k6::uType; local k7::uType; local k8::uType;
+  local k9::uType; local k10::uType; local utilde::uType; local update::uType
+  if dense
+    k = ksEltype()
+    for i in 1:10
+      push!(k,zero(rateType))
+    end
+    push!(ks,deepcopy(k)) #Initialize ks
+  end
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      k1 = Δt*f(t,u)
+      k2 = Δt*f(t+c2*Δt,u+a021*k1)
+      k3 = Δt*f(t+c3*Δt,u+a031*k1+a032*k2)
+      k4 = Δt*f(t+c4*Δt,u+a041*k1       +a043*k3)
+      k5 = Δt*f(t+c5*Δt,u+a051*k1       +a053*k3+a054*k4)
+      k6 = Δt*f(t+c6*Δt,u+a061*k1       +a063*k3+a064*k4+a065*k5)
+      k7 = Δt*f(t+c7*Δt,u+a071*k1       +a073*k3+a074*k4+a075*k5+a076*k6)
+      k8 = Δt*f(t+c8*Δt,u+a081*k1       +a083*k3+a084*k4+a085*k5+a086*k6+a087*k7)
+      k9 = Δt*f(t+Δt,u+a091*k1          +a093*k3+a094*k4+a095*k5+a096*k6+a097*k7+a098*k8)
+      k10= Δt*f(t+Δt,u+a101*k1          +a103*k3+a104*k4+a105*k5+a106*k6+a107*k7)
+      update = k1*b1 + k4*b4 + k5*b5 + k6*b6 + k7*b7 + k8*b8 + k9*b9
+      utmp = u + update
+      if adaptive
+        EEst = abs( ((update - bhat1*k1 - bhat4*k4 - bhat5*k5 - bhat6*k6 - bhat7*k7 - bhat10*k10)/(abstol+max(u,utmp)*reltol)) * normfactor)
+      else
+        u = utmp
+      end
+      if dense
+        k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10
+      end
+      @ode_numberloopfooter
+    end
+  end
+  return u,t,timeseries,ts,ks
+end
+
+
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Vern7Vectorized,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+  @ode_preamble
+  c2,c3,c4,c5,c6,c7,c8,a021,a031,a032,a041,a043,a051,a053,a054,a061,a063,a064,a065,a071,a073,a074,a075,a076,a081,a083,a084,a085,a086,a087,a091,a093,a094,a095,a096,a097,a098,a101,a103,a104,a105,a106,a107,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat10= constructVern7(uEltypeNoUnits)
+  k1 = similar(u); k2 = similar(u); k3 = similar(u); k4 = similar(u);
+  k5 = similar(u); k6 = similar(u); k7 = similar(u); k8 = similar(u);
+  k9 = similar(u); k10 = similar(u); utilde = similar(u); update = similar(u)
+  if dense
+    k = ksEltype()
+    for i in 1:10
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,deepcopy(k)) #Initialize ks
+  end
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      Δt*f(t,u); k1 = Δt*rtmp
+      Δt*f(t+c2*Δt,u+a021*k1)
+      Δt*f(t+c3*Δt,u+a031*k1+a032*k2)
+      Δt*f(t+c4*Δt,u+a041*k1       +a043*k3)
+      Δt*f(t+c5*Δt,u+a051*k1       +a053*k3+a054*k4)
+      Δt*f(t+c6*Δt,u+a061*k1       +a063*k3+a064*k4+a065*k5)
+      Δt*f(t+c7*Δt,u+a071*k1       +a073*k3+a074*k4+a075*k5+a076*k6)
+      Δt*f(t+c8*Δt,u+a081*k1       +a083*k3+a084*k4+a085*k5+a086*k6+a087*k7)
+      Δt*f(t+Δt,u+a091*k1          +a093*k3+a094*k4+a095*k5+a096*k6+a097*k7+a098*k8)
+      Δt*f(t+Δt,u+a101*k1          +a103*k3+a104*k4+a105*k5+a106*k6+a107*k7)
+      update = k1*b1 + k4*b4 + k5*b5 + k6*b6 + k7*b7 + k8*b8 + k9*b9
+      utmp = u + update
+      if adaptive
+        EEst = abs( ((update - bhat1*k1 - bhat4*k4 - bhat5*k5 - bhat6*k6 - bhat7*k7 - bhat10*k10)/(abstol+max(u,utmp)*reltol)) * normfactor)
+      else
+        u = utmp
+      end
+      if dense
+        k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10
+      end
+      @ode_numberloopfooter
+    end
+  end
+  return u,t,timeseries,ts,ks
+end
+
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Vern8,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+  @ode_preamble
+  c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,b1,b6,b7,b8,b9,b10,b11,b12,bhat1,bhat6,bhat7,bhat8,bhat9,bhat10,bhat13= constructVern8(uEltypeNoUnits)
+  local k1::uType; local k2::uType; local k3::uType; local k4::uType;
+  local k5::uType; local k6::uType; local k7::uType; local k8::uType;
+  local k9::uType; local k10::uType; local utilde::uType; local update::uType
+  if dense
+    k = ksEltype()
+    for i in 1:13
+      push!(k,zero(rateType))
+    end
+    push!(ks,deepcopy(k)) #Initialize ks
+  end
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      k1 = Δt*f(t,u)
+      k2 = Δt*f(t+c2*Δt ,u+a0201*k1)
+      k3 = Δt*f(t+c3*Δt ,u+a0301*k1+a0302*k2)
+      k4 = Δt*f(t+c4*Δt ,u+a0401*k1       +a0403*k3)
+      k5 = Δt*f(t+c5*Δt ,u+a0501*k1       +a0503*k3+a0504*k4)
+      k6 = Δt*f(t+c6*Δt ,u+a0601*k1                +a0604*k4+a0605*k5)
+      k7 = Δt*f(t+c7*Δt ,u+a0701*k1                +a0704*k4+a0705*k5+a0706*k6)
+      k8 = Δt*f(t+c8*Δt ,u+a0801*k1                +a0804*k4+a0805*k5+a0806*k6+a0807*k7)
+      k9 = Δt*f(t+c9*Δt ,u+a0901*k1                +a0904*k4+a0905*k5+a0906*k6+a0907*k7+a0908*k8)
+      k10= Δt*f(t+c10*Δt,u+a1001*k1                +a1004*k4+a1005*k5+a1006*k6+a1007*k7+a1008*k8+a1009*k9)
+      k11= Δt*f(t+c11*Δt,u+a1101*k1                +a1104*k4+a1105*k5+a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10)
+      k12= Δt*f(t+    Δt,u+a1201*k1                +a1204*k4+a1205*k5+a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11)
+      k13= Δt*f(t+    Δt,u+a1301*k1                +a1304*k4+a1305*k5+a1306*k6+a1307*k7+a1308*k8+a1309*k9+a1310*k10)
+      update = k1*b1 + k6*b6 + k7*b7 + k8*b8 + k9*b9 + k10*b10 + k11*b11 + k12*b12
+      utmp = u + update
+      if adaptive
+        EEst = abs( ((update - bhat1*k1 - bhat6*k6 - bhat7*k7 - bhat8*k8 - bhat9*k9 - bhat10*k10 - bhat13*k13)/(abstol+max(u,utmp)*reltol)) * normfactor)
+      else
+        u = utmp
+      end
+      if dense
+        k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13
+      end
+      @ode_numberloopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -1823,7 +1953,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -1906,7 +2036,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -2165,7 +2295,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -2264,7 +2394,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -2508,7 +2638,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -2631,7 +2761,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -2747,7 +2877,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -2913,7 +3043,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -3192,7 +3322,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end
@@ -3273,7 +3403,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   if dense
     f(t,u,k)
-    push!(ks,copy(k))
+    push!(ks,deepcopy(k))
   end
   return u,t,timeseries,ts,ks
 end

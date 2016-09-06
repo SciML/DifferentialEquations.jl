@@ -141,6 +141,30 @@ sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern6Vectorized)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern6)
 
+### Vern7
+
+Δts = 1.//2.^(6:-1:3)
+#sim = test_convergence(Δts,probnumbig,alg=:Vern7)
+#sim = test_convergence(Δts,probbig,alg=:Vern7)
+
+tab = constructVerner7(BigFloat)
+sol1 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern7,adaptive=false,save_timeseries=false)
+sol2 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+
+push!(bools,sol1.u - sol2.u < 1e-10)
+
+sol1 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:Vern7)
+sol2 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+
+sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:Vern7,adaptive=false,save_timeseries=false)
+sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+
+push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
+
+sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern7Vectorized)
+sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern7)
+
 ### TanYam7
 
 Δts = 1.//2.^(6:-1:3)
@@ -164,6 +188,30 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:TanYam7Vectorized)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:TanYam7)
+
+### Vern8
+
+Δts = 1.//2.^(6:-1:3)
+#sim = test_convergence(Δts,probnumbig,alg=:Vern8)
+#sim = test_convergence(Δts,probbig,alg=:Vern8)
+
+tab = constructVerner8(BigFloat)
+sol1 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern8,adaptive=false,save_timeseries=false)
+sol2 =solve(probnumbig::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+
+push!(bools,sol1.u - sol2.u < 1e-10)
+
+sol1 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:Vern8)
+sol2 =solve(probnumbig::ODEProblem,[0,70],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+
+sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:Vern8,adaptive=false,save_timeseries=false)
+sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
+
+push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
+
+sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern8Vectorized)
+sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Vern8)
 
 ### DP8
 
