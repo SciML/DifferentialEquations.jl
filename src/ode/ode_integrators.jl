@@ -3901,6 +3901,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   uidx = eachindex(u)
   jidx = eachindex(J)
   f(t,u,fsalfirst)
+  if dense
+    k = fsalfirst
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -3963,6 +3966,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       J = ForwardDiff.derivative((u)->f(t,u),u)
       W = one(J)-Δt*d*J
       #f₀ = f(t,u)
+      if dense
+        k = fsalfirst
+      end
       k₁ = W\(fsalfirst + Δt*d*dT)
       f₁ = f(t+Δt/2,u+Δt*k₁/2)
       k₂ = W\(f₁-k₁) + k₁

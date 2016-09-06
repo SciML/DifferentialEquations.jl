@@ -293,3 +293,51 @@ interpd = sol(0:1//2^(4):1)
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern9,dense=true,adaptive=false)
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-10)
+
+### Rosenbrock32
+
+prob = prob_ode_linear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Rosenbrock32,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Rosenbrock32,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+plot(sol2.t,interpd)
+
+prob = prob_ode_2Dlinear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Rosenbrock32,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Rosenbrock32,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+### Trapezoid
+
+prob = prob_ode_linear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Trapezoid,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Trapezoid,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+plot(sol2.t,interpd)
+
+prob = prob_ode_2Dlinear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Trapezoid,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Trapezoid,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
