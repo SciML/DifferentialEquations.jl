@@ -2272,11 +2272,22 @@ end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:DP8,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,c14,c15,c16,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = constructDP8(uEltypeNoUnits)
+  c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = constructDP8(uEltypeNoUnits)
   local k1::uType; local k2::uType; local k3::uType; local k4::uType;
   local k5::uType; local k6::uType; local k7::uType; local k8::uType;
   local k9::uType; local k10::uType; local k11::uType; local k12::uType;
-  local k13::uType; local utilde::uType;
+  local k13::uType; local utilde::uType; local udiff::uType; local bspl::uType
+  if dense
+    c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
+    d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
+    if dense
+      k = ksEltype()
+      for i in 1:7
+        push!(k,zero(rateType))
+      end
+      push!(ks,deepcopy(k)) #Initialize ks
+    end
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2296,27 +2307,59 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       utmp = u + update
       if adaptive
         err5 = abs((k1*er1 + k6*er6 + k7*er7 + k8*er8 + k9*er9 + k10*er10 + k11*er11 + k12*er12)/(abstol+max(u,utmp)*reltol) * normfactor) # Order 5
-        err3 = abs((update - bhh1*k1 - bhh2*k9 - bhh3*k3)/(abstol+max(u,utmp)*reltol) * normfactor) # Order 3
+        err3 = abs((update - bhh1*k1 - bhh2*k9 - bhh3*k12)/(abstol+max(u,utmp)*reltol) * normfactor) # Order 3
         err52 = err5*err5
         EEst = err52/sqrt(err52 + 0.01*err3*err3)
       else
         u = utmp
       end
+      if dense
+        k13 = update
+        k14 = Δt*f(t+c14*Δt,u+a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13)
+        k15 = Δt*f(t+c15*Δt,u+a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14)
+        k16 = Δt*f(t+c16*Δt,u+a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15)
+        udiff = utmp - u
+        k[1] = udiff
+        bspl = k1 - udiff
+        k[2] = bspl
+        k[3] = udiff - update - bspl
+        k[4] = d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16
+        k[5] = d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16
+        k[6] = d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16
+        k[7] = d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16
+      end
       @ode_numberloopfooter
     end
   end
-  # Dense output: a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615
   return u,t,timeseries,ts,ks
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP8Vectorized,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,c14,c15,c16,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = constructDP8(uEltypeNoUnits)
+  c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = constructDP8(uEltypeNoUnits)
   k1 = similar(u); k2  = similar(u); k3  = similar(u);  k4 = similar(u)
   k5 = similar(u); k6  = similar(u); k7  = similar(u);  k8 = similar(u)
   k9 = similar(u); k10 = similar(u); k11 = similar(u); k12 = similar(u)
-  k13 = similar(u); utilde = similar(u); err5 = similar(u); err3 = similar(u)
+  local k13::uType; local k14::uType; local k15::uType; local k16::uType;
+  local udiff::uType; local bspl::uType
+  utilde = similar(u); err5 = similar(u); err3 = similar(u)
   rtmp = rateType(sizeu)
+  if dense
+    c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
+    d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
+    if dense
+      k = ksEltype()
+      for i in 1:7
+        push!(k,rateType(sizeu))
+      end
+      push!(ks,deepcopy(k)) #Initialize ks
+    end
+    k14 = similar(u)
+    k15 = similar(u)
+    k16 = similar(u)
+    udiff = similar(u)
+    bspl = similar(u)
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2336,28 +2379,61 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       utmp = u + update
       if adaptive
         err5 = sqrt(sum(((k1*er1 + k6*er6 + k7*er7 + k8*er8 + k9*er9 + k10*er10 + k11*er11 + k12*er12)./(abstol+max(u,utmp)*reltol)).^2) * normfactor) # Order 5
-        err3 = sqrt(sum(((update - bhh1*k1 - bhh2*k9 - bhh3*k3)./(abstol+max(u,utmp)*reltol)).^2) * normfactor) # Order 3
+        err3 = sqrt(sum(((update - bhh1*k1 - bhh2*k9 - bhh3*k12)./(abstol+max(u,utmp)*reltol)).^2) * normfactor) # Order 3
         err52 = err5*err5
         EEst = err52/sqrt(err52 + 0.01*err3*err3)
       else
         u = utmp
       end
+      if dense
+        k13 = update
+        f(t+c14*Δt,u+a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13,rtmp); k14 = Δt*rtmp
+        f(t+c15*Δt,u+a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14,rtmp); k15 = Δt*rtmp
+        f(t+c16*Δt,u+a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15,rtmp); k16 = Δt*rtmp
+        udiff = utmp - u
+        k[1] = udiff
+        bspl = k1 - udiff
+        k[2] = bspl
+        k[3] = udiff - update - bspl
+        k[4] = d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16
+        k[5] = d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16
+        k[6] = d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16
+        k[7] = d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16
+      end
       @ode_loopfooter
     end
   end
-  # Dense output: a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615
   return u,t,timeseries,ts,ks
 end
 
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP8,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,c14,c15,c16,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = constructDP8(uEltypeNoUnits)
+  c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = constructDP8(uEltypeNoUnits)
   k1 = similar(u); k2  = similar(u); k3  = similar(u);  k4 = similar(u)
   k5 = similar(u); k6  = similar(u); k7  = similar(u);  k8 = similar(u)
   k9 = similar(u); k10 = similar(u); k11 = similar(u); k12 = similar(u)
   k13 = similar(u); utilde = similar(u); err5 = similar(u); err3 = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u); atmp2 = similar(u,uEltypeNoUnits); update = similar(u)
   rtmp = rateType(sizeu)
+  local k13::uType; local k14::uType; local k15::uType; local k16::uType;
+  local udiff::uType; local bspl::uType
+  if dense
+    c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
+    d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
+    if dense
+      k = ksEltype()
+      for i in 1:7
+        push!(k,rateType(sizeu))
+      end
+      push!(ks,deepcopy(k)) #Initialize ks
+    end
+    k13 = update
+    k14 = similar(u)
+    k15 = similar(u)
+    k16 = similar(u)
+    udiff = similar(u)
+    bspl = similar(u)
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2425,7 +2501,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       if adaptive
         for i in uidx
           atmp[i] = ((k1[i]*er1 + k6[i]*er6 + k7[i]*er7 + k8[i]*er8 + k9[i]*er9 + k10[i]*er10 + k11[i]*er11 + k12[i]*er12)/(abstol+max(u[i],utmp[i])*reltol))^2
-          atmp2[i]= ((update[i] - bhh1*k1[i] - bhh2*k9[i] - bhh3*k3[i])/(abstol+max(u[i],utmp[i])*reltol))^2
+          atmp2[i]= ((update[i] - bhh1*k1[i] - bhh2*k9[i] - bhh3*k12[i])/(abstol+max(u[i],utmp[i])*reltol))^2
         end
         err5 = sqrt( sum(atmp)  * normfactor) # Order 5
         err3 = sqrt( sum(atmp2) * normfactor) # Order 3
@@ -2434,10 +2510,37 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       else
         copy!(u, utmp)
       end
+      if dense
+        for i in uidx
+          tmp[i] = u[i]+a1401*k1[i]+a1407*k7[i]+a1408*k8[i]+a1409*k9[i]+a1410*k10[i]+a1411*k11[i]+a1412*k12[i]+a1413*k13[i]
+        end
+        f(t+c14*Δt,tmp,rtmp)
+        for i in uidx
+          k14[i] = Δt*rtmp[i]
+          tmp[i] = u[i]+a1501*k1[i]+a1506*k6[i]+a1507*k7[i]+a1508*k8[i]+a1511*k11[i]+a1512*k12[i]+a1513*k13[i]+a1514*k14[i]
+        end
+        f(t+c15*Δt,tmp,rtmp)
+        for i in uidx
+          k15[i] = Δt*rtmp[i]
+          tmp[i] = u[i]+a1601*k1[i]+a1606*k6[i]+a1607*k7[i]+a1608*k8[i]+a1609*k9[i]+a1613*k13[i]+a1614*k14[i]+a1615*k15[i]
+        end
+        f(t+c16*Δt,tmp,rtmp)
+        for i in uidx
+          k16[i] = Δt*rtmp[i]
+          udiff[i] = utmp[i] - u[i]
+          k[1][i] = udiff[i]
+          bspl[i] = k1[i] - udiff[i]
+          k[2][i] = bspl[i]
+          k[3][i] = udiff[i] - update[i] - bspl[i]
+          k[4][i] = d401*k1[i]+d406*k6[i]+d407*k7[i]+d408*k8[i]+d409*k9[i]+d410*k10[i]+d411*k11[i]+d412*k12[i]+d413*k13[i]+d414*k14[i]+d415*k15[i]+d416*k16[i]
+          k[5][i] = d501*k1[i]+d506*k6[i]+d507*k7[i]+d508*k8[i]+d509*k9[i]+d510*k10[i]+d511*k11[i]+d512*k12[i]+d513*k13[i]+d514*k14[i]+d515*k15[i]+d516*k16[i]
+          k[6][i] = d601*k1[i]+d606*k6[i]+d607*k7[i]+d608*k8[i]+d609*k9[i]+d610*k10[i]+d611*k11[i]+d612*k12[i]+d613*k13[i]+d614*k14[i]+d615*k15[i]+d616*k16[i]
+          k[7][i] = d701*k1[i]+d706*k6[i]+d707*k7[i]+d708*k8[i]+d709*k9[i]+d710*k10[i]+d711*k11[i]+d712*k12[i]+d713*k13[i]+d714*k14[i]+d715*k15[i]+d716*k16[i]
+        end
+      end
       @ode_loopfooter
     end
   end
-  # Dense output: a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615
   return u,t,timeseries,ts,ks
 end
 
