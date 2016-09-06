@@ -222,6 +222,54 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:BS5,dense=true,adaptive=fal
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
+### Vern7
+
+prob = prob_ode_linear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern7,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern7,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+plot(sol2.t,interpd)
+
+prob = prob_ode_2Dlinear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern7,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern7,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+### Vern8
+
+prob = prob_ode_linear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern8,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern8,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+plot(sol2.t,interpd)
+
+prob = prob_ode_2Dlinear
+
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern8,dense=true)
+
+interpd = sol(0:1//2^(4):1)
+
+sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern8,dense=true,adaptive=false)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
 ### Vern9
 
 prob = prob_ode_linear

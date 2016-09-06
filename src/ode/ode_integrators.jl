@@ -2636,6 +2636,13 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k9::uType; local k10::uType; local k11::uType; local k12::uType;
   local k13::uType; local k14::uType; local k15::uType; local k16::uType;
   local utilde::uType; local update::uType
+  if dense
+    k = ksEltype()
+    for i in 1:16
+      push!(k,zero(rateType))
+    end
+    push!(ks,deepcopy(k)) #Initialize ks
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2662,6 +2669,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else
         u = utmp
       end
+      if dense
+        k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16
+      end
       @ode_numberloopfooter
     end
   end
@@ -2677,6 +2687,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k13 = similar(u); k14 = similar(u); k15 = similar(u); k16 =similar(u);
   utilde = similar(u); update = similar(u)
   rtmp = rateType(sizeu)
+  if dense
+    k = ksEltype()
+    for i in 1:16
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,deepcopy(k)) #Initialize ks
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2703,6 +2720,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       else
         u = utmp
       end
+      if dense
+        k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16
+      end
       @ode_loopfooter
     end
   end
@@ -2717,6 +2737,14 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k9 = similar(u); k10 = similar(u); k11 = similar(u); k12 = similar(u); update = similar(u)
   k13 = similar(u); k14 = similar(u); k15 = similar(u); k16 =similar(u); rtmp = rateType(sizeu)
   utilde = similar(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
+  if dense
+    k = ksEltype()
+    for i in 1:16
+      push!(k,rateType(sizeu))
+    end
+    push!(ks,deepcopy(k)) #Initialize ks
+    k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16 # Setup pointers
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
