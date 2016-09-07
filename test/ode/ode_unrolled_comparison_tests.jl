@@ -49,8 +49,10 @@ sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK)
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized)
 
 ### BS3
-#sim = test_convergence(Δts,probnum,alg=:BS3)
-#sim = test_convergence(Δts,prob,alg=:BS3)
+sim = test_convergence(Δts,probnum,alg=:BS3)
+push!(bools,abs(sim.𝒪est[:l2]-4) < testTol)
+sim = test_convergence(Δts,prob,alg=:BS3)
+push!(bools,abs(sim.𝒪est[:l2]-4) < testTol)
 
 tab = constructBogakiShampine3()
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^1,alg=:BS3,adaptive=false,save_timeseries=false)

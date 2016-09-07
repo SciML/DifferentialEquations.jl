@@ -285,7 +285,6 @@ end
         t = t + Δt
         u = utmp
         @ode_savevalues
-        println("thisone")
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
@@ -641,21 +640,21 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       for j = 1:stages-1
         utilde += A[j,end]*kk[j]
       end
-      fsallast = f(t+c[end]*Δt,u+utilde); kk[end]=Δt*fsallast # Uses fsallast as temp even if not fsal
+      kk[end] = f(t+c[end]*Δt,u+Δt*utilde); fsallast = kk[end] # Uses fsallast as temp even if not fsal
       # Accumulate Result
       utilde = α[1]*kk[1]
       for i = 2:stages
         utilde += α[i]*kk[i]
       end
       if adaptive
-        utmp = u + utilde
+        utmp = u + Δt*utilde
         uEEst = αEEst[1]*kk[1]
         for i = 2:stages
           uEEst += αEEst[i]*kk[i]
         end
-        EEst = abs( (utilde-uEEst)/(abstol+max(u,utmp)*reltol))
+        EEst = abs( Δt*(utilde-uEEst)/(abstol+max(u,utmp)*reltol))
       else
-        u = u + utilde
+        u = u + Δt*utilde
       end
       if calck
         k = kk[end]
@@ -686,6 +685,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   utmp = zeros(u)
   uEEst = similar(u)
   fsallast = kk[end]
+  fsalfirst = kk[1]
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -741,7 +741,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
           end
         end
         for i in uidx
-          atmp[i] = ((utilde[i]-Δt*uEEst[i])/(abstol+max(u[i],utmp[i])*reltol))^2
+          atmp[i] = (Δt*(utilde[i]-uEEst[i])/(abstol+max(u[i],utmp[i])*reltol))^2
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
