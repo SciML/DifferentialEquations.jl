@@ -30,7 +30,7 @@ testTol = 0.3
 superduperbool = Vector{Bool}(3)
 bools = Vector{Bool}(0)
 
-for i = 1:3
+for i = 1:3 # 1 = num, 2 = ExplicitRK, 3 = Vectorized
   if i>1
     prob = probArr[2]
     bigprob = bigprobArr[2]

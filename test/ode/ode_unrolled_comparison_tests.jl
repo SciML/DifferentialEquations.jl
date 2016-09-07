@@ -7,25 +7,30 @@ analytic = (t,u₀) -> u₀*exp(linear_bigα*t)
 prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),analytic=analytic)
 
 f = (t,u,du) -> begin
-  for i in 1:length(u)
-    du[i] = linear_bigα*u[i]
-  end
+for i in 1:length(u)
+  du[i] = linear_bigα*u[i]
+end
 end
 """2D Linear ODE, bigfloats"""
 prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
 
 probnum = prob_ode_linear
 probnumbig = prob_ode_bigfloatlinear
-prob    = prob_ode_large2Dlinear
+#prob    = prob_ode_large2Dlinear
+prob = prob_ode_2Dlinear
 probbig = prob_ode_bigfloat2Dlinear
 Δts = 1.//2.^(7:-1:4)
-
+testTol = .2
 bools = Vector{Bool}(0)
 
 ## DP5
 
-#sim = test_convergence(Δts,probnum,alg=:DP5)
-#sim = test_convergence(Δts,prob,alg=:DP5)
+sim = test_convergence(Δts,probnum,alg=:DP5)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+sim = test_convergence(Δts,prob,alg=:DP5Vectorized)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+sim = test_convergence(Δts,prob,alg=:DP5)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
 
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,adaptive=false,save_timeseries=false)
 sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false)
@@ -35,24 +40,28 @@ push!(bools,sol1.u - sol2.u < 1e-10)
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5Vectorized,adaptive=false,save_timeseries=false)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,adaptive=false,save_timeseries=false)
 
+push!(bools,minimum(sol1.u - sol2.u .< 3e-10))
+
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,adaptive=false,save_timeseries=false)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,save_timeseries=false)
 
 push!(bools,minimum(sol1.u - sol2.u .< 3e-10))
 
-sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5)
+sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,β=0.04)
 sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04)
 
 
-sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5)
-sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK)
-sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized)
+sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,β=0.04)
+sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04)
+sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,β=0.04)
 
 ### BS3
 sim = test_convergence(Δts,probnum,alg=:BS3)
-push!(bools,abs(sim.𝒪est[:l2]-4) < testTol)
+push!(bools,abs(sim.𝒪est[:l2]-3) < testTol)
+sim = test_convergence(Δts,prob,alg=:BS3Vectorized)
+push!(bools,abs(sim.𝒪est[:l2]-3) < testTol)
 sim = test_convergence(Δts,prob,alg=:BS3)
-push!(bools,abs(sim.𝒪est[:l2]-4) < testTol)
+push!(bools,abs(sim.𝒪est[:l2]-3) < testTol)
 
 tab = constructBogakiShampine3()
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^1,alg=:BS3,adaptive=false,save_timeseries=false)
@@ -60,8 +69,10 @@ sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^1,alg=:ExplicitRK,adaptive=false,
 
 push!(bools,sol1.u - sol2.u < 1e-10)
 
-sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:BS3)
-sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
+sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS3Vectorized)
+sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,tableau=tab)
+
+push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^1,alg=:BS3,adaptive=false,save_timeseries=false)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^1,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
@@ -74,8 +85,9 @@ sol3 =solve(prob::ODEProblem,[0,2],Δt=1/2^6,alg=:BS3)
 
 ### BS5
 Δts = 1.//2.^(6:-1:3)
-#sim = test_convergence(Δts,probnum,alg=:BS5)
-#sim = test_convergence(Δts,prob,alg=:BS5)
+sim = test_convergence(Δts,probnum,alg=:BS5)
+
+sim = test_convergence(Δts,prob,alg=:BS5)
 
 tab = constructBogakiShampine5()
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5,adaptive=false,save_timeseries=false)
