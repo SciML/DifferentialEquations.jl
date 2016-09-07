@@ -72,6 +72,7 @@ end
   local Θ = one(t)/one(t) # No units
   local tprev::tType = t
   local kprev::ksEltype
+  local saveatktmp::uType
   local uprev::uType = u
   local standard::uEltype = 0
   local q::uEltypeNoUnits = 0
@@ -110,6 +111,13 @@ end
     kprev = k
   end ## if not simple_dense, you have to initialize k and push the ks[1]!
 
+  if !isempty(saveat)
+    if ksEltype <: AbstractArray
+      saveatktmp = rateType(sizeu)
+    else
+      saveatktmp = zero(rateType)
+    end
+  end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(0) : nothing #Use Atom's progressbar if loaded
 end
 
@@ -129,10 +137,18 @@ end
       if saveat[cursaveat]<t # If we already saved at the point, ignore it
         curt = saveat[cursaveat]
         ode_addsteps!(k,tprev,uprev,Δt,alg,f)
-        Θ = Δt/(curt - t-Δt)
+        Θ = (curt - tprev)/Δt
         val = ode_interpolant(Θ,Δt,uprev,u,kprev,k,alg)
         push!(ts,curt)
         push!(timeseries,val)
+        if dense
+          f(curt,val,saveattmp)
+          if simple_dense
+            push!(ks,saveattmp)
+          else
+            push!(ks,[Δt*saveattmp])
+          end
+        end
       end
       cursaveat+=1
     end
@@ -200,16 +216,16 @@ end
       q = max(qmaxc,min(qminc,q/γ))
       Δtnew = Δt/q
       if EEst < 1.0 # Accept
+        t = t + Δt
+        copy!(u, utmp)
+        qold = max(EEst,qoldinit)
+        @ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
           copy!(uprev,u)
           copy!(kprev,k)
         end
-        t = t + Δt
-        copy!(u, utmp)
-        qold = max(EEst,qoldinit)
-        @ode_savevalues
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
         if fsal
@@ -226,15 +242,15 @@ end
          q = min(qmax,max(standard,eps()))
       end
       if q > 1 # Accept
+        t = t + Δt
+        copy!(u, utmp)
+        @ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
           copy!(uprev,u)
           copy!(kprev,k)
         end
-        t = t + Δt
-        copy!(u, utmp)
-        @ode_savevalues
         if fsal
           copy!(fsalfirst,fsallast)
         end
@@ -243,14 +259,14 @@ end
       Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     end
   else #Not adaptive
+    t += Δt
+    @ode_savevalues
     if !isempty(saveat)
       # Store previous for interpolation
       tprev = t
       copy!(uprev,u)
       copy!(kprev,k)
     end
-    t += Δt
-    @ode_savevalues
     if fsal
       copy!(fsalfirst,fsallast)
     end
@@ -266,16 +282,21 @@ end
       q = max(qmaxc,min(qminc,q/γ))
       Δtnew = Δt/q
       if EEst < 1.0 # Accept
+        t = t + Δt
+        u = utmp
+        @ode_savevalues
+        println("thisone")
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
           uprev = u
-          kprev = k
+          if ksEltype <: AbstractArray
+            copy!(kprev,k)
+          else
+            kprev = k
+          end
         end
-        t = t + Δt
         qold = max(EEst,qoldinit)
-        u = utmp
-        @ode_savevalues
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
         if fsal
@@ -292,15 +313,19 @@ end
          q = min(qmax,max(standard,eps()))
       end
       if q > 1 # Accept
+        t = t + Δt
+        u = utmp
+        @ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
           uprev = u
-          kprev = k
+          if ksEltype <: AbstractArray
+            copy!(kprev,k)
+          else
+            kprev = k
+          end
         end
-        t = t + Δt
-        u = utmp
-        @ode_savevalues
         if fsal
           fsalfirst = fsallast
         end
@@ -311,6 +336,16 @@ end
   else #Not adaptive
     t += Δt
     @ode_savevalues
+    if !isempty(saveat)
+      # Store previous for interpolation
+      tprev = t
+      uprev = u
+      if ksEltype <: AbstractArray
+        copy!(kprev,k)
+      else
+        kprev = k
+      end
+    end
     if fsal
       fsalfirst = fsallast
     end
@@ -382,7 +417,11 @@ end
           # Store previous for interpolation
           tprev = t
           uprev = uhold[1]
-          kprev = k
+          if ksEltype <: AbstractArray
+            copy!(kprev,k)
+          else
+            kprev = k
+          end
         end
         t = t + Δt
         uhold = utmp
@@ -412,7 +451,11 @@ end
       # Store previous for interpolation
       tprev = t
       uprev = uhold[1]
-      kprev = k
+      if ksEltype <: AbstractArray
+        copy!(kprev,k)
+      else
+        kprev = k
+      end
     end
     t = t + Δt
     @ode_numberimplicitsavevalues
@@ -927,6 +970,12 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+      for i in 1:3 # Make it full-sized
+        push!(kprev,zero(rateType))
+      end
+    end
   end
   fsalfirst = f(t,u) # Pre-start fsal
   @inbounds for T in Ts
@@ -980,6 +1029,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+      for i in 1:3 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
+    end
   end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
@@ -1034,6 +1089,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+      for i in 1:3 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
+    end
   end
   if calck
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
@@ -1722,6 +1783,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:3 # Make it full-sized
+        push!(kprev,zero(rateType))
+      end
     end
   end
   @inbounds for T in Ts
@@ -1766,6 +1830,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:3
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   utilde = similar(u); rtmp = rateType(sizeu)
@@ -1815,6 +1882,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9 # Set the pointers
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:3
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
@@ -1892,6 +1962,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:6 # Make it full-sized
+        push!(kprev,zero(rateType))
+      end
     end
   end
   @inbounds for T in Ts
@@ -1938,6 +2011,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:6 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
@@ -1985,6 +2061,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10 # Setup pointers
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:6 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
@@ -2069,6 +2148,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:8 # Make it full-sized
+        push!(kprev,zero(rateType))
+      end
     end
   end
   @inbounds for T in Ts
@@ -2119,6 +2201,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:8 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
@@ -2170,6 +2255,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13 # Setup pointers
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:8 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
@@ -2917,6 +3005,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:10 # Make it full-sized
+        push!(kprev,zero(rateType))
+      end
     end
   end
   @inbounds for T in Ts
@@ -2971,6 +3062,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     push!(ks,deepcopy(k)) #Initialize ks
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:3 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
@@ -3025,6 +3119,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16 # Setup pointers
     if !isempty(saveat)
       kprev = deepcopy(k)
+      for i in 1:3 # Make it full-sized
+        push!(kprev,rateType(sizeu))
+      end
     end
   end
   @inbounds for T in Ts
