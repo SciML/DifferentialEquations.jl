@@ -144,7 +144,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     rateType = typeof(u/zero(t)) ## Can be different if united
 
     if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
-      ksEltype = Vector{uType} # Store more ks for the special algs
+      ksEltype = Vector{rateType} # Store more ks for the special algs
     else
       ksEltype = rateType # Makes simple_dense
     end
