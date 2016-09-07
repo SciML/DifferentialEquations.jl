@@ -36,10 +36,9 @@ for i = 1:2
   sim13 = test_convergence(Δts,prob,alg=:Trapezoid,autodiff=true)
   sim132 = test_convergence(Δts,prob,alg=:Trapezoid,autodiff=false)
   bool13 = (abs(sim13.𝒪est[:final]-2) < testTol) && (abs(sim132.𝒪est[:final]-2) < testTol)
-  sim14 = test_convergence(Δts,prob,alg=:Rosenbrock32)
-  bool14 = abs(sim14.𝒪est[:final]-2) < testTol
 
-  superbool2 = bool12 && bool13 && bool14
+
+  superbool2 = bool12 && bool13
 
   println("Tests pass: $superbool2")
   superduperbool[i] = superbool1 && superbool2

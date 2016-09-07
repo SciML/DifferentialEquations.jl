@@ -30,6 +30,7 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   fsal::Bool
   dense::Bool
   saveat::Vector{tType}
+  alg::Symbol
 end
 
 @def ode_preamble begin
@@ -38,7 +39,7 @@ end
   local Δt::tType
   local Ts::Vector{tType}
   local adaptiveorder::Int
-  @unpack integrator: f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal, dense, saveat
+  @unpack integrator: f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg
   calck = dense || !isempty(saveat) # Both dense and saveat need the k's
   issimple_dense = (ksEltype==rateType) # Means ks[i] = f(t[i],timeseries[i]), for Hermite
 
@@ -69,9 +70,9 @@ end
   end
   local cursaveat::Int = 1
   local Θ = one(t)/one(t) # No units
-  local tprev::tType
-  local kprev::uType
-  local uprev::uType
+  local tprev::tType = t
+  local kprev::ksEltype
+  local uprev::uType = u
   local standard::uEltype = 0
   local q::uEltypeNoUnits = 0
   local Δtpropose::tType = 0
@@ -97,13 +98,16 @@ end
       k = rateType(sizeu)
     end
     if fsal
-      push!(ks,copy(fsalfirst)) # already computed
+      k = copy(fsalfirst)
+      push!(ks,copy(k)) # already computed
     elseif ksEltype <: Number
-      push!(ks,f(t,u))
+      k = f(t,u)
+      push!(ks,k)
     elseif ksEltype <: AbstractArray
       f(t,u,k)
       push!(ks,deepcopy(k))
     end
+    kprev = k
   end ## if not simple_dense, you have to initialize k and push the ks[1]!
 
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(0) : nothing #Use Atom's progressbar if loaded
@@ -120,18 +124,11 @@ end
 end
 
 @def ode_savevalues begin
-  if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,copy(u))
-    push!(ts,t)
-    if dense
-      push!(ks,deepcopy(k))
-    end
-  end
   if !isempty(saveat) # Perform saveat
-    while saveat[cursaveat]<= t
+    while cursaveat <= length(saveat) && saveat[cursaveat]<= t
       if saveat[cursaveat]<t # If we already saved at the point, ignore it
         curt = saveat[cursaveat]
-        ode_addsteps!(k,tprev,uold,Δt,alg,f)
+        ode_addsteps!(k,tprev,uprev,Δt,alg,f)
         Θ = Δt/(curt - t-Δt)
         val = ode_interpolant(Θ,Δt,uprev,u,kprev,k,alg)
         push!(ts,curt)
@@ -140,9 +137,29 @@ end
       cursaveat+=1
     end
   end
+  if save_timeseries && iter%timeseries_steps==0
+    push!(timeseries,copy(u))
+    push!(ts,t)
+    if dense
+      push!(ks,deepcopy(k))
+    end
+  end
 end
 
 @def ode_implicitsavevalues begin
+  if !isempty(saveat) # Perform saveat
+    while cursaveat <= length(saveat) && saveat[cursaveat]<= t
+      if saveat[cursaveat]<t # If we already saved at the point, ignore it
+        curt = saveat[cursaveat]
+        ode_addsteps!(k,tprev,uprev,Δt,alg,f)
+        Θ = Δt/(curt - t-Δt)
+        val = ode_interpolant(Θ,Δt,uprev,u,kprev,k,alg)
+        push!(ts,curt)
+        push!(timeseries,val)
+      end
+      cursaveat+=1
+    end
+  end
   if save_timeseries && iter%timeseries_steps==0
     push!(timeseries,copy(u))
     push!(ts,t)
@@ -153,6 +170,19 @@ end
 end
 
 @def ode_numberimplicitsavevalues begin
+  if !isempty(saveat) # Perform saveat
+    while cursaveat <= length(saveat) && saveat[cursaveat]<= t
+      if saveat[cursaveat]<t # If we already saved at the point, ignore it
+        curt = saveat[cursaveat]
+        ode_addsteps!(k,tprev,uprev,Δt,alg,f)
+        Θ = Δt/(curt - t-Δt)
+        val = ode_interpolant(Θ,Δt,uprev,uhold[1],kprev,k,alg)
+        push!(ts,curt)
+        push!(timeseries,val)
+      end
+      cursaveat+=1
+    end
+  end
   if save_timeseries && iter%timeseries_steps==0
     push!(timeseries,uhold[1])
     push!(ts,t)
@@ -296,6 +326,12 @@ end
       q = max(qmaxc,min(qminc,q/γ))
       Δtnew = Δt/q
       if EEst < 1.0 # Accept
+        if !isempty(saveat)
+          # Store previous for interpolation
+          tprev = t
+          copy!(uprev,uhold)
+          copy!(kprev,k)
+        end
         t = t + Δt
         qold = max(EEst,qoldinit)
         copy!(uhold, utmp)
@@ -313,13 +349,20 @@ end
          q = min(qmax,max(standard,eps()))
       end
       if q > 1 # Accept
+        if !isempty(saveat)
+          # Store previous for interpolation
+          tprev = t
+          copy!(uprev,uhold)
+          copy!(kprev,k)
+        end
         t = t + Δt
         copy!(uhold, utmp)
         @ode_implicitsavevalues
       end
       Δtpropose = min(Δtmax,q*Δt)
       Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-    end  else #Not adaptive
+    end
+  else #Not adaptive
     t = t + Δt
     @ode_implicitsavevalues
   end
@@ -335,6 +378,12 @@ end
       Δtnew = Δt/q
       if EEst < 1.0 # Accept
         qold = max(EEst,qoldinit)
+        if !isempty(saveat)
+          # Store previous for interpolation
+          tprev = t
+          uprev = uhold[1]
+          kprev = k
+        end
         t = t + Δt
         uhold = utmp
         @ode_numberimplicitsavevalues
@@ -359,6 +408,12 @@ end
       Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     end
   else #Not adaptive
+    if !isempty(saveat)
+      # Store previous for interpolation
+      tprev = t
+      uprev = uhold[1]
+      kprev = k
+    end
     t = t + Δt
     @ode_numberimplicitsavevalues
   end
@@ -419,9 +474,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   halfΔt::tType = Δt/2
   utilde::uType = similar(u)
   uidx = eachindex(u)
-  if !dense
-    k = rateType(sizeu) # Not initialized if not dense
+  if calck # Not initialized if not dense
+    if !isempty(saveat)
+      kprev = rateType(sizeu)
+    end
   end
+  k = rateType(sizeu)
   du = rateType(sizeu)
   @inbounds for T in Ts
       while t < T
@@ -473,6 +531,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k₂ = rateType(sizeu)
   k₃ = rateType(sizeu)
   k₄ = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   tmp = similar(u)
   uidx = eachindex(u)
   @inbounds for T in Ts
@@ -751,7 +812,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       fsallast = f(t+Δt,utmp); k4 = Δt*fsallast
       if adaptive
         utilde = u + b1*k1 + b2*k2 + b3*k3 + b4*k4
-        EEst = sqrt( sum(((utilde-utmp)/(abstol+max(u,utmp)*reltol)).^2) * normfactor)
+        EEst = abs( ((utilde-utmp)/(abstol+max(u,utmp)*reltol)) * normfactor)
       else
         u = utmp
       end
@@ -1238,6 +1299,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   local utilde::uType
   fsalfirst = f(t,u) # Pre-start fsal
@@ -1291,6 +1355,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   f(t,u,fsalfirst); #Pre-start fsal
   @inbounds for T in Ts
@@ -1353,6 +1420,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[4] = k5
     k[5] = k6
     k[6] = k7
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   f(t,u,fsalfirst);  # Pre-start fsal
   @inbounds for T in Ts
@@ -1433,6 +1503,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[4] = k5
     k[5] = k6
     k[6] = k7
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   f(t,u,fsalfirst);  # Pre-start fsal
   @inbounds for T in Ts
@@ -1490,6 +1563,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
     k[4] = k5
     k[5] = k6
     k[6] = k7
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   f(t,u,fsalfirst);  # Pre-start fsal
   @inbounds for T in Ts
@@ -1644,6 +1720,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -1685,6 +1764,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   utilde = similar(u); rtmp = rateType(sizeu)
   f(t,u,fsalfirst) # Pre-start fsal
@@ -1731,6 +1813,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
     push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9 # Set the pointers
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -1805,6 +1890,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -1848,6 +1936,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -1892,6 +1983,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
     push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10 # Setup pointers
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -1973,6 +2067,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -2020,6 +2117,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -2068,6 +2168,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
     push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13 # Setup pointers
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -2238,7 +2341,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   c1,c2,c3,c4,c5,c6,c7,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a93,a94,a95,a96,a97,a98,a101,a103,a104,a105,a106,a107,a108,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat8,bhat10 = constructTanYam7(uEltypeNoUnits)
   k1 = similar(u); k2 = similar(u) ; k3 = similar(u); k4 = similar(u)
   k5 = similar(u); k6 = similar(u) ; k7 = similar(u); k8 = similar(u)
-  k9 = similar(u); k10= similar(u) ; k = rateType(sizeu)
+  k9 = similar(u); k10= similar(u) ;
+  k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   utilde = similar(u); uidx = eachindex(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   rtmp = rateType(sizeu)
   if calck
@@ -2332,6 +2439,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         push!(k,zero(rateType))
       end
       push!(ks,deepcopy(k)) #Initialize ks
+      if !isempty(saveat)
+        kprev = deepcopy(k)
+      end
     end
   end
   @inbounds for T in Ts
@@ -2399,6 +2509,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         push!(k,rateType(sizeu))
       end
       push!(ks,deepcopy(k)) #Initialize ks
+      if !isempty(saveat)
+        kprev = deepcopy(k)
+      end
     end
     k14 = similar(u)
     k15 = similar(u)
@@ -2472,6 +2585,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         push!(k,rateType(sizeu))
       end
       push!(ks,deepcopy(k)) #Initialize ks
+      if !isempty(saveat)
+        kprev = deepcopy(k)
+      end
     end
     k13 = update
     k14 = similar(u)
@@ -2640,7 +2756,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = similar(u); k2 = similar(u); k3 = similar(u); k4 = similar(u)
   k5 = similar(u); k6 = similar(u); k7 = similar(u); k8 = similar(u)
   k9 = similar(u); k10 = similar(u); k11 = similar(u); k12 = similar(u)
-  k13::uType = similar(u); utilde = similar(u); k = rateType(sizeu)
+  k13::uType = similar(u); utilde = similar(u);
+  k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -2686,7 +2806,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k9 = similar(u); k10 = similar(u); k11 = similar(u); k12 = similar(u)
   k13 = similar(u); rtmp = rateType(sizeu); update = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
-  k13::uType; utilde = similar(u); k = rateType(sizeu)
+  k13::uType; utilde = similar(u);
+  k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -2791,6 +2915,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -2842,6 +2969,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -2893,6 +3023,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
     push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16 # Setup pointers
+    if !isempty(saveat)
+      kprev = deepcopy(k)
+    end
   end
   @inbounds for T in Ts
     while t < T
@@ -2998,7 +3131,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = similar(u); k2 = similar(u); k3 = similar(u); k4 = similar(u); k5 = similar(u)
   k6 = similar(u); k7 = similar(u); k8 = similar(u); k9 = similar(u); k10 = similar(u)
   k11 = similar(u); k12 = similar(u); k13 = similar(u); k14 = similar(u)
-  k15 = similar(u); k16 = similar(u); k17 = similar(u); k = rateType(sizeu)
+  k15 = similar(u); k16 = similar(u); k17 = similar(u);
+  k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -3060,6 +3197,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   utmp = similar(u); rtmp = rateType(sizeu)
   uidx = eachindex(u)
   k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -3233,6 +3373,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   utmp = similar(u)
   uidx = eachindex(u)
   k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -3302,6 +3445,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   uidx = eachindex(u)
   k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -3531,6 +3677,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   uidx = eachindex(u)
   k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -3750,6 +3899,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   uidx = eachindex(u)
   rtmp = rateType(sizeu)
   k = rateType(sizeu)
+  if !isempty(saveat)
+    kprev = rateType(sizeu)
+  end
   if calck
     pop!(ks)
   end
@@ -4021,7 +4173,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   return u,t,timeseries,ts,ks
 end
 
-function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Rosenbrock32,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Rosenbrock23,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
@@ -4042,7 +4194,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   du2 = similar(u)
   f₀ = similar(u)
   f₁ = similar(u)
-  f₂ = similar(u); vectmp3 = similar(vec(u))
+  vectmp3 = similar(vec(u))
   utmp = similar(u); vectmp2 = similar(vec(u))
   dT = similar(u); vectmp = similar(vec(u))
   J = Matrix{uEltype}(length(u),length(u))
@@ -4076,7 +4228,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
           utmp[i] = u[i] + Δt*k₂[i]
         end
         f(t+Δt,utmp,fsallast)
-        @into! vectmp3 = W\vec(f₂ - c₃₂*(k₂-f₁)-2(k₁-fsalfirst)+Δt*d*T)
+        @into! vectmp3 = W\vec(fsallast - c₃₂*(k₂-f₁)-2(k₁-fsalfirst)+Δt*dT)
         k₃ = reshape(vectmp3,sizeu...)
         for i in uidx
           tmp2[i] = (Δt*(k₁[i] - 2k₂[i] + k₃[i])/6)./(abstol+u[i]*reltol)
@@ -4086,15 +4238,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         for i in uidx
           u[i] = u[i] + Δt*k₂[i]
         end
-        f(t,u,fsalfirst)
+        f(t,u,fsallast)
       end
       @ode_loopfooter
+      copy!(fsalfirst,fsallast)
     end
   end
   return u,t,timeseries,ts,ks
 end
 
-function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Rosenbrock32,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Rosenbrock23,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   c₃₂ = 6 + sqrt(2)
   d = 1/(2+sqrt(2))
@@ -4124,13 +4277,134 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if adaptive
         utmp = u + Δt*k₂
         fsallast = f(t+Δt,utmp)
-        k₃ = W\(fsallast - c₃₂*(k₂-f₁)-2(k₁-fsalfirst)+Δt*d*T)
+        k₃ = W\(fsallast - c₃₂*(k₂-f₁)-2(k₁-fsalfirst)+Δt*dT)
         EEst = norm((Δt*(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
       else
         u = u + Δt*k₂
-        fsalfirst = f(t,u)
+        fsallast = f(t,u)
       end
       @ode_numberloopfooter
+      fsalfirst = fsallast
+    end
+  end
+  return u,t,timeseries,ts,ks
+end
+
+function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Rosenbrock32,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+  @ode_preamble
+  c₃₂ = 6 + sqrt(2)
+  d = 1/(2+sqrt(2))
+  local k₁::uType = similar(u)
+  local k₂ = similar(u)
+  local k₃::uType = similar(u)
+  local tmp::uType
+  function vecf(t,u,du)
+    f(t,reshape(u,sizeu...),reshape(du,sizeu...))
+    u = vec(u)
+    du = vec(du)
+  end
+  function vecfreturn(t,u,du)
+    f(t,reshape(u,sizeu...),reshape(du,sizeu...))
+    return vec(du)
+  end
+  du1 = similar(u)
+  du2 = similar(u)
+  f₀ = similar(u)
+  f₁ = similar(u)
+  vectmp3 = similar(vec(u))
+  utmp = similar(u); vectmp2 = similar(vec(u))
+  dT = similar(u); vectmp = similar(vec(u))
+  J = Matrix{uEltype}(length(u),length(u))
+  W = similar(J); tmp2 = similar(u)
+  uidx = eachindex(u)
+  jidx = eachindex(J)
+  f(t,u,fsalfirst)
+  if calck
+    k = fsalfirst
+  end
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      ForwardDiff.derivative!(dT,(t)->vecfreturn(t,u,du2),t) # Time derivative
+      ForwardDiff.jacobian!(J,(du1,u)->vecf(t,u,du1),vec(du1),vec(u))
+
+      W[:] = one(J)-Δt*d*J # Can an allocation be cut here?
+      @into! vectmp = W\vec(fsalfirst + Δt*d*dT)
+      k₁ = reshape(vectmp,sizeu...)
+      for i in uidx
+        utmp[i]=u[i]+Δt*k₁[i]/2
+      end
+      f(t+Δt/2,utmp,f₁)
+      @into! vectmp2 = W\vec(f₁-k₁)
+      tmp = reshape(vectmp2,sizeu...)
+      for i in uidx
+        k₂[i] = tmp[i] + k₁[i]
+      end
+      for i in uidx
+        tmp[i] = u[i] + Δt*k₂[i]
+      end
+      f(t+Δt,tmp,fsallast)
+      @into! vectmp3 = W\vec(fsallast - c₃₂*(k₂-f₁)-2(k₁-fsalfirst)+Δt*dT)
+      k₃ = reshape(vectmp3,sizeu...)
+      if adaptive
+        for i in uidx
+          utmp[i] = u[i] + Δt*(k₁[i] + 4k₂[i] + k₃[i])/6
+          tmp2[i] = (Δt*(k₁[i] - 2k₂[i] + k₃[i])/6)/(abstol+u[i]*reltol)
+        end
+        EEst = norm(tmp2,internalnorm)
+      else
+        for i in uidx
+          u[i] = u[i] + Δt*(k₁[i] + 4k₂[i] + k₃[i])/6
+        end
+        f(t,u,fsallast)
+      end
+      @ode_loopfooter
+      copy!(fsalfirst,fsallast)
+    end
+  end
+  return u,t,timeseries,ts,ks
+end
+
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Rosenbrock32,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+  @ode_preamble
+  c₃₂ = 6 + sqrt(2)
+  d = 1/(2+sqrt(2))
+  local dT::uType
+  local J::uType
+  #f₀ = fsalfirst
+  local k₁::uType
+  local f₁::uType
+  #f₂ = fsallast
+  local k₂::uType
+  local k₃::uType
+  local tmp::uType
+  fsalfirst = f(t,u)
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      # Time derivative
+      dT = ForwardDiff.derivative((t)->f(t,u),t)
+      J = ForwardDiff.derivative((u)->f(t,u),u)
+      W = one(J)-Δt*d*J
+      #f₀ = f(t,u)
+      if calck
+        k = fsalfirst
+      end
+      k₁ = W\(fsalfirst + Δt*d*dT)
+      f₁ = f(t+Δt/2,u+Δt*k₁/2)
+      k₂ = W\(f₁-k₁) + k₁
+      tmp = u + Δt*k₂
+      fsallast = f(t+Δt,tmp)
+      k₃ = W\(fsallast - c₃₂*(k₂-f₁)-2(k₁-fsalfirst)+Δt*dT)
+      if adaptive
+        utmp = u + Δt*(k₁ + 4k₂ + k₃)/6
+        EEst = norm((Δt*(k₁ - 2k₂ + k₃)/6)./(abstol+u*reltol),internalnorm)
+      else
+        u = u + Δt*(k₁ + 4k₂ + k₃)/6
+        fsallast = f(t,u)
+      end
+      @ode_numberloopfooter
+      fsalfirst = fsallast
     end
   end
   return u,t,timeseries,ts,ks

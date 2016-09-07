@@ -46,7 +46,7 @@ makedocs(modules=[DifferentialEquations],
 
 
 deploydocs(
-   repo = "github.com/ChrisRackauckas/DifferentialEquations.jl.git",
+   repo = "github.com/JuliaDiffEq/DifferentialEquations.jl.git",
    target = "build",
    deps = nothing,
    make = nothing)

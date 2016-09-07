@@ -4,7 +4,7 @@
 [![Travis](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl) 
 [![AppVoyer](https://ci.appveyor.com/api/projects/status/1smlr9ryfqfx1ear/branch/master?svg=true)](https://ci.appveyor.com/project/JuliaDiffEq/differentialequations-jl/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/JuliaDiffEq/DifferentialEquations.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaDiffEq/DifferentialEquations.jl?branch=master)
-[![codecov](https://codecov.io/gh/JuliaDiffEq/DifferentialEquations.jl/coverage.svg?branch=master)](https://codecov.io/gh/ChrisRackauckas/DifferentialEquations.jl)
+[![codecov](https://codecov.io/gh/JuliaDiffEq/DifferentialEquations.jl/coverage.svg?branch=master)](https://codecov.io/gh/JuliaDiffEq/DifferentialEquations.jl)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaDiffEq.github.io/DifferentialEquations.jl/stable)
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaDiffEq.github.io/DifferentialEquations.jl/latest)
 
@@ -18,15 +18,15 @@ This is a package for numerically solving differential equations in Julia by Chr
 
 It includes well-optimized implementations classic algorithms and ones from recent research, including algorithms optimized for high-precision and HPC applications. It integrates with the Julia package sphere, for example using Juno's progress meter, and wraps other differential equation solvers (ODE.jl, ODEInterface.jl, and Sundials.jl) so that many different methods for solving the equations can be accessed by simply switching a keyword argument.
 
-For information on using the package, [see the documentation](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/).
+For information on using the package, [see the documentation](http://JuliaDiffEq.github.io/DifferentialEquations.jl/latest/).
 
-All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
-[can be found in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples). If you find any equation where there seems
+All of the algorithms are thoroughly tested to ensure accuracy. Convergence tests are included in the [test](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/test) folder. The algorithms were also tested to show correctness with nontrivial behavior such as Turing morphogenesis. Example IJulia notebooks
+[can be found in the examples folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples). If you find any equation where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. For help installing conditional dependencies such as the ODE.jl wrappers, see the [Conditional Dependences manual page](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies/). If you're interested in contributing, please see the [Contributor's Guide](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/internals/contributors_guide/).
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. For help installing conditional dependencies such as the ODE.jl wrappers, see the [Conditional Dependences manual page](http://JuliaDiffEq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies/). If you're interested in contributing, please see the [Contributor's Guide](http://JuliaDiffEq.github.io/DifferentialEquations.jl/latest/internals/contributors_guide/).
 
 --------------------------------
 
 
-<img src="https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/DifferentialEquations_Example.png" align="middle"  />
+<img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/DifferentialEquations_Example.png" align="middle"  />

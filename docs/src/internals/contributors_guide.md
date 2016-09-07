@@ -2,7 +2,7 @@
 
 So you're looking to help out DifferentialEquations.jl? We'd be happy to have
 your help. It is recommended you first discuss with some of the developers
-[on the Gitter channel](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl)
+[on the Gitter channel](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl)
 to make sure that you're up-to-date with current developments.
 
 ## Developing New Solver Algorithms
