@@ -7,7 +7,7 @@ const ODE_DEFAULT_TABLEAU = constructDormandPrince()
 
 const SUNDIALS_ALGORITHMS = Set([:cvode_BDF,:cvode_Adams])
 
-const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized])
+const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock23,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized])
 
 const DIFFERENTIALEQUATIONSJL_FSALALGS = Set([:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:Tsit5,:Tsit5Vectorized,:Vern6,:Vern6Vectorized,:Vern9,:Vern9Vectorized])
 
@@ -102,6 +102,7 @@ const DIFFERENTIALEQUATIONSJL_ORDERS = Dict{Symbol,Int}(:Euler=>1,
                                                         :Vern9Vectorized=>9,
                                                         :ImplicitEuler=>1,
                                                         :Trapezoid=>2,
+                                                        :Rosenbrock23=>2,
                                                         :Rosenbrock32=>3,
                                                         :Feagin10=>10,
                                                         :Feagin12=>12,
@@ -136,6 +137,7 @@ const DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS = Dict{Symbol,Int}(:ExplicitRK=>4, 
                                                                 :TsitPap8Vectorized=>7,
                                                                 :Vern9=>8,
                                                                 :Vern9Vectorized=>8,
+                                                                :Rosenbrock23=>2,
                                                                 :Rosenbrock32=>2,
                                                                 :Feagin10=>8,
                                                                 :Feagin12=>10,
@@ -147,7 +149,7 @@ const DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS = Dict{Symbol,Int}(:ExplicitRK=>4, 
                                                                 :Vern7Vectorized=>6,
                                                                 :Vern8=>7,
                                                                 :Vern8Vectorized=>7)
-const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized])
+const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:Rosenbrock23,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized])
 const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32])
 const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
   :LOGIO            => "logio",

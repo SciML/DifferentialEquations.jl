@@ -2,7 +2,7 @@
 
 This tutorial will introduce you to the functionality for solving SDE. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
-folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples).
 
 In this example we will solve the equation
 
@@ -46,7 +46,7 @@ plot(sol,plot_analytic=true)
 Plots.gui()
 ```
 
-![SDE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introSDEplot.png)
+![SDE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introSDEplot.png)
 
 We can choose a higher-order solver for a more accurate result:
 
@@ -57,4 +57,4 @@ plot(sol,plot_analytic=true)
 Plots.gui()
 ```
 
-![Better SDE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introSDEplotSRI.png)
+![Better SDE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introSDEplotSRI.png)

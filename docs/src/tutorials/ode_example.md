@@ -2,7 +2,7 @@
 
 This tutorial will introduce you to the functionality for solving ODEs. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
-folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples).
 
 In this example we will solve the equation
 
@@ -68,7 +68,7 @@ Plots.gui()
 ```
 
 The plot function can be formatted using [the attributes available in Plots.jl](https://juliaplots.github.io/).
-For more of an introduction to plotting solutions, [see the IJulia notebook](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/examples/Formatting%20the%20Plots.ipynb).
+For more of an introduction to plotting solutions, [see the IJulia notebook](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/examples/Formatting%20the%20Plots.ipynb).
 
 ### Other Algorithms
 
@@ -80,7 +80,7 @@ plot(sol)
 Plots.gui()
 ```
 
-![Better ODE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introODEplot.png)
+![Better ODE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introODEplot.png)
 
 
 The `"ExplicitRK"` algorithms are general Runge-Kutta solvers. It defaults to
@@ -96,7 +96,7 @@ plot(sol)
 Plots.gui()
 ```
 
-![Adaptive ODE Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/adaptiveODEplot.png)
+![Adaptive ODE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/adaptiveODEplot.png)
 
 ### Systems of Equations
 
@@ -123,7 +123,7 @@ plot(sol)
 Plots.gui()
 ```
 
-![ODE System Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/multiODEplot.png)
+![ODE System Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/multiODEplot.png)
 
 
 ### Defining Systems of Equations Eloquent Using @ode_define
