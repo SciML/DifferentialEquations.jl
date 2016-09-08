@@ -7,9 +7,9 @@ analytic = (t,u₀) -> u₀*exp(linear_bigα*t)
 prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),analytic=analytic)
 
 f = (t,u,du) -> begin
-for i in 1:length(u)
-  du[i] = linear_bigα*u[i]
-end
+  for i in 1:length(u)
+    du[i] = linear_bigα*u[i]
+  end
 end
 """2D Linear ODE, bigfloats"""
 prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic=analytic)
@@ -55,6 +55,8 @@ sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,β=0.04)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04)
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,β=0.04)
 
+push!(bools,length(sol1) == length(sol2) == length(sol3))
+
 ### BS3
 sim = test_convergence(Δts,probnum,alg=:BS3)
 push!(bools,abs(sim.𝒪est[:l2]-3) < testTol)
@@ -83,11 +85,16 @@ sol1 =solve(prob::ODEProblem,[0,2],Δt=1/2^6,alg=:BS3Vectorized)
 sol2 =solve(prob::ODEProblem,[0,2],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol3 =solve(prob::ODEProblem,[0,2],Δt=1/2^6,alg=:BS3)
 
+push!(bools,length(sol1) == length(sol2) == length(sol3))
+
 ### BS5
 Δts = 1.//2.^(6:-1:3)
-sim = test_convergence(Δts,probnum,alg=:BS5)
-
-sim = test_convergence(Δts,prob,alg=:BS5)
+sim = test_convergence(Δts,probnumbig,alg=:BS5)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+sim = test_convergence(Δts,probbig,alg=:BS5Vectorized)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+sim = test_convergence(Δts,probbig,alg=:BS5)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
 
 tab = constructBogakiShampine5()
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5,adaptive=false,save_timeseries=false)
@@ -107,11 +114,17 @@ sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5Vectorized)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5)
 
+push!(bools,length(sol1) >= length(sol2) && length(sol3) >= length(sol2)) # Dual error estimators is more strict
+
 ### Tsit5
 
 Δts = 1.//2.^(6:-1:3)
-#sim = test_convergence(Δts,probnum,alg=:Tsit5)
-#sim = test_convergence(Δts,prob,alg=:Tsit5)
+sim = test_convergence(Δts,probnum,alg=:Tsit5)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+sim = test_convergence(Δts,prob,alg=:Tsit5Vectorized)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+sim = test_convergence(Δts,prob,alg=:Tsit5)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
 
 tab = constructTsitouras5()
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:Tsit5,adaptive=false,save_timeseries=false)
@@ -130,6 +143,8 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Tsit5Vectorized)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Tsit5)
+
+push!(bools,length(sol1) == length(sol2) == length(sol3))
 
 ### Vern6
 
