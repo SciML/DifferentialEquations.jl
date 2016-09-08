@@ -129,11 +129,11 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     if o[:qmax] == nothing # Use default qmax
       if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
-        qmin = 10.0
+        qmax = 10.0
       elseif alg == :DP8 || alg == :DP8Vectorized
-        qmin = 6.0
+        qmax = 6.0
       else
-        qmin = 10.0
+        qmax = 10.0
       end
     else
       qmax = o[:qmax]
