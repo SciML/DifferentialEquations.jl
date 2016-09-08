@@ -57,7 +57,7 @@ sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04,expo1=.17,
 sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,β=0.04,expo1=.17,qmin=0.2,qmax=10.0,fullnormalize=true)
 sol4 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:dopri5,β=0.04)
 
-push!(bools,length(sol1) == length(sol2) == length(sol3) == lenght(sol4))
+push!(bools,length(sol1) == length(sol2) == length(sol3) == length(sol4))
 
 ### BS3
 sim = test_convergence(Δts,probnum,alg=:BS3)
@@ -104,8 +104,8 @@ sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,adaptive=false,
 
 push!(bools,sol1.u - sol2.u < 1e-10)
 
-sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5Vectorized)
-sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,tableau=tab)
+sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5Vectorized,adaptive=false,save_timeseries=false)
+sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,tableau=tab,adaptive=false,save_timeseries=false)
 
 push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 
@@ -139,7 +139,7 @@ push!(bools,sol1.u - sol2.u < 1e-10)
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:Tsit5Vectorized)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRKVectorized,tableau=tab)
 
-push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
+push!(bools,minimum(sol1.u - sol2.u .< 1e-6))
 
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:Tsit5,adaptive=false,save_timeseries=false)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^3,alg=:ExplicitRK,adaptive=false,save_timeseries=false, tableau=tab)
@@ -308,7 +308,7 @@ push!(bools,length(sol1) == length(sol2) == length(sol3))
 ### TsitPap8
 
 Δts = 1.//2.^(6:-1:3)
-sim = test_convergence(Δts,probnumbig,alg=:TsitPap8
+sim = test_convergence(Δts,probnumbig,alg=:TsitPap8)
 push!(bools,abs(sim.𝒪est[:l2]-8) < testTol)
 sim = test_convergence(Δts,probbig,alg=:TsitPap8Vectorized)
 push!(bools,abs(sim.𝒪est[:l2]-8) < testTol)
