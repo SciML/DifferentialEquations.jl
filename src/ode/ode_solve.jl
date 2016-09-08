@@ -271,8 +271,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     elseif alg==:ode45_fe
       solver = ODE.RKIntegrator{FoA,:rk45}
     end
-    out = ODE.iterate(ode;solver=solver,opts...)
-    println(fieldnames(out.ivp))
+    out = ODE.solve(ode;solver=solver,opts...)
     timeseries = out.y
     ts = out.t
     if length(out.y[1])==1
