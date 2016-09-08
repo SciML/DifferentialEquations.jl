@@ -113,16 +113,54 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     saveat = tType[convert(tType,x) for x in o[:saveat]]
 
+
+    ### Algorithm-specific defaults ###
+
+    if o[:qmin] == nothing # Use default qmin
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+        qmin = 0.2
+      elseif alg == :DP8 || alg == :DP8Vectorized
+        qmin = 0.333
+      else
+        qmin = 0.2
+      end
+    else
+      qmin = o[:qmin]
+    end
+    if o[:qmax] == nothing # Use default qmax
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+        qmin = 10.0
+      elseif alg == :DP8 || alg == :DP8Vectorized
+        qmin = 6.0
+      else
+        qmin = 10.0
+      end
+    else
+      qmax = o[:qmax]
+    end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
         β = 0.10 # More than Hairer's suggestion
+        expo1 = 1/order - .75β
       elseif alg == :DP8 || alg == :DP8Vectorized
         β = 0.07 # More than Hairer's suggestion
+        expo1 = 1/order - .2β
       else
         β = 0.4 / order
       end
     else
       β = o[:β]
+    end
+    if o[:expo1] == nothing # Use default expo1
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+        expo1 = 1/order - .75β
+      elseif alg == :DP8 || alg == :DP8Vectorized
+        expo1 = 1/order - .2β
+      else
+        expo1 = .7/order
+      end
+    else
+      expo1 = o[:expo1]
     end
     fsal = false
     if alg ∈ DIFFERENTIALEQUATIONSJL_FSALALGS
@@ -149,9 +187,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       ksEltype = rateType # Makes simple_dense
     end
 
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
     #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,,uEltypeNoUnits,rateType,ksEltype}(g,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal,dense,saveat))
-    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg))
+    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg))
 
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
@@ -233,8 +271,8 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     elseif alg==:ode45_fe
       solver = ODE.RKIntegrator{FoA,:rk45}
     end
-    #out = collect(ode(f!,u,t,solver=solver,opts...))
-    out = ODE.solve(ode;solver=solver,opts...)
+    out = ODE.iterate(ode;solver=solver,opts...)
+    println(fieldnames(out.ivp))
     timeseries = out.y
     ts = out.t
     if length(out.y[1])==1
