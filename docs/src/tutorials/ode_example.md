@@ -58,6 +58,15 @@ sol.t[8]
 #.438
 ```
 
+The object that is returns by default acts as a continuous solution via an interpolation.
+We can access the interpolated values by treating `sol` as a function, for example:
+
+```julia
+sol(0.45) # The value of the solution at t=0.45
+```
+
+For details on more finely controlling the output, see [the output specification manual page](/man/output_specification)
+
 Plotting commands are provided via a recipe to Plots.jl. To plot the solution
 object, simply call plot:
 
@@ -126,7 +135,7 @@ Plots.gui()
 ![ODE System Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/multiODEplot.png)
 
 
-### Defining Systems of Equations Eloquent Using @ode_define
+### Defining Systems of Equations Eloquently Using @ode_define
 
 To simplify your life, DifferentialEquations.jl provides the `@ode_define` macro
 for "defining your ODE in psudocode" and getting a function which is efficient

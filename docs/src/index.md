@@ -257,6 +257,7 @@ Pages = [
     "man/StokesProblem.md",
     "man/mesh.md",
     "man/solution.md",
+    "man/output_specification.md"
     "man/plot.md",
     "man/function_definition_macros.md",
     "man/benchmarks.md",
