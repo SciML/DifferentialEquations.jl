@@ -25,11 +25,20 @@ which is always saved, is saved to
 sol.u
 ```
 
+If the solver allows for dense output (any ODE solver) and `dense=true` was set
+for the solving (which is the default), then we can access the approximate value
+at a time `t` using the command
+
+```julia
+sol(t)
+```
+
 If the analytical solution, we also have
 
 ```julia
 sol.u_analytic # final value
 sol.timeseries_analytic # timeseries of analytical solution, saved if save_timesseries == true
+sol.prob.analytic(t) # The analytic solution at time t
 ```
 
 
