@@ -13,6 +13,8 @@ for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
   end
 end
 
+println("Units for Number pass")
+
 TEST_PLOT && plot(sol)
 
 u₀ = [1.5Newton 2.0Newton
@@ -32,6 +34,8 @@ for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
     sol = solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=alg,adaptive=true)
   end
 end
+
+println("Units for 2D pass")
 
 # Stochastic needs ΔW = s^(1/2).
 #=

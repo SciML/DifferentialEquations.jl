@@ -670,7 +670,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   tmp = similar(u)
   atmp = similar(u,uEltypeNoUnits)
   utmp = zeros(u)
-  uEEst = similar(u)
+  uEEst = rateType(sizeu)
   fsallast = kk[end]
   fsalfirst = kk[1]
   if calck
@@ -687,7 +687,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       # Middle
       for i = 2:stages-1
         for l in uidx
-          utilde[l] = zero(utilde)
+          utilde[l] = zero(kk[1][1])
         end
         for j = 1:i-1
           for l in uidx
@@ -700,7 +700,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t+c[i]*Δt,tmp,kk[i])
       end
       #Last
-      utilde[:] = zeros(rateType,sizeu)
+      for l in uidx
+        utilde[l] = zero(kk[1][1])
+      end
       for j = 1:stages-1
         for l in uidx
           utilde[l] += A[j,end]*kk[j][l]
@@ -757,13 +759,13 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   @unpack integrator.tableau: A,c,α,αEEst,stages,fsal
   kk = Vector{rateType}(0)
   for i = 1:stages
-    push!(kk,similar(u))
+    push!(kk,rateType(sizeu))
   end
   A = A' # Transpose A to column major looping
-  utilde = similar(u)
+  utilde = rateType(sizeu)
   tmp = similar(u)
   utmp = zeros(u)
-  uEEst = similar(u)
+  uEEst = rateType(sizeu)
   if fsal
     f(t,u,fsalfirst)
   end
@@ -778,7 +780,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       #Middle
       for i = 2:stages-1
-        utilde[:] = zero(rateType)
+        for l in uidx
+          utilde[l] = zero(kk[1][1])
+        end
         for j = 1:i-1
           utilde += A[j,i]*kk[j]
         end
@@ -786,7 +790,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t+c[i]*Δt,tmp,kk[i])
       end
       # Last
-      utilde[:] = zero(rateType)
+      for l in uidx
+        utilde[l] = zero(kk[1][1])
+      end
       for j = 1:stages-1
         utilde += A[j,end]*kk[j]
       end
@@ -1498,7 +1504,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = ksEltype()
     for i in 1:6
-      push!(k,zero(rateType))
+      push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
@@ -1530,7 +1536,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       f(t+Δt,tmp,k6)
       dp5threaded_loop6(Δt,utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,uidx)
       f(t+Δt,utmp,fsallast)
-      dp5threaded_loop7(Δt,fsallast,uidx)
       if adaptive
         dp5threaded_adaptiveloop(utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,atmp,utmp,abstol,reltol,uidx)
         EEst = sqrt( sum(atmp) * normfactor)
@@ -2278,7 +2283,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   c1,c2,c3,c4,c5,c6,c7,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a93,a94,a95,a96,a97,a98,a101,a103,a104,a105,a106,a107,a108,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat8,bhat10 = constructTanYam7(uEltypeNoUnits)
   k1 = rateType(sizeu); k2 = rateType(sizeu) ; k3 = rateType(sizeu); k4 = rateType(sizeu)
   k5 = rateType(sizeu); k6 = rateType(sizeu) ; k7 = rateType(sizeu); k8 = rateType(sizeu)
-  k9 = rateType(sizeu); k10= similar(u) ; k  = rateType(sizeu)
+  k9 = rateType(sizeu); k10= rateType(sizeu) ; k  = rateType(sizeu)
   utilde = similar(u);
   if calck
     pop!(ks) # Get rid of the one it starts with
@@ -2318,7 +2323,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   c1,c2,c3,c4,c5,c6,c7,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a93,a94,a95,a96,a97,a98,a101,a103,a104,a105,a106,a107,a108,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat8,bhat10 = constructTanYam7(uEltypeNoUnits)
   k1 = rateType(sizeu); k2 = rateType(sizeu) ; k3 = rateType(sizeu); k4 = rateType(sizeu)
   k5 = rateType(sizeu); k6 = rateType(sizeu) ; k7 = rateType(sizeu); k8 = rateType(sizeu)
-  k9 = rateType(sizeu); k10= similar(u) ;
+  k9 = rateType(sizeu); k10= rateType(sizeu) ;
   k = rateType(sizeu)
   if !isempty(saveat)
     kprev = rateType(sizeu)
@@ -2461,8 +2466,8 @@ end
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP8Vectorized,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = constructDP8(uEltypeNoUnits)
-  k1 = rateType(sizeu); k2  = similar(u); k3  = similar(u);  k4 = rateType(sizeu)
-  k5 = rateType(sizeu); k6  = similar(u); k7  = similar(u);  k8 = rateType(sizeu)
+  k1 = rateType(sizeu); k2  = rateType(sizeu); k3  = rateType(sizeu);  k4 = rateType(sizeu)
+  k5 = rateType(sizeu); k6  = rateType(sizeu); k7  = rateType(sizeu);  k8 = rateType(sizeu)
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
   k13 = rateType(sizeu); local k14::rateType; local k15::rateType; local k16::rateType;
   local udiff::rateType; local bspl::rateType
@@ -2708,7 +2713,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = rateType(sizeu); k2 = rateType(sizeu); k3 = rateType(sizeu); k4 = rateType(sizeu)
   k5 = rateType(sizeu); k6 = rateType(sizeu); k7 = rateType(sizeu); k8 = rateType(sizeu)
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
-  k13::uType = similar(u); utilde = similar(u);
+  k13::rateType = rateType(sizeu); utilde = similar(u);
   k = rateType(sizeu)
   if !isempty(saveat)
     kprev = rateType(sizeu)
@@ -2757,7 +2762,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
   k13 = rateType(sizeu); update = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
-  k13::uType; utilde = similar(u);
+  utilde = similar(u);
   k = rateType(sizeu)
   if !isempty(saveat)
     kprev = rateType(sizeu)
@@ -2902,7 +2907,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = rateType(sizeu); k2 = rateType(sizeu);k3 = rateType(sizeu); k4 = rateType(sizeu);
   k5 = rateType(sizeu); k6 = rateType(sizeu);k7 = rateType(sizeu); k8 = rateType(sizeu);
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu);
-  k13 = rateType(sizeu); k14 = rateType(sizeu); k15 = rateType(sizeu); k16 =similar(u);
+  k13 = rateType(sizeu); k14 = rateType(sizeu); k15 = rateType(sizeu); k16 =rateType(sizeu);
   utilde = similar(u); update = similar(u)
   if calck
     k = ksEltype()
@@ -2958,7 +2963,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = rateType(sizeu); k2 = rateType(sizeu);k3 = rateType(sizeu); k4 = rateType(sizeu);
   k5 = rateType(sizeu); k6 = rateType(sizeu);k7 = rateType(sizeu); k8 = rateType(sizeu);
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu); update = similar(u)
-  k13 = rateType(sizeu); k14 = rateType(sizeu); k15 = rateType(sizeu); k16 =similar(u);
+  k13 = rateType(sizeu); k14 = rateType(sizeu); k15 = rateType(sizeu); k16 =rateType(sizeu);
   utilde = similar(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
   if calck
     k = ksEltype()
@@ -3070,7 +3075,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     pop!(ks)
   end
-  update = similar(u)
+  update = rateType(sizeu)
   utmp = similar(u)
   uidx = eachindex(u)
 
@@ -3099,12 +3104,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       if adaptive
         for i in uidx
-          utmp[i] = u[i] + update[i]
+          utmp[i] = u[i] + Δt*update[i]
         end
         EEst = norm((Δt*(k2 - k16) * adaptiveConst)./(abstol+u*reltol),internalnorm)
       else #no chance of rejecting, so in-place
         for i in uidx
-          u[i] = u[i] + update[i]
+          u[i] = u[i] + Δt*update[i]
         end
       end
       @ode_loopfooter
