@@ -72,30 +72,49 @@ end
   sol.t, plotseries
 end
 
-@recipe function f(sol::ODESolution;plot_analytic=false)
+@recipe function f(sol::ODESolution;plot_analytic=false,denseplot=true,plotdensity=100)
   plotseries = Vector{Any}(0)
+
+  if sol.dense && denseplot # Generate the points from the plot from dense function
+    plott = collect(linspace(sol.t[1],sol.t[end],plotdensity))
+    plot_timeseries = sol(plott)
+    if plot_analytic
+      plot_analytic_timeseries = Vector{typeof(sol.u)}(length(plott))
+      for i in eachindex(plott)
+        tmp[i] = sol.prob.analytic(plott[i],sol.prob.u₀)
+      end
+    end
+  else # Plot for not dense output use the timeseries itself
+    plot_timeseries = sol.timeseries
+    if plot_analytic
+      plot_analytic_timeseries = sol.timeseries_analytic
+    end
+    plott = sol.t
+  end
+
+  # Make component-wise plots
   if typeof(sol.u) <:AbstractArray
     for i in eachindex(sol.u)
-      tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
-      for j in 1:length(sol.timeseries)
-        tmp[j] = sol.timeseries[j][i]
+      tmp = Vector{eltype(sol.u)}(length(plot_timeseries))
+      for j in 1:length(plot_timeseries)
+        tmp[j] = plot_timeseries[j][i]
       end
       push!(plotseries,tmp)
     end
   else
-    push!(plotseries,sol.timeseries)
+    push!(plotseries,plot_timeseries)
   end
   if plot_analytic
     if typeof(sol.u) <: AbstractArray
       for i in eachindex(sol.u)
-        tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
-        for j in 1:length(sol.timeseries)
-          tmp[j] = sol.timeseries_analytic[j][i]
+        tmp = Vector{eltype(sol.u)}(length(plot_timeseries))
+        for j in 1:length(plot_timeseries)
+          tmp[j] = plot_analytic_timeseries[j][i]
         end
         push!(plotseries,tmp)
       end
     else
-      push!(plotseries,sol.timeseries_analytic)
+      push!(plotseries,plot_analytic_timeseries)
     end
   end
   for i in eachindex(plotseries)
@@ -105,7 +124,7 @@ end
   end
   seriestype --> :path
   #layout --> length(u)
-  sol.t, plotseries
+  plott, plotseries
 end
 
 @recipe function f(sim::ConvergenceSimulation)

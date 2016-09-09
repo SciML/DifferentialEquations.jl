@@ -24,7 +24,7 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),save_timeseries=true,alg=:Euler,
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
-sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Euler,dense=false)
+sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:Vern7,dense=false)
 
 push!(bools,sol(0.5) == nothing)
 
@@ -353,7 +353,8 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:DP8,dense=true,adaptive=fal
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .03)
 
 plot(sol2.t,interpd)
-plot!(sol2)
+plot(sol,denseplot=true,plotdensity=100)
+plot(sol2,denseplot=false)
 scatter!(sol.t,sol[:])
 
 prob = prob_ode_2Dlinear

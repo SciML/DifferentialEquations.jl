@@ -135,23 +135,26 @@ type ODESolution <: DESolution
   alg
   interp::Function
   dense::Bool
-  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[])
+  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
     save_timeseries = timeseries == []
     trueknown = false
     dense = k != []
+    saveat_idxs = find((x)->x∈saveat,t)
+    t_nosaveat = view(t,symdiff(1:length(t),saveat_idxs))
+    timeseries_nosaveat = view(timeseries,symdiff(1:length(t),saveat_idxs))
     if dense # dense
       if !prob.isinplace && typeof(u)<:AbstractArray
         f! = (t,u,du) -> (du[:] = prob.f(t,u))
       else
         f! = prob.f
       end
-      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg,f!)
+      interp = (tvals) -> ode_interpolation(tvals,t_nosaveat,timeseries_nosaveat,k,alg,f!)
     else
       interp = (tvals) -> nothing
     end
     return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
   end
-  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[])
+  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
     save_timeseries = timeseries != []
     trueknown = true
     errors = Dict(:final=>mean(abs(u-u_analytic)))
@@ -159,8 +162,16 @@ type ODESolution <: DESolution
       errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
     dense = k != []
+    saveat_idxs = find((x)->x∈saveat,t)
+    t_nosaveat = view(t,symdiff(1:length(t),saveat_idxs))
+    timeseries_nosaveat = view(timeseries,symdiff(1:length(t),saveat_idxs))
     if dense # dense
-      interp = (tvals) -> ode_interpolation(tvals,t,timeseries,k,alg,prob.f)
+      if !prob.isinplace && typeof(u)<:AbstractArray
+        f! = (t,u,du) -> (du[:] = prob.f(t,u))
+      else
+        f! = prob.f
+      end
+      interp = (tvals) -> ode_interpolation(tvals,t_nosaveat,timeseries_nosaveat,k,alg,f!)
     else
       interp = (tvals) -> nothing
     end
