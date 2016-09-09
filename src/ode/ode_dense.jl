@@ -1,6 +1,6 @@
 ode_interpolant(Θ,Δt,y₀,y₁,k₀,k₁,alg::Symbol) = ode_interpolant(Θ,Δt,y₀,y₁,k₀,k₁,Val{alg}) # Dispatch interpolant by alg
 ode_interpolation(tvals,ts,timeseries,ks,alg::Symbol,f) = ode_interpolation(tvals,ts,timeseries,ks,Val{alg},f) # Dispatch by alg
-ode_addsteps!(k,t,u,Δt,alg::Symbol,f) = ode_addsteps!(k,t,u,Δt,f,Val{alg},typeof(k[1]./Δt),eltype(k[1]./k[1]))
+ode_addsteps!(k,t,u,Δt,alg::Symbol,f) = ode_addsteps!(k,t,u,Δt,f,Val{alg},typeof(u./Δt),eltype(u./u))
 
 """
 ode_interpolation(tvals,ts,timeseries,ks)
@@ -62,9 +62,15 @@ function ode_interpolant{alg}(Θ,Δt,y₀,y₁,k₀,k₁,T::Type{Val{alg}}) # De
 end
 
 """
-By default, never add steps (no op)
+By default, ADD NOTHING
 """
 function ode_addsteps!{rateType,uEltypeNoUnits,alg}(k,t,u,Δt,f,T::Type{Val{alg}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  #=
+  if length(k)<1
+    push!(k,f(t,u))
+  end
+  nothing
+  =#
 end
 
 """
@@ -171,7 +177,7 @@ function ode_interpolant(Θ,Δt,y₀,y₁,kprevious,k,T::Type{Val{:BS5}})
   b9Θ =         + r092*Θ2 - r093*Θ - r094*Θ3 - r095*Θ5 - r096*Θ6
   b10Θ=         + r102*Θ2 - r103*Θ - r104*Θ3 - r105*Θ5 - r106*Θ6
   b11Θ=         + r112*Θ2 - r113*Θ - r114*Θ3 - r115*Θ5 - r116*Θ6
-  
+
   y₀ + Δt*Θ*k[1] + Δt*(k[1]*b1Θ  + k[3]*b3Θ + k[4]*b4Θ  + k[5]*b5Θ + k[6]*b6Θ + k[7]*b7Θ + k[8]*b8Θ + k[9]*b9Θ + k[10]*b10Θ + k[11]*b11Θ)
 end
 
@@ -321,9 +327,8 @@ function ode_interpolant(Θ,Δt,y₀,y₁,kprevious,k,T::Type{Val{:DP8}})
   r011,r012,r013,r014,r015,r016,r017,r018,r019,r082,r083,r084,r085,r086,r087,r088,r089,r092,r093,r094,r095,r096,r097,r098,r099,r102,r103,r104,r105,r106,r107,r108,r109,r112,r113,r114,r115,r116,r117,r118,r119,r122,r123,r124,r125,r126,r127,r128,r129,r132,r133,r134,r135,r136,r137,r138,r139,r142,r143,r144,r145,r146,r147,r148,r149,r152,r153,r154,r155,r156,r157,r158,r159,r172,r173,r174,r175,r176,r177,r178,r179,r182,r183,r184,r185,r186,r187,r188,r189,r192,r193,r194,r195,r196,r197,r198,r199,r202,r203,r204,r205,r206,r207,r208,r209,r212,r213,r214,r215,r216,r217,r218,r219,r222,r223,r224,r225,r226,r227,r228,r229,r232,r233,r234,r235,r236,r237,r238,r239,r242,r243,r244,r245,r246,r247,r248,r249,r252,r253,r254,r255,r256,r257,r258,r259,r262,r263,r264,r265,r266,r267,r268,r269 = Vern9Interp_polyweights(eltype(y₀))
   Θ1 = 1-Θ
   conpar = k[4] + Θ*(k[5] + Θ1*(k[6]+Θ*k[7]))
-  y₀ + Θ*(k[1] + Θ1*(k[2] + Θ*(k[3]+Θ1*Δt*conpar)))
+  y₀ + Δt*Θ*(k[1] - Θ1*(k[2] + Θ*(k[3]+Θ1*conpar)))
 end
-
 
 """
 An Efficient Runge-Kutta (4,5) Pair by P.Bogacki and L.F.Shampine
@@ -332,6 +337,17 @@ An Efficient Runge-Kutta (4,5) Pair by P.Bogacki and L.F.Shampine
 Called to add the extra k9, k10, k11 steps for the Order 5 interpolation when needed
 """
 function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:BS5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 8
+    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
+    push!(k,f(t,u))
+    push!(k,f(t+c1*Δt,u+Δt*a21*k[1]))
+    push!(k,f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2])))
+    push!(k,f(t+c3*Δt,u+Δt*(a41*k[1]+a42*k[2]+a43*k[3])))
+    push!(k,f(t+c4*Δt,u+Δt*(a51*k[1]+a52*k[2]+a53*k[3]+a54*k[4])))
+    push!(k,f(t+c5*Δt,u+Δt*(a61*k[1]+a62*k[2]+a63*k[3]+a64*k[4]+a65*k[5])))
+    push!(k,f(t+Δt,u+Δt*(a71*k[1]+a72*k[2]+a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6])))
+    push!(k,f(t+Δt,u+Δt*(a81*k[1]+a83*k[3]+a84*k[4]+a85*k[5]+a86*k[6]+a87*k[7])))
+  end
   if length(k) < 11 # Have not added the extra stages yet
     c6,c7,c8,a91,a92,a93,a94,a95,a96,a97,a98,a101,a102,a103,a104,a105,a106,a107,a108,a109,a111,a112,a113,a114,a115,a116,a117,a118,a119,a1110 = BS5Interp(uEltypeNoUnits)
     push!(k,f(t+c6*Δt,u+Δt*(a91*k[1]+a92*k[2]+a93*k[3]+a94*k[4]+a95*k[5]+a96*k[6]+a97*k[7]+a98*k[8])))
@@ -348,9 +364,21 @@ An Efficient Runge-Kutta (4,5) Pair by P.Bogacki and L.F.Shampine
 Called to add the extra k9, k10, k11 steps for the Order 5 interpolation when needed
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:BS5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 8
+    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c1*Δt,u+Δt*a21*k[1],rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a41*k[1]+a42*k[2]+a43*k[3]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a51*k[1]+a52*k[2]+a53*k[3]+a54*k[4]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a61*k[1]+a62*k[2]+a63*k[3]+a64*k[4]+a65*k[5]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a71*k[1]+a72*k[2]+a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a81*k[1]+a83*k[3]+a84*k[4]+a85*k[5]+a86*k[6]+a87*k[7]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 11 # Have not added the extra stages yet
     c6,c7,c8,a91,a92,a93,a94,a95,a96,a97,a98,a101,a102,a103,a104,a105,a106,a107,a108,a109,a111,a112,a113,a114,a115,a116,a117,a118,a119,a1110 = BS5Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c6*Δt,u+Δt*(a91*k[1]+a92*k[2]+a93*k[3]+a94*k[4]+a95*k[5]+a96*k[6]+a97*k[7]+a98*k[8]),rtmp); push!(k,copy(rtmp))
     f(t+c7*Δt,u+Δt*(a101*k[1]+a102*k[2]+a103*k[3]+a104*k[4]+a105*k[5]+a106*k[6]+a107*k[7]+a108*k[8]+a109*k[9]),rtmp); push!(k,copy(rtmp))
     f(t+c8*Δt,u+Δt*(a111*k[1]+a112*k[2]+a113*k[3]+a114*k[4]+a115*k[5]+a116*k[6]+a117*k[7]+a118*k[8]+a119*k[9]+a1110*k[10]),rtmp); push!(k,copy(rtmp))
@@ -365,9 +393,21 @@ An Efficient Runge-Kutta (4,5) Pair by P.Bogacki and L.F.Shampine
 Called to add the extra k9, k10, k11 steps for the Order 5 interpolation when needed
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:BS5Vectorized}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 8
+    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c1*Δt,u+Δt*a21*k[1],rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a41*k[1]+a42*k[2]+a43*k[3]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a51*k[1]+a52*k[2]+a53*k[3]+a54*k[4]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a61*k[1]+a62*k[2]+a63*k[3]+a64*k[4]+a65*k[5]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a71*k[1]+a72*k[2]+a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a81*k[1]+a83*k[3]+a84*k[4]+a85*k[5]+a86*k[6]+a87*k[7]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 11 # Have not added the extra stages yet
     c6,c7,c8,a91,a92,a93,a94,a95,a96,a97,a98,a101,a102,a103,a104,a105,a106,a107,a108,a109,a111,a112,a113,a114,a115,a116,a117,a118,a119,a1110 = BS5Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c6*Δt,u+Δt*(a91*k[1]+a92*k[2]+a93*k[3]+a94*k[4]+a95*k[5]+a96*k[6]+a97*k[7]+a98*k[8]),rtmp); push!(k,copy(rtmp))
     f(t+c7*Δt,u+Δt*(a101*k[1]+a102*k[2]+a103*k[3]+a104*k[4]+a105*k[5]+a106*k[6]+a107*k[7]+a108*k[8]+a109*k[9]),rtmp); push!(k,copy(rtmp))
     f(t+c8*Δt,u+Δt*(a111*k[1]+a112*k[2]+a113*k[3]+a114*k[4]+a115*k[5]+a116*k[6]+a117*k[7]+a118*k[8]+a119*k[9]+a1110*k[10]),rtmp); push!(k,copy(rtmp))
@@ -379,6 +419,18 @@ end
 
 """
 function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern6}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 9
+    c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
+    push!(k,f(t,u))
+    push!(k,f(t+c1*Δt,u+Δt*(a21*k[1])))
+    push!(k,f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2])))
+    push!(k,f(t+c3*Δt,u+Δt*(a41*k[1]       +a43*k[3])))
+    push!(k,f(t+c4*Δt,u+Δt*(a51*k[1]       +a53*k[3]+a54*k[4])))
+    push!(k,f(t+c5*Δt,u+Δt*(a61*k[1]       +a63*k[3]+a64*k[4]+a65*k[5])))
+    push!(k,f(t+c6*Δt,u+Δt*(a71*k[1]       +a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6])))
+    push!(k,f(t+Δt,u+Δt*(a81*k[1]       +a83*k[3]+a84*k[4]+a85*k[5]+a86*k[6]+a87*k[7])))
+    push!(k,f(t+Δt,u+Δt*(a91*k[1]+a94*k[4]+a95*k[5]+a96*k[6]+a97*k[7]+a98*k[8])))
+  end
   if length(k) < 12 # Have not added the extra stages yet
     c10,a1001,a1004,a1005,a1006,a1007,a1008,a1009,c11,a1101,a1102,a1103,a1104,a1105,a1106,a1107,a1108,a1109,a1110,c12,a1201,a1202,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = Vern6Interp(uEltypeNoUnits)
     push!(k,f(t+c10*Δt,u+Δt*(a1001*k[1]+a1004*k[4]+a1005*k[5]+a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9])))
@@ -392,9 +444,22 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern6}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 9
+    c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c1*Δt,u+Δt*(a21*k[1]),rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a41*k[1]       +a43*k[3]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a51*k[1]       +a53*k[3]+a54*k[4]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a61*k[1]       +a63*k[3]+a64*k[4]+a65*k[5]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt,u+Δt*(a71*k[1]       +a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a81*k[1]       +a83*k[3]+a84*k[4]+a85*k[5]+a86*k[6]+a87*k[7]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a91*k[1]              +a94*k[4]+a95*k[5]+a96*k[6]+a97*k[7]+a98*k[8]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 12 # Have not added the extra stages yet
     c10,a1001,a1004,a1005,a1006,a1007,a1008,a1009,c11,a1101,a1102,a1103,a1104,a1105,a1106,a1107,a1108,a1109,a1110,c12,a1201,a1202,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = Vern6Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c10*Δt,u+Δt*(a1001*k[1]+a1004*k[4]+a1005*k[5]+a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9]),rtmp); push!(k,copy(rtmp))
     f(t+c11*Δt,u+Δt*(a1101*k[1]+a1102*k[2]+a1103*k[3]+a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10]),rtmp); push!(k,copy(rtmp))
     f(t+c12*Δt,u+Δt*(a1201*k[1]+a1202*k[2]+a1203*k[3]+a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11]),rtmp); push!(k,copy(rtmp))
@@ -406,9 +471,22 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern6Vectorized}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 9
+    c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c1*Δt,u+Δt*(a21*k[1]),rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a41*k[1]       +a43*k[3]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a51*k[1]       +a53*k[3]+a54*k[4]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a61*k[1]       +a63*k[3]+a64*k[4]+a65*k[5]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt,u+Δt*(a71*k[1]       +a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a81*k[1]       +a83*k[3]+a84*k[4]+a85*k[5]+a86*k[6]+a87*k[7]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a91*k[1]              +a94*k[4]+a95*k[5]+a96*k[6]+a97*k[7]+a98*k[8]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 12 # Have not added the extra stages yet
     c10,a1001,a1004,a1005,a1006,a1007,a1008,a1009,c11,a1101,a1102,a1103,a1104,a1105,a1106,a1107,a1108,a1109,a1110,c12,a1201,a1202,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = Vern6Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c10*Δt,u+Δt*(a1001*k[1]+a1004*k[4]+a1005*k[5]+a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9]),rtmp); push!(k,copy(rtmp))
     f(t+c11*Δt,u+Δt*(a1101*k[1]+a1102*k[2]+a1103*k[3]+a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10]),rtmp); push!(k,copy(rtmp))
     f(t+c12*Δt,u+Δt*(a1201*k[1]+a1202*k[2]+a1203*k[3]+a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11]),rtmp); push!(k,copy(rtmp))
@@ -420,6 +498,19 @@ end
 
 """
 function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern7}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 10
+    c2,c3,c4,c5,c6,c7,c8,a021,a031,a032,a041,a043,a051,a053,a054,a061,a063,a064,a065,a071,a073,a074,a075,a076,a081,a083,a084,a085,a086,a087,a091,a093,a094,a095,a096,a097,a098,a101,a103,a104,a105,a106,a107,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat10= constructVern7(uEltypeNoUnits)
+    push!(k,f(t,u))
+    push!(k,f(t+c2*Δt,u+Δt*(a021*k[1])))
+    push!(k,f(t+c3*Δt,u+Δt*(a031*k[1]+a032*k[2])))
+    push!(k,f(t+c4*Δt,u+Δt*(a041*k[1]       +a043*k[3])))
+    push!(k,f(t+c5*Δt,u+Δt*(a051*k[1]       +a053*k[3]+a054*k[4])))
+    push!(k,f(t+c6*Δt,u+Δt*(a061*k[1]       +a063*k[3]+a064*k[4]+a065*k[5])))
+    push!(k,f(t+c7*Δt,u+Δt*(a071*k[1]       +a073*k[3]+a074*k[4]+a075*k[5]+a076*k[6])))
+    push!(k,f(t+c8*Δt,u+Δt*(a081*k[1]       +a083*k[3]+a084*k[4]+a085*k[5]+a086*k[6]+a087*k[7])))
+    push!(k,f(t+Δt,u+Δt*(a091*k[1]          +a093*k[3]+a094*k[4]+a095*k[5]+a096*k[6]+a097*k[7]+a098*k[8])))
+    push!(k,f(t+Δt,u+Δt*(a101*k[1]          +a103*k[3]+a104*k[4]+a105*k[5]+a106*k[6]+a107*k[7])))
+  end
   if length(k) < 16 # Have not added the extra stages yet
     c11,a1101,a1104,a1105,a1106,a1107,a1108,a1109,c12,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1211,c13,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1311,a1312,c14,a1401,a1404,a1405,a1406,a1407,a1408,a1409,a1411,a1412,a1413,c15,a1501,a1504,a1505,a1506,a1507,a1508,a1509,a1511,a1512,a1513,c16,a1601,a1604,a1605,a1606,a1607,a1608,a1609,a1611,a1612,a1613 = Vern7Interp(uEltypeNoUnits)
     push!(k,f(t+c11*Δt,u+Δt*(a1101*k[1]+a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9])))
@@ -436,9 +527,23 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern7}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 10
+    c2,c3,c4,c5,c6,c7,c8,a021,a031,a032,a041,a043,a051,a053,a054,a061,a063,a064,a065,a071,a073,a074,a075,a076,a081,a083,a084,a085,a086,a087,a091,a093,a094,a095,a096,a097,a098,a101,a103,a104,a105,a106,a107,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat10= constructVern7(uEltypeNoUnit)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a021*k[1]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a031*k[1]+a032*k[2]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a041*k[1]       +a043*k[3]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a051*k[1]       +a053*k[3]+a054*k[4]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt,u+Δt*(a061*k[1]       +a063*k[3]+a064*k[4]+a065*k[5]),rtmp); push!(k,rtmp)
+    f(t+c7*Δt,u+Δt*(a071*k[1]       +a073*k[3]+a074*k[4]+a075*k[5]+a076*k[6]),rtmp); push!(k,rtmp)
+    f(t+c8*Δt,u+Δt*(a081*k[1]       +a083*k[3]+a084*k[4]+a085*k[5]+a086*k[6]+a087*k[7]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a091*k[1]          +a093*k[3]+a094*k[4]+a095*k[5]+a096*k[6]+a097*k[7]+a098*k[8]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a101*k[1]          +a103*k[3]+a104*k[4]+a105*k[5]+a106*k[6]+a107*k[7]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 16 # Have not added the extra stages yet
     c11,a1101,a1104,a1105,a1106,a1107,a1108,a1109,c12,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1211,c13,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1311,a1312,c14,a1401,a1404,a1405,a1406,a1407,a1408,a1409,a1411,a1412,a1413,c15,a1501,a1504,a1505,a1506,a1507,a1508,a1509,a1511,a1512,a1513,c16,a1601,a1604,a1605,a1606,a1607,a1608,a1609,a1611,a1612,a1613 = Vern7Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c11*Δt,u+Δt*(a1101*k[1]+a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]),rtmp); push!(k,copy(rtmp))
     f(t+c12*Δt,u+Δt*(a1201*k[1]+a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1211*k[11]),rtmp); push!(k,copy(rtmp))
     f(t+c13*Δt,u+Δt*(a1301*k[1]+a1304*k[4]+a1305*k[5]+a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1311*k[11]+a1312*k[12]),rtmp); push!(k,copy(rtmp))
@@ -453,9 +558,23 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern7Vectorized}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 10
+    c2,c3,c4,c5,c6,c7,c8,a021,a031,a032,a041,a043,a051,a053,a054,a061,a063,a064,a065,a071,a073,a074,a075,a076,a081,a083,a084,a085,a086,a087,a091,a093,a094,a095,a096,a097,a098,a101,a103,a104,a105,a106,a107,b1,b4,b5,b6,b7,b8,b9,bhat1,bhat4,bhat5,bhat6,bhat7,bhat10= constructVern7(uEltypeNoUnit)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a021*k[1]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a031*k[1]+a032*k[2]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a041*k[1]       +a043*k[3]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a051*k[1]       +a053*k[3]+a054*k[4]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt,u+Δt*(a061*k[1]       +a063*k[3]+a064*k[4]+a065*k[5]),rtmp); push!(k,rtmp)
+    f(t+c7*Δt,u+Δt*(a071*k[1]       +a073*k[3]+a074*k[4]+a075*k[5]+a076*k[6]),rtmp); push!(k,rtmp)
+    f(t+c8*Δt,u+Δt*(a081*k[1]       +a083*k[3]+a084*k[4]+a085*k[5]+a086*k[6]+a087*k[7]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a091*k[1]          +a093*k[3]+a094*k[4]+a095*k[5]+a096*k[6]+a097*k[7]+a098*k[8]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a101*k[1]          +a103*k[3]+a104*k[4]+a105*k[5]+a106*k[6]+a107*k[7]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 16 # Have not added the extra stages yet
     c11,a1101,a1104,a1105,a1106,a1107,a1108,a1109,c12,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1211,c13,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1311,a1312,c14,a1401,a1404,a1405,a1406,a1407,a1408,a1409,a1411,a1412,a1413,c15,a1501,a1504,a1505,a1506,a1507,a1508,a1509,a1511,a1512,a1513,c16,a1601,a1604,a1605,a1606,a1607,a1608,a1609,a1611,a1612,a1613 = Vern7Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c11*Δt,u+Δt*(a1101*k[1]+a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]),rtmp); push!(k,copy(rtmp))
     f(t+c12*Δt,u+Δt*(a1201*k[1]+a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1211*k[11]),rtmp); push!(k,copy(rtmp))
     f(t+c13*Δt,u+Δt*(a1301*k[1]+a1304*k[4]+a1305*k[5]+a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1311*k[11]+a1312*k[12]),rtmp); push!(k,copy(rtmp))
@@ -470,6 +589,22 @@ end
 
 """
 function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern8}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) <13
+    c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,b1,b6,b7,b8,b9,b10,b11,b12,bhat1,bhat6,bhat7,bhat8,bhat9,bhat10,bhat13= constructVern8(uEltypeNoUnits)
+    push!(k,f(t,u))
+    push!(k,f(t+c2*Δt ,u+Δt*(a0201*k[1])))
+    push!(k,f(t+c3*Δt ,u+Δt*(a0301*k[1]+a0302*k[2])))
+    push!(k,f(t+c4*Δt ,u+Δt*(a0401*k[1]       +a0403*k[3])))
+    push!(k,f(t+c5*Δt ,u+Δt*(a0501*k[1]       +a0503*k[3]+a0504*k[4])))
+    push!(k,f(t+c6*Δt ,u+Δt*(a0601*k[1]                +a0604*k[4]+a0605*k[5])))
+    push!(k,f(t+c7*Δt ,u+Δt*(a0701*k[1]                +a0704*k[4]+a0705*k[5]+a0706*k[6])))
+    push!(k,f(t+c8*Δt ,u+Δt*(a0801*k[1]                +a0804*k[4]+a0805*k[5]+a0806*k[6]+a0807*k[7])))
+    push!(k,f(t+c9*Δt ,u+Δt*(a0901*k[1]                +a0904*k[4]+a0905*k[5]+a0906*k[6]+a0907*k[7]+a0908*k[8])))
+    push!(k,f(t+c10*Δt,u+Δt*(a1001*k[1]                +a1004*k[4]+a1005*k[5]+a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9])))
+    push!(k,f(t+c11*Δt,u+Δt*(a1101*k[1]                +a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10])))
+    push!(k,f(t+    Δt,u+Δt*(a1201*k[1]                +a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11])))
+    push!(k,f(t+    Δt,u+Δt*(a1301*k[1]                +a1304*k[4]+a1305*k[5]+a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1310*k[10])))
+  end
   if length(k) < 21 # Have not added the extra stages yet
     c14,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,c15,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1514,c16,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1614,a1615,c17,a1701,a1706,a1707,a1708,a1709,a1710,a1711,a1712,a1714,a1715,a1716,c18,a1801,a1806,a1807,a1808,a1809,a1810,a1811,a1812,a1814,a1815,a1816,a1817,c19,a1901,a1906,a1907,a1908,a1909,a1910,a1911,a1912,a1914,a1915,a1916,a1917,c20,a2001,a2006,a2007,a2008,a2009,a2010,a2011,a2012,a2014,a2015,a2016,a2017,c21,a2101,a2106,a2107,a2108,a2109,a2110,a2111,a2112,a2114,a2115,a2116,a2117 = Vern8Interp(uEltypeNoUnits)
     push!(k,f(t+c14*Δt,u+Δt*(a1401*k[1]+a1406*k[6]+a1407*k[7]+a1408*k[8]+a1409*k[9]+a1410*k[10]+a1411*k[11]+a1412*k[12])))
@@ -488,9 +623,26 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern8}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) <13
+    c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,b1,b6,b7,b8,b9,b10,b11,b12,bhat1,bhat6,bhat7,bhat8,bhat9,bhat10,bhat13= constructVern8(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c2*Δt ,u+Δt*(a0201*k[1]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt ,u+Δt*(a0301*k[1]+a0302*k[2]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt ,u+Δt*(a0401*k[1]       +a0403*k[3]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt ,u+Δt*(a0501*k[1]       +a0503*k[3]+a0504*k[4]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt ,u+Δt*(a0601*k[1]                +a0604*k[4]+a0605*k[5]),rtmp); push!(k,rtmp)
+    f(t+c7*Δt ,u+Δt*(a0701*k[1]                +a0704*k[4]+a0705*k[5]+a0706*k[6]),rtmp); push!(k,rtmp)
+    f(t+c8*Δt ,u+Δt*(a0801*k[1]                +a0804*k[4]+a0805*k[5]+a0806*k[6]+a0807*k[7]),rtmp); push!(k,rtmp)
+    f(t+c9*Δt ,u+Δt*(a0901*k[1]                +a0904*k[4]+a0905*k[5]+a0906*k[6]+a0907*k[7]+a0908*k[8]),rtmp); push!(k,rtmp)
+    f(t+c10*Δt,u+Δt*(a1001*k[1]                +a1004*k[4]+a1005*k[5]+a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9]),rtmp); push!(k,rtmp)
+    f(t+c11*Δt,u+Δt*(a1101*k[1]                +a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10]),rtmp); push!(k,rtmp)
+    f(t+    Δt,u+Δt*(a1201*k[1]                +a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11]),rtmp); push!(k,rtmp)
+    f(t+    Δt,u+Δt*(a1301*k[1]                +a1304*k[4]+a1305*k[5]+a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1310*k[10]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 21 # Have not added the extra stages yet
     c14,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,c15,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1514,c16,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1614,a1615,c17,a1701,a1706,a1707,a1708,a1709,a1710,a1711,a1712,a1714,a1715,a1716,c18,a1801,a1806,a1807,a1808,a1809,a1810,a1811,a1812,a1814,a1815,a1816,a1817,c19,a1901,a1906,a1907,a1908,a1909,a1910,a1911,a1912,a1914,a1915,a1916,a1917,c20,a2001,a2006,a2007,a2008,a2009,a2010,a2011,a2012,a2014,a2015,a2016,a2017,c21,a2101,a2106,a2107,a2108,a2109,a2110,a2111,a2112,a2114,a2115,a2116,a2117 = Vern8Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c14*Δt,u+Δt*(a1401*k[1]+a1406*k[6]+a1407*k[7]+a1408*k[8]+a1409*k[9]+a1410*k[10]+a1411*k[11]+a1412*k[12]),rtmp); push!(k,copy(rtmp))
     f(t+c15*Δt,u+Δt*(a1501*k[1]+a1506*k[6]+a1507*k[7]+a1508*k[8]+a1509*k[9]+a1510*k[10]+a1511*k[11]+a1512*k[12]+a1514*k[14]),rtmp); push!(k,copy(rtmp))
     f(t+c16*Δt,u+Δt*(a1601*k[1]+a1606*k[6]+a1607*k[7]+a1608*k[8]+a1609*k[9]+a1610*k[10]+a1611*k[11]+a1612*k[12]+a1614*k[14]+a1615*k[15]),rtmp); push!(k,copy(rtmp))
@@ -507,9 +659,26 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern8Vectorized}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) <13
+    c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1304,a1305,a1306,a1307,a1308,a1309,a1310,b1,b6,b7,b8,b9,b10,b11,b12,bhat1,bhat6,bhat7,bhat8,bhat9,bhat10,bhat13= constructVern8(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c2*Δt ,u+Δt*(a0201*k[1]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt ,u+Δt*(a0301*k[1]+a0302*k[2]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt ,u+Δt*(a0401*k[1]       +a0403*k[3]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt ,u+Δt*(a0501*k[1]       +a0503*k[3]+a0504*k[4]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt ,u+Δt*(a0601*k[1]                +a0604*k[4]+a0605*k[5]),rtmp); push!(k,rtmp)
+    f(t+c7*Δt ,u+Δt*(a0701*k[1]                +a0704*k[4]+a0705*k[5]+a0706*k[6]),rtmp); push!(k,rtmp)
+    f(t+c8*Δt ,u+Δt*(a0801*k[1]                +a0804*k[4]+a0805*k[5]+a0806*k[6]+a0807*k[7]),rtmp); push!(k,rtmp)
+    f(t+c9*Δt ,u+Δt*(a0901*k[1]                +a0904*k[4]+a0905*k[5]+a0906*k[6]+a0907*k[7]+a0908*k[8]),rtmp); push!(k,rtmp)
+    f(t+c10*Δt,u+Δt*(a1001*k[1]                +a1004*k[4]+a1005*k[5]+a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9]),rtmp); push!(k,rtmp)
+    f(t+c11*Δt,u+Δt*(a1101*k[1]                +a1104*k[4]+a1105*k[5]+a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10]),rtmp); push!(k,rtmp)
+    f(t+    Δt,u+Δt*(a1201*k[1]                +a1204*k[4]+a1205*k[5]+a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11]),rtmp); push!(k,rtmp)
+    f(t+    Δt,u+Δt*(a1301*k[1]                +a1304*k[4]+a1305*k[5]+a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1310*k[10]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 26 # Have not added the extra stages yet
     c14,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,c15,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1514,c16,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1614,a1615,c17,a1701,a1706,a1707,a1708,a1709,a1710,a1711,a1712,a1714,a1715,a1716,c18,a1801,a1806,a1807,a1808,a1809,a1810,a1811,a1812,a1814,a1815,a1816,a1817,c19,a1901,a1906,a1907,a1908,a1909,a1910,a1911,a1912,a1914,a1915,a1916,a1917,c20,a2001,a2006,a2007,a2008,a2009,a2010,a2011,a2012,a2014,a2015,a2016,a2017,c21,a2101,a2106,a2107,a2108,a2109,a2110,a2111,a2112,a2114,a2115,a2116,a2117 = Vern8Interp(uEltypeNoUnits)
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     f(t+c14*Δt,u+Δt*(a1401*k[1]+a1406*k[6]+a1407*k[7]+a1408*k[8]+a1409*k[9]+a1410*k[10]+a1411*k[11]+a1412*k[12]),rtmp); push!(k,copy(rtmp))
     f(t+c15*Δt,u+Δt*(a1501*k[1]+a1506*k[6]+a1507*k[7]+a1508*k[8]+a1509*k[9]+a1510*k[10]+a1511*k[11]+a1512*k[12]+a1514*k[14]),rtmp); push!(k,copy(rtmp))
     f(t+c16*Δt,u+Δt*(a1601*k[1]+a1606*k[6]+a1607*k[7]+a1608*k[8]+a1609*k[9]+a1610*k[10]+a1611*k[11]+a1612*k[12]+a1614*k[14]+a1615*k[15]),rtmp); push!(k,copy(rtmp))
@@ -526,6 +695,25 @@ end
 
 """
 function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern9}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 16
+    c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0806,a0807,a0901,a0906,a0907,a0908,a1001,a1006,a1007,a1008,a1009,a1101,a1106,a1107,a1108,a1109,a1110,a1201,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,b1,b8,b9,b10,b11,b12,b13,b14,b15,bhat1,bhat8,bhat9,bhat10,bhat11,bhat12,bhat13,bhat16 = constructVern9(uEltypeNoUnits)
+    push!(k,f(t,u))
+    push!(k,f(t+c1*Δt,u+Δt*(a0201*k[1])))
+    push!(k,f(t+c2*Δt,u+Δt*(a0301*k[1]+a0302*k[2])))
+    push!(k,f(t+c3*Δt,u+Δt*(a0401*k[1]       +a0403*k[3])))
+    push!(k,f(t+c4*Δt,u+Δt*(a0501*k[1]       +a0503*k[3]+a0504*k[4])))
+    push!(k,f(t+c5*Δt,u+Δt*(a0601*k[1]                +a0604*k[4]+a0605*k[5])))
+    push!(k,f(t+c6*Δt,u+Δt*(a0701*k[1]                +a0704*k[4]+a0705*k[5]+a0706*k[6])))
+    push!(k,f(t+c7*Δt,u+Δt*(a0801*k[1]                                  +a0806*k[6]+a0807*k[7])))
+    push!(k,f(t+c8*Δt,u+Δt*(a0901*k[1]                                  +a0906*k[6]+a0907*k[7]+a0908*k[8])))
+    push!(k,f(t+c9*Δt,u+Δt*(a1001*k[1]                                  +a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9])))
+    push!(k,f(t+c10*Δt,u+Δt*(a1101*k[1]                                  +a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10])))
+    push!(k,f(t+c11*Δt,u+Δt*(a1201*k[1]                                  +a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11])))
+    push!(k,f(t+c12*Δt,u+Δt*(a1301*k[1]                                  +a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1310*k[10]+a1311*k[11]+a1312*k[12])))
+    push!(k,f(t+c13*Δt,u+Δt*(a1401*k[1]                                  +a1406*k[6]+a1407*k[7]+a1408*k[8]+a1409*k[9]+a1410*k[10]+a1411*k[11]+a1412*k[12]+a1413*k[13])))
+    push!(k,f(t+Δt,u+Δt*(a1501*k[1]                                  +a1506*k[6]+a1507*k[7]+a1508*k[8]+a1509*k[9]+a1510*k[10]+a1511*k[11]+a1512*k[12]+a1513*k[13]+a1514*k[14])))
+    push!(k,f(t+Δt,u+Δt*(a1601*k[1]                                  +a1606*k[6]+a1607*k[7]+a1608*k[8]+a1609*k[9]+a1610*k[10]+a1611*k[11]+a1612*k[12]+a1613*k[13])))
+  end
   if length(k) < 26 # Have not added the extra stages yet
     c17,a1701,a1708,a1709,a1710,a1711,a1712,a1713,a1714,a1715,c18,a1801,a1808,a1809,a1810,a1811,a1812,a1813,a1814,a1815,a1817,c19,a1901,a1908,a1909,a1910,a1911,a1912,a1913,a1914,a1915,a1917,a1918,c20,a2001,a2008,a2009,a2010,a2011,a2012,a2013,a2014,a2015,a2017,a2018,a2019,c21,a2101,a2108,a2109,a2110,a2111,a2112,a2113,a2114,a2115,a2117,a2118,a2119,a2120,c22,a2201,a2208,a2209,a2210,a2211,a2212,a2213,a2214,a2215,a2217,a2218,a2219,a2220,a2221,c23,a2301,a2308,a2309,a2310,a2311,a2312,a2313,a2314,a2315,a2317,a2318,a2319,a2320,a2321,c24,a2401,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2417,a2418,a2419,a2420,a2421,c25,a2501,a2508,a2509,a2510,a2511,a2512,a2513,a2514,a2515,a2517,a2518,a2519,a2520,a2521,c26,a2601,a2608,a2609,a2610,a2611,a2612,a2613,a2614,a2615,a2617,a2618,a2619,a2620,a2621 = Vern9Interp(uEltypeNoUnits)
     push!(k,f(t+c17*Δt,u+Δt*(a1701*k[1]+a1708*k[8]+a1709*k[9]+a1710*k[10]+a1711*k[11]+a1712*k[12]+a1713*k[13]+a1714*k[14]+a1715*k[15])))
@@ -546,8 +734,28 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern9}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 16
+    c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0806,a0807,a0901,a0906,a0907,a0908,a1001,a1006,a1007,a1008,a1009,a1101,a1106,a1107,a1108,a1109,a1110,a1201,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,b1,b8,b9,b10,b11,b12,b13,b14,b15,bhat1,bhat8,bhat9,bhat10,bhat11,bhat12,bhat13,bhat16 = constructVern9(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c1*Δt,u+Δt*(a0201*k[1]),rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a0301*k[1]+a0302*k[2]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a0401*k[1]       +a0403*k[3]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a0501*k[1]       +a0503*k[3]+a0504*k[4]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a0601*k[1]                +a0604*k[4]+a0605*k[5]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt,u+Δt*(a0701*k[1]                +a0704*k[4]+a0705*k[5]+a0706*k[6]),rtmp); push!(k,rtmp)
+    f(t+c7*Δt,u+Δt*(a0801*k[1]                                  +a0806*k[6]+a0807*k[7]),rtmp); push!(k,rtmp)
+    f(t+c8*Δt,u+Δt*(a0901*k[1]                                  +a0906*k[6]+a0907*k[7]+a0908*k[8]),rtmp); push!(k,rtmp)
+    f(t+c9*Δt,u+Δt*(a1001*k[1]                                  +a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9]),rtmp); push!(k,rtmp)
+    f(t+c10*Δt,u+Δt*(a1101*k[1]                                  +a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10]),rtmp); push!(k,rtmp)
+    f(t+c11*Δt,u+Δt*(a1201*k[1]                                  +a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11]),rtmp); push!(k,rtmp)
+    f(t+c12*Δt,u+Δt*(a1301*k[1]                                  +a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1310*k[10]+a1311*k[11]+a1312*k[12]),rtmp); push!(k,rtmp)
+    f(t+c13*Δt,u+Δt*(a1401*k[1]                                  +a1406*k[6]+a1407*k[7]+a1408*k[8]+a1409*k[9]+a1410*k[10]+a1411*k[11]+a1412*k[12]+a1413*k[13]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a1501*k[1]                                  +a1506*k[6]+a1507*k[7]+a1508*k[8]+a1509*k[9]+a1510*k[10]+a1511*k[11]+a1512*k[12]+a1513*k[13]+a1514*k[14]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a1601*k[1]                                  +a1606*k[6]+a1607*k[7]+a1608*k[8]+a1609*k[9]+a1610*k[10]+a1611*k[11]+a1612*k[12]+a1613*k[13]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 26 # Have not added the extra stages yet
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     c17,a1701,a1708,a1709,a1710,a1711,a1712,a1713,a1714,a1715,c18,a1801,a1808,a1809,a1810,a1811,a1812,a1813,a1814,a1815,a1817,c19,a1901,a1908,a1909,a1910,a1911,a1912,a1913,a1914,a1915,a1917,a1918,c20,a2001,a2008,a2009,a2010,a2011,a2012,a2013,a2014,a2015,a2017,a2018,a2019,c21,a2101,a2108,a2109,a2110,a2111,a2112,a2113,a2114,a2115,a2117,a2118,a2119,a2120,c22,a2201,a2208,a2209,a2210,a2211,a2212,a2213,a2214,a2215,a2217,a2218,a2219,a2220,a2221,c23,a2301,a2308,a2309,a2310,a2311,a2312,a2313,a2314,a2315,a2317,a2318,a2319,a2320,a2321,c24,a2401,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2417,a2418,a2419,a2420,a2421,c25,a2501,a2508,a2509,a2510,a2511,a2512,a2513,a2514,a2515,a2517,a2518,a2519,a2520,a2521,c26,a2601,a2608,a2609,a2610,a2611,a2612,a2613,a2614,a2615,a2617,a2618,a2619,a2620,a2621 = Vern9Interp(uEltypeNoUnits)
     f(t+c17*Δt,u+Δt*(a1701*k[1]+a1708*k[8]+a1709*k[9]+a1710*k[10]+a1711*k[11]+a1712*k[12]+a1713*k[13]+a1714*k[14]+a1715*k[15]),rtmp); push!(k,copy(rtmp))
     f(t+c18*Δt,u+Δt*(a1801*k[1]+a1808*k[8]+a1809*k[9]+a1810*k[10]+a1811*k[11]+a1812*k[12]+a1813*k[13]+a1814*k[14]+a1815*k[15]+a1817*k[17]),rtmp); push!(k,copy(rtmp))
@@ -567,8 +775,28 @@ end
 
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern9Vectorized}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k) < 16
+    c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0806,a0807,a0901,a0906,a0907,a0908,a1001,a1006,a1007,a1008,a1009,a1101,a1106,a1107,a1108,a1109,a1110,a1201,a1206,a1207,a1208,a1209,a1210,a1211,a1301,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1401,a1406,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,b1,b8,b9,b10,b11,b12,b13,b14,b15,bhat1,bhat8,bhat9,bhat10,bhat11,bhat12,bhat13,bhat16 = constructVern9(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,rtmp)
+    f(t+c1*Δt,u+Δt*(a0201*k[1]),rtmp); push!(k,rtmp)
+    f(t+c2*Δt,u+Δt*(a0301*k[1]+a0302*k[2]),rtmp); push!(k,rtmp)
+    f(t+c3*Δt,u+Δt*(a0401*k[1]       +a0403*k[3]),rtmp); push!(k,rtmp)
+    f(t+c4*Δt,u+Δt*(a0501*k[1]       +a0503*k[3]+a0504*k[4]),rtmp); push!(k,rtmp)
+    f(t+c5*Δt,u+Δt*(a0601*k[1]                +a0604*k[4]+a0605*k[5]),rtmp); push!(k,rtmp)
+    f(t+c6*Δt,u+Δt*(a0701*k[1]                +a0704*k[4]+a0705*k[5]+a0706*k[6]),rtmp); push!(k,rtmp)
+    f(t+c7*Δt,u+Δt*(a0801*k[1]                                  +a0806*k[6]+a0807*k[7]),rtmp); push!(k,rtmp)
+    f(t+c8*Δt,u+Δt*(a0901*k[1]                                  +a0906*k[6]+a0907*k[7]+a0908*k[8]),rtmp); push!(k,rtmp)
+    f(t+c9*Δt,u+Δt*(a1001*k[1]                                  +a1006*k[6]+a1007*k[7]+a1008*k[8]+a1009*k[9]),rtmp); push!(k,rtmp)
+    f(t+c10*Δt,u+Δt*(a1101*k[1]                                  +a1106*k[6]+a1107*k[7]+a1108*k[8]+a1109*k[9]+a1110*k[10]),rtmp); push!(k,rtmp)
+    f(t+c11*Δt,u+Δt*(a1201*k[1]                                  +a1206*k[6]+a1207*k[7]+a1208*k[8]+a1209*k[9]+a1210*k[10]+a1211*k[11]),rtmp); push!(k,rtmp)
+    f(t+c12*Δt,u+Δt*(a1301*k[1]                                  +a1306*k[6]+a1307*k[7]+a1308*k[8]+a1309*k[9]+a1310*k[10]+a1311*k[11]+a1312*k[12]),rtmp); push!(k,rtmp)
+    f(t+c13*Δt,u+Δt*(a1401*k[1]                                  +a1406*k[6]+a1407*k[7]+a1408*k[8]+a1409*k[9]+a1410*k[10]+a1411*k[11]+a1412*k[12]+a1413*k[13]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a1501*k[1]                                  +a1506*k[6]+a1507*k[7]+a1508*k[8]+a1509*k[9]+a1510*k[10]+a1511*k[11]+a1512*k[12]+a1513*k[13]+a1514*k[14]),rtmp); push!(k,rtmp)
+    f(t+Δt,u+Δt*(a1601*k[1]                                  +a1606*k[6]+a1607*k[7]+a1608*k[8]+a1609*k[9]+a1610*k[10]+a1611*k[11]+a1612*k[12]+a1613*k[13]),rtmp); push!(k,rtmp)
+  end
   if length(k) < 26 # Have not added the extra stages yet
-    rtmp = rateType(size(k[1]))
+    rtmp = rateType(size(u))
     c17,a1701,a1708,a1709,a1710,a1711,a1712,a1713,a1714,a1715,c18,a1801,a1808,a1809,a1810,a1811,a1812,a1813,a1814,a1815,a1817,c19,a1901,a1908,a1909,a1910,a1911,a1912,a1913,a1914,a1915,a1917,a1918,c20,a2001,a2008,a2009,a2010,a2011,a2012,a2013,a2014,a2015,a2017,a2018,a2019,c21,a2101,a2108,a2109,a2110,a2111,a2112,a2113,a2114,a2115,a2117,a2118,a2119,a2120,c22,a2201,a2208,a2209,a2210,a2211,a2212,a2213,a2214,a2215,a2217,a2218,a2219,a2220,a2221,c23,a2301,a2308,a2309,a2310,a2311,a2312,a2313,a2314,a2315,a2317,a2318,a2319,a2320,a2321,c24,a2401,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2417,a2418,a2419,a2420,a2421,c25,a2501,a2508,a2509,a2510,a2511,a2512,a2513,a2514,a2515,a2517,a2518,a2519,a2520,a2521,c26,a2601,a2608,a2609,a2610,a2611,a2612,a2613,a2614,a2615,a2617,a2618,a2619,a2620,a2621 = Vern9Interp(uEltypeNoUnits)
     f(t+c17*Δt,u+Δt*(a1701*k[1]+a1708*k[8]+a1709*k[9]+a1710*k[10]+a1711*k[11]+a1712*k[12]+a1713*k[13]+a1714*k[14]+a1715*k[15]),rtmp); push!(k,copy(rtmp))
     f(t+c18*Δt,u+Δt*(a1801*k[1]+a1808*k[8]+a1809*k[9]+a1810*k[10]+a1811*k[11]+a1812*k[12]+a1813*k[13]+a1814*k[14]+a1815*k[15]+a1817*k[17]),rtmp); push!(k,copy(rtmp))

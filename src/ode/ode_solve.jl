@@ -191,6 +191,10 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,,uEltypeNoUnits,rateType,ksEltype}(g,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal,dense,saveat))
     u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg))
 
+    if ts[end] != t
+      push!(ts,t)
+      push!(timeseries,u)
+    end
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
     if typeof(u) <: Number
@@ -199,6 +203,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:Ts] = float(o[:Ts])
     o[:t] = float(o[:t])
     t = o[:t]; Ts = o[:Ts]
+    saveat = [float(x) for x in command_opts[:saveat]]
     if !isinplace && typeof(u)<:AbstractArray
       f! = (t,u,du) -> (du[:] = vec(prob.f(t,reshape(u,sizeu))); nothing)
     else
@@ -242,6 +247,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:t] = float(o[:t])
     t = o[:t]; Ts = o[:Ts]
     o[:T] = Ts[end]
+    saveat = [float(x) for x in command_opts[:saveat]]
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -299,6 +305,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:Ts] = map(Float64,o[:Ts])
     o[:t] = map(Float64,o[:t])
     t = o[:t]; Ts = o[:Ts];
+    saveat = [float(x) for x in command_opts[:saveat]]
     initialize_backend(:Sundials)
     opts = buildOptions(o,SUNDIALS_OPTION_LIST,SUNDIALS_ALIASES,SUNDIALS_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -343,6 +350,19 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   end
 
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
+
+  if knownanalytic
+    u_analytic = analytic(t,u₀)
+    timeseries_analytic = Vector{uType}(0)
+    for i in 1:size(timeseries,1)
+      push!(timeseries_analytic,analytic(ts[i],u₀))
+    end
+    return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
+  else
+    return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
+  end
+  #=
+
   if knownanalytic
     u_analytic = analytic(t,u₀)
     if save_timeseries
@@ -350,17 +370,18 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       for i in 1:size(timeseries,1)
         push!(timeseries_analytic,analytic(ts[i],u₀))
       end
-      return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks))
+      return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
     else
       return(ODESolution(u,u_analytic,prob,alg))
     end
   else #No known analytic
     if save_timeseries
-      return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks))
+      return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
     else
       return(ODESolution(u,prob,alg))
     end
   end
+  =#
 end
 
 function buildOptions(o,optionlist,aliases,aliases_reversed)

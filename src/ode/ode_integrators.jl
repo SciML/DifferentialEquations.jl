@@ -73,7 +73,7 @@ end
   local Θ = one(t)/one(t) # No units
   local tprev::tType = t
   local kprev::ksEltype
-  local saveatktmp::uType
+  local saveatktmp::ksEltype
   local uprev::uType = u
   local standard::uEltype = 0
   local q::uEltypeNoUnits = 0
@@ -102,24 +102,17 @@ end
     end
     if fsal
       k = copy(fsalfirst)
-      push!(ks,copy(k)) # already computed
+      dense && push!(ks,copy(k)) # already computed
     elseif ksEltype <: Number
       k = f(t,u)
-      push!(ks,k)
+      dense && push!(ks,k)
     elseif ksEltype <: AbstractArray
       f(t,u,k)
-      push!(ks,deepcopy(k))
+      dense && push!(ks,deepcopy(k))
     end
     kprev = k
   end ## if not simple_dense, you have to initialize k and push the ks[1]!
 
-  if !isempty(saveat)
-    if ksEltype <: AbstractArray
-      saveatktmp = rateType(sizeu)
-    else
-      saveatktmp = zero(rateType)
-    end
-  end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(0) : nothing #Use Atom's progressbar if loaded
 end
 
@@ -143,14 +136,6 @@ end
         val = ode_interpolant(Θ,Δt,uprev,u,kprev,k,alg)
         push!(ts,curt)
         push!(timeseries,val)
-        if dense
-          f(curt,val,saveattmp)
-          if simple_dense
-            push!(ks,saveattmp)
-          else
-            push!(ks,[Δt*saveattmp])
-          end
-        end
       end
       cursaveat+=1
     end
@@ -219,19 +204,19 @@ end
       Δtnew = Δt/q
       if EEst <= 1.0 # Accept
         t = t + Δt
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
         qold = max(EEst,qoldinit)
         @ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
-          copy!(uprev,u)
-          copy!(kprev,k)
+          recursivecopy!(uprev,u)
+          recursivecopy!(kprev,k)
         end
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
         if fsal
-          copy!(fsalfirst,fsallast)
+          recursivecopy!(fsalfirst,fsallast)
         end
       else # Reject
         Δt = Δt/min(qminc,q11/γ)
@@ -245,16 +230,16 @@ end
       end
       if q > 1 # Accept
         t = t + Δt
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
         @ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
-          copy!(uprev,u)
-          copy!(kprev,k)
+          recursivecopy!(uprev,u)
+          recursivecopy!(kprev,k)
         end
         if fsal
-          copy!(fsalfirst,fsallast)
+          recursivecopy!(fsalfirst,fsallast)
         end
       end
       Δtpropose = min(Δtmax,q*Δt)
@@ -266,11 +251,11 @@ end
     if !isempty(saveat)
       # Store previous for interpolation
       tprev = t
-      copy!(uprev,u)
-      copy!(kprev,k)
+      recursivecopy!(uprev,u)
+      recursivecopy!(kprev,k)
     end
     if fsal
-      copy!(fsalfirst,fsallast)
+      recursivecopy!(fsalfirst,fsallast)
     end
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/Tfinal) : nothing #Use Atom's progressbar if loaded
@@ -292,7 +277,7 @@ end
           tprev = t
           uprev = u
           if ksEltype <: AbstractArray
-            copy!(kprev,k)
+            recursivecopy!(kprev,k)
           else
             kprev = k
           end
@@ -322,7 +307,7 @@ end
           tprev = t
           uprev = u
           if ksEltype <: AbstractArray
-            copy!(kprev,k)
+            recursivecopy!(kprev,k)
           else
             kprev = k
           end
@@ -342,7 +327,7 @@ end
       tprev = t
       uprev = u
       if ksEltype <: AbstractArray
-        copy!(kprev,k)
+        recursivecopy!(kprev,k)
       else
         kprev = k
       end
@@ -365,12 +350,12 @@ end
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
-          copy!(uprev,uhold)
-          copy!(kprev,k)
+          recursivecopy!(uprev,uhold)
+          recursivecopy!(kprev,k)
         end
         t = t + Δt
         qold = max(EEst,qoldinit)
-        copy!(uhold, utmp)
+        recursivecopy!(uhold, utmp)
         @ode_implicitsavevalues
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
@@ -388,11 +373,11 @@ end
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
-          copy!(uprev,uhold)
-          copy!(kprev,k)
+          recursivecopy!(uprev,uhold)
+          recursivecopy!(kprev,k)
         end
         t = t + Δt
-        copy!(uhold, utmp)
+        recursivecopy!(uhold, utmp)
         @ode_implicitsavevalues
       end
       Δtpropose = min(Δtmax,q*Δt)
@@ -419,7 +404,7 @@ end
           tprev = t
           uprev = uhold[1]
           if ksEltype <: AbstractArray
-            copy!(kprev,k)
+            recursivecopy!(kprev,k)
           else
             kprev = k
           end
@@ -453,7 +438,7 @@ end
       tprev = t
       uprev = uhold[1]
       if ksEltype <: AbstractArray
-        copy!(kprev,k)
+        recursivecopy!(kprev,k)
       else
         kprev = k
       end
@@ -631,14 +616,14 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
       # Calc Middle
       for i = 2:stages-1
-        utilde = zero(u)
+        utilde = zero(kk[1])
         for j = 1:i-1
           utilde += A[j,i]*kk[j]
         end
         kk[i] = f(t+c[i]*Δt,u+Δt*utilde);
       end
       #Calc Last
-      utilde = zero(u)
+      utilde = zero(kk[1])
       for j = 1:stages-1
         utilde += A[j,end]*kk[j]
       end
@@ -681,7 +666,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   for i = 1:stages
     push!(kk,rateType(sizeu))
   end
-  utilde = similar(u)
+  utilde = rateType(sizeu)
   tmp = similar(u)
   atmp = similar(u,uEltypeNoUnits)
   utmp = zeros(u)
@@ -701,7 +686,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       # Middle
       for i = 2:stages-1
-        utilde[:] = zero(eltype(u))
+        for l in uidx
+          utilde[l] = zero(utilde)
+        end
         for j = 1:i-1
           for l in uidx
             utilde[l] += A[j,i]*kk[j][l]
@@ -713,7 +700,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t+c[i]*Δt,tmp,kk[i])
       end
       #Last
-      utilde[:] = zero(eltype(u))
+      utilde[:] = zeros(rateType,sizeu)
       for j = 1:stages-1
         for l in uidx
           utilde[l] += A[j,end]*kk[j][l]
@@ -751,7 +738,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u,utmp)
+        recursivecopy!(u,utmp)
       end
       @ode_loopfooter
     end
@@ -791,7 +778,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       #Middle
       for i = 2:stages-1
-        utilde[:] = zero(eltype(u))
+        utilde[:] = zero(rateType)
         for j = 1:i-1
           utilde += A[j,i]*kk[j]
         end
@@ -799,7 +786,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t+c[i]*Δt,tmp,kk[i])
       end
       # Last
-      utilde[:] = zero(eltype(u))
+      utilde[:] = zero(rateType)
       for j = 1:stages-1
         utilde += A[j,end]*kk[j]
       end
@@ -930,7 +917,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -1130,7 +1117,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         EEst2 = sqrt( sum(atmptilde) * normfactor)
         EEst = max(EEst1,EEst2)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -1304,7 +1291,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -1487,7 +1474,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -1548,7 +1535,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         dp5threaded_adaptiveloop(utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,atmp,utmp,abstol,reltol,uidx)
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -1608,7 +1595,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
         dp5threaded_adaptiveloop(utilde,u,k1,k3,k4,k5,k6,k7,atmp,utmp,abstol,reltol,uidx)
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -1865,7 +1852,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -2041,7 +2028,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt(sum(atmp)  * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -2237,7 +2224,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -2392,7 +2379,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt( sum(atmp) * normfactor)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -2410,7 +2397,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k1::rateType; local k2::rateType; local k3::rateType; local k4::rateType;
   local k5::rateType; local k6::rateType; local k7::rateType; local k8::rateType;
   local k9::rateType; local k10::rateType; local k11::rateType; local k12::rateType;
-  local k13::rateType; local utilde::uType; local udiff::uType; local bspl::uType
+  local k13::rateType; local utilde::uType; local udiff::rateType; local bspl::rateType
   if calck
     c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
     d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
@@ -2454,16 +2441,16 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k14 = f(t+c14*Δt,u+Δt*(a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13))
         k15 = f(t+c15*Δt,u+Δt*(a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14))
-        k16 = f(t+c16*Δt,u+a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15)
-        udiff = utmp - u
+        k16 = f(t+c16*Δt,u+Δt*(a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15))
+        udiff = k13
         k[1] = udiff
-        bspl = Δt*k1 - udiff
+        bspl = k1 - udiff
         k[2] = bspl
-        k[3] = udiff - update - bspl
-        k[4] = Δt*(d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16)
-        k[5] = Δt*(d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16)
-        k[6] = Δt*(d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16)
-        k[7] = Δt*(d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16)
+        k[3] = udiff - k13 - bspl
+        k[4] = (d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16)
+        k[5] = (d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16)
+        k[6] = (d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16)
+        k[7] = (d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16)
       end
       @ode_numberloopfooter
     end
@@ -2478,7 +2465,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k5 = rateType(sizeu); k6  = similar(u); k7  = similar(u);  k8 = rateType(sizeu)
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
   k13 = rateType(sizeu); local k14::rateType; local k15::rateType; local k16::rateType;
-  local udiff::uType; local bspl::uType
+  local udiff::rateType; local bspl::rateType
   utilde = similar(u); err5 = similar(u); err3 = similar(u)
 
   if calck
@@ -2497,8 +2484,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k14 = rateType(sizeu)
     k15 = rateType(sizeu)
     k16 = rateType(sizeu)
-    udiff = similar(u)
-    bspl = similar(u)
+    udiff = rateType(sizeu)
+    bspl = rateType(sizeu)
   end
   @inbounds for T in Ts
     while t < T
@@ -2530,15 +2517,15 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t+c14*Δt,u+Δt*(a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13),k14)
         f(t+c15*Δt,u+Δt*(a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14),k15)
         f(t+c16*Δt,u+Δt*(a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15),k16)
-        udiff = utmp - u
+        udiff = k13
         k[1] = udiff
-        bspl = Δt*k1 - udiff
+        bspl = k1 - udiff
         k[2] = bspl
-        k[3] = udiff - update - bspl
-        k[4] = Δt*(d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16)
-        k[5] = Δt*(d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16)
-        k[6] = Δt*(d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16)
-        k[7] = Δt*(d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16)
+        k[3] = udiff - k13 - bspl
+        k[4] = (d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16)
+        k[5] = (d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16)
+        k[6] = (d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16)
+        k[7] = (d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16)
       end
       @ode_loopfooter
     end
@@ -2555,7 +2542,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k13 = rateType(sizeu); utilde = similar(u); err5 = similar(u); err3 = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u); atmp2 = similar(u,uEltypeNoUnits); update = similar(u)
   local k13::rateType; local k14::rateType; local k15::rateType; local k16::rateType;
-  local udiff::uType; local bspl::uType
+  local udiff::rateType; local bspl::rateType
   if calck
     c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
     d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
@@ -2572,8 +2559,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k14 = rateType(sizeu)
     k15 = rateType(sizeu)
     k16 = rateType(sizeu)
-    udiff = similar(u)
-    bspl = similar(u)
+    udiff = rateType(sizeu)
+    bspl = rateType(sizeu)
   end
   for T in Ts
     while t < T
@@ -2638,7 +2625,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         err52 = err5*err5
         EEst = err52/sqrt(err52 + 0.01*err3*err3)
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       if calck
         for i in uidx
@@ -2654,15 +2641,15 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         f(t+c16*Δt,tmp,k16)
         for i in uidx
-          udiff[i]= utmp[i] - u[i]
+          udiff[i]= k13[i]
           k[1][i] = udiff[i]
-          bspl[i] = Δt*k1[i] - udiff[i]
+          bspl[i] = k1[i] - udiff[i]
           k[2][i] = bspl[i]
-          k[3][i] = udiff[i] - update[i] - bspl[i]
-          k[4][i] = Δt*(d401*k1[i]+d406*k6[i]+d407*k7[i]+d408*k8[i]+d409*k9[i]+d410*k10[i]+d411*k11[i]+d412*k12[i]+d413*k13[i]+d414*k14[i]+d415*k15[i]+d416*k16[i])
-          k[5][i] = Δt*(d501*k1[i]+d506*k6[i]+d507*k7[i]+d508*k8[i]+d509*k9[i]+d510*k10[i]+d511*k11[i]+d512*k12[i]+d513*k13[i]+d514*k14[i]+d515*k15[i]+d516*k16[i])
-          k[6][i] = Δt*(d601*k1[i]+d606*k6[i]+d607*k7[i]+d608*k8[i]+d609*k9[i]+d610*k10[i]+d611*k11[i]+d612*k12[i]+d613*k13[i]+d614*k14[i]+d615*k15[i]+d616*k16[i])
-          k[7][i] = Δt*(d701*k1[i]+d706*k6[i]+d707*k7[i]+d708*k8[i]+d709*k9[i]+d710*k10[i]+d711*k11[i]+d712*k12[i]+d713*k13[i]+d714*k14[i]+d715*k15[i]+d716*k16[i])
+          k[3][i] = udiff[i] - k13[i] - bspl[i]
+          k[4][i] = (d401*k1[i]+d406*k6[i]+d407*k7[i]+d408*k8[i]+d409*k9[i]+d410*k10[i]+d411*k11[i]+d412*k12[i]+d413*k13[i]+d414*k14[i]+d415*k15[i]+d416*k16[i])
+          k[5][i] = (d501*k1[i]+d506*k6[i]+d507*k7[i]+d508*k8[i]+d509*k9[i]+d510*k10[i]+d511*k11[i]+d512*k12[i]+d513*k13[i]+d514*k14[i]+d515*k15[i]+d516*k16[i])
+          k[6][i] = (d601*k1[i]+d606*k6[i]+d607*k7[i]+d608*k8[i]+d609*k9[i]+d610*k10[i]+d611*k11[i]+d612*k12[i]+d613*k13[i]+d614*k14[i]+d615*k15[i]+d616*k16[i])
+          k[7][i] = (d701*k1[i]+d706*k6[i]+d707*k7[i]+d708*k8[i]+d709*k9[i]+d710*k10[i]+d711*k11[i]+d712*k12[i]+d713*k13[i]+d714*k14[i]+d715*k15[i]+d716*k16[i])
         end
       end
       @ode_loopfooter
@@ -2697,7 +2684,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       k10 =f(t+c9*Δt,u+Δt*(a1001*k1                +a1004*k4+a1005*k5+a1006*k6+a1007*k7+a1008*k8+a1009*k9))
       k11= f(t+c10*Δt,u+Δt*(a1101*k1                +a1104*k4+a1105*k5+a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10))
       k12= f(t+Δt,u+Δt*(a1201*k1                +a1204*k4+a1205*k5+a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11))
-      k13= f(t+Δt,u+a1301*k1                +a1304*k4+a1305*k5+a1306*k6+a1307*k7+a1308*k8+a1309*k9+a1310*k10)
+      k13= f(t+Δt,u+Δt*(a1301*k1                +a1304*k4+a1305*k5+a1306*k6+a1307*k7+a1308*k8+a1309*k9+a1310*k10))
       update = Δt*(b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12)
       utmp = u + update
       if adaptive
@@ -2841,7 +2828,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt(sum(atmp) * normfactor) # Order 5
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -3061,7 +3048,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         EEst = sqrt(sum(atmp) * normfactor) # Order 5
       else
-        copy!(u, utmp)
+        recursivecopy!(u, utmp)
       end
       @ode_loopfooter
     end
@@ -4112,7 +4099,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t,u,fsallast)
       end
       @ode_loopfooter
-      copy!(fsalfirst,fsallast)
+      recursivecopy!(fsalfirst,fsallast)
     end
   end
   return u,t,timeseries,ts,ks
@@ -4230,7 +4217,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         f(t,u,fsallast)
       end
       @ode_loopfooter
-      copy!(fsalfirst,fsallast)
+      recursivecopy!(fsalfirst,fsallast)
     end
   end
   return u,t,timeseries,ts,ks

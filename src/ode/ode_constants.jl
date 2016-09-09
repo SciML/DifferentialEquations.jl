@@ -20,7 +20,7 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
                                  :save_timeseries => true,
                                  :timeseries_steps => 1,
                                  :tableau => DifferentialEquations.ODE_DEFAULT_TABLEAU,
-                                 :dense => false,
+                                 :dense => true,
                                  :saveat => Float64[],
                                  :adaptive => true,
                                  :γ=>.9,
@@ -151,7 +151,7 @@ const DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS = Dict{Symbol,Int}(:ExplicitRK=>4, 
                                                                 :Vern8=>7,
                                                                 :Vern8Vectorized=>7)
 const DIFFERENTIALEQUATIONSJL_ADAPTIVEALGS = Set([:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:Rosenbrock23,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized])
-const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32])
+const DIFFERENTIALEQUATIONSJL_IMPLICITALGS = Set([:ImplicitEuler,:Trapezoid,:Rosenbrock32,:Rosenbrock23])
 const ODEINTERFACE_STRINGS = Dict{Symbol,String}(
   :LOGIO            => "logio",
   :LOGLEVEL         => "loglevel",
