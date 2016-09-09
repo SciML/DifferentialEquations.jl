@@ -30,6 +30,7 @@ sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:DP
 sol =solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=:DP5Threaded)
 
 for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
+  println(alg)
   if alg ∉ DifferentialEquations.DIFFERENTIALEQUATIONSJL_IMPLICITALGS
     sol = solve(prob::ODEProblem,[0,1],Δt=(1/2^4)Second,save_timeseries=true,alg=alg,adaptive=true)
   end
