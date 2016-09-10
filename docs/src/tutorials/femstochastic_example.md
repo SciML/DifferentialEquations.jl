@@ -2,7 +2,7 @@
 
 This tutorial will introduce you to the functionality for solving SPDEs. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
-folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples).
 
 For most PDE problem types, we can additionally specify them as a stochastic
 problem by giving the appropriate optional arguments to the constructor. These
@@ -28,7 +28,7 @@ solve(prob)
 
 This gives the following plot (with adding the deterministic solution from the previous example):
 
-![Stochastic Poisson Example Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/introductionStochasticExample.png)
+![Stochastic Poisson Example Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introductionStochasticExample.png)
 
 ## Finite Element Stochastic Heat Equation
 
@@ -57,4 +57,4 @@ sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,
 animate(sol::FEMSolution;zlim=(0,3),cbar=false)
 ```
 
-![Stochastic Heat Solution](https://raw.githubusercontent.com/ChrisRackauckas/DifferentialEquations.jl/master/examples/plots/stochasticHeatAnimation.gif)
+![Stochastic Heat Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/stochasticHeatAnimation.gif)

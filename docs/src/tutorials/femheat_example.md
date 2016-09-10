@@ -1,7 +1,7 @@
 # Heat Equation Finite Element Method Example
 
 This tutorial will introduce you to the functionality for solving a PDE. Other
-introductions can be found by [checking out the IJulia notebooks in the examples folder](https://github.com/ChrisRackauckas/DifferentialEquations.jl/tree/master/examples).
+introductions can be found by [checking out the IJulia notebooks in the examples folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples).
 
 In this example we will solve the heat equation ``u_t=Δu+f``. To do this, we define
 a HeatProblem which contains the function ``f`` and the boundary conditions. We

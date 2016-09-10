@@ -54,7 +54,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   @materialize save_timeseries, progressbar = command_opts
 
   u = copy(u₀)
-
+  ks = Vector{uType}(0)
   if :alg ∈ keys(o)
     alg = o[:alg]
   else
@@ -93,7 +93,12 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if alg ∈ DIFFERENTIALEQUATIONSJL_IMPLICITALGS
       initialize_backend(:NLsolve)
     end
-    tType=typeof(Δt)
+
+    if o[:tType] == nothing # if tType is not specified, grab it from Δt which defaults to 0.0 => Float64
+      tType=typeof(Δt)
+    else
+      tType = o[:tType]
+    end
 
     if o[:Δtmax] == nothing
       o[:Δtmax] = tType((tspan[end]-tspan[1]))
@@ -106,16 +111,56 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     else
       normfactor = 1
     end
+    saveat = tType[convert(tType,x) for x in o[:saveat]]
+
+
+    ### Algorithm-specific defaults ###
+
+    if o[:qmin] == nothing # Use default qmin
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+        qmin = 0.2
+      elseif alg == :DP8 || alg == :DP8Vectorized
+        qmin = 0.333
+      else
+        qmin = 0.2
+      end
+    else
+      qmin = o[:qmin]
+    end
+    if o[:qmax] == nothing # Use default qmax
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+        qmax = 10.0
+      elseif alg == :DP8 || alg == :DP8Vectorized
+        qmax = 6.0
+      else
+        qmax = 10.0
+      end
+    else
+      qmax = o[:qmax]
+    end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
         β = 0.10 # More than Hairer's suggestion
+        expo1 = 1/order - .75β
       elseif alg == :DP8 || alg == :DP8Vectorized
         β = 0.07 # More than Hairer's suggestion
+        expo1 = 1/order - .2β
       else
         β = 0.4 / order
       end
     else
       β = o[:β]
+    end
+    if o[:expo1] == nothing # Use default expo1
+      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+        expo1 = 1/order - .75β
+      elseif alg == :DP8 || alg == :DP8Vectorized
+        expo1 = 1/order - .2β
+      else
+        expo1 = .7/order
+      end
+    else
+      expo1 = o[:expo1]
     end
     fsal = false
     if alg ∈ DIFFERENTIALEQUATIONSJL_FSALALGS
@@ -126,10 +171,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
 
     Ts = map(tType,o[:Ts])
     t = tType(o[:t])
-    timeseries = Vector{uType}(0)
-    push!(timeseries,u₀)
-    ts = Vector{tType}(0)
-    push!(ts,t)
 
     o[:abstol] = convert(uEltype,o[:abstol])
 
@@ -140,10 +181,20 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     rateType = typeof(u/zero(t)) ## Can be different if united
 
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,tableau,autodiff, timechoicealg,qoldinit= o
-    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType}(g,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
-    u,t,timeseries,ts = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType}(f!,u,t,Δt,Ts,maxiters,timeseries,ts,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal))
+    if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+      ksEltype = Vector{rateType} # Store more ks for the special algs
+    else
+      ksEltype = rateType # Makes simple_dense
+    end
 
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
+    #@code_warntype  ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,,uEltypeNoUnits,rateType,ksEltype}(g,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,timechoicealg,qoldinit,normfactor,fsal,dense,saveat))
+    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg))
+
+    if ts[end] != t
+      push!(ts,t)
+      push!(timeseries,u)
+    end
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
     if typeof(u) <: Number
@@ -152,6 +203,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:Ts] = float(o[:Ts])
     o[:t] = float(o[:t])
     t = o[:t]; Ts = o[:Ts]
+    saveat = [float(x) for x in command_opts[:saveat]]
     if !isinplace && typeof(u)<:AbstractArray
       f! = (t,u,du) -> (du[:] = vec(prob.f(t,reshape(u,sizeu))); nothing)
     else
@@ -195,6 +247,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:t] = float(o[:t])
     t = o[:t]; Ts = o[:Ts]
     o[:T] = Ts[end]
+    saveat = [float(x) for x in command_opts[:saveat]]
     initialize_backend(:ODEJL)
     opts = buildOptions(o,ODEJL_OPTION_LIST,ODEJL_ALIASES,ODEJL_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -224,7 +277,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     elseif alg==:ode45_fe
       solver = ODE.RKIntegrator{FoA,:rk45}
     end
-    #out = collect(ode(f!,u,t,solver=solver,opts...))
     out = ODE.solve(ode;solver=solver,opts...)
     timeseries = out.y
     ts = out.t
@@ -253,6 +305,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     o[:Ts] = map(Float64,o[:Ts])
     o[:t] = map(Float64,o[:t])
     t = o[:t]; Ts = o[:Ts];
+    saveat = [float(x) for x in command_opts[:saveat]]
     initialize_backend(:Sundials)
     opts = buildOptions(o,SUNDIALS_OPTION_LIST,SUNDIALS_ALIASES,SUNDIALS_ALIASES_REVERSED)
     if !isinplace && typeof(u)<:AbstractArray
@@ -297,6 +350,19 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   end
 
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
+
+  if knownanalytic
+    u_analytic = analytic(t,u₀)
+    timeseries_analytic = Vector{uType}(0)
+    for i in 1:size(timeseries,1)
+      push!(timeseries_analytic,analytic(ts[i],u₀))
+    end
+    return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
+  else
+    return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
+  end
+  #=
+
   if knownanalytic
     u_analytic = analytic(t,u₀)
     if save_timeseries
@@ -304,18 +370,18 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       for i in 1:size(timeseries,1)
         push!(timeseries_analytic,analytic(ts[i],u₀))
       end
-      return(ODESolution(u,u_analytic,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic))
+      return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
     else
-      return(ODESolution(u,u_analytic))
+      return(ODESolution(u,u_analytic,prob,alg))
     end
   else #No known analytic
     if save_timeseries
-      timeseries = copy(timeseries)
-      return(ODESolution(u,timeseries=timeseries,t=ts))
+      return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
     else
-      return(ODESolution(u))
+      return(ODESolution(u,prob,alg))
     end
   end
+  =#
 end
 
 function buildOptions(o,optionlist,aliases,aliases_reversed)

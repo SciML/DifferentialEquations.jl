@@ -28,6 +28,7 @@ makedocs(modules=[DifferentialEquations],
            "man/StokesProblem.md",
            "man/mesh.md",
            "man/solution.md",
+           "man/output_specification.md",
            "man/plot.md",
            "man/function_definition_macros.md",
            "man/benchmarks.md",
@@ -46,7 +47,7 @@ makedocs(modules=[DifferentialEquations],
 
 
 deploydocs(
-   repo = "github.com/ChrisRackauckas/DifferentialEquations.jl.git",
+   repo = "github.com/JuliaDiffEq/DifferentialEquations.jl.git",
    target = "build",
    deps = nothing,
    make = nothing)

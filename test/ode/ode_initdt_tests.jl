@@ -2,8 +2,7 @@ using DifferentialEquations,Plots
 
 prob = prob_ode_linear
 println("Solve and Plot")
-tab = constructBogakiShampine3()
-sol =solve(prob::ODEProblem,save_timeseries=true,alg=:Rosenbrock32,adaptive=true,tableau=tab)
+sol =solve(prob::ODEProblem,save_timeseries=true,alg=:Rosenbrock32,adaptive=true)
 TEST_PLOT && plot(sol,plot_analytic=true)
 Δt₀ = sol.t[2]
 

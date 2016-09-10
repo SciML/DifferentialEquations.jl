@@ -2,8 +2,8 @@
 
 DiffernetialEquations.jl provides a benchmarking suite to be able to test the
 difference in error, speed, and efficiency between algorithms. To see it in
-action, checkout the [Runge-Kutta benchmarks](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/benchmarks/Runge-Kutta%20Benchmarks%20on%20Linear%20ODEs.ipynb)
-or the [Three Body Problem benchmarks](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/benchmarks/Three%20Body%20Benchmarks.ipynb).
+action, checkout the [Runge-Kutta benchmarks](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/benchmarks/Runge-Kutta%20Benchmarks%20on%20Linear%20ODEs.ipynb)
+or the [Three Body Problem benchmarks](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/benchmarks/Three%20Body%20Benchmarks.ipynb).
 
 There are two parts to the benchmarking suite: shootouts and work-precision.
 

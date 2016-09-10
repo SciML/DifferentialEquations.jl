@@ -55,6 +55,7 @@ module DifferentialEquations
   include("ode/ode_constants.jl")
   include("ode/ode_integrators.jl")
   include("ode/ode_solve.jl")
+  include("ode/ode_dense.jl")
   include("sde/sde_tableaus.jl")
   include("general/benchmark.jl")
   include("general/plotrecipes.jl")
@@ -135,7 +136,8 @@ module DifferentialEquations
          constructTanakaKasugaYamashitaYazaki6B, constructTanakaKasugaYamashitaYazaki6A,
          constructMikkawyEisa, constructChummund6, constructChummund62,
          constructHuta62, constructHuta6, constructRKF4, constructVern6, constructTsit5,
-         constructBS5, constructTanYam7, constructTsitPap8, constructVern9
+         constructBS5, constructTanYam7, constructTsitPap8, constructVern9,
+         constructVerner8, constructVerner7
 
   #Misc Tools
   export numparameters, checkSRIOrder, checkSRAOrder,
