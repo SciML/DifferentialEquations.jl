@@ -9,11 +9,11 @@ end
 macro ode_define(ex,params...)
   ## Build symbol dictionary
   dict = Dict{Symbol,Int}()
-  spot = 1
   for i in 2:2:length(ex.args) #Every odd line is line number
     arg = ex.args[i].args[1] #Get the first thing, should be dsomething
     nodarg = symbol(string(arg)[2:end]) #Take off the d
     if !haskey(dict,nodarg)
+      s = string(arg)
       dict[symbol(string(arg)[2:end])] = i/2 # and label it the next int if not seen before
     end
   end
@@ -34,24 +34,26 @@ function ode_findreplace(ex,dict,syms,pdict)
     if isa(arg,Expr)
       ode_findreplace(arg,dict,syms,pdict)
     elseif isa(arg,Symbol)
+      s = string(arg)
       if haskey(dict,arg)
         ex.args[i] = :(u[$(dict[arg])])
       elseif haskey(pdict,arg)
         ex.args[i] = :($(pdict[arg]))
-      elseif length(string(arg))>1 && haskey(dict,symbol(string(arg)[2:end])) && symbol(string(arg)[1])==:d
-        tmp = symbol(string(arg)[2:end]) # Remove the first letter, the d
+      elseif length(string(arg))>1 && haskey(dict,symbol(s[nextind(s, 1):end])) && symbol(s[1])==:d
+        tmp = symbol(s[nextind(s, 1):end]) # Remove the first letter, the d
         ex.args[i] = :(du[$(dict[tmp])])
       end
     end
   end
 end
 
-macro fem_define(sig,variables,ex,params...)
+macro fem_define(sig,ex,params...)
   ## Build symbol dictionary
   dict = Dict{Symbol,Int}()
-  spot = 1
-  for (i,arg) in enumerate(variables.args) #Every odd line is line number
-    dict[arg] = i # and label it the next int if not seen before
+  for (i,arg) in enumerate(ex.args)
+    if i%2 == 0
+      dict[symbol(string(arg.args[1])[2:end])] = i/2 # Change du->u, Fix i counting
+    end
   end
   syms = keys(dict)
 
@@ -62,6 +64,14 @@ macro fem_define(sig,variables,ex,params...)
   end
   # Run find replace
   fem_findreplace(ex,dict,syms,pdict)
+
+  funcs = Vector{Expr}(0) # Get all of the functions
+  for (i,arg) in enumerate(ex.args)
+    if i%2 == 0
+      push!(funcs,arg.args[2])
+    end
+  end
+  ex = Expr(:hcat,funcs...)
   # Return the lambda
   :($(sig) -> $(ex))
 end

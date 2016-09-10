@@ -35,7 +35,7 @@ package by checking out master:
 Pkg.checkout("PkgName")
 ```
 
-If all else fails, please ask for help on [via the repository Gitter](https://gitter.im/ChrisRackauckas/DifferentialEquations.jl).
+If all else fails, please ask for help on [via the repository Gitter](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl).
 
 ## What Methods Require Conditional Dependencies?
 
@@ -62,8 +62,8 @@ be required. The best way to stay up-to-date on this information is to checkout
 the following resources:
 
 - The packages which are conditional dependencies and use a standard installation
-  can be found in the [/test/REQUIRE](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/test/REQUIRE) file.
-- Any special installation instructions are handled via [the ci_setup.jl file](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/test/ci_setup.jl).
+  can be found in the [/test/REQUIRE](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/test/REQUIRE) file.
+- Any special installation instructions are handled via [the ci_setup.jl file](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/test/ci_setup.jl).
 
 The current special installation instructions are as follows:
 

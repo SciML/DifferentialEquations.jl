@@ -43,14 +43,16 @@ Choose one of these methods with the `alg` keyword in `solve`.
   - `:Euler`- The canonical forward Euler method.
   - `:Midpoint` - The second order midpoint method.
   - `:RK4` - The canonical Runge-Kutta Order 4 method.
-  - `:BS3` - Bogacki-Shampine 2/3 method.
-  - `:DP5` - Dormand-Prince's 4/5 Runge-Kutta method.
-  - `Tsit5` - Tsitouras 4/5 Runge-Kutta method.
-  - `BS5` - Bogacki-Shampine 4/5 Runge-Kutta method.
-  - `Vern6` - Verner's "Most Efficient" 5/6 Runge-Kutta method.
+  - `:BS3` - Bogacki-Shampine 3/2 method.
+  - `:DP5` - Dormand-Prince's 5/4 Runge-Kutta method.
+  - `Tsit5` - Tsitouras 5/4 Runge-Kutta method.
+  - `BS5` - Bogacki-Shampine 5/4 Runge-Kutta method.
+  - `Vern6` - Verner's "Most Efficient" 6/5 Runge-Kutta method.
+  - `Vern7` - Verner's "Most Efficient" 7/6 Runge-Kutta method.
   - `TanYam7` - Tanaka-Yamashita 7 Runge-Kutta method.
   - `DP8` - Hairer's 8/5/3 adaption of the Dormand-Prince 8 method Runge-Kutta method.
   - `TsitPap8` - Tsitouras-Papakostas 8/7 Runge-Kutta method.
+  - `Vern8` - Verner's "Most Efficient" 8/7 Runge-Kutta method.
   - `Vern9` - Verner's "Most Efficient" 9/8 Runge-Kutta method.
   - `:Feagin10` - Feagin's 10th-order Runge-Kutta method.
   - `:Feagin12` - Feagin's 12th-order Runge-Kutta method.
@@ -60,18 +62,21 @@ Choose one of these methods with the `alg` keyword in `solve`.
     for Dormand-Prince 4/5. Other supplied tableaus can be found in the Supplied Tableaus section.
   - `:ImplicitEuler` - A 1st order implicit solver. Unconditionally stable.
   - `:Trapezoid` - A second order unconditionally stable implicit solver. Good for highly stiff.
-  - `:Rosenbrock32` - A fast solver which is good for mildy stiff equations.
+  - `:Rosenbrock23` - An Order 2/3 L-Stable fast solver which is good for mildy stiff equations with oscillations.
+  - `:Rosenbrock32` - An Order 3/2 A-Stable fast solver which is good for mildy stiff equations without oscillations.
 
 * DifferentialEquations.jl Vectorized Implementations (Not as efficient, allocate, but may be useful for specific purposes)
 
     - `ExplicitRKVectorized` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive.
-    - `BS3Vectorized` - Bogacki-Shampine 2/3 Runge-Kutta method.
-    - `Tsit5Vectorized` - Tsitouras 4/5 Runge-Kutta method.
-    - `BS5Vectorized` - Bogacki-Shampine 4/5 Runge-Kutta method.
-    - `Vern6Vectorized` - Verner's "Most Efficient" 5/6 Runge-Kutta method.
+    - `BS3Vectorized` - Bogacki-Shampine 3/2 Runge-Kutta method.
+    - `Tsit5Vectorized` - Tsitouras 5/4 Runge-Kutta method.
+    - `BS5Vectorized` - Bogacki-Shampine 5/4 Runge-Kutta method.
+    - `Vern6Vectorized` - Verner's "Most Efficient" 6/5 Runge-Kutta method.
+    - `Vern6Vectorized` - Verner's "Most Efficient" 7/6 Runge-Kutta method.
     - `TanYam7Vectorized` - Tanaka-Yamashita 7 Runge-Kutta method.
     - `DP8Vectorized` - Hairer's 8/5/3 adaption of the Dormand-Prince 8 method Runge-Kutta method.
     - `TsitPap8Vectorized` - Tsitouras-Papakostas 8/7 Runge-Kutta method.
+    - `Vern8Vectorized` - Verner's "Most Efficient" 8/7 Runge-Kutta method.
     - `Vern9Vectorized` - Verner's "Most Efficient" 9/8 Runge-Kutta method.
     - `:Feagin10Vectorized` - Feagin's 10th-order Runge-Kutta method.
     - `:Feagin12Vectorized` - Feagin's 12th-order Runge-Kutta method.
@@ -111,16 +116,16 @@ for general uses (i.e. use `:DP5` instead of `:ExplicitRK` with `tableau=constru
 However, these serve as a good method for comparing between tableaus and understanding
 the pros/cons of the methods. Implemented are every published tableau (that I know exist).
 Note that user-defined tableaus also are accepted.
-To see how to define a tableau, checkout the [premade tableau source code](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/ode/ode_tableaus.jl).
+To see how to define a tableau, checkout the [premade tableau source code](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/src/ode/ode_tableaus.jl).
 Tableau docstrings should have appropriate citations (if not, file an issue).
 
 A plot recipes is provided which will plot the stability region for a given tableau.
 
 ### Explicit Runge-Kutta Methods
 
+* `constructEuler` - Euler's 1st order method.
 * `constructHuen()` Huen's order 2 method.
 * `constructRalston()` - Ralston's order 2 method.
-* `constructEuler` - Euler's 1st order method.
 * `constructKutta3` - Kutta's classic 3rd order method
 * `constructRK4` - The classic 4th order "Runge-Kutta" method
 * `constructRK438Rule` - The classic 4th order "3/8th's Rule" method
@@ -172,6 +177,7 @@ A plot recipes is provided which will plot the stability region for a given tabl
 * `constructTanakaYamashitaEfficient7()` - Tanaka-Yamashita more efficient order 7 algorithm.
 * `constructSharpSmart7()` - Sharp-Smart's order 7 algorithm.
 * `constructSharpVerner7()` - Sharp-Verner's order 7 algorithm.
+* `constructVerner7()` - Verner's "most efficient" order 7 algorithm.
 * `constructVernerEfficient7()` - Verner's "most efficient" order 7 algorithm.
 * `constructClassicVerner8()` - A classic Verner order 8 algorithm (1978).
 * `constructCooperVerner8()` - Cooper-Verner's first order 8 algorithm.
@@ -180,6 +186,7 @@ A plot recipes is provided which will plot the stability region for a given tabl
 * `constructdverk78()` - The classic order 8 DVERK algorithm.
 * `constructEnrightVerner8()` - Enright-Verner order 8 algorithm.
 * `constructCurtis8()` - Curtis' order 8 algorithm.
+* `constructVerner8()` - Verner's "most efficient" order 8 algorithm.
 * `constructRKF8()` - Runge-Kutta-Fehlberg Order 7/8 method.
 * `constructDormandPrice8()` - Dormand-Prince Order 7/8 method.
 * `constructDormandPrince8_64bit()` - Dormand-Prince Order 7/8 method.

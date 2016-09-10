@@ -20,7 +20,7 @@ DifferentialEquations.ODEProblem
 
 ## Example Problems
 
-Examples problems can be found in [src/premades/premade_problems.jl](https://github.com/ChrisRackauckas/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl).
+Examples problems can be found in [src/premades/premade_problems.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/src/premades/premade_problems.jl).
 
 To use a sample problem, such as `prob_ode_linear`, you can do something like:
 

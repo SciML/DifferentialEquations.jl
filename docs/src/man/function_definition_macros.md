@@ -34,12 +34,12 @@ do this replacement, along with adding in parameters. Since FEM functions are mo
 general, we also have to give it the function signature. Using the macro looks like this:
 
 ```julia
-f  = @fem_define((x),(),begin
+f  = @fem_define (x) begin
   sin(α.*x).*cos(α.*y)
-end,α=>2π)
-gD = @fem_define((x),(),begin
+end α=>2π
+gD = @fem_define (x) begin
   sin(α.*x).*cos(α.*y)/β
-end,α=>2π,β=>8π*π)
+end α=>2π β=>8π*π
 ```
 
 This is equivalent to the definition
@@ -56,9 +56,10 @@ algorithms you need to use `u[:,1]`,`u[:,2]`,etc. To avoid obfuscated code, the
 `@fem_define` macro does this conversion. For example:
 
 ```julia
-l = @fem_define((t,x,u),(u,v),begin
-  [ones(length(u))-α*u ones(length(v))-v]
-end,α=>0.5)
+l = @fem_define (t,x,u) begin
+  du = ones(length(u))-α*u
+  dv = ones(length(v))-v
+end α=>0.5
 ```
 says there are two equations, one for `u`: (`ones(length(u))-α*u`) and one for `v`:
 `(ones(length(v))-v)`. This expands to the equation

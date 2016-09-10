@@ -19,8 +19,8 @@ sol2 =solve(prob::ODEProblem,[0,1],Δt=BigInt(1)/BigInt(2)^(6),save_timeseries=t
 sol.u
 sol2.u
 sol3.u
-bool1 = 1.93e-16 < abs(sol.u - sol3.u) < 1.94e-16
-bool2 = 1.93e-16  < abs(sol2.u - sol3.u) <1.94e-16
+bool1 = 6.37e-16 < abs(sol.u - sol3.u) < 6.38e-16
+bool2 = 6.37e-16  < abs(sol2.u - sol3.u) <6.38e-16
 bool3 = sol2.u - sol.u < big(1.73e-77)
 bool4 = typeof(sol.u) == Rational{BigInt}
 bool5 = typeof(sol2.u) == Rational{BigInt}

@@ -1,3 +1,14 @@
+function recursivecopy!{T<:Number,N}(b::Array{T,N},a::Array{T,N})
+  copy!(b,a)
+end
+
+function recursivecopy!{T<:AbstractArray,N}(b::Array{T,N},a::Array{T,N})
+  for i in eachindex(a)
+    recursivecopy!(b[i],a[i])
+  end
+end
+
+
 #=
 function cg!(x::AbstractMatrix, A, b, Pl=1; tol::Real=size(A,2)*eps(), maxiter::Int=size(A,2))
   for i=1:size(x,2)
