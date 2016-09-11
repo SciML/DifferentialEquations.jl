@@ -238,18 +238,19 @@ function FEMSolutionTS{uType<:AbstractArray}(timeseries::Vector{uType},numvars::
   for j = 2:length(timeseries)
     push!(G,timeseries[j][:,1])
   end
-  timeseries = Vector{typeof(G)}(0)
-  push!(timeseries,G)
+  component_timeseries = Vector{typeof(G)}(0)
+  push!(component_timeseries,G)
+
   if numvars > 1
     for i=2:numvars
-      G = Vector{typeof(timeseries[1][:,i])}(0)
+      G = Vector{typeof(timeseries[1][:,1])}(0)
       for j = 1:length(timeseries)
         push!(G,timeseries[j][:,i])
       end
-      push!(timeseries,G)
+      push!(component_timeseries,G)
     end
   end
-  return(timeseries)
+  return(component_timeseries)
 end
 
 Base.length(sol::DESolution) = length(sol.t)
