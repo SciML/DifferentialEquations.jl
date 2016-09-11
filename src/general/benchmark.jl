@@ -133,7 +133,7 @@ type WorkPrecisionSet
   names
 end
 
-function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,numruns=20,error_estimate=:final,kwargs...)
+function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,numruns=20,endsol=nothing,error_estimate=:final,kwargs...)
   N = length(abstols)
   errors = Vector{Float64}(N)
   times = Vector{Float64}(N)
