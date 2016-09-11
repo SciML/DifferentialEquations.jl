@@ -971,9 +971,9 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       utmp = u+Δt*(a81*k1+a83*k3+a84*k4+a85*k5+a86*k6+a87*k7)
       fsallast = f(t+Δt,utmp); k8 = fsallast
       if adaptive
-        uhat   = u + Δt*(bhat1*k1 + bhat3*k3 + bhat4*k4 + bhat5*k5 + bhat6*k6)
+        uhat   = Δt*(bhat1*k1 + bhat3*k3 + bhat4*k4 + bhat5*k5 + bhat6*k6)
         utilde = u + Δt*(btilde1*k1 + btilde2*k2 + btilde3*k3 + btilde4*k4 + btilde5*k5 + btilde6*k6 + btilde7*k7 + btilde8*k8)
-        EEst1 = sqrt( sum(((uhat-utmp)./(abstol+max(abs(u),abs(utmp))*reltol)).^2) * normfactor)
+        EEst1 = sqrt( sum(((uhat)./(abstol+max(abs(u),abs(utmp))*reltol)).^2) * normfactor)
         EEst2 = sqrt( sum(((utilde-utmp)./(abstol+max(abs(u),abs(utmp))*reltol)).^2) * normfactor)
         EEst = max(EEst1,EEst2)
       else
