@@ -7,14 +7,14 @@ macro def(name, definition)
 end
 
 macro ode_define(ex,params...)
-  ## Build symbol dictionary
+  ## Build Symbol dictionary
   dict = Dict{Symbol,Int}()
   for i in 2:2:length(ex.args) #Every odd line is line number
     arg = ex.args[i].args[1] #Get the first thing, should be dsomething
-    nodarg = symbol(string(arg)[2:end]) #Take off the d
+    nodarg = Symbol(string(arg)[2:end]) #Take off the d
     if !haskey(dict,nodarg)
       s = string(arg)
-      dict[symbol(string(arg)[2:end])] = i/2 # and label it the next int if not seen before
+      dict[Symbol(string(arg)[2:end])] = i/2 # and label it the next int if not seen before
     end
   end
   syms = keys(dict)
@@ -39,8 +39,8 @@ function ode_findreplace(ex,dict,syms,pdict)
         ex.args[i] = :(u[$(dict[arg])])
       elseif haskey(pdict,arg)
         ex.args[i] = :($(pdict[arg]))
-      elseif length(string(arg))>1 && haskey(dict,symbol(s[nextind(s, 1):end])) && symbol(s[1])==:d
-        tmp = symbol(s[nextind(s, 1):end]) # Remove the first letter, the d
+      elseif length(string(arg))>1 && haskey(dict,Symbol(s[nextind(s, 1):end])) && Symbol(s[1])==:d
+        tmp = Symbol(s[nextind(s, 1):end]) # Remove the first letter, the d
         ex.args[i] = :(du[$(dict[tmp])])
       end
     end
@@ -48,11 +48,11 @@ function ode_findreplace(ex,dict,syms,pdict)
 end
 
 macro fem_define(sig,ex,params...)
-  ## Build symbol dictionary
+  ## Build Symbol dictionary
   dict = Dict{Symbol,Int}()
   for (i,arg) in enumerate(ex.args)
     if i%2 == 0
-      dict[symbol(string(arg.args[1])[2:end])] = i/2 # Change du->u, Fix i counting
+      dict[Symbol(string(arg.args[1])[2:end])] = i/2 # Change du->u, Fix i counting
     end
   end
   syms = keys(dict)
