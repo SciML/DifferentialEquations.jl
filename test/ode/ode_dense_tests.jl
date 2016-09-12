@@ -181,9 +181,9 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(7),alg=:Vern6,dense=true,adaptive=f
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
-plot(sol2.t,interpd)
-plot!(sol.t,sol[:])
-scatter!(sol.t,sol[:])
+#plot(sol2.t,interpd)
+#plot!(sol.t,sol[:])
+#scatter!(sol.t,sol[:])
 
 prob_ode_bigfloatveclinear = ODEProblem(f,[parse(BigFloat,"0.5")])
 prob = prob_ode_bigfloatveclinear
