@@ -76,9 +76,9 @@ Pkg.clone("https://github.com/JuliaODE/ODE.jl")
 ```
 
 ### Sundials.jl
-The wrapper works on my fork until a PR goes through. You can install this via:
+The wrapper works on the master branch. You can install this via:
 
 ```julia
-Pkg.clone("https://github.com/alyst/Sundials.jl")
-Pkg.checkout("Sundials","handles")
+Pkg.clone("https://github.com/JuliaDiffEq/Sundials.jl")
+Pkg.checkout("Sundials")
 ```

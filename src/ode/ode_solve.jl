@@ -312,8 +312,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       f! = (t,u,du) -> (prob.f(t,reshape(u,sizeu),reshape(du,sizeu)); u = vec(u); du=vec(du); 0)
     end
     ts = [t;Ts]
+    @materialize abstol, reltol = command_opts
     if command_opts[:adaptive]
-      ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts,integrator=integrator)
+      ts, vectimeseries = Sundials.cvode_fulloutput(f!,vec(u),ts;integrator=integrator,abstol=float(abstol),reltol=float(reltol))
       timeseries = Vector{uType}(0)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
