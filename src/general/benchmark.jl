@@ -164,7 +164,7 @@ function ode_workprecision_set(prob::ODEProblem,tspan,abstols,reltols,setups;num
     names = [string(setups[i][:alg]) for i=1:length(setups)]
   end
   for i in 1:N
-    wps[i] = ode_workprecision(prob,tspan,abstols,reltols;numruns=numruns,name=names[i],kwargs...,setups[i]...)
+    wps[i] = ode_workprecision(prob,tspan,abstols,reltols;numruns=numruns,endsol=endsol,name=names[i],kwargs...,setups[i]...)
   end
   return WorkPrecisionSet(wps,N,abstols,reltols,prob,tspan,setups,names)
 end
