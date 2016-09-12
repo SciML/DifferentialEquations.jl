@@ -4,7 +4,7 @@ module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
         ChunkedArrays, InplaceOps, SIUnits
-  import Base: length, size, getindex, endof, show, print, max
+  import Base: length, size, getindex, endof, show, print, max, linspace
   import ForwardDiff.Dual
 
   "`PdeProblem`: Defines differential equation problems via its internal functions"
