@@ -373,4 +373,5 @@ sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:DP8,dense=true,adaptive=fal
 
 # push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 0.03)
 
+println(bools)
 minimum(bools)
