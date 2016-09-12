@@ -15,7 +15,7 @@ sol2(.49)
 
 interpd = sol2(0:1//2^(4):1)
 
-plot(0:1//2^(4):1,interpd)
+#plot(0:1//2^(4):1,interpd)
 
 push!(bools,symdiff(sol.t,sol2.t) == [1/2])
 
