@@ -27,6 +27,17 @@ f = (t,u,du) -> begin
 end
 ```
 
+Note that one doesn't need to use numbered variables: DifferentialEquations.jl
+will number the variables for you. For example, the follows defines the function
+for the Lotka-Voltera model:
+
+```julia
+f = @ode_define begin
+  dx = a*x - b*x*y
+  dy = -c*y + d*x*y
+end a=1.5 b=1 c=3 d=1
+```
+
 The other macro which is currently provided is the `@fem_define` macro. This macro
 is for parsing and writing FEM functions. For example, in the FEM methods you have
 to use `x[:,1]` instead of `x` and `x[:,2]` instead of `y`. The macro will automatically
