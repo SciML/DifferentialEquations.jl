@@ -198,11 +198,6 @@ push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 ### BS5
 
-const linear_bigα = parse(BigFloat,"1.01")
-f = (t,u) -> (linear_bigα*u)
-prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.9"))
-prob = prob_ode_bigfloatlinear
-
 prob = prob_ode_linear
 
 sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(1),save_timeseries=true,alg=:BS5,dense=true,adaptive=false)
@@ -211,7 +206,7 @@ interpd = sol(0:1//2^(7):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(7),alg=:BS5,dense=true,adaptive=false)
 
-# push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 # plot(sol2.t,interpd)
 
@@ -223,7 +218,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:BS5,dense=true,adaptive=false)
 
-# push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
 ### Vern7
 
