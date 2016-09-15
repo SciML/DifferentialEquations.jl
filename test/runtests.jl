@@ -131,7 +131,7 @@ println("DGS Internals Test")
 
 #Optional Items
 println("Units Tests")
-(LONGER_TESTS) && (@time @test include("internals/units_tests.jl"))
+(LONGER_TESTS) && @compat !is_windows() && (@time @test include("internals/units_tests.jl")) # Too long for AppVeyor
 println("ODEInterface Tests")
 (TEST_CONDITIONAL_DEPS) && @compat !is_windows() && (@time @test include("ode/ODEInterface_tests.jl"))
 println("ODE.jl Tests")
