@@ -76,7 +76,7 @@ says there are two equations, one for `u`: (`ones(length(u))-α*u`) and one for 
 `(ones(length(v))-v)`. This expands to the equation
 
 ```julia
-h = (t,x,u)  -> [ones(size(x,1))-.5u[:,1]   ones(size(x,1))-u[:,2]]
+l = (t,x,u)  -> [ones(size(x,1))-.5u[:,1]   ones(size(x,1))-u[:,2]]
 ```
 
 When you have 10+ variables, using `@fem_define` leads to code which is much
