@@ -170,8 +170,8 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:Euler,:stochast
     dW = next(rands)
     u[freenode,:] = u[freenode,:] - D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) + (Minv*Δt*quadfbasis((x,u)->f(t,x,u),(x)->gD(t,x),(x)->gN(t,x),
                 A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
-                (sqrtΔt.*dW.*Minv*quadfbasis((x,u)->σ(t,x,u),(x)->gD(t,x),(x)->gN(t,x),
-                            A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
+                (sqrtΔt.*dW.*(Minv*quadfbasis((x,u)->σ(t,x,u),(x)->gD(t,x),(x)->gN(t,x),
+                            A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)))[freenode,:]
     t += Δt
     @femheat_footer
   end
@@ -184,8 +184,8 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:ImplicitEuler,:sto
   K = eye(N) + Δt*Minv*D*A #D okay since numVar = 1 for linear
   lhs = K[freenode,freenode]
   rhs(i,u,dW) = u[freenode,:] + (Minv*Δt*quadfbasis((x)->f((i)*Δt,x),(x)->gD((i)*Δt,x),(x)->gN((i)*Δt,x),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
-              (sqrtΔt.*dW.*Minv*quadfbasis((x)->σ((i-1)*Δt,x),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
-                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
+              (sqrtΔt.*dW.*(Minv*quadfbasis((x)->σ((i-1)*Δt,x),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)))[freenode,:]
   @femheat_implicitpreamble
   @inbounds for i=1:numiters
     dW = next(rands)
@@ -217,8 +217,8 @@ function femheat_solve(integrator::FEMHeatIntegrator{:linear,:CrankNicholson,:st
   Kp = eye(N) + Δt*Minv*D*A/2 #D okay since numVar = 1 for linear
   lhs = Kp[freenode,freenode]
   rhs(i,u,dW) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x)->f((i-.5)*Δt,x),(x)->gD((i-.5)*Δt,x),(x)->gN((i-.5)*Δt,x),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
-              (sqrtΔt.*dW.*Minv*quadfbasis((x)->σ((i-1)*Δt,x),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
-                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
+              (sqrtΔt.*dW.*(Minv*quadfbasis((x)->σ((i-1)*Δt,x),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)))[freenode,:]
   @femheat_implicitpreamble
   @inbounds for i=1:numiters
     dW = next(rands)
@@ -268,8 +268,8 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitEul
   lhs = K[freenode,freenode]
   rhs(i,u,dW) = u[freenode,:] + (Minv*Δt*quadfbasis((x,u)->f((i)*Δt,x,u),(x)->gD((i)*Δt,x),(x)->gN((i)*Δt,x),
               A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
-              (sqrtΔt.*dW.*Minv*quadfbasis((x,u)->σ((i-1)*Δt,x,u),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
-                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
+              (sqrtΔt.*dW.*(Minv*quadfbasis((x,u)->σ((i-1)*Δt,x,u),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)))[freenode,:]
   @femheat_implicitpreamble
   @inbounds for i=1:numiters
     dW = next(rands)
@@ -306,8 +306,8 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:SemiImplicitCra
   lhs = Kp[freenode,freenode]
   rhs(i,u,dW) = Km[freenode,freenode]*u[freenode,:] + (Minv*Δt*quadfbasis((x,u)->f((i-.5)*Δt,x,u),(x)->gD((i-.5)*Δt,x),(x)->gN((i-.5)*Δt,x),
               A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] +
-              (sqrtΔt.*dW.*Minv*quadfbasis((x,u)->σ((i-1)*Δt,x,u),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
-                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
+              (sqrtΔt.*dW.*(Minv*quadfbasis((x,u)->σ((i-1)*Δt,x,u),(x)->gD((i-1)*Δt,x),(x)->gN((i-1)*Δt,x),
+                          A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)))[freenode,:]
   @femheat_implicitpreamble
   @inbounds for i=1:numiters
     dW = next(rands)
@@ -344,8 +344,8 @@ function femheat_solve(integrator::FEMHeatIntegrator{:nonlinear,:ImplicitEuler,:
   function rhs!(i,u,resid,dW,uOld)
     u = reshape(u,N,numvars)
     resid = reshape(resid,N,numvars)
-    resid[freenode,:] = u[freenode,:] - uOld[freenode,:] + D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) - (Minv*Δt*quadfbasis((x,u)->f((i)*Δt,x,u),(x)->gD((i)*Δt,x),(x)->gN((i)*Δt,x),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] -(sqrtΔt.*dW.*Minv*quadfbasis((x,u)->σ((i)*Δt,x,u),(x)->gD((i)*Δt,x),(x)->gN((i)*Δt,x),
-                A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:]
+    resid[freenode,:] = u[freenode,:] - uOld[freenode,:] + D.*(Δt*Minv[freenode,freenode]*A[freenode,freenode]*u[freenode,:]) - (Minv*Δt*quadfbasis((x,u)->f((i)*Δt,x,u),(x)->gD((i)*Δt,x),(x)->gN((i)*Δt,x),A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars))[freenode,:] -(sqrtΔt.*dW.*(Minv*quadfbasis((x,u)->σ((i)*Δt,x,u),(x)->gD((i)*Δt,x),(x)->gN((i)*Δt,x),
+                A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann,islinear,numvars)))[freenode,:]
     u = vec(u)
     resid = vec(resid)
   end
