@@ -138,7 +138,7 @@ Plots.gui()
 ### Defining Systems of Equations Eloquently Using @ode_define
 
 To simplify your life, DifferentialEquations.jl provides the `@ode_define` macro
-for "defining your ODE in psudocode" and getting a function which is efficient
+for "defining your ODE in pseudocode" and getting a function which is efficient
 and runnable. For our example we will use [the Lorenz system](https://en.wikipedia.org/wiki/Lorenz_system).
 The standard way to write this out in most mathematical programs is the following:
 

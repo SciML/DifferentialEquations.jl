@@ -2432,8 +2432,8 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       k10 =f(t+c10*Δt,u+Δt*(a1001*k1                +a1004*k4+a1005*k5+a1006*k6+a1007*k7+a1008*k8+a1009*k9))
       k11= f(t+c11*Δt,u+Δt*(a1101*k1                +a1104*k4+a1105*k5+a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10))
       k12= f(t+Δt,u+Δt*(a1201*k1                +a1204*k4+a1205*k5+a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11))
-      k13= b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12
-      update = Δt*k13
+      kupdate= b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12
+      update = Δt*kupdate
       utmp = u + update
       if adaptive
         err5 = abs(Δt*(k1*er1 + k6*er6 + k7*er7 + k8*er8 + k9*er9 + k10*er10 + k11*er11 + k12*er12)/(abstol+max(abs(u),abs(utmp))*reltol) * normfactor) # Order 5
@@ -2444,10 +2444,11 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         u = utmp
       end
       if calck
+        k13 = f(t+Δt,utmp)
         k14 = f(t+c14*Δt,u+Δt*(a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13))
         k15 = f(t+c15*Δt,u+Δt*(a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14))
         k16 = f(t+c16*Δt,u+Δt*(a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15))
-        udiff = k13
+        udiff = kupdate
         k[1] = udiff
         bspl = k1 - udiff
         k[2] = bspl
@@ -2469,7 +2470,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = rateType(sizeu); k2  = rateType(sizeu); k3  = rateType(sizeu);  k4 = rateType(sizeu)
   k5 = rateType(sizeu); k6  = rateType(sizeu); k7  = rateType(sizeu);  k8 = rateType(sizeu)
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
-  k13 = rateType(sizeu); local k14::rateType; local k15::rateType; local k16::rateType;
+  kupdate = rateType(sizeu); local k14::rateType; local k15::rateType; local k16::rateType;
   local udiff::rateType; local bspl::rateType
   utilde = similar(u); err5 = similar(u); err3 = similar(u)
 
@@ -2486,6 +2487,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         kprev = deepcopy(k)
       end
     end
+    k13 = rateType(sizeu)
     k14 = rateType(sizeu)
     k15 = rateType(sizeu)
     k16 = rateType(sizeu)
@@ -2507,8 +2509,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       f(t+c10*Δt,u+Δt*(a1001*k1                +a1004*k4+a1005*k5+a1006*k6+a1007*k7+a1008*k8+a1009*k9),k10)
       f(t+c11*Δt,u+Δt*(a1101*k1                +a1104*k4+a1105*k5+a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10),k11)
       f(t+Δt,u+Δt*(a1201*k1                +a1204*k4+a1205*k5+a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11),k12)
-      k13 = b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12
-      update = Δt*k13
+      kupdate = b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12
+      update = Δt*kupdate
       utmp = u + update
       if adaptive
         err5 = sqrt(sum((Δt*(k1*er1 + k6*er6 + k7*er7 + k8*er8 + k9*er9 + k10*er10 + k11*er11 + k12*er12)./(abstol+max(abs.(u),abs.(utmp))*reltol)).^2) * normfactor) # Order 5
@@ -2519,10 +2521,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         u = utmp
       end
       if calck
+        f(t+Δt,utmp,k13)
         f(t+c14*Δt,u+Δt*(a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13),k14)
         f(t+c15*Δt,u+Δt*(a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14),k15)
         f(t+c16*Δt,u+Δt*(a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15),k16)
-        udiff = k13
+        udiff = kupdate
         k[1] = udiff
         bspl = k1 - udiff
         k[2] = bspl
@@ -2544,7 +2547,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = rateType(sizeu); k2  = rateType(sizeu); k3  = rateType(sizeu);  k4 = rateType(sizeu)
   k5 = rateType(sizeu); k6  = rateType(sizeu); k7  = rateType(sizeu);  k8 = rateType(sizeu)
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
-  k13 = rateType(sizeu); utilde = similar(u); err5 = similar(u); err3 = similar(u)
+  kupdate = rateType(sizeu); utilde = similar(u); err5 = similar(u); err3 = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u); atmp2 = similar(u,uEltypeNoUnits); update = similar(u)
   local k13::rateType; local k14::rateType; local k15::rateType; local k16::rateType;
   local udiff::rateType; local bspl::rateType
@@ -2561,6 +2564,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         kprev = deepcopy(k)
       end
     end
+    k13 = rateType(sizeu)
     k14 = rateType(sizeu)
     k15 = rateType(sizeu)
     k16 = rateType(sizeu)
@@ -2616,8 +2620,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       f(t+Δt,tmp,k12)
       for i in uidx
-        k13[i] = b1*k1[i]+b6*k6[i]+b7*k7[i]+b8*k8[i]+b9*k9[i]+b10*k10[i]+b11*k11[i]+b12*k12[i]
-        update[i] = Δt*k13[i]
+        kupdate[i] = b1*k1[i]+b6*k6[i]+b7*k7[i]+b8*k8[i]+b9*k9[i]+b10*k10[i]+b11*k11[i]+b12*k12[i]
+        update[i] = Δt*kupdate[i]
         utmp[i] = u[i] + update[i]
       end
       if adaptive
@@ -2633,6 +2637,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         recursivecopy!(u, utmp)
       end
       if calck
+        f(t+Δt,utmp,k13)
         for i in uidx
           tmp[i] = u[i]+Δt*(a1401*k1[i]+a1407*k7[i]+a1408*k8[i]+a1409*k9[i]+a1410*k10[i]+a1411*k11[i]+a1412*k12[i]+a1413*k13[i])
         end
@@ -2646,7 +2651,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         end
         f(t+c16*Δt,tmp,k16)
         for i in uidx
-          udiff[i]= k13[i]
+          udiff[i]= kupdate[i]
           k[1][i] = udiff[i]
           bspl[i] = k1[i] - udiff[i]
           k[2][i] = bspl[i]
