@@ -1,0 +1,16 @@
+{   
+    "license": "MIT", 
+    "upload_type": "software", 
+    "communities": [
+        {
+            "identifier": "zenodo"
+        }
+    ], 
+    "creators": [
+        {
+            "affiliation": "University of California, Irvine", 
+            "name": "Christopher Rackauckas"
+        }
+    ], 
+    "access_right": "open", 
+}
