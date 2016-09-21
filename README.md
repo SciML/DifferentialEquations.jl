@@ -7,6 +7,7 @@
 [![codecov](https://codecov.io/gh/JuliaDiffEq/DifferentialEquations.jl/coverage.svg?branch=master)](https://codecov.io/gh/JuliaDiffEq/DifferentialEquations.jl)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaDiffEq.github.io/DifferentialEquations.jl/stable)
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaDiffEq.github.io/DifferentialEquations.jl/latest)
+[![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
 This is a package for numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include (but are not limited to):
 
