@@ -229,7 +229,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if typeof(u₀)<:AbstractArray
       timeseries = Vector{uType}(0)
       for i=1:size(vectimeseries,1)
-        push!(timeseries,reshape(vectimeseries[i,:]',sizeu))
+        push!(timeseries,reshape(view(vectimeseries,i,:,)',sizeu))
       end
     else
       timeseries = vec(vectimeseries)
@@ -336,7 +336,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       timeseries = Vector{uType}(0)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
-          push!(timeseries,reshape(vectimeseries[i,:],sizeu))
+          push!(timeseries,reshape(view(vectimeseries,i,:),sizeu))
         end
       else
         for i=1:size(vectimeseries,1)
