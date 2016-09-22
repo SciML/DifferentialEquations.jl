@@ -1,4 +1,4 @@
-using DifferentialEquations, Plots, EllipsisNotation
+using DifferentialEquations, Plots
 srand(100)
 prob = prob_sde_lorenz
 

@@ -1,4 +1,4 @@
-using DifferentialEquations, Plots, EllipsisNotation
+using DifferentialEquations, Plots
 prob = prob_ode_lorenz
 
 ## Solve and plot
