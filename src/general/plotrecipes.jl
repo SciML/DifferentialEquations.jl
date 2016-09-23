@@ -68,6 +68,11 @@ end
     end
   end
   seriestype --> :path
+  lw --> 3
+  xtickfont --> font(11)
+  ytickfont --> font(11)
+  legendfont --> font(11)
+  guidefont  --> font(11)
   #layout --> length(u)
   sol.t, plotseries
 end
@@ -123,6 +128,11 @@ end
     end
   end
   seriestype --> :path
+  lw --> 3
+  xtickfont --> font(11)
+  ytickfont --> font(11)
+  legendfont --> font(11)
+  guidefont  --> font(11)
   #layout --> length(u)
   plott, plotseries
 end

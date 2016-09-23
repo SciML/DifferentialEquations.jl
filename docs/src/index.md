@@ -207,8 +207,7 @@ extra tutorials in the supplied IJulia notebooks via:
 
 ```julia
 using IJulia
-cd(Pkg.dir("DifferentialEquations")*"/examples")
-notebook()
+notebook(dir = Pkg.dir("DifferentialEquations")*"/examples")
 ```
 
 Otherwise, these notebooks can be viewed [via the Github repository](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples)
