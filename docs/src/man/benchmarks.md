@@ -1,11 +1,18 @@
 # Benchmark Suite
 
 DiffernetialEquations.jl provides a benchmarking suite to be able to test the
-difference in error, speed, and efficiency between algorithms. To see it in
-action, checkout the [Runge-Kutta benchmarks](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/benchmarks/Runge-Kutta%20Benchmarks%20on%20Linear%20ODEs.ipynb)
-or the [Three Body Problem benchmarks](https://github.com/JuliaDiffEq/DifferentialEquations.jl/blob/master/benchmarks/Three%20Body%20Benchmarks.ipynb).
+difference in error, speed, and efficiency between algorithms. DifferentialEquations.jl includes current benchmarking notebooks to help users
+understand the performance of the methods. These benchmarking notebooks use the included benchmarking suite. There are two parts to the benchmarking suite: shootouts and work-precision. The `Shootout` tests methods head-to-head for timing and error on the same problem. A `WorkPrecision` draws a work-precision diagram
+for the algorithms in question on the chosen problem.
 
-There are two parts to the benchmarking suite: shootouts and work-precision.
+### Using the Benchmarking Notebooks
+
+To use the benchmarking notebooks, IJulia is required. The commands are as follows:
+
+```julia
+using IJulia
+notebook(dir = Pkg.dir("DifferentialEquations")*"/benchmarks")
+```
 
 ### Shootout
 
