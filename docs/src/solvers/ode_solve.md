@@ -17,21 +17,27 @@ problems, we recommend `:DP5` (this is the default algorithm). When more robust
 error control is required, `:BS5` is a good choice.
 For fast solving at lower tolerances, we recommend `:BS3`. For tolerances
 which are at about the truncation error of Float64 (1e-16), we recommend
-`:DP8` as a robust choice and `:Vern9` as an efficient choice.
+`:DP8` as a robust choice and `:Vern6`, `:Vern7`, or `:Vern8` as an efficient choice.
 
 For high accuracy non-stiff solving, we recommend the `:Feagin12` or `:Feagin14`
 methods. These are more robust than Adams-Bashforth methods to discontinuities
 and achieve very high precision, and are much more efficient than the extrapolation
-methods.
+methods. Note that the Feagin methods are the only high-order optimized methods
+which do not include a high-order interpolant (they do include a 3rd order
+Hermite interpolation if needed). If a high-order method is needed with a high
+order interpolant, then you should choose `:Vern9` which is Order 9 with an
+Order 9 interpolant.
 
 ### Stiff Problems
 
-For mildly stiff problems, `:Rosenbrock32` is a good choice. As a native DifferentialEquations.jl
-solver, all Julia-defined numbers will work. This method uses ForwardDiff to
-automatically guess the Jacobian. For faster solving when the Jacobian is known,
-use `radau`. For highly stiff problems where Julia-defined numbers need to be used
-(SIUnits, Arbs), `:Trapezoid` is the current best choice. However, for the most
-efficient non-stiff solvers, use `:radau` or `:cvode_BDF` provided by wrappers
+For mildly stiff problems which are not oscillatory, `:Rosenbrock32` is a good choice.
+If there exist large oscillations, then this form (local extrapolated) is not L-stable,
+and thus it is recommended that you use `:Rosenbrock23` which is L-stable (but Order 2
+instead of 3). As a native DifferentialEquations.jl solver, Julia-defined numbers will work.
+This method uses ForwardDiff to automatically guess the Jacobian. For faster solving
+when the Jacobian is known, use `radau`. For highly stiff problems where Julia-defined
+numbers need to be used (SIUnits, Arbs), `:Trapezoid` is the current best choice.
+However, for the most efficient highly stiff solvers, use `:radau` or `:cvode_BDF` provided by wrappers
 to the ODEInterface and Sundials packages respectively ([see the conditional dependencies documentation](../man/conditional_dependencies.md))
 
 ## Full List of Methods
