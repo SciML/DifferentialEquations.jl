@@ -116,6 +116,7 @@ for i = 1:3 # 1 = num, 2 = ExplicitRK, 3 = Vectorized
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-5) < testTol)
 
+  Δts = 1.//2.^(6:-1:4)
   tab = constructTsitouras5()
   sim = test_convergence(Δts,prob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-5) < testTol)
