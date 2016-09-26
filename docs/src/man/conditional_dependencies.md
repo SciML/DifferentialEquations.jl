@@ -35,7 +35,7 @@ package by checking out master:
 Pkg.checkout("PkgName")
 ```
 
-If all else fails, please ask for help on [via the repository Gitter](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl).
+If all else fails, please ask for help on [via the repository Gitter](https://gitter.im/JuliaDiffEq/Lobby).
 
 ## What Methods Require Conditional Dependencies?
 
