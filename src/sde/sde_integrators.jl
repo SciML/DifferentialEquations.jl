@@ -111,7 +111,7 @@ end
 
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     u = u + Δt.*f(t,u) + σ(t,u).*ΔW
@@ -127,7 +127,7 @@ end
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:EM,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   utmp1 = similar(u); utmp2 = similar(u)
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
     f(t,u,utmp1)
     σ(t,u,utmp2)
@@ -163,7 +163,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   ftemp::uType = similar(u); σtemp::uType = similar(u)
   chi1::randType = similar(ΔW); chi2::randType = similar(ΔW); chi3::randType = similar(ΔW)
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     for i in eachindex(u)
@@ -243,7 +243,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   fH01::uType = similar(u); fH02::uType = similar(u)
   σ₁::uType = similar(u); σ₂::uType = similar(u); σ₃::uType = similar(u); σ₄::uType = similar(u)
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     for i in eachindex(u)
@@ -297,7 +297,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   local σ₂o3::uType; local Fσ₂o3::uType
   local σ₃o3::uType; local Tσ₃o3::uType
   local mσ₁::uType; local E₁::uType; local E₂::uType
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     chi1 = (ΔW.^2 - Δt)/2sqΔt #I_(1,1)/sqrt(h)
@@ -348,7 +348,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   local E₁::uType; local E₂::uType
   local E₁temp::uType; local ftemp::uType
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     chi1 = .5*(ΔW.^2 - Δt)/sqΔt #I_(1,1)/sqrt(h)
@@ -401,7 +401,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   H0 = Array{uEltype}(stages)
   H1 = Array{uEltype}(stages)
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     chi1 = .5*(ΔW.^2 - Δt)/sqΔt #I_(1,1)/sqrt(h)
@@ -429,7 +429,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   @sde_preamble
   du1::uType = similar(u); du2::uType = similar(u)
   K::uType = similar(u); utilde::uType = similar(u); L::uType = similar(u)
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
     f(t,u,du1)
     σ(t,u,L)
@@ -452,7 +452,7 @@ end
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:RKMil,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   local L::uType; local K::uType; local utilde::uType
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     K = u + Δt.*f(t,u)
@@ -474,7 +474,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   H0 = Array{uEltype}(size(u)...,2)
   local k₁::uType; local k₂::uType; local E₁::uType; local E₂::uType
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     chi2 = (ΔW + ΔZ/sqrt(3))/2 #I_(1,0)/h
@@ -499,7 +499,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   E₁::uType = similar(u); σt::uType = similar(u); σpΔt::uType = similar(u)
   E₂::uType = similar(u); k₁::uType = similar(u); k₂::uType = similar(u)
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
     σ(t,u,σt)
     σ(t+Δt,u,σpΔt)
@@ -534,7 +534,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   atemp::uType = similar(u); btemp::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
   E₁::uType = similar(u)
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
     for i in eachindex(u)
       chi2[i] = .5*(ΔW[i] + ΔZ[i]/sqrt(3)) #I_(1,0)/h
@@ -592,7 +592,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   local E₂::uType; local E₁::uType; local E₁temp::uType
   local ftemp::uType; local A0temp::uType; local B0temp::uType
   @sde_adaptiveprelim
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
@@ -636,7 +636,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   @sde_adaptiveprelim
   H0 = Array{uEltype}(stages)
 
-  @inbounds while t<T
+  @fastmath @inbounds while t<T
     @sde_loopheader
 
     chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
