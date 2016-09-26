@@ -159,7 +159,7 @@ type ODESolution <: DESolution
     trueknown = true
     errors = Dict(:final=>mean(abs.(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
+      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply((x)->abs.(x),timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
     dense = k != []
     saveat_idxs = find((x)->x∈saveat,t)
