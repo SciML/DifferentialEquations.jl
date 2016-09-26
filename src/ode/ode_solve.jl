@@ -140,9 +140,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
-        β = 0.10 # More than Hairer's suggestion
+        β = 0.04 # More than Hairer's suggestion
       elseif alg == :DP8 || alg == :DP8Vectorized
-        β = 0.10 # More than Hairer's suggestion
+        β = 0.07 # More than Hairer's suggestion
       else
         β = 0.4 / order
       end
