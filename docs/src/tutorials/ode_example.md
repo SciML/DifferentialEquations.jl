@@ -65,7 +65,7 @@ We can access the interpolated values by treating `sol` as a function, for examp
 sol(0.45) # The value of the solution at t=0.45
 ```
 
-For details on more finely controlling the output, see [the output specification manual page](/man/output_specification)
+For details on more finely controlling the output, see [the output specification manual page](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/output_specification.html)
 
 Plotting commands are provided via a recipe to Plots.jl. To plot the solution
 object, simply call plot:
