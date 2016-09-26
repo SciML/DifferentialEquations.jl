@@ -47,7 +47,7 @@ f = (t,u,du) -> begin
     du[i] = 1.01*u[i]
   end
 end
-analytic = (t,u₀) -> u₀*exp(1.01*t)
+analytic = (t,u₀) -> u₀*exp.(1.01*t)
 """
 4x2 version of the Linear ODE
 
@@ -812,9 +812,9 @@ prob_femheat_stochasticbirthdeath = HeatProblem(u₀,f,σ=σ)
 
 ## Poisson
 
-f = (x) -> sin(2π.*x[:,1]).*cos(2π.*x[:,2])
-analytic = (x) -> sin(2π.*x[:,1]).*cos(2π.*x[:,2])/(8π*π)
-Du = (x) -> [cos(2*pi.*x[:,1]).*cos(2*pi.*x[:,2])./(4*pi) -sin(2π.*x[:,1]).*sin(2π.*x[:,2])./(4π)]
+f = (x) -> sin.(2π.*x[:,1]).*cos.(2π.*x[:,2])
+analytic = (x) -> sin.(2π.*x[:,1]).*cos.(2π.*x[:,2])/(8π*π)
+Du = (x) -> [cos.(2*pi.*x[:,1]).*cos.(2*pi.*x[:,2])./(4*pi) -sin.(2π.*x[:,1]).*sin.(2π.*x[:,2])./(4π)]
 """
 Problem defined by the solution: ``u(x,y)= \\sin(2πx)\\cos(2πy)/(8π^2)``
 """

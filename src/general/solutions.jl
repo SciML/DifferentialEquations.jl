@@ -32,7 +32,7 @@ type FEMSolution <: DESolution
   save_timeseries::Bool
   function FEMSolution(fem_mesh::FEMmesh,u,u_analytic,sol,Du,timeSeries,t,prob;save_timeseries=true)
     errors = Dict(:L2=>getL2error(fem_mesh,sol,u),:H1=>getH1error(fem_mesh,Du,u),
-                  :l∞=> maximum(abs(u-u_analytic)), :l2=> norm(u-u_analytic,2))
+                  :l∞=> maximum(abs.(u-u_analytic)), :l2=> norm(u-u_analytic,2))
     return(new(fem_mesh,u,true,u_analytic,errors,false,timeSeries,t,prob,true))
   end
   FEMSolution(fem_mesh,u,u_analytic,sol,Du,prob) = FEMSolution(fem_mesh::FEMmesh,u,u_analytic,sol,Du,[],[],prob,save_timeseries=false)
@@ -89,9 +89,9 @@ type SDESolution <: DESolution
   function SDESolution(u,u_analytic;timeseries=[],timeseries_analytic=[],t=[],Δt=nothing,Ws=[],maxstacksize=0,W=0.0)
     save_timeseries = timeseries != []
     trueknown = true
-    errors = Dict(:final=>mean(abs(u-u_analytic)))
+    errors = Dict(:final=>mean(abs.(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->x.^2,timeseries-timeseries_analytic))))
+      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->x.^2,timeseries-timeseries_analytic))))
     end
     return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
@@ -157,9 +157,9 @@ type ODESolution <: DESolution
   function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
     save_timeseries = timeseries != []
     trueknown = true
-    errors = Dict(:final=>mean(abs(u-u_analytic)))
+    errors = Dict(:final=>mean(abs.(u-u_analytic)))
     if save_timeseries
-      errors = Dict(:final=>mean(abs(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
+      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply(abs,timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
     end
     dense = k != []
     saveat_idxs = find((x)->x∈saveat,t)
@@ -224,7 +224,7 @@ that solution as the "true" solution
 """
 function appxTrue!(res::FEMSolution,res2::FEMSolution)
   res.u_analytic = res2.u
-  res.errors = Dict(:l∞=>maximum(abs(res.u-res.u_analytic)),:l2=>norm(res.u-res.u_analytic,2))
+  res.errors = Dict(:l∞=>maximum(abs.(res.u-res.u_analytic)),:l2=>norm(res.u-res.u_analytic,2))
   res.appxTrue = true
 end
 
