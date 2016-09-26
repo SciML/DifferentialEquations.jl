@@ -452,7 +452,7 @@ end
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Euler,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   k = f(t,u) # For the interpolation, needs k at the updated point
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       u = u + Δt*k
@@ -470,7 +470,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k = rateType(sizeu) # Not initialized if not dense
   end
   f(t,u,k) # For the interpolation, needs k at the updated point
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
       while t < T
       @ode_loopheader
       for i in uidx
@@ -487,7 +487,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   @ode_preamble
   halfΔt::tType = Δt/2
   local du::rateType
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k = f(t+halfΔt,u+halfΔt*f(t,u))
@@ -510,7 +510,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   k = rateType(sizeu)
   du = rateType(sizeu)
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
       while t < T
       @ode_loopheader
       f(t,u,du)
@@ -535,7 +535,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k₃::rateType
   local k₄::rateType
   local ttmp::tType
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
       while t < T
       @ode_loopheader
       k₁ = f(t,u)
@@ -565,7 +565,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   tmp = similar(u)
   uidx = eachindex(u)
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k₁)
@@ -605,7 +605,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   A = A' # Transpose A to column major looping
   kk = Array{rateType}(stages) # Not ks since that's for dense
   local utilde::rateType
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       # Calc First
@@ -677,7 +677,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k = kk[end]
   end
   f(t,u,kk[1]) # pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       # First
@@ -771,7 +771,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   kk[1] = fsalfirst
   kk[end] = fsallast
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       #First
@@ -831,7 +831,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k4::rateType
   local utilde::uType
   fsalfirst = f(t,u) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -863,7 +863,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k4 = rateType(sizeu)
   local utilde::uType
   f(t,u,fsalfirst) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -901,7 +901,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = fsalfirst # done by pointers, no copying
   k4 = fsallast
   f(t,u,fsalfirst) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx
@@ -958,7 +958,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     end
   end
   fsalfirst = f(t,u) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -1017,7 +1017,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
   end
   f(t,u,fsalfirst) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -1081,7 +1081,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   fsalfirst = k1; fsallast = k8  # setup pointers
   f(t,u,k1) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx
@@ -1150,7 +1150,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
     push!(ks,deepcopy(k)) #Initialize ks
   end
   fsalfirst = f(t,u) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -1201,7 +1201,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     push!(ks,deepcopy(k)) #Initialize ks
   end
   f(t,u,fsalfirst) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -1263,7 +1263,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   fsalfirst = k1; fsallast = k7 # setup pointers
   f(t,u,k1) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx
@@ -1330,7 +1330,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   end
   local utilde::uType
   fsalfirst = f(t,u) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t<T
       @ode_loopheader
       k1 = fsalfirst
@@ -1386,7 +1386,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
   end
   f(t,u,fsalfirst); #Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1=fsalfirst
@@ -1447,7 +1447,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   k1 = fsalfirst; k7 = fsallast
   f(t,u,fsalfirst);  # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx
@@ -1528,7 +1528,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   k1 = fsalfirst; k7 = fsallast
   f(t,u,fsalfirst);  # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       dp5threaded_loop1(Δt,tmp,u,a21,k1,uidx)
@@ -1588,7 +1588,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
   end
   k1 = fsalfirst; k7 = fsallast # Setup pointers
   f(t,u,fsalfirst);  # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       dp5threaded_loop1(Δt,tmp,u,k1,uidx)
@@ -1745,7 +1745,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -1794,7 +1794,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   utilde = similar(u)
   f(t,u,fsalfirst) # Pre-start fsal
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = fsalfirst
@@ -1845,7 +1845,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
   end
   fsalfirst = k1 ; fsallast = k9
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx
@@ -1914,7 +1914,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = f(t,u)
@@ -1963,7 +1963,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2013,7 +2013,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2090,7 +2090,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = f(t,u)
@@ -2143,7 +2143,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2197,7 +2197,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2277,7 +2277,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   if calck
     pop!(ks) # Get rid of the one it starts with
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k = f(t,u)
@@ -2318,7 +2318,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     pop!(ks) # Get rid of the one it starts with
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k); k1=k
@@ -2364,7 +2364,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks) # Get rid of the one it starts with
   end
   k = k1
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2447,7 +2447,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = f(t,u)
@@ -2524,7 +2524,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     udiff = rateType(sizeu)
     bspl = rateType(sizeu)
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2708,7 +2708,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   if calck
     pop!(ks) # Take out the initial
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k = f(t,u)
@@ -2756,7 +2756,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     pop!(ks)
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k); k1=k
@@ -2806,7 +2806,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -2901,7 +2901,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k1 = f(t,u)
@@ -2957,7 +2957,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -3014,7 +3014,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -3114,7 +3114,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   utmp = similar(u)
   uidx = eachindex(u)
 
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k); k1=k
@@ -3175,7 +3175,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -3277,7 +3277,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   if calck
     pop!(ks)
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k   = f(t,u)
@@ -3334,7 +3334,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     pop!(ks)
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k); k1=k
@@ -3407,7 +3407,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -3543,7 +3543,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   if calck
     pop!(ks)
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k   = f(t,u)
@@ -3615,7 +3615,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -3803,7 +3803,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       f(t,u,k1)
@@ -3879,7 +3879,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   if calck
     pop!(ks)
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       k   = f(t,u)
@@ -3944,7 +3944,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   uhold::Vector{uType} = Vector{uType}(1)
   u_old::Vector{uType} = Vector{uType}(1)
   uhold[1] = u; u_old[1] = u
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       u_old[1] = uhold[1]
@@ -3984,7 +3984,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
 
   uhold = vec(u); u_old = similar(u)
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       copy!(u_old,uhold)
@@ -4029,7 +4029,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
   end
   uhold = vec(u); u_old = similar(u)
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       copy!(u_old,uhold)
@@ -4055,7 +4055,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   uhold::Vector{uType} = Vector{uType}(1)
   u_old::Vector{uType} = Vector{uType}(1)
   uhold[1] = u; u_old[1] = u
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
       while t < T
       @ode_loopheader
       u_old[1] = uhold[1]
@@ -4103,7 +4103,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = fsalfirst
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       ForwardDiff.derivative!(dT,(t)->vecfreturn(t,u,du2),t) # Time derivative
@@ -4158,7 +4158,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k₂::uType
   local k₃::uType
   fsalfirst = f(t,u)
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       # Time derivative
@@ -4220,7 +4220,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = fsalfirst
   end
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       ForwardDiff.derivative!(dT,(t)->vecfreturn(t,u,du2),t) # Time derivative
@@ -4277,7 +4277,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k₃::uType
   local tmp::uType
   fsalfirst = f(t,u)
-  @fastmath @inbounds for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       # Time derivative
