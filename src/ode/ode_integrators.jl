@@ -1315,9 +1315,12 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local k5::rateType
   local k6::rateType
   local k7::rateType
+  local update::rateType
+  local bspl::rateType
   if calck
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
     k = ksEltype()
-    for i in 1:6
+    for i in 1:4
       push!(k,zero(rateType))
     end
     push!(ks,deepcopy(k)) #Initialize ks
@@ -1336,8 +1339,10 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       k4 = f(t+c3*Δt,u+Δt*(a41*k1+a42*k2+a43*k3))
       k5 = f(t+c4*Δt,u+Δt*(a51*k1+a52*k2+a53*k3+a54*k4))
       k6 = f(t+Δt,u+Δt*(a61*k1+a62*k2+a63*k3+a64*k4+a65*k5))
-      utmp = u+Δt*(a71*k1+a73*k3+a74*k4+a75*k5+a76*k6)
+      update = a71*k1+a73*k3+a74*k4+a75*k5+a76*k6
+      utmp = u+Δt*update
       fsallast = f(t+Δt,utmp); k7 = fsallast
+
       if adaptive
         utilde = u + Δt*(b1*k1 + b3*k3 + b4*k4 + b5*k5 + b6*k6 + b7*k7)
         EEst = abs( ((utilde-utmp)/(abstol+max(abs(u),abs(utmp))*reltol)) * normfactor)
@@ -1345,13 +1350,11 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         u = utmp
       end
       if calck
-        k[1] = k1
-        # No 2
-        k[2] = k3
-        k[3] = k4
-        k[4] = k5
-        k[5] = k6
-        k[6] = k7
+        k[1] = update
+        bspl = k1 - update
+        k[2] = bspl
+        k[3] = update - k7 - bspl
+        k[4] = (d1*k1+d3*k3+d4*k4+d5*k5+d6*k6+d7*k7)
       end
       @ode_numberloopfooter
     end
@@ -1369,10 +1372,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k5 = rateType(sizeu)
   k6 = rateType(sizeu)
   k7 = rateType(sizeu)
+  update = rateType(sizeu)
   utilde = similar(u)
   if calck
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
     k = ksEltype()
-    for i in 1:6
+    for i in 1:4
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
@@ -1390,7 +1395,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       f(t+c3*Δt,u+Δt*(a41*k1+a42*k2+a43*k3),k4)
       f(t+c4*Δt,u+Δt*(a51*k1+a52*k2+a53*k3+a54*k4),k5)
       f(t+Δt,u+Δt*(a61*k1+a62*k2+a63*k3+a64*k4+a65*k5),k6)
-      utmp = u+Δt*(a71*k1+a73*k3+a74*k4+a75*k5+a76*k6)
+      update = a71*k1+a73*k3+a74*k4+a75*k5+a76*k6
+      utmp = u+Δt*update
       f(t+Δt,utmp,fsallast); k7=fsallast
       if adaptive
         utilde = u + Δt*(b1*k1 + b3*k3 + b4*k4 + b5*k5 + b6*k6 + b7*k7)
@@ -1399,13 +1405,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         u = utmp
       end
       if calck
-        k[1] = k1
-        # No 2
-        k[2] = k3
-        k[3] = k4
-        k[4] = k5
-        k[5] = k6
-        k[6] = k7
+        k[1] = update
+        bspl = k1 - update
+        k[2] = bspl
+        k[3] = update - k7 - bspl
+        k[4] = (d1*k1+d3*k3+d4*k4+d5*k5+d6*k6+d7*k7)
       end
       @ode_loopfooter
     end
@@ -1423,26 +1427,23 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k5 = rateType(sizeu)
   k6 = rateType(sizeu)
   k7 = rateType(sizeu)
+  update = rateType(sizeu)
+  bspl = rateType(sizeu)
   utilde = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   uidx = eachindex(u)
   if calck
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
     k = ksEltype()
-    for i in 1:6
+    for i in 1:4
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
-    # Setup k pointers
-    k[1] = k1
-    # No 2
-    k[2] = k3
-    k[3] = k4
-    k[4] = k5
-    k[5] = k6
-    k[6] = k7
     if !isempty(saveat)
       kprev = deepcopy(k)
     end
+    # Setup pointers
+    k[1] = update
   end
   k1 = fsalfirst; k7 = fsallast
   f(t,u,fsalfirst);  # Pre-start fsal
@@ -1470,7 +1471,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       f(t+Δt,tmp,k6)
       for i in uidx
-        utmp[i] = u[i]+Δt*(a71*k1[i]+a73*k3[i]+a74*k4[i]+a75*k5[i]+a76*k6[i])
+        update[i] = a71*k1[i]+a73*k3[i]+a74*k4[i]+a75*k5[i]+a76*k6[i]
+        utmp[i] = u[i]+Δt*update[i]
       end
       f(t+Δt,utmp,k7);
       if adaptive
@@ -1481,6 +1483,14 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
         EEst = sqrt( sum(atmp) * normfactor)
       else
         recursivecopy!(u, utmp)
+      end
+      if calck
+        for i in uidx
+          bspl[i] = k1[i] - update[i]
+          k[2][i] = bspl[i]
+          k[3][i] = update[i] - k7[i] - bspl[i]
+          k[4][i] = (d1*k1[i]+d3*k3[i]+d4*k4[i]+d5*k5[i]+d6*k6[i]+d7*k7[i])
+        end
       end
       @ode_loopfooter
     end
@@ -1498,23 +1508,20 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k5::rateType = rateType(sizeu)
   k6::rateType = rateType(sizeu)
   k7::rateType = rateType(sizeu)
+  update::rateType = rateType(sizeu)
+  bspl::rateType = rateType(sizeu)
   utilde = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   uidx::Base.OneTo{Int64} = eachindex(u)
   if calck
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
     k = ksEltype()
-    for i in 1:6
+    for i in 1:4
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
-    k[1] = k1
-    # No 2
-    k[2] = k3
-    k[3] = k4
-    k[4] = k5
-    k[5] = k6
-    k[6] = k7
+    k[1] = update
     if !isempty(saveat)
       kprev = deepcopy(k)
     end
@@ -1524,7 +1531,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
-      dp5threaded_loop1(u,a21,tmp,Δt,uidx)
+      dp5threaded_loop1(Δt,tmp,u,a21,k1,uidx)
       f(t+c1*Δt,tmp,k2)
       dp5threaded_loop2(Δt,tmp,u,a31,k1,a32,k2,uidx)
       f(t+c2*Δt,tmp,k3)
@@ -1534,13 +1541,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       f(t+c4*Δt,tmp,k5)
       dp5threaded_loop5(Δt,tmp,u,a61,k1,a62,k2,a63,k3,a64,k4,a65,k5,uidx)
       f(t+Δt,tmp,k6)
-      dp5threaded_loop6(Δt,utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,uidx)
+      dp5threaded_loop6(Δt,utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,update,uidx)
       f(t+Δt,utmp,fsallast)
       if adaptive
-        dp5threaded_adaptiveloop(utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,atmp,utmp,abstol,reltol,uidx)
+        dp5threaded_adaptiveloop(Δt,utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,atmp,utmp,abstol,reltol,uidx)
         EEst = sqrt( sum(atmp) * normfactor)
       else
         recursivecopy!(u, utmp)
+      end
+      if calck
+        dp5threaded_denseloop(bspl,update,k1,k3,k4,k5,k6,k7,k,d1,d3,d4,d5,d6,d7,uidx)
       end
       @ode_loopfooter
     end
@@ -1558,23 +1568,20 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
   k5::rateType = rateType(sizeu)
   k6::rateType = rateType(sizeu)
   k7::rateType = rateType(sizeu)
+  update::rateType = rateType(sizeu)
+  bspl::rateType = rateType(sizeu)
   utilde = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   uidx::Base.OneTo{Int64} = eachindex(u)
   if calck
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
     k = ksEltype()
-    for i in 1:6
-      push!(k,zero(rateType))
+    for i in 1:4
+      push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
     # Setup k pointers
-    k[1] = k1
-    # No 2
-    k[2] = k3
-    k[3] = k4
-    k[4] = k5
-    k[5] = k6
-    k[6] = k7
+    k[1] = update
     if !isempty(saveat)
       kprev = deepcopy(k)
     end
@@ -1584,7 +1591,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
-      dp5threaded_loop1(u,tmp,Δt,uidx)
+      dp5threaded_loop1(Δt,tmp,u,k1,uidx)
       f(t+c1*Δt,tmp,k2)
       dp5threaded_loop2(Δt,tmp,u,k1,k2,uidx)
       f(t+c2*Δt,tmp,k3)
@@ -1594,13 +1601,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
       f(t+c4*Δt,tmp,k5)
       dp5threaded_loop5(Δt,tmp,u,k1,k2,k3,k4,k5,uidx)
       f(t+Δt,tmp,k6)
-      dp5threaded_loop6(Δt,utmp,u,k1,k3,k4,k5,k6,uidx)
+      dp5threaded_loop6(Δt,utmp,u,k1,k3,k4,k5,k6,update,uidx)
       f(t+Δt,utmp,k7)
       if adaptive
-        dp5threaded_adaptiveloop(utilde,u,k1,k3,k4,k5,k6,k7,atmp,utmp,abstol,reltol,uidx)
+        dp5threaded_adaptiveloop(Δt,utilde,u,k1,k3,k4,k5,k6,k7,atmp,utmp,abstol,reltol,uidx)
         EEst = sqrt( sum(atmp) * normfactor)
       else
         recursivecopy!(u, utmp)
+      end
+      if calck
+        dp5threaded_denseloop(bspl,update,k1,k3,k4,k5,k6,k7,k,uidx)
       end
       @ode_loopfooter
     end
@@ -1608,7 +1618,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltype
   return u,t,timeseries,ts,ks
 end
 
-@noinline function dp5threaded_loop1(u,a21,tmp,Δt,uidx)
+@noinline function dp5threaded_denseloop(bspl,update,k1,k3,k4,k5,k6,k7,k,d1,d3,d4,d5,d6,d7,uidx)
+  Threads.@threads for i in uidx
+    bspl[i] = k1[i] - update[i]
+    k[2][i] = bspl[i]
+    k[3][i] = update[i] - k7[i] - bspl[i]
+    k[4][i] = (d1*k1[i]+d3*k3[i]+d4*k4[i]+d5*k5[i]+d6*k6[i]+d7*k7[i])
+  end
+end
+
+@noinline function dp5threaded_loop1(Δt,tmp,u,a21,k1,uidx)
   Threads.@threads for i in uidx
     tmp[i] = u[i]+Δt*(a21*k1[i])
   end
@@ -1638,20 +1657,21 @@ end
   end
 end
 
-@noinline function dp5threaded_loop6(Δt,utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,uidx)
+@noinline function dp5threaded_loop6(Δt,utmp,u,a71,k1,a73,k3,a74,k4,a75,k5,a76,k6,update,uidx)
   Threads.@threads for i in uidx
-    utmp[i] = u[i]+Δt*(a71*k1[i]+a73*k3[i]+a74*k4[i]+a75*k5[i]+a76*k6[i])
+    update[i] = a71*k1[i]+a73*k3[i]+a74*k4[i]+a75*k5[i]+a76*k6[i]
+    utmp[i] = u[i]+Δt*update[i]
   end
 end
 
-@noinline function dp5threaded_adaptiveloop(utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,tmp,utmp,abstol,reltol,uidx)
+@noinline function dp5threaded_adaptiveloop(Δt,utilde,u,b1,k1,b3,k3,b4,k4,b5,k5,b6,k6,b7,k7,atmp,utmp,abstol,reltol,uidx)
   Threads.@threads for i in uidx
     utilde[i] = u[i] + Δt*(b1*k1[i] + b3*k3[i] + b4*k4[i] + b5*k5[i] + b6*k6[i] + b7*k7[i])
-    tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(abs(u[i]),abs(utmp[i]))*reltol))^2
+    atmp[i] = ((utilde[i]-utmp[i])/(abstol+max(abs(u[i]),abs(utmp[i]))*reltol))^2
   end
 end
 
-@noinline function dp5threaded_loop1{T<:Float64,N}(u,tmp::Array{T,N},Δt,uidx)
+@noinline function dp5threaded_loop1{T<:Float64,N}(Δt,tmp::Array{T,N},u,k1,uidx)
   Threads.@threads for i in uidx
     tmp[i] = u[i]+Δt*(0.2*k1[i])
   end
@@ -1681,16 +1701,26 @@ end
   end
 end
 
-@noinline function dp5threaded_loop6{T<:Float64,N}(Δt,utmp::Array{T,N},u,k1,k3,k4,k5,k6,uidx)
+@noinline function dp5threaded_loop6{T<:Float64,N}(Δt,utmp::Array{T,N},u,k1,k3,k4,k5,k6,update,uidx)
   Threads.@threads for i in uidx
-    utmp[i] = u[i]+Δt*(0.09114583333333333*k1[i]+0.44923629829290207*k3[i]+0.6510416666666666*k4[i]-0.322376179245283*k5[i]+0.13095238095238096*k6[i])
+    update[i] = 0.09114583333333333*k1[i]+0.44923629829290207*k3[i]+0.6510416666666666*k4[i]-0.322376179245283*k5[i]+0.13095238095238096*k6[i]
+    utmp[i] = u[i]+Δt*update[i]
   end
 end
 
-@noinline function dp5threaded_adaptiveloop{T<:Float64,N}(utilde::Array{T,N},u,k1,k3,k4,k5,k6,k7,tmp,utmp,abstol,reltol,uidx)
+@noinline function dp5threaded_adaptiveloop{T<:Float64,N}(Δt,utilde::Array{T,N},u,k1,k3,k4,k5,k6,k7,tmp,utmp,abstol,reltol,uidx)
   Threads.@threads for i in uidx
     utilde[i] = u[i] + Δt*(0.08991319444444444*k1[i] + 0.4534890685834082*k3[i] + 0.6140625*k4[i] - 0.2715123820754717*k5[i] + 0.08904761904761904*k6[i] + 0.025*k7[i])
     tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(abs(u[i]),abs(utmp[i]))*reltol))^2
+  end
+end
+
+@noinline function dp5threaded_denseloop{T<:Float64,N}(bspl::Array{T,N},update,k1,k3,k4,k5,k6,k7,k,uidx)
+  Threads.@threads for i in uidx
+    bspl[i] = k1[i] - update[i]
+    k[2][i] = bspl[i]
+    k[3][i] = update[i] - k7[i] - bspl[i]
+    k[4][i] = (-1.1270175653862835k1[i]+2.675424484351598k3[i]+-5.685526961588504k4[i]+3.5219323679207912k5[i]+-1.7672812570757455k6[i]+2.382468931778144k7[i])
   end
 end
 
