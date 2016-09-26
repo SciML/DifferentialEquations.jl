@@ -122,13 +122,13 @@ push!(bools,length(sol1) >= length(sol2) && length(sol3) >= length(sol2)) # Dual
 
 ### Tsit5
 
-Δts = 1.//2.^(6:-1:3)
+Δts = 1.//2.^(7:-1:3)
 sim = test_convergence(Δts,probnum,alg=:Tsit5)
-push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol+.1)
 sim = test_convergence(Δts,prob,alg=:Tsit5Vectorized)
-push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol+.1)
 sim = test_convergence(Δts,prob,alg=:Tsit5)
-push!(bools,abs(sim.𝒪est[:l2]-5) < testTol)
+push!(bools,abs(sim.𝒪est[:l2]-5) < testTol+.1)
 
 tab = constructTsitouras5()
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:Tsit5,adaptive=false,save_timeseries=false)
