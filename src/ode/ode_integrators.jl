@@ -1261,8 +1261,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[6] = k6
     k[7] = k7
   end
-  k1 = fsalfirst; k7 = fsallast # setup pointers
-  f(t,u,fsalfirst) # Pre-start fsal
+  fsalfirst = k1; fsallast = k7 # setup pointers
+  f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
       @ode_loopheader

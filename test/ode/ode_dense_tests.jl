@@ -131,7 +131,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Tsit5,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-3)
 
 prob = prob_ode_2Dlinear
 
@@ -141,9 +141,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Tsit5,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .23)
-
-
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-3)
 
 prob = prob_ode_linear
 

@@ -47,7 +47,7 @@ Lastly, there is a special conditional dependency for [Juno](http://junolab.org/
 you are using Juno, then the progress bar functionality is works. If you're not
 using Juno, then it won't do anything.
 
-The other conditional dependencies are external solvers wrapped by DifferentialEquations.jl
+The other conditional dependencies are external solvers wrapped by DifferentialEquations.jl.
 Currently these include:
 
 - ODE.jl
