@@ -61,6 +61,47 @@ interpd = sol(0:1//2^(4):1)
 
 push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
 
+prob = prob_ode_2Dlinear
+
+sol =solve(prob::ODEProblem,[0,1];save_timeseries=true,alg=:DP5Vectorized,dense=true)
+
+sol2 =solve(prob::ODEProblem,0:1//2^(4):1;save_timeseries=true,alg=:DP5Vectorized,dense=true,adaptive=false)
+
+interpd = sol(0:1//2^(4):1)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+#=
+
+prob = prob_ode_2Dlinear
+
+sol =solve(prob::ODEProblem,[0,1];save_timeseries=true,alg=:DP5Threaded,dense=true)
+
+sol2 =solve(prob::ODEProblem,0:1//2^(4):1;save_timeseries=true,alg=:DP5Threaded,dense=true,adaptive=false)
+
+interpd = sol(0:1//2^(4):1)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+const linear_bigα = parse(BigFloat,"1.01")
+f = (t,u,du) -> begin
+  for i in eachindex(u)
+    du[i] = 1.01*u[i]
+  end
+end
+prob_ode_bigfloatlinear = ODEProblem(f,map(BigFloat,rand(4,2)))
+prob = prob_ode_bigfloatlinear
+
+sol =solve(prob::ODEProblem,[0,1];save_timeseries=true,alg=:DP5Threaded,dense=true)
+
+sol2 =solve(prob::ODEProblem,0:1//2^(4):1;save_timeseries=true,alg=:DP5Threaded,dense=true,adaptive=false)
+
+interpd = sol(0:1//2^(4):1)
+
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < .2)
+
+=#
+
 prob = prob_ode_linear
 
 sol =solve(prob::ODEProblem,[0,1];Δt=1//2^(2),save_timeseries=true,alg=:BS3,dense=true)

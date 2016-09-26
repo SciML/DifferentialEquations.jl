@@ -74,33 +74,41 @@ function ode_addsteps!{rateType,uEltypeNoUnits,alg}(k,t,u,Δt,f,T::Type{Val{alg}
 end
 
 """
-Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 190
+Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 192
 """
 function ode_interpolant(Θ,Δt,y₀,y₁,kprevious,k,T::Type{Val{:DP5}})
-  b1,b3,b4,b5,b6,b7 = DP5_dense_bs(eltype(y₀/y₀)) # Divide away the units
-  b7Θ = Θ^2 * (Θ-1) + Θ^2 * (Θ-1)^2 *10*(7414447 - 829305Θ)/29380423
-  b1Θ = Θ^2 * (3-2Θ)*b1 + Θ*(Θ-1)^2 - Θ^2*(Θ-1)^2 *5*(2558722523 - 31403016Θ)/11282082432
-  b3Θ = Θ^2 * (3-2Θ)*b3 + Θ^2 * (Θ-1)^2 * 100   * (882725551 - 15701508Θ)/32700410799
-  b4Θ = Θ^2 * (3-2Θ)*b4 - Θ^2 * (Θ-1)^2 * 25    * (443332067 - 31403016Θ)/1880347072
-  b5Θ = Θ^2 * (3-2Θ)*b5 + Θ^2 * (Θ-1)^2 * 32805 * (23143187  - 3489224Θ )/199316789632
-  b6Θ = Θ^2 * (3-2Θ)*b6 - Θ^2 * (Θ-1)^2 * 55    * (29972135  - 7076736Θ )/822651844
-  y₀ + Δt*(k[1]*b1Θ + k[2]*b3Θ + k[3]*b4Θ + k[4]*b5Θ + k[5]*b6Θ + k[6]*b7Θ) # No k2
+  Θ1 = 1-Θ
+  y₀ + Δt*Θ*(k[1]+Θ1*(k[2]+Θ*(k[3]+Θ1*k[4])))
 end
 
 """
-Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 190
+Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 192
 """
 function ode_interpolant(Θ,Δt,y₀,y₁,kprevious,k,T::Type{Val{:DP5Vectorized}})
-  b1,b3,b4,b5,b6,b7 = DP5_dense_bs(eltype(y₀/y₀)) # Divide away the units
-  b7Θ = Θ^2 * (Θ-1) + Θ^2 * (Θ-1)^2 *10*(7414447 - 829305Θ)/29380423
-  b1Θ = Θ^2 * (3-2Θ)*b1 + Θ*(Θ-1)^2 - Θ^2*(Θ-1)^2 *5*(2558722523 - 31403016Θ)/11282082432
-  b3Θ = Θ^2 * (3-2Θ)*b3 + Θ^2 * (Θ-1)^2 * 100   * (882725551 - 15701508Θ)/32700410799
-  b4Θ = Θ^2 * (3-2Θ)*b4 - Θ^2 * (Θ-1)^2 * 25    * (443332067 - 31403016Θ)/1880347072
-  b5Θ = Θ^2 * (3-2Θ)*b5 + Θ^2 * (Θ-1)^2 * 32805 * (23143187  - 3489224Θ )/199316789632
-  b6Θ = Θ^2 * (3-2Θ)*b6 - Θ^2 * (Θ-1)^2 * 55    * (29972135  - 7076736Θ )/822651844
-  y₀ + Δt*(k[1]*b1Θ + k[2]*b3Θ + k[3]*b4Θ + k[4]*b5Θ + k[5]*b6Θ + k[6]*b7Θ) # No k2
+  Θ1 = 1-Θ
+  y₀ + Δt*Θ*(k[1]+Θ1*(k[2]+Θ*(k[3]+Θ1*k[4])))
 end
 
+"""
+Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 192
+"""
+function ode_interpolant(Θ,Δt,y₀,y₁,kprevious,k,T::Type{Val{:DP5Threaded}})
+  Θ1 = 1-Θ
+  y₀ + Δt*Θ*(k[1]+Θ1*(k[2]+Θ*(k[3]+Θ1*k[4])))
+end
+
+
+function DP5_dense_ds(T)
+  d1  = T(-12715105075//11282082432)
+  d3  = T(87487479700//32700410799)
+  d4  = T(-10690763975//1880347072)
+  d5  = T(701980252875//199316789632)
+  d6  = T(-1453857185//822651844)
+  d7  = T(69997945//29380423)
+  return d1,d3,d4,d5,d6,d7
+end
+
+#=
 function DP5_dense_bs(T)
   b1  = T(5179//57600)
   b3  = T(7571//16695)
@@ -110,6 +118,7 @@ function DP5_dense_bs(T)
   b7  = T(1//40)
   return b1,b3,b4,b5,b6,b7
 end
+=#
 
 """
 Runge–Kutta pairs of order 5(4) satisfying only the first column
