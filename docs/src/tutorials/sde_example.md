@@ -42,8 +42,6 @@ and then we pass this information to the solver and plot:
 #We can plot using the classic Euler-Maruyama algorithm as follows:
 sol =solve(prob::SDEProblem,tspan,Δt=Δt,alg=:EM)
 plot(sol,plot_analytic=true)
-#Use Plots.jl's gui() command to display the plot.
-Plots.gui()
 ```
 
 ![SDE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introSDEplot.png)
@@ -51,10 +49,8 @@ Plots.gui()
 We can choose a higher-order solver for a more accurate result:
 
 ```julia
-#We can choose a better method as follows:
 sol =solve(prob::SDEProblem,tspan,Δt=Δt,alg=:SRIW1Optimized)
 plot(sol,plot_analytic=true)
-Plots.gui()
 ```
 
 ![Better SDE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introSDEplotSRI.png)
