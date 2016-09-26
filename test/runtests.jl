@@ -55,6 +55,7 @@ println("ODE Initial Dt Tests")
 println("ODE Rosenbrock Tests")
 @time @test include("ode/ode_rosenbrock_tests.jl")
 println("ODE Initial Dt Tests")
+@compat !is_windows() && @time @test include("ode/ode_dense_tests.jl") # Windows 32-bit Overflow
 println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
 println("ODE saveat Tests")
@@ -66,7 +67,7 @@ println("ODE Number Type Tests")
 
 #SDE
 println("Linear SDE Tests")
-@time @test include("sde/sde_linear_tests.jl")
+@compat !is_windows() && @time @test include("sde/sde_linear_tests.jl") # 32-bit inexact error
 println("Two-dimensional Linear SDE Tests")
 @time @test include("sde/sde_twodimlinear_tests.jl")
 println("Additive SDE Tests")
