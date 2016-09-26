@@ -6,7 +6,7 @@ All of the algorithms are thoroughly tested to ensure accuracy. Convergence test
 [can be found in the examples folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples). If you find any example where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/internals/contributors_guide.html).
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/JuliaDiffEq/Lobby). For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/internals/contributors_guide.html).
 
 ## Using the Package
 
@@ -31,7 +31,7 @@ To understand the package in more detail, check out the following tutorials in t
 IJulia notebooks using DifferentialEquations can be found [in the examples folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples).
 Codes for the latest features can be found in [test/](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/test).
 
-For the most up to date on using the package information, please contact me [via the repository Gitter](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl)
+For the most up to date on using the package information, please contact me [via the repository Gitter](https://gitter.im/JuliaDiffEq/Lobby)
 or [read the latest documentation](http://JuliaDiffEq.github.io/DifferentialEquations.jl/latest/)
 
 ## Supported Equations
