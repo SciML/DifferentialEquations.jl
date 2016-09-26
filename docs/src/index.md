@@ -6,7 +6,7 @@ All of the algorithms are thoroughly tested to ensure accuracy. Convergence test
 [can be found in the examples folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples). If you find any example where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](/internals/contributors_guide).
+If you have any questions, or just want to chat about solvers/using the package, please feel free to message me in the [Gitter channel](https://gitter.im/JuliaDiffEq/DifferentialEquations.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. If you're interested in contributing, please see the [Contributor's Guide](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/internals/contributors_guide.html).
 
 ## Using the Package
 
@@ -82,16 +82,16 @@ with matrices), then the solver will use the matrices without error.
 
   * General Explicit (Adaptive) Runge-Kutta Methods
 
-    * These solvers are defined by tableaus. For a list of pre-defined tableaus, see [the ODE Solver options](/solvers/ode_solve).
+    * These solvers are defined by tableaus. For a list of pre-defined tableaus, see [the ODE Solver options](DifferentialEquations.jl/latest/solvers/ode_solve).
 
-  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl). See [Conditional Dependencies](/man/conditional_dependencies).
+  * Stiff Solvers. Requires [NLsolve.jl](https://github.com/EconForge/NLsolve.jl). See [Conditional Dependencies](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html).
 
     * Implicit Euler
     * Trapezoidal
     * Rosenbrock23 (L-Stable)
     * Rosenbrock32 (A-Stable)
 
-  * Wrappers for ODEInterface.jl. See [Conditional Dependencies](/man/conditional_dependencies).
+  * Wrappers for ODEInterface.jl. See [Conditional Dependencies](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html).
 
     * dorpi5 - Hairer's DP5(4)
     * dop853 - Hairer's DP8(5,3)
@@ -100,7 +100,7 @@ with matrices), then the solver will use the matrices without error.
     * radau - Implicit Runge-Kutta variable order 5-13
     * seulex - Extrapolation based on linear implicit Euler
 
-  * Wrappers for ODE.jl. See [Conditional Dependencies](/man/conditional_dependencies).
+  * Wrappers for ODE.jl. See [Conditional Dependencies](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html).
 
     * ode23 - Bogacki-Shampine's method
     * ode45 - Dormand-Prince  4/5
@@ -112,7 +112,7 @@ with matrices), then the solver will use the matrices without error.
     * ode4 - RK4
     * ode45_fe - Runge-Kutta-Fehlberg 4/5
 
-  * Wrappers for Sundials.jl. See [Conditional Dependences](/man/conditional_dependencies).
+  * Wrappers for Sundials.jl. See [Conditional Dependences](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html).
 
     * cvode_BDF - The Lawrence Livermore CVODE BDF solver.
     * cvode_Adams - The Lawrence Livermore CVODE BDF solver Adams-Moulton solver.

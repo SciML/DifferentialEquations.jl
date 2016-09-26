@@ -38,7 +38,7 @@ This method uses ForwardDiff to automatically guess the Jacobian. For faster sol
 when the Jacobian is known, use `radau`. For highly stiff problems where Julia-defined
 numbers need to be used (SIUnits, Arbs), `:Trapezoid` is the current best choice.
 However, for the most efficient highly stiff solvers, use `:radau` or `:cvode_BDF` provided by wrappers
-to the ODEInterface and Sundials packages respectively ([see the conditional dependencies documentation](../man/conditional_dependencies.md))
+to the ODEInterface and Sundials packages respectively ([see the conditional dependencies documentation](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html))
 
 ## Full List of Methods
 
@@ -233,4 +233,4 @@ A plot recipes is provided which will plot the stability region for a given tabl
 
 ## Analysis of Methods
 
-For an in-depth walkthrough of the various method pros/cons, see [notes on algorithms](../internals/notes_on_algorithms.md)
+For an in-depth walkthrough of the various method pros/cons, see [notes on algorithms](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/internals/notes_on_algorithms.html)
