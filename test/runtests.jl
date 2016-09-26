@@ -67,7 +67,7 @@ println("ODE Number Type Tests")
 
 #SDE
 println("Linear SDE Tests")
-@compat && @time @test include("sde/sde_linear_tests.jl")
+@time @test include("sde/sde_linear_tests.jl")
 println("Two-dimensional Linear SDE Tests")
 @time @test include("sde/sde_twodimlinear_tests.jl")
 println("Additive SDE Tests")
