@@ -1,5 +1,5 @@
 julia 0.5
-Parameters 0.3.1
+Parameters 0.5.0
 ForwardDiff 0.2.4
 ChunkedArrays 0.0.2
 IterativeSolvers 0.2.2
