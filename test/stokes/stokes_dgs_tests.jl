@@ -4,7 +4,7 @@ mesh = FDMMesh(Δx,mins=[-1;-1],maxs=[1;1])
 prob = prob_stokes_dirichletzero
 prob = prob_stokes_homogenous
 
-@unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs
+@unpack Δxs,grids,dims,gridSize,square,mins,maxs = mesh
 u = zeros(gridSize[1]-1,gridSize[2])
 v = zeros(gridSize[1],gridSize[2]-1)
 p = zeros(gridSize[1]-1,gridSize[2]-1)
@@ -19,7 +19,7 @@ vy = grids[2][:,1:end-1]
 px = grids[1][1:end-1,1:end-1]+Δxs[1]/2
 py = grids[2][1:end-1,1:end-1]+Δxs[2]/2
 #prob = dirichletzeroStokesExample()
-@unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueknown
+@unpack f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueknown = prob
 
 u_analytic = float(uanalytic(ux,uy))
 vTrue = float(vanalytic(vx,vy))
