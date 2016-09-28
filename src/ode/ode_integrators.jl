@@ -40,7 +40,7 @@ end
   local Δt::tType
   local Ts::Vector{tType}
   local adaptiveorder::Int
-  @unpack integrator: f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg
+  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg = integrator
   calck = dense || !isempty(saveat) # Both dense and saveat need the k's
   issimple_dense = (ksEltype==rateType) # Means ks[i] = f(t[i],timeseries[i]), for Hermite
 
@@ -87,7 +87,7 @@ end
   qmaxc = inv(qmax) #facc2
   local Eest::uEltypeNoUnits = zero(uEltypeNoUnits)
   if adaptive
-    @unpack integrator: abstol,reltol,qmax,Δtmax,Δtmin,internalnorm
+    @unpack abstol,reltol,qmax,Δtmax,Δtmin,internalnorm = integrator
   end
 
   timeseries = Vector{uType}(0)
@@ -601,7 +601,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   local α::Vector{uEltypeNoUnits}
   local αEEst::Vector{uEltypeNoUnits}
   local stages::Int
-  @unpack integrator.tableau: A,c,α,αEEst,stages,fsal
+  @unpack A,c,α,αEEst,stages,fsal = integrator.tableau
   A = A' # Transpose A to column major looping
   kk = Array{rateType}(stages) # Not ks since that's for dense
   local utilde::rateType
@@ -660,7 +660,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   local αEEst::Vector{uEltypeNoUnits}
   local stages::Int
   uidx = eachindex(u)
-  @unpack integrator.tableau: A,c,α,αEEst,stages,fsal
+  @unpack A,c,α,αEEst,stages,fsal = integrator.tableau
   A = A' # Transpose A to column major looping
   kk = Vector{rateType}(0)
   for i = 1:stages
@@ -756,7 +756,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   local αEEst::Vector{uEltypeNoUnits}
   local stages::Int
   uidx = eachindex(u)
-  @unpack integrator.tableau: A,c,α,αEEst,stages,fsal
+  @unpack A,c,α,αEEst,stages,fsal = integrator.tableau
   kk = Vector{rateType}(0)
   for i = 1:stages
     push!(kk,rateType(sizeu))

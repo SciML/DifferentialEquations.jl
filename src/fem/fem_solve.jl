@@ -27,8 +27,8 @@ function solve(fem_mesh::FEMmesh,prob::PoissonProblem;solver::Symbol=:Direct,aut
   #Assemble Matrices
   A,M,area = assemblematrix(fem_mesh,lumpflag=true)
   #Unroll some important constants
-  @unpack fem_mesh: Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
-  @unpack prob: f,Du,f,gD,gN,analytic,knownanalytic,islinear,u₀,numvars,σ,stochastic,noisetype,D
+  @unpack Δt,bdnode,node,elem,N,NT,freenode,dirichlet,neumann = fem_mesh
+  @unpack f,Du,f,gD,gN,analytic,knownanalytic,islinear,u₀,numvars,σ,stochastic,noisetype,D = prob
 
   #Setup f quadrature
   mid = Array{eltype(node)}(size(node[vec(elem[:,2]),:])...,3)
@@ -184,8 +184,8 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   A,M,area = assemblematrix(fem_mesh,lumpflag=true)
 
   #Unroll some important constants
-  @unpack fem_mesh: Δt,T,bdnode,node,elem,N,NT,freenode,dirichlet,neumann
-  @unpack prob: f,u₀,Du,gD,gN,analytic,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D
+  @unpack Δt,T,bdnode,node,elem,N,NT,freenode,dirichlet,neumann = fem_mesh
+  @unpack f,u₀,Du,gD,gN,analytic,knownanalytic,islinear,numvars,σ,stochastic,noisetype,D = prob
 
   #Note if Atom is loaded for progress
   atomloaded = isdefined(Main,:Atom)

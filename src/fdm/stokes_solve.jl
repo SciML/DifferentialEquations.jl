@@ -301,7 +301,7 @@ Solves the given stationary Stokes problem on the given finite difference mesh.
 * `gsiters`: The number of Gauss-Seidel iterations to do at each step. Default is 20.
 """
 function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,alg=:DGS,levels=2,smoothSteps=10,coarseSteps=40,gsiters=20)
-  @unpack mesh: Δxs,grids,dims,gridSize,square,mins,maxs
+  @unpack Δxs,grids,dims,gridSize,square,mins,maxs = mesh
   u = zeros(gridSize[1]-1,gridSize[2])
   v = zeros(gridSize[1],gridSize[2]-1)
   p = zeros(gridSize[1]-1,gridSize[2]-1)
@@ -316,7 +316,7 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
   px = grids[1][1:end-1,1:end-1]+Δxs[1]/2
   py = grids[2][1:end-1,1:end-1]+Δxs[2]/2
   #prob = dirichletzeroStokesExample()
-  @unpack prob: f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueknown
+  @unpack f₁,f₂,ugD,vgD,uanalytic,vanalytic,panalytic,g,trueknown = prob
 
   if trueknown
     u_analytic = float(uanalytic(ux,uy))
