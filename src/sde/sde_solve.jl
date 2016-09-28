@@ -43,8 +43,7 @@ function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_ti
               discard_length=1e-15,adaptivealg::Symbol=:RSwM3,progressbar=false,tType=typeof(Δt),tableau = nothing)
 
   atomloaded = isdefined(Main,:Atom)
-  @unpack prob: u₀,knownanalytic,analytic, numvars, sizeu,isinplace
-
+  @unpack u₀,knownanalytic,analytic, numvars, sizeu,isinplace = prob
   tspan = vec(tspan)
   if tspan[2]-tspan[1]<0 || length(tspan)>2
     error("tspan must be two numbers and final time must be greater than starting time. Aborting.")

@@ -40,7 +40,7 @@ end
   local T::tType
   local ΔW::randType
   local ΔZ::randType
-  @unpack integrator: f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau
+  @unpack f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau = integrator
   sizeu = size(u)
   iter = 0
   max_stack_size = 0
@@ -145,7 +145,7 @@ end
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sritableaupreamble
-  @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
+  @unpack c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄ = tableau
   stages = length(α)
   H0 = Vector{typeof(u)}(0)
   H1 = Vector{typeof(u)}(0)
@@ -338,7 +338,7 @@ end
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRI,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sritableaupreamble
-  @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
+  @unpack c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄ = tableau
   stages::Int = length(α)
   H0 = Array{typeof(u)}(stages)
   H1 = Array{typeof(u)}(stages)
@@ -396,7 +396,7 @@ end
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRIVectorized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sritableaupreamble
-  @unpack tableau: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
+  @unpack c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄ = tableau
   stages::Int = length(α)
   H0 = Array{uEltype}(stages)
   H1 = Array{uEltype}(stages)
@@ -523,7 +523,7 @@ end
 function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:AbstractArray,rateType<:AbstractArray}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sratableaupreamble
-  @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
+  @unpack c₀,c₁,A₀,B₀,α,β₁,β₂ = tableau
   stages::Int = length(α)
   H0 = Vector{typeof(u)}(0)
   for i = 1:stages
@@ -585,7 +585,7 @@ end
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRA,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sratableaupreamble
-  @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
+  @unpack c₀,c₁,A₀,B₀,α,β₁,β₂ = tableau
   stages::Int = length(α)
   H0 = Array{uEltype}(stages)
   local atemp::uType; local btemp::uType
@@ -631,7 +631,7 @@ end
 function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType<:Tableau,uEltypeNoUnits<:Number,randType<:Number,rateType<:Number}(integrator::SDEIntegrator{:SRAVectorized,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType})
   @sde_preamble
   @sde_sratableaupreamble
-  @unpack tableau: c₀,c₁,A₀,B₀,α,β₁,β₂
+  @unpack c₀,c₁,A₀,B₀,α,β₁,β₂ = tableau
   stages::Int = length(α)
   @sde_adaptiveprelim
   H0 = Array{uEltype}(stages)

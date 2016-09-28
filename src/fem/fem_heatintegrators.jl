@@ -116,11 +116,11 @@ end
 end
 
 @def femheat_deterministicpreamble begin
-  @unpack integrator: N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps
+  @unpack N,NT,Δt,t,Minv,D,A,freenode,f,gD,gN,u,node,elem,area,bdnode,mid,dirichlet,neumann,islinear,numvars,numiters,save_timeseries,timeseries,ts,atomloaded,solver,autodiff,method,show_trace,iterations,timeseries_steps,progressbar,progress_steps = integrator
 end
 
 @def femheat_stochasticpreamble begin
-  @unpack integrator: sqrtΔt,σ,noisetype
+  @unpack sqrtΔt,σ,noisetype = integrator
   rands = getNoise(u,node,elem,noisetype=noisetype)
 end
 

@@ -90,7 +90,7 @@ checkSRIOrder(RosslerSRI)
 Determines whether the order conditions are met via the tableaus of the SRI method.
 """
 function checkSRIOrder(RosslerSRI;tol=1e-6)
-  @unpack RosslerSRI: c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄
+  @unpack c₀,c₁,A₀,A₁,B₀,B₁,α,β₁,β₂,β₃,β₄ = RosslerSRI
   e = ones(size(α))
   conditions = Vector{Bool}(25)
   conditions[1] = abs(dot(α,e)-1)<tol
@@ -127,7 +127,7 @@ checkSRAOrder(RosslerSRI)
 Determines whether the order conditions are met via the tableaus of the SRA method.
 """
 function checkSRAOrder(SRA;tol=1e-6)
-  @unpack SRA: c₀,c₁,A₀,B₀,α,β₁,β₂
+  @unpack c₀,c₁,A₀,B₀,α,β₁,β₂ = SRA
   e = ones(size(α))
   conditions = Vector{Bool}(8)
   conditions[1] = abs(dot(α,e)-1)<tol

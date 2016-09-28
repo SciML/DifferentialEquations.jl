@@ -44,7 +44,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   o = KW(kwargs)
   o[:t] = tspan[1]
   o[:Ts] = tspan[2:end]
-  @unpack prob: u₀,knownanalytic,analytic,numvars,isinplace
+  @unpack u₀,knownanalytic,analytic,numvars,isinplace = prob
 
   command_opts = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   for (k,v) in o
@@ -73,7 +73,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       adaptiveorder = DIFFERENTIALEQUATIONSJL_ADAPTIVEORDERS[alg]
     end
     if alg==:ExplicitRK || alg==:ExplicitRKVectorized
-      @unpack o[:tableau]: order,adaptiveorder
+      @unpack order,adaptiveorder = o[:tableau]
     end
     if !isinplace && typeof(u)<:AbstractArray
       f! = (t,u,du) -> (du[:] = prob.f(t,u))
@@ -164,7 +164,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     if alg ∈ DIFFERENTIALEQUATIONSJL_FSALALGS
       fsal = true
     elseif alg == :ExplicitRK
-      @unpack o[:tableau]: fsal
+      @unpack fsal = o[:tableau]
     end
 
     Ts = map(tType,o[:Ts])
