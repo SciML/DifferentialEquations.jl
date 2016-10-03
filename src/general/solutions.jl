@@ -279,7 +279,7 @@ function show(io::IO,sol::DESolution)
   print(io,"$(typeof(sol)), $(length(sol)) timesteps, final value $(sol.u)")
 end
 
-function vecvecapply{T<:Number,N}(f::Function,v::Vector{Array{T,N}})
+function vecvecapply{T<:Number,N}(f::Base.Callable,v::Vector{Array{T,N}})
   res = Vector{eltype(eltype(v))}(0)
   for i in eachindex(v)
     for j in eachindex(v[i])
@@ -289,6 +289,6 @@ function vecvecapply{T<:Number,N}(f::Function,v::Vector{Array{T,N}})
   f(res)
 end
 
-function vecvecapply{T<:Number}(f::Function,v::Vector{T})
+function vecvecapply{T<:Number}(f::Base.Callable,v::Vector{T})
   f(v)
 end
