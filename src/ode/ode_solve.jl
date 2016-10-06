@@ -16,7 +16,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
   option is `:Simple` for the standard simple error-based rejection
 * `β` - The Lund stabilization β parameter. Defaults are algorithm-dependent.
 * `qmax` - Defines the maximum value possible for the adaptive q. Default is 10.
-* `ablstol` - Absolute tolerance in adaptive timestepping. Defaults to 1e-3.
+* `abstol` - Absolute tolerance in adaptive timestepping. Defaults to 1e-3.
 * `reltol` - Relative tolerance in adaptive timestepping. Defaults to 1e-6.
 * `maxiters` - Maximum number of iterations before stopping. Defaults to 1e9.
 * `Δtmax` - Maximum Δt for adaptive timestepping. Defaults to half the timespan.
