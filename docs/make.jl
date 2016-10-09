@@ -4,6 +4,7 @@ makedocs(modules=[DifferentialEquations],
          doctest=false, clean=true,
          format =Documenter.Formats.HTML,
          sitename="DifferentialEquations.jl",
+         authors="Chris Rackauckas",
          pages = Any[
          "Home" => "index.md",
          "Tutorials" => Any[
