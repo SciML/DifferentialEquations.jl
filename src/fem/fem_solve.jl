@@ -325,7 +325,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann
   end
 
   if(!isempty(neumann))
-    el = sqrt(float(sum((node[neumann[:,1],:] - node[neumann[:,2],:]).^2,2)))
+    el = sqrt.(float(sum((node[neumann[:,1],:] - node[neumann[:,2],:]).^2,2)))
     λgN,ωgN = quadpts1(gNquad𝒪)
     ϕgN = λgN                # linear bases
     nQuadgN = size(λgN,1)
