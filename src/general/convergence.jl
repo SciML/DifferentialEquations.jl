@@ -174,7 +174,7 @@ function calc𝒪estimates(error::Pair)
   for i=1:length(error)-1
     S[i] = log2(error[i+1]/error[i])
   end
-  return(Pair(key,abs(mean(S,1))))
+  return(Pair(key,abs.(mean(S,1))))
 end
 
 """
