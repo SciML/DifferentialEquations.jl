@@ -36,7 +36,7 @@ Solves the SDE as defined by prob on the time interval tspan. If not given, tspa
     - `:SRAVectorized` - A vectorized implementation of SRA algorithms. Requires 1-dimensional problem.
     - `:SRIVectorized` - A vectorized implementation of SRI algorithms. Requires 1-dimensional problem.
 """
-function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0,save_timeseries::Bool = true,
+function solve(prob::SDEProblem,tspan::AbstractArray=[0,1];Δt::Number=0.0,save_timeseries::Bool = true,
               timeseries_steps::Int = 1,alg::Symbol=:SRIW1Optimized,adaptive=false,γ=2.0,
               abstol=1e-3,reltol=1e-6,qmax=1.125,δ=1/6,maxiters::Int = round(Int,1e9),
               Δtmax=nothing,Δtmin=nothing,progress_steps=1000,internalnorm=2,
