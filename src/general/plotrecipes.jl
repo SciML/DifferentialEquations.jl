@@ -144,7 +144,7 @@ end
     vals = [x for x in values(sim.errors)]
   end
   seriestype --> :path
-  label  --> [string(key) for key in keys(sim.errors)]'
+  label  --> permuteddims([string(key) for key in keys(sim.errors)],[2,1])
   xguide  --> "Convergence Axis"
   yguide  --> "Error"
   xscale --> :log10
