@@ -98,7 +98,7 @@ end
 
   qminc = inv(qmin) #facc1
   qmaxc = inv(qmax) #facc2
-  local Eest::uEltypeNoUnits = zero(uEltypeNoUnits)
+  local EEst::uEltypeNoUnits = zero(uEltypeNoUnits)
   if adaptive
     @unpack abstol,reltol,qmax,Δtmax,Δtmin,internalnorm = integrator
   end
@@ -190,19 +190,29 @@ end
         else
           u = utmp
         end
-        if fsal
-          if uType <: AbstractArray
-            recursivecopy!(fsalfirst,fsallast)
-          else
-            println("oh no here")
-            fsalfirst = fsallast
-          end
-        end
+
         qold = max(EEst,qoldinit)
         Δtpropose = min(Δtmax,Δtnew)
         Δtprev = Δt
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,Δt,t = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+        cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+
+        if fsal
+          if reeval_fsal
+            if uType <: AbstractArray
+              f(t,u,fsalfirst)
+            else
+              fsalfirst = f(t,u)
+            end
+          else
+            if uType <: AbstractArray
+              recursivecopy!(fsalfirst,fsallast)
+            else
+              fsalfirst = fsallast
+            end
+          end
+        end
+
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -233,7 +243,6 @@ end
           if uType <: AbstractArray
             recursivecopy!(fsalfirst,fsallast)
           else
-            println("oh no here")
             fsalfirst = fsallast
           end
         end
@@ -266,7 +275,6 @@ end
       if uType <: AbstractArray
         recursivecopy!(fsalfirst,fsallast)
       else
-        println("oh no here")
         fsalfirst = fsallast
       end
     end
@@ -1081,17 +1089,16 @@ end
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Tsit5,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,b1,b2,b3,b4,b5,b6,b7 = constructTsit5(uEltypeNoUnits)
-  k1::rateType = rateType(sizeu)
   k2::rateType = rateType(sizeu)
   k3::rateType = rateType(sizeu)
   k4::rateType = rateType(sizeu)
   k5::rateType = rateType(sizeu)
   k6::rateType = rateType(sizeu)
-  k7::rateType = rateType(sizeu)
   const kshortsize = 7
   utilde::uType = similar(u)
   uidx = eachindex(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
+  k1 = fsalfirst; k7 = fsallast # setup pointers
   if calck
     k = ksEltype()
     for i in 1:kshortsize
@@ -1107,7 +1114,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[6] = k6
     k[7] = k7
   end
-  fsalfirst = k1; fsallast = k7 # setup pointers
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1695,8 +1701,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
-      f(t,u,tmp)
-      println("the function evaluation gives $tmp")
       for i in uidx
         tmp[i] = u[i]+Δt*(a21*k1[i])
       end
