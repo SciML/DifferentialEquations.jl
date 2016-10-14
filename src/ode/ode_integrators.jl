@@ -52,6 +52,17 @@ end
   sizeu = size(u)
   local utmp::uType
   local k::ksEltype
+  local kprev::ksEltype
+  if ksEltype <: AbstractArray  && alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+    k = ksEltype[]
+    kprev = ksEltype[]
+  elseif ksEltype <: Number
+    k = ksEltype(0)
+    kprev = ksEltype(0)
+  else
+    k = ksEltype()
+    kprev = ksEltype()
+  end
 
   # Setup FSAL
   if uType <: Number
@@ -73,7 +84,6 @@ end
   local cursaveat::Int = 1
   local Θ = one(t)/one(t) # No units
   local tprev::tType = t
-  local kprev::ksEltype
   local uprev::uType = u
   local standard::uEltype = 0
   local q::uEltypeNoUnits = 0
@@ -149,29 +159,6 @@ end
   end
 end
 
-@def ode_numberimplicitsavevalues begin
-  if !isempty(saveat) # Perform saveat
-    while cursaveat <= length(saveat) && saveat[cursaveat]<= t
-      if saveat[cursaveat]<t # If we already saved at the point, ignore it
-        curt = saveat[cursaveat]
-        ode_addsteps!(k,tprev,uprev,Δt,alg,f)
-        Θ = Δt/(curt - t-Δt)
-        val = ode_interpolant(Θ,Δt,uprev,uhold[1],kprev,k,alg)
-        push!(ts,curt)
-        push!(timeseries,val)
-      end
-      cursaveat+=1
-    end
-  end
-  if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,uhold[1])
-    push!(ts,t)
-    if dense
-      push!(ks,deepcopy(k))
-    end
-  end
-end
-
 @def ode_loopfooter begin
   if adaptive
     if timechoicealg == :Lund #Lund stabilization of q
@@ -181,20 +168,36 @@ end
       Δtnew = Δt/q
       if EEst <= 1.0 # Accept
         t = t + Δt
-        recursivecopy!(u, utmp)
+        if uType <: AbstractArray # Treat mutables differently
+          recursivecopy!(u, utmp)
+        else
+          u = utmp
+        end
         qold = max(EEst,qoldinit)
-        #callback(alg,f,t,u,k,tprev,uprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps)
-        @ode_savevalues
+        callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps)
+        #@ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
           tprev = t
-          recursivecopy!(uprev,u)
-          recursivecopy!(kprev,k)
+          if uType <: AbstractArray
+            recursivecopy!(uprev,u)
+          else
+            uprev = u
+          end
+          if ksEltype <: AbstractArray
+            recursivecopy!(kprev,k)
+          else
+            kprev = k
+          end
         end
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
         if fsal
-          recursivecopy!(fsalfirst,fsallast)
+          if uType <: AbstractArray
+            recursivecopy!(fsalfirst,fsallast)
+          else
+            fsalfirst = fsallast
+          end
         end
       else # Reject
         Δt = Δt/min(qminc,q11/γ)
@@ -229,149 +232,21 @@ end
     if !isempty(saveat)
       # Store previous for interpolation
       tprev = t
-      recursivecopy!(uprev,u)
-      recursivecopy!(kprev,k)
-    end
-    if fsal
-      recursivecopy!(fsalfirst,fsallast)
-    end
-  end
-  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/Tfinal) : nothing #Use Atom's progressbar if loaded
-end
-
-@def ode_numberloopfooter begin
-  if adaptive
-    if timechoicealg == :Lund #Lund stabilization of q
-      q11 = EEst^expo1
-      q = q11/(qold^β)
-      q = max(qmaxc,min(qminc,q/γ))
-      Δtnew = Δt/q
-      if EEst < 1.0 # Accept
-        t = t + Δt
-        u = utmp
-        @ode_savevalues
-        if !isempty(saveat)
-          # Store previous for interpolation
-          tprev = t
-          uprev = u
-          if ksEltype <: AbstractArray
-            recursivecopy!(kprev,k)
-          else
-            kprev = k
-          end
-        end
-        qold = max(EEst,qoldinit)
-        Δtpropose = min(Δtmax,Δtnew)
-        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        if fsal
-          fsalfirst = fsallast
-        end
-      else # Reject
-        Δt = Δt/min(qminc,q11/γ)
-      end
-    elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
-      if isinf(standard)
-          q = qmax
-      else
-         q = min(qmax,max(standard,eps()))
-      end
-      if q > 1 # Accept
-        t = t + Δt
-        u = utmp
-        @ode_savevalues
-        if !isempty(saveat)
-          # Store previous for interpolation
-          tprev = t
-          uprev = u
-          if ksEltype <: AbstractArray
-            recursivecopy!(kprev,k)
-          else
-            kprev = k
-          end
-        end
-        if fsal
-          fsalfirst = fsallast
-        end
-      end
-      Δtpropose = min(Δtmax,q*Δt)
-      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-    end
-  else #Not adaptive
-    t += Δt
-    @ode_savevalues
-    if !isempty(saveat)
-      # Store previous for interpolation
-      tprev = t
-      uprev = u
-      if ksEltype <: AbstractArray
+      if uType <: AbstractArray
+        recursivecopy!(uprev,u)
         recursivecopy!(kprev,k)
       else
+        uprev = u
         kprev = k
       end
     end
     if fsal
-      fsalfirst = fsallast
-    end
-  end
-  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/Tfinal) : nothing #Use Atom's progressbar if loaded
-end
-
-@def ode_numberimplicitloopfooter begin
-  if adaptive
-    if timechoicealg == :Lund #Lund stabilization of q
-      q11 = EEst^expo1
-      q = q11/(qold^β)
-      q = max(qmaxc,min(qminc,q/γ))
-      Δtnew = Δt/q
-      if EEst < 1.0 # Accept
-        qold = max(EEst,qoldinit)
-        if !isempty(saveat)
-          # Store previous for interpolation
-          tprev = t
-          uprev = uhold[1]
-          if ksEltype <: AbstractArray
-            recursivecopy!(kprev,k)
-          else
-            kprev = k
-          end
-        end
-        t = t + Δt
-        uhold = utmp
-        @ode_numberimplicitsavevalues
-        Δtpropose = min(Δtmax,Δtnew)
-        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-      else # Reject
-        Δt = Δt/min(qminc,q11/γ)
-      end
-    elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
-      if isinf(standard)
-          q = qmax
+      if uType <: AbstractArray
+        recursivecopy!(fsalfirst,fsallast)
       else
-         q = min(qmax,max(standard,eps()))
-      end
-      if q > 1
-        t = t + Δt
-        uhold = utmp
-        @ode_numberimplicitsavevalues
-      end
-      Δtpropose = min(Δtmax,q*Δt)
-      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-    end
-  else #Not adaptive
-    if !isempty(saveat)
-      # Store previous for interpolation
-      tprev = t
-      uprev = uhold[1]
-      if ksEltype <: AbstractArray
-        recursivecopy!(kprev,k)
-      else
-        kprev = k
+        fsalfirst = fsallast
       end
     end
-    t = t + Δt
-    @ode_numberimplicitsavevalues
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/Tfinal) : nothing #Use Atom's progressbar if loaded
 end
@@ -384,7 +259,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       @ode_loopheader
       u = u + Δt*k
       k = f(t,u) # For the interpolation, needs k at the updated point
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -419,7 +294,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       @ode_loopheader
       k = f(t+halfΔt,u+halfΔt*f(t,u))
       u = u + Δt*k
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -474,7 +349,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k=k₄
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -573,7 +448,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k = kk[end]
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -775,7 +650,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k = fsallast
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -909,7 +784,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -1103,7 +978,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         k[6] = k6
         k[7] = k7
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -1283,7 +1158,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         k[3] = update - k7 - bspl
         k[4] = (d1*k1+d3*k3+d4*k4+d5*k5+d6*k6+d7*k7)
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -1694,7 +1569,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -1864,7 +1739,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -2043,7 +1918,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -2225,7 +2100,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else
         u = utmp
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   if calck
@@ -2415,7 +2290,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         k[6] = (d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16)
         k[7] = (d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16)
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -2659,7 +2534,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else
         u = utmp
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   if calck
@@ -2857,7 +2732,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -3232,7 +3107,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else
         u = u + update
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   if calck
@@ -3507,7 +3382,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else #no chance of rejecting so in-place
         u = u + update
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   if calck
@@ -3852,7 +3727,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       else #no chance of rejecting, so in-place
         u = u + update
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   if calck
@@ -3881,7 +3756,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         k = f(t+Δt,uhold[1])
       end
       u = uhold[1]
-      @ode_numberloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -3922,7 +3797,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       @ode_loopfooter
     end
-    println(u)
   end
   u = reshape(uhold,sizeu...)
   return u,t,timeseries,ts,ks
@@ -3993,7 +3867,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         k = f(t+Δt,uhold[1])
       end
       u = uhold[1]
-      @ode_numberimplicitloopfooter
+      @ode_loopfooter
     end
   end
   return u,t,timeseries,ts,ks
@@ -4109,7 +3983,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         u = u + Δt*k₂
         fsallast = f(t,u)
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
       fsalfirst = fsallast
     end
   end
@@ -4229,7 +4103,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
         u = u + Δt*(k₁ + 4k₂ + k₃)/6
         fsallast = f(t,u)
       end
-      @ode_numberloopfooter
+      @ode_loopfooter
       fsalfirst = fsallast
     end
   end
