@@ -149,29 +149,6 @@ end
   end
 end
 
-@def ode_implicitsavevalues begin
-  if !isempty(saveat) # Perform saveat
-    while cursaveat <= length(saveat) && saveat[cursaveat]<= t
-      if saveat[cursaveat]<t # If we already saved at the point, ignore it
-        curt = saveat[cursaveat]
-        ode_addsteps!(k,tprev,uprev,Δt,alg,f)
-        Θ = Δt/(curt - t-Δt)
-        val = ode_interpolant(Θ,Δt,uprev,u,kprev,k,alg)
-        push!(ts,curt)
-        push!(timeseries,val)
-      end
-      cursaveat+=1
-    end
-  end
-  if save_timeseries && iter%timeseries_steps==0
-    push!(timeseries,copy(u))
-    push!(ts,t)
-    if dense
-      push!(ks,deepcopy(k))
-    end
-  end
-end
-
 @def ode_numberimplicitsavevalues begin
   if !isempty(saveat) # Perform saveat
     while cursaveat <= length(saveat) && saveat[cursaveat]<= t
@@ -3903,10 +3880,10 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k = f(t+Δt,uhold[1])
       end
-      @ode_numberimplicitloopfooter
+      u = uhold[1]
+      @ode_numberloopfooter
     end
   end
-  u = uhold[1]
   return u,t,timeseries,ts,ks
 end
 
@@ -4015,10 +3992,10 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       if calck
         k = f(t+Δt,uhold[1])
       end
+      u = uhold[1]
       @ode_numberimplicitloopfooter
     end
   end
-  u = uhold[1]
   return u,t,timeseries,ts,ks
 end
 
