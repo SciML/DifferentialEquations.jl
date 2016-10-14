@@ -39,7 +39,8 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
                                  :autodiff=>true,
                                  :internalnorm => 2,
                                  :progressbar=>false,
-                                 :progress_steps=>1000)
+                                 :progress_steps=>1000,
+                                 :callback=>nothing)
 
 const ODEJL_OPTION_LIST = Set([:tout,:tstop,:reltol,:abstol,:minstep,:maxstep,:initstep,:norm,:maxiters,:isoutofdomain])
 const ODEJL_ALIASES = Dict{Symbol,Symbol}(:minstep=>:Δtmin,:maxstep=>:Δtmax,:initstep=>:Δt,:tstop=>:T)

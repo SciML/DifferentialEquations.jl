@@ -32,6 +32,7 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   dense::Bool
   saveat::Vector{tType}
   alg::Symbol
+  callback::Function
 end
 
 @def ode_preamble begin
@@ -40,7 +41,7 @@ end
   local Δt::tType
   local Ts::Vector{tType}
   local adaptiveorder::Int
-  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg = integrator
+  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg, callback = integrator
   calck = dense || !isempty(saveat) # Both dense and saveat need the k's
   issimple_dense = (ksEltype==rateType) # Means ks[i] = f(t[i],timeseries[i]), for Hermite
 
@@ -73,7 +74,6 @@ end
   local Θ = one(t)/one(t) # No units
   local tprev::tType = t
   local kprev::ksEltype
-  local saveatktmp::ksEltype
   local uprev::uType = u
   local standard::uEltype = 0
   local q::uEltypeNoUnits = 0
@@ -206,6 +206,7 @@ end
         t = t + Δt
         recursivecopy!(u, utmp)
         qold = max(EEst,qoldinit)
+        #callback(alg,f,t,u,k,tprev,uprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps)
         @ode_savevalues
         if !isempty(saveat)
           # Store previous for interpolation
@@ -335,57 +336,6 @@ end
     if fsal
       fsalfirst = fsallast
     end
-  end
-  (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/Tfinal) : nothing #Use Atom's progressbar if loaded
-end
-
-@def ode_implicitloopfooter begin
-  if adaptive
-    if timechoicealg == :Lund #Lund stabilization of q
-      q11 = EEst^expo1
-      q = q11/(qold^β)
-      q = max(qmaxc,min(qminc,q/γ))
-      Δtnew = Δt/q
-      if EEst < 1.0 # Accept
-        if !isempty(saveat)
-          # Store previous for interpolation
-          tprev = t
-          recursivecopy!(uprev,uhold)
-          recursivecopy!(kprev,k)
-        end
-        t = t + Δt
-        qold = max(EEst,qoldinit)
-        recursivecopy!(uhold, utmp)
-        @ode_implicitsavevalues
-        Δtpropose = min(Δtmax,Δtnew)
-        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-      else # Reject
-        Δt = Δt/min(qminc,q11/γ)
-      end
-    elseif timechoicealg == :Simple
-      standard = γ*abs(1/(EEst))^(1/(adaptiveorder))
-      if isinf(standard)
-          q = qmax
-      else
-         q = min(qmax,max(standard,eps()))
-      end
-      if q > 1 # Accept
-        if !isempty(saveat)
-          # Store previous for interpolation
-          tprev = t
-          recursivecopy!(uprev,uhold)
-          recursivecopy!(kprev,k)
-        end
-        t = t + Δt
-        recursivecopy!(uhold, utmp)
-        @ode_implicitsavevalues
-      end
-      Δtpropose = min(Δtmax,q*Δt)
-      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-    end
-  else #Not adaptive
-    t = t + Δt
-    @ode_implicitsavevalues
   end
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(t/Tfinal) : nothing #Use Atom's progressbar if loaded
 end
@@ -3993,8 +3943,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       if calck
         f(t+Δt,u,k)
       end
-      @ode_implicitloopfooter
+      @ode_loopfooter
     end
+    println(u)
   end
   u = reshape(uhold,sizeu...)
   return u,t,timeseries,ts,ks
@@ -4038,7 +3989,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       if calck
         f(t+Δt,u,k)
       end
-      @ode_implicitloopfooter
+      @ode_loopfooter
     end
   end
   u = reshape(uhold,sizeu...)
