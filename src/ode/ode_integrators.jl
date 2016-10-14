@@ -188,9 +188,15 @@ end
         else
           u = utmp
         end
+        if fsal
+          if uType <: AbstractArray
+            recursivecopy!(fsalfirst,fsallast)
+          else
+            fsalfirst = fsallast
+          end
+        end
         qold = max(EEst,qoldinit)
-        cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense)
-        #@ode_savevalues
+        cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -207,13 +213,6 @@ end
         end
         Δtpropose = min(Δtmax,Δtnew)
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        if fsal
-          if uType <: AbstractArray
-            recursivecopy!(fsalfirst,fsallast)
-          else
-            fsalfirst = fsallast
-          end
-        end
       else # Reject
         Δt = Δt/min(qminc,q11/γ)
       end
@@ -226,8 +225,15 @@ end
       end
       if q > 1 # Accept
         t = t + Δt
+        if fsal
+          if uType <: AbstractArray
+            recursivecopy!(fsalfirst,fsallast)
+          else
+            fsalfirst = fsallast
+          end
+        end
         recursivecopy!(u, utmp)
-        @ode_savevalues
+        cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -242,16 +248,20 @@ end
             kprev = k
           end
         end
-        if fsal
-          recursivecopy!(fsalfirst,fsallast)
-        end
       end
       Δtpropose = min(Δtmax,q*Δt)
       Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     end
   else #Not adaptive
     t += Δt
-    @ode_savevalues
+    if fsal
+      if uType <: AbstractArray
+        recursivecopy!(fsalfirst,fsallast)
+      else
+        fsalfirst = fsallast
+      end
+    end
+    cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
     if calcprevs
       # Store previous for interpolation
       tprev = t
@@ -264,13 +274,6 @@ end
         recursivecopy!(kprev,k)
       else
         kprev = k
-      end
-    end
-    if fsal
-      if uType <: AbstractArray
-        recursivecopy!(fsalfirst,fsallast)
-      else
-        fsalfirst = fsallast
       end
     end
   end
@@ -1688,6 +1691,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   fsalfirst = k1 ; fsallast = k9
   @inbounds for T in Ts
     while t < T
+      println("u at the top is $u")
       @ode_loopheader
       for i in uidx
         tmp[i] = u[i]+Δt*(a21*k1[i])

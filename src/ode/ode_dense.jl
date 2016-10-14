@@ -46,6 +46,8 @@ function ode_interpolation{alg}(tval::Number,ts,timeseries,ks,T::Type{Val{alg}},
   else
     Δt = ts[i] - ts[i-1]
     Θ = (tval-ts[i-1])/Δt
+    println(i)
+    println(ts[i-1])
     ode_addsteps!(ks[i],ts[i-1],timeseries[i-1],Δt,alg,f) # update the kcurrent, since kprevious not used in special algs
     val = ode_interpolant(Θ,Δt,timeseries[i-1],timeseries[i],ks[i-1],ks[i],alg)
   end
