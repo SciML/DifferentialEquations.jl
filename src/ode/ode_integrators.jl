@@ -1700,6 +1700,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
+      println(Δt)
       @ode_loopheader
       for i in uidx
         tmp[i] = u[i]+Δt*(a21*k1[i])

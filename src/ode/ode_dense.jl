@@ -381,7 +381,7 @@ Called to add the extra k9, k10, k11 steps for the Order 5 interpolation when ne
 """
 function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:BS5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
   if length(k) < 8
-    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
+    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat3,bhat4,bhat5,bhat6,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
     push!(k,f(t,u))
     push!(k,f(t+c1*Δt,u+Δt*a21*k[1]))
     push!(k,f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2])))
@@ -408,7 +408,7 @@ Called to add the extra k9, k10, k11 steps for the Order 5 interpolation when ne
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:BS5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
   if length(k) < 8
-    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
+    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat3,bhat4,bhat5,bhat6,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
     rtmp = rateType(size(u))
     f(t,u,rtmp); push!(k,copy(rtmp))
     f(t+c1*Δt,u+Δt*a21*k[1],rtmp); push!(k,copy(rtmp))
@@ -437,7 +437,7 @@ Called to add the extra k9, k10, k11 steps for the Order 5 interpolation when ne
 """
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:BS5Vectorized}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
   if length(k) < 8
-    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat2,bhat3,bhat4,bhat5,bhat6,bhat7,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
+    c1,c2,c3,c4,c5,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,bhat1,bhat3,bhat4,bhat5,bhat6,btilde1,btilde2,btilde3,btilde4,btilde5,btilde6,btilde7,btilde8 = constructBS5(uEltypeNoUnits)
     rtmp = rateType(size(u))
     f(t,u,rtmp); push!(k,copy(rtmp))
     f(t+c1*Δt,u+Δt*a21*k[1],rtmp); push!(k,copy(rtmp))
