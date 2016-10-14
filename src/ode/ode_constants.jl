@@ -5,6 +5,16 @@ Sets the default tableau for the ODE solver. Currently Dormand-Prince 4/5.
 """
 const ODE_DEFAULT_TABLEAU = constructDormandPrince()
 
+"""
+ODE_DEFAULT_CALLBACK
+
+All it does is call the saving functionality.
+"""
+const ODE_DEFAULT_CALLBACK = function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,dense)
+  @ode_savevalues
+end
+
+
 const SUNDIALS_ALGORITHMS = Set([:cvode_BDF,:cvode_Adams])
 
 const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitRK,:ExplicitRKVectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:Vern6,:Vern6Vectorized,:Tsit5,:Tsit5Vectorized,:TanYam7,:TanYam7Vectorized,:TsitPap8,:TsitPap8Vectorized,:Vern9,:Vern9Vectorized,:ImplicitEuler,:Trapezoid,:Rosenbrock23,:Rosenbrock32,:Feagin10,:Feagin12,:Feagin14,:Feagin10Vectorized,:Feagin12Vectorized,:Feagin14Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized])

@@ -52,8 +52,8 @@ module DifferentialEquations
   include("sde/sde_solve.jl")
   include("sde/sde_integrators.jl")
   include("ode/ode_tableaus.jl")
-  include("ode/ode_constants.jl")
   include("ode/ode_integrators.jl")
+  include("ode/ode_constants.jl")
   include("ode/ode_solve.jl")
   include("ode/ode_dense.jl")
   include("sde/sde_tableaus.jl")
@@ -140,8 +140,11 @@ module DifferentialEquations
          constructVerner8, constructVerner7
 
   #Misc Tools
-  export numparameters, checkSRIOrder, checkSRAOrder,
+  export numparameters, checkSRIOrder, checkSRAOrder, @ode_savevalues,
          constructSRIW1, constructSRA1, def, @ode_define, @fem_define
+
+  #Callback Necessary
+  export ode_addsteps!, ode_interpolant
 
   #=
    include("precompile.jl")
