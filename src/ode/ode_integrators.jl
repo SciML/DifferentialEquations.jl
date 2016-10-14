@@ -196,7 +196,10 @@ end
           end
         end
         qold = max(EEst,qoldinit)
-        cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+        Δtpropose = min(Δtmax,Δtnew)
+        Δtprev = Δt
+        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
+        cursaveat,Δt,t = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -211,8 +214,6 @@ end
             kprev = k
           end
         end
-        Δtpropose = min(Δtmax,Δtnew)
-        Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
       else # Reject
         Δt = Δt/min(qminc,q11/γ)
       end
@@ -233,7 +234,10 @@ end
           end
         end
         recursivecopy!(u, utmp)
-        cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+        Δtpropose = min(Δtmax,q*Δt)
+        Δtprev = Δt
+        Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
+        cursaveat,Δt = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -248,9 +252,9 @@ end
             kprev = k
           end
         end
+      else # Reject
+        Δt = Δt/min(qminc,q11/γ)
       end
-      Δtpropose = min(Δtmax,q*Δt)
-      Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
     end
   else #Not adaptive
     t += Δt
@@ -261,7 +265,8 @@ end
         fsalfirst = fsallast
       end
     end
-    cursaveat = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+    Δtprev = Δt
+    cursaveat,Δt = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
     if calcprevs
       # Store previous for interpolation
       tprev = t
@@ -1691,7 +1696,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   fsalfirst = k1 ; fsallast = k9
   @inbounds for T in Ts
     while t < T
-      println("u at the top is $u")
       @ode_loopheader
       for i in uidx
         tmp[i] = u[i]+Δt*(a21*k1[i])

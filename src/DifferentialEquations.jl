@@ -144,7 +144,7 @@ module DifferentialEquations
          constructSRIW1, constructSRA1, def, @ode_define, @fem_define
 
   #Callback Necessary
-  export ode_addsteps!, ode_interpolant
+  export ode_addsteps!, ode_interpolant, DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
 
   #=
    include("precompile.jl")
