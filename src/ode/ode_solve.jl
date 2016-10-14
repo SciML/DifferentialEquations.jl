@@ -54,7 +54,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   @materialize save_timeseries, progressbar = command_opts
 
   if command_opts[:callback] == nothing
-    callback = function (alg,f,t,u,k,tprev,uprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps)
+    callback = function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps)
       @ode_savevalues
     end
   end
