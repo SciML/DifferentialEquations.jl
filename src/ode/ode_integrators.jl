@@ -109,22 +109,24 @@ end
   ts = Vector{tType}(0)
   push!(ts,t)
   ks = Vector{ksEltype}(0)
-  if calck && issimple_dense #If issimple_dense, then ks[1]=f(ts[1],timeseries[1])
-    if ksEltype <: AbstractArray
-      k = rateType(sizeu)
-    end
-    if fsal
-      k = copy(fsalfirst)
-      dense && push!(ks,copy(k)) # already computed
-    elseif ksEltype <: Number
-      k = f(t,u)
-      dense && push!(ks,k)
-    elseif ksEltype <: AbstractArray
-      f(t,u,k)
-      dense && push!(ks,deepcopy(k))
-    end
-    kprev = k
+  if issimple_dense #If issimple_dense, then ks[1]=f(ts[1],timeseries[1])
     const kshortsize = 1
+    if calck
+      if ksEltype <: AbstractArray
+        k = rateType(sizeu)
+      end
+      if fsal
+        k = copy(fsalfirst)
+        dense && push!(ks,copy(k)) # already computed
+      elseif ksEltype <: Number
+        k = f(t,u)
+        dense && push!(ks,k)
+      elseif ksEltype <: AbstractArray
+        f(t,u,k)
+        dense && push!(ks,deepcopy(k))
+      end
+      kprev = k
+    end
   end ## if not simple_dense, you have to initialize k and push the ks[1]!
 
   (progressbar && atomloaded && iter%progress_steps==0) ? Main.Atom.progress(0) : nothing #Use Atom's progressbar if loaded
@@ -192,6 +194,7 @@ end
           if uType <: AbstractArray
             recursivecopy!(fsalfirst,fsallast)
           else
+            println("oh no here")
             fsalfirst = fsallast
           end
         end
@@ -230,6 +233,7 @@ end
           if uType <: AbstractArray
             recursivecopy!(fsalfirst,fsallast)
           else
+            println("oh no here")
             fsalfirst = fsallast
           end
         end
@@ -262,6 +266,7 @@ end
       if uType <: AbstractArray
         recursivecopy!(fsalfirst,fsallast)
       else
+        println("oh no here")
         fsalfirst = fsallast
       end
     end
@@ -1263,13 +1268,11 @@ end
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP5,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
-  k1 = rateType(sizeu)
   k2 = rateType(sizeu)
   k3 = rateType(sizeu)
   k4 = rateType(sizeu)
   k5 = rateType(sizeu)
   k6 = rateType(sizeu)
-  k7 = rateType(sizeu)
   update = rateType(sizeu)
   bspl = rateType(sizeu)
   utilde = similar(u)
@@ -1345,13 +1348,11 @@ end
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP5Threaded,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
-  k1::rateType = rateType(sizeu)
   k2::rateType = rateType(sizeu)
   k3::rateType = rateType(sizeu)
   k4::rateType = rateType(sizeu)
   k5::rateType = rateType(sizeu)
   k6::rateType = rateType(sizeu)
-  k7::rateType = rateType(sizeu)
   update::rateType = rateType(sizeu)
   bspl::rateType = rateType(sizeu)
   utilde = similar(u)
@@ -1406,13 +1407,11 @@ end
 function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP5Threaded,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
-  k1::rateType = rateType(sizeu)
   k2::rateType = rateType(sizeu)
   k3::rateType = rateType(sizeu)
   k4::rateType = rateType(sizeu)
   k5::rateType = rateType(sizeu)
   k6::rateType = rateType(sizeu)
-  k7::rateType = rateType(sizeu)
   update::rateType = rateType(sizeu)
   bspl::rateType = rateType(sizeu)
   utilde = similar(u)
@@ -1673,12 +1672,11 @@ end
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Vern6,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
-  k1 = rateType(sizeu); k2 = rateType(sizeu); k3 = rateType(sizeu); k4 = rateType(sizeu);
+  k2 = rateType(sizeu); k3 = rateType(sizeu); k4 = rateType(sizeu);
   k5 = rateType(sizeu); k6 = rateType(sizeu); k7 = rateType(sizeu); k8 = rateType(sizeu);
-  k9 = rateType(sizeu);
   const kshortsize = 9
   utilde = similar(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
-  f(t,u,k1) # Pre-start fsal
+  k1 = fsalfirst ; k9 = fsallast
   if calck
     k = ksEltype()
     for i in 1:kshortsize
@@ -1693,10 +1691,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  fsalfirst = k1 ; fsallast = k9
+  f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
+      f(t,u,tmp)
+      println("the function evaluation gives $tmp")
       for i in uidx
         tmp[i] = u[i]+Δt*(a21*k1[i])
       end
