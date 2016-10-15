@@ -1,6 +1,6 @@
 macro ode_callback(ex)
   esc(quote
-    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
+    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck)
       reeval_fsal = false
       event_occured = false
       $(ex)
@@ -9,11 +9,13 @@ macro ode_callback(ex)
   end)
 end
 
-macro ode_event(event_f,apply_event!,interp_points=0,Δt_safety=1)
+macro ode_event(event_f,apply_event!,rootfind_event_loc=true,interp_points=5,Δt_safety=1)
   esc(quote
     # Event Handling
-    ode_addsteps!(k,tprev,uprev,Δtprev,alg,f)
-    Θs = linspace(0,1,$(interp_points))
+    if $interp_points!=0
+      ode_addsteps!(k,tprev,uprev,Δtprev,alg,f)
+      Θs = linspace(0,1,$(interp_points))
+    end
     interp_index = 0
     # Check if the event occured
     if $event_f(t,u)<0
@@ -35,25 +37,31 @@ macro ode_event(event_f,apply_event!,interp_points=0,Δt_safety=1)
       else
         initial_Θ = [Θs[interp_index]] # Start at the closest
       end
-      find_zero = (Θ,val) -> begin
-        val[1] = event_f(t+Θ[1]*Δt,ode_interpolant(Θ[1],Δtprev,uprev,u,kprev,k,alg))
+      if $rootfind_event_loc
+        find_zero = (Θ,val) -> begin
+          val[1] = event_f(t+Θ[1]*Δt,ode_interpolant(Θ[1],Δtprev,uprev,u,kprev,k,alg))
+        end
+        res = nlsolve(find_zero,initial_Θ)
+        val = ode_interpolant(res.zero[1],Δtprev,uprev,u,kprev,k,alg)
+        copy!(u,val)
+        Δtprev *= res.zero[1]
+      elseif interp_index != $interp_points
+          Δtprev *= Θs[interp_index]
+          copy!(u,ode_interpolant(Θs[interp_index],Δtprev,uprev,u,kprev,k,alg))
       end
-      res = nlsolve(find_zero,initial_Θ)
-      val = ode_interpolant(res.zero[1],Δtprev,uprev,u,kprev,k,alg)
-      for i in eachindex(u)
-        u[i] = val[i]
-      end
-      Δtprev *= res.zero[1]
-      t = tprev + Δtprev
+      # If no solve and no interpolants, just use endpoint
 
-      if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
-        resize!(k,kshortsize) # Reset k for next step
-        k = typeof(k)() # Make a local blank k for saving
-        ode_addsteps!(k,tprev,uprev,Δtprev,alg,f)
-      elseif typeof(u) <: Number
-        k = f(t,u)
-      else
-        f(t,u,k)
+      t = tprev + Δtprev
+      if calck
+        if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+          resize!(k,kshortsize) # Reset k for next step
+          k = typeof(k)() # Make a local blank k for saving
+          ode_addsteps!(k,tprev,uprev,Δtprev,alg,f)
+        elseif typeof(u) <: Number
+          k = f(t,u)
+        else
+          f(t,u,k)
+        end
       end
     end
 
@@ -61,11 +69,13 @@ macro ode_event(event_f,apply_event!,interp_points=0,Δt_safety=1)
 
     if event_occured
       $apply_event!(u,cache)
-      if alg ∉ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
-        if typeof(u) <: Number
-          k = f(t,u)
-        else
-          f(t,u,k)
+      if calck
+        if alg ∉ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+          if typeof(u) <: Number
+            k = f(t,u)
+          else
+            f(t,u,k)
+          end
         end
       end
       @ode_savevalues

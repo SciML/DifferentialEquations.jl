@@ -13,7 +13,6 @@ using Base.Test
 
 tic()
 
-#=
 #Internals
 println("Quadrature Points Tests")
 @time @test include("internals/quadpts_test.jl")
@@ -35,7 +34,6 @@ println("Run other Premades")
 @time @test include("internals/other_premades_tests.jl")
 println("Benchmark Tests")
 @time @test include("internals/benchmark_tests.jl")
-=#
 
 #ODE
 println("Linear ODE Tests")
@@ -71,7 +69,7 @@ println("ODE Feagin Tests")
 println("ODE Number Type Tests")
 @time @test include("ode/ode_numbertype_tests.jl")
 
-#=
+
 #SDE
 println("Linear SDE Tests")
 @time @test include("sde/sde_linear_tests.jl")
@@ -85,7 +83,7 @@ println("SDE Convergence Tests")
 @time @test include("sde/sde_convergence_tests.jl")
 println("SDE Number Type Tests")
 @time @test include("sde/sde_numbertype_tests.jl")
-=#
+
 
 #Adaptive SDE
 #=
@@ -101,7 +99,7 @@ println("SDE Additive Lorenz Attractor Test")
 @time @test include("sde/sde_lorenzattractor_tests.jl")
 =#
 
-#=
+
 #Finite Element
 #Heat
 println("Finite Element Heat Dt Tests")
@@ -137,7 +135,7 @@ println("Stokes Tests")
 @time @test include("stokes/stokes_tests.jl")
 println("DGS Internals Test")
 @time @test include("stokes/stokes_dgs_tests.jl")
-=#
+
 
 #Optional Items
 println("Units Tests")

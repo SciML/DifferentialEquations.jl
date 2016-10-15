@@ -58,6 +58,13 @@ and then continue to solve on `[0.5,1]`. This will give a much better approximat
 by perfectly specifying the moment of discontinuity, and can help the solver through
 tough regions.
 
+## Manually Turning on the Calculation
+
+The dense output storage can be turned on even if `saveat` and `dense` are not
+being used by setting `calck=true`. This can be useful for event handling since
+this will allow one to do the interpolations in the event even if you aren't saving
+the information for continuous dense output
+
 ## Timeseries Specifications
 
 To further reduce the memory usage, we can control the density that the timeseries
