@@ -94,7 +94,7 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5)
 
-push!(bools,length(sol1) >= length(sol2)) # Dual error estimators is more strict
+push!(bools,length(sol1) <= length(sol2)) # Dual error estimators is more strict
 
 ### Tsit5
 
