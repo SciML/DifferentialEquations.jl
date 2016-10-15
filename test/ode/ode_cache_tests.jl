@@ -29,6 +29,14 @@ prob = ODEProblem(f,u0)
 tspan = [0;10]
 sol = solve(prob,tspan,callback=callback)
 
+for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
+  if !contains(string(alg),"Vectorized") && !contains(string(alg),"Threaded") && alg ∉ DifferentialEquations.DIFFERENTIALEQUATIONSJL_IMPLICITALGS
+    println(alg)
+    sol = solve(prob,tspan,callback=callback,alg=alg)
+  end
+end
+
+
 #=
 Plots.plotlyjs()
 plot(sol)
