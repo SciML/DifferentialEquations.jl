@@ -52,6 +52,12 @@ sol2= solve(prob,tspan,alg=:Vern6)
 
 sol3= solve(prob,tspan,alg=:Vern6,saveat=[.5])
 
+default_callback = @ode_callback begin
+  @ode_savevalues
+end
+
+sol4 = solve(prob,tspan,callback=default_callback)
+
 bool2 = sol2(3) ≈ sol(3)
 
 bool1 && bool2
