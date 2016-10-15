@@ -16,7 +16,7 @@ function event_f(t,u) # Event when event_f(t,u,k) == 0
   u[1]
 end
 
-function apply_event!(u)
+function apply_event!(u,cache)
   u[2] = -u[2]
 end
 
@@ -32,8 +32,8 @@ prob = ODEProblem(f,u0)
 tspan = [0;15]
 
 sol = solve(prob,tspan,callback=callback)
-Plots.plotly()
-plot(sol,denseplot=true)
+#Plots.plotly()
+#plot(sol,denseplot=true)
 
 sol = solve(prob,tspan,callback=callback,alg=:Vern6)
 #plot(sol,denseplot=true)
@@ -51,6 +51,12 @@ sol2= solve(prob,tspan,callback=callback,alg=:Vern6,adaptive=false,Δt=1/2^4)
 sol2= solve(prob,tspan,alg=:Vern6)
 
 sol3= solve(prob,tspan,alg=:Vern6,saveat=[.5])
+
+default_callback = @ode_callback begin
+  @ode_savevalues
+end
+
+sol4 = solve(prob,tspan,callback=default_callback)
 
 bool2 = sol2(3) ≈ sol(3)
 
