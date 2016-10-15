@@ -1,9 +1,16 @@
-using DifferentialEquations, NLsolve, ParameterizedFunctions
+using DifferentialEquations, NLsolve#, ParameterizedFunctions
 
+#=
 f = @ode_def BallBounce begin
   dy =  v
   dv = -g
 end g=9.81
+=#
+
+f = function (t,u,du)
+  du[1] = u[2]
+  du[2] = -9.81
+end
 
 function event_f(t,u) # Event when event_f(t,u,k) == 0
   u[1]

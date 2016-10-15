@@ -60,6 +60,8 @@ println("ODE Initial Dt Tests")
 @compat !is_windows() && @time @test include("ode/ode_dense_tests.jl") # Windows 32-bit Overflow
 println("ODE In-Place Tests")
 @time @test include("ode/ode_inplace_tests.jl")
+println("ODE Events Tests")
+@time @test include("ode/ode_event_macros.jl")
 println("ODE saveat Tests")
 @time @test include("ode/ode_saveat_tests.jl")
 println("ODE Feagin Tests")
