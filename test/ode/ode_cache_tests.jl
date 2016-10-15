@@ -29,6 +29,7 @@ prob = ODEProblem(f,u0)
 tspan = [0;10]
 sol = solve(prob,tspan,callback=callback)
 
+#=
 Plots.plotlyjs()
 plot(sol)
 
@@ -37,3 +38,6 @@ plot(sol.t,map((x)->length(x),sol[:]),lw=3,
 ts = linspace(0,10,100)
 plot(ts,map((x)->x[1],sol.(ts)),lw=3,
      ylabel="Amount of X in Cell 1",xlabel="Time")
+=#
+
+true

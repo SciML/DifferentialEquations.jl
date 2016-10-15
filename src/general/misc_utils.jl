@@ -173,3 +173,10 @@ DiffCache(u::AbstractArray) = DiffCache(eltype(u),length(u),Val{ForwardDiff.pick
 
 get_du{T<:Dual}(dc::DiffCache, ::Type{T}) = dc.dual_du
 get_du(dc::DiffCache, T) = dc.du
+
+type MutableReference{T}
+val::T
+end
+
+#Base.getindex(m::MutableReference)=m.val
+#Base.setindex!(m::MutableReference{T}, v::{T},I...) = m.val=v
