@@ -54,6 +54,7 @@ module DifferentialEquations
   include("ode/ode_tableaus.jl")
   include("ode/ode_integrators.jl")
   include("ode/ode_constants.jl")
+  include("ode/ode_callbacks.jl")
   include("ode/ode_solve.jl")
   include("ode/ode_dense.jl")
   include("sde/sde_tableaus.jl")
@@ -144,7 +145,8 @@ module DifferentialEquations
          constructSRIW1, constructSRA1, def, @ode_define, @fem_define
 
   #Callback Necessary
-  export ode_addsteps!, ode_interpolant, DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+  export ode_addsteps!, ode_interpolant, DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS,
+         @ode_callback, @ode_event
 
   #=
    include("precompile.jl")
