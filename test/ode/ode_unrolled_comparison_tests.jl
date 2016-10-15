@@ -94,7 +94,7 @@ push!(bools,minimum(sol1.u - sol2.u .< 1e-10))
 sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,tableau=tab)
 sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:BS5)
 
-push!(bools,length(sol1) >= length(sol2)) # Dual error estimators is more strict
+push!(bools,length(sol1) <= length(sol2)) # Dual error estimators is more strict
 
 ### Tsit5
 
@@ -225,7 +225,7 @@ sim = test_convergence(Δts,probbig,alg=:DP8)
 push!(bools,abs(sim.𝒪est[:l2]-8) < testTol)
 
 sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8,adaptive=false,save_timeseries=false)
-sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8)
+sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8)
 
 # Should be identical
 sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8,β=0.08,expo1=0.109,qmin=0.333,qmax=6.0,fullnormalize=true)

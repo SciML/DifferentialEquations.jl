@@ -24,7 +24,7 @@ const Δt_safety = 1
 const interp_points = 10
 
 callback = @ode_callback begin
-  @ode_event event_f apply_event! interp_points Δt_safety
+  @ode_event event_f apply_event! true interp_points Δt_safety
 end
 
 u0 = [50.0,0.0]
