@@ -339,7 +339,7 @@ type SDEProblem <: DEProblem
   sizeu#::Tuple
   isinplace::Bool
   function SDEProblem(f,σ,u₀;analytic=nothing)
-    isinplace = numparameters(f)==3
+    isinplace = numparameters(f)>=3
     if analytic==nothing
       knownanalytic = false
       analytic=(t,u,W)->0
@@ -392,7 +392,7 @@ type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: DEProblem
 end
 
 function ODEProblem(f::Function,u₀;analytic=nothing)
-  isinplace = numparameters(f)==3
+  isinplace = numparameters(f)>=3
   if analytic==nothing
     knownanalytic = false
     analytic=(t,u,du)->0
