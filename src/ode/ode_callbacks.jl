@@ -1,6 +1,6 @@
 macro ode_callback(ex)
   esc(quote
-    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
       reeval_fsal = false
       event_occured = false
       $(ex)
@@ -60,7 +60,7 @@ macro ode_event(event_f,apply_event!,interp_points=0,Δt_safety=1)
     @ode_savevalues
 
     if event_occured
-      $apply_event!(u)
+      $apply_event!(u,cache)
       if alg ∉ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
         if typeof(u) <: Number
           k = f(t,u)
@@ -75,4 +75,33 @@ macro ode_event(event_f,apply_event!,interp_points=0,Δt_safety=1)
       Δt *= $Δt_safety # Safety Δt change
     end
   end)
+end
+
+macro ode_change_cachesize(cache,resize_ex)
+  resize_ex = cache_replace_length(resize_ex)
+  esc(quote
+    for i in 2:length($cache)
+      resize!($cache[i],$resize_ex)
+    end
+  end)
+end
+
+function cache_replace_length(ex::Expr)
+  for (i,arg) in enumerate(ex.args)
+    if isa(arg,Expr)
+      cache_replace_length(ex)
+    elseif isa(arg,Symbol)
+      if arg == :length
+        ex.args[i] = :(length(cache[i]))
+      end
+    end
+  end
+  ex
+end
+
+function cache_replace_length(ex::Symbol)
+  if ex == :length
+    ex = :(length(cache[i]))
+  end
+  ex
 end
