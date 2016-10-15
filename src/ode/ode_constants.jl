@@ -23,7 +23,7 @@ const DIFFERENTIALEQUATIONSJL_ALGORITHMS = Set([:Euler,:Midpoint,:RK4,:ExplicitR
 
 const DIFFERENTIALEQUATIONSJL_FSALALGS = Set([:DP5,:DP5Vectorized,:DP5Threaded,:DP8,:DP8Vectorized,:BS3,:BS3Vectorized,:BS5,:BS5Vectorized,:Tsit5,:Tsit5Vectorized,:Vern6,:Vern6Vectorized,:Vern9,:Vern9Vectorized])
 
-const DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS = Set([:DP5,:DP5Vectorized,:DP5Threaded,:Tsit5,:Tsit5Vectorized,:BS5,:BS5Vectorized,:Vern6,:Vern6Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized,:Vern9,:Vern9Vectorized,:DP8,:DP8Vectorized]) # These algs have a speical dense output, others just Hemite
+const DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS = Set([:DP5,:DP5Vectorized,:DP5Threaded,:Tsit5,:Tsit5Vectorized,:BS5,:BS5Vectorized,:Vern6,:Vern6Vectorized,:Vern7,:Vern7Vectorized,:Vern8,:Vern8Vectorized,:Vern9,:Vern9Vectorized,:DP8,:DP8Vectorized]) # These algs have a special dense output, others just Hemite
 const ODEINTERFACE_ALGORITHMS = Set([:dopri5,:dop853,:odex,:radau5,:radau,:seulex])
 const ODEJL_ALGORITHMS = Set([:ode23,:ode45,:ode78,:ode23s,:ode1,:ode2_midpoint,:ode2_heun,:ode4,:ode45_fe])
 

@@ -1052,6 +1052,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       push!(k,rateType(sizeu))
     end
     push!(ks,deepcopy(k)) #Initialize ks
+    if calcprevs
+      kprev = deepcopy(k)
+    end
   end
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
@@ -1113,6 +1116,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[5] = k5
     k[6] = k6
     k[7] = k7
+    if calcprevs
+      kprev = deepcopy(k)
+    end
   end
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
