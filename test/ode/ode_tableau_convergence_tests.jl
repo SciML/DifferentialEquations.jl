@@ -27,7 +27,7 @@ srand(100)
 println("Convergence Test on Linear")
 Δts = 1.//2.^(8:-1:4)
 testTol = 0.3
-superduperbool = Vector{Bool}(3)
+superduperbool = Vector{Bool}(2)
 bools = Vector{Bool}(0)
 alg = :ExplicitRK
 
@@ -415,6 +415,7 @@ for i = 1:2 # 1 = num, 2 = ExplicitRK
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-15.5) < testTol)
 
+  println(bools)
   superduperbool[i] = minimum(bools)
 end
 
