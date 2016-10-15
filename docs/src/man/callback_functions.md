@@ -85,11 +85,18 @@ callback = @ode_callback begin
 end
 ```
 
-One thing to note is that by default this will only check at each timestep if
-the event condition is satisfied (i.e. if `event_f(t,u)<0`). If your problem
-is oscillatory, sometime too large of a timestep will miss the event. In that
-case, you will want to specify a number of points in the interval to interpolate
-at and check the condition as well. This is done with one more parameter to `@ode_event`.
+One thing to note is that by default this will check at 5 evently-spaced interpolated
+values for if the event condition is satisfied (i.e. if `event_f(t,u)<0`). This is
+because if your problem is oscillatory, sometimes too large of a timestep will
+miss the event. One may want to specify a number of points in the interval to interpolate
+to match the computational effort to the problem. This is done with one more parameter to `@ode_event`.
+Note that the interpolations are comparatively cheap to calculate so it's recommended
+that one use a few (if the memory for `current_dense` is available).
+
+Another parameter you can set for `@ode_event` is whether to use a rootfinder.
+By default, when an event is detected, a rootfinding algorithm (provided by
+NLsolve) is used to find the exact timepoint of the event. This can be computationally
+costly for large systems and thus there's an option to turn it off.
 
 Lastly, you can also tell the solver to decrease Δt after the event occurs.
 This can be helpful if the discontinuity changes the problem immensely.
@@ -99,7 +106,7 @@ Using the full power of the macro, we can define an event as
 const Δt_safety = 1 # Multiplier to Δt after an event
 const interp_points = 10
 callback = @ode_callback begin
-  @ode_event event_f apply_event! interp_points Δt_safety
+  @ode_event event_f apply_event! rootfind_event_loc interp_points Δt_safety
 end
 ```
 

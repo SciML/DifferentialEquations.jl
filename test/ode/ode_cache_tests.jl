@@ -11,8 +11,8 @@ function event_f(t,u) # Event when event_f(t,u,k) == 0
   1-maximum(u)
 end
 
-function apply_event!(u,cache)
-  @ode_change_cachesize cache length+1
+@noinline function apply_event!(u,cache)
+  #@ode_change_cachesize cache length+1
   maxidx = findmax(u)[2]
   Θ = rand()
   u[maxidx] = Θ
@@ -21,8 +21,9 @@ end
 
 const Δt_safety = 1
 const interp_points = 10
+const rootfind_event_loc = true
 callback = @ode_callback begin
-  @ode_event event_f apply_event! interp_points Δt_safety
+  @ode_event event_f apply_event! rootfind_event_loc interp_points Δt_safety
 end
 u0 = [0.2]
 prob = ODEProblem(f,u0)
@@ -36,6 +37,16 @@ for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
   end
 end
 
+callback_no_interp = @ode_callback begin
+  @ode_event event_f apply_event! false 0
+end
+
+for alg in DifferentialEquations.DIFFERENTIALEQUATIONSJL_ALGORITHMS
+  if !contains(string(alg),"Vectorized") && !contains(string(alg),"Threaded") && alg ∉ DifferentialEquations.DIFFERENTIALEQUATIONSJL_IMPLICITALGS
+    println(alg)
+    sol = solve(prob,tspan,callback=callback_no_interp,alg=alg,dense=false)
+  end
+end
 
 #=
 Plots.plotlyjs()
