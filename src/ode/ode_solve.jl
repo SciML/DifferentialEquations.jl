@@ -292,12 +292,16 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     out = ODE.solve(ode;solver=solver,opts...)
     timeseries = out.y
     ts = out.t
+    ks = out.dy
     if length(out.y[1])==1
       tmp = Vector{eltype(out.y[1])}(length(out.y))
+      tmp_dy = Vector{eltype(out.dy[1])}(length(out.dy))
       for i in 1:length(out.y)
         tmp[i] = out.y[i][1]
+        tmp_dy[i] = out.dy[i][1]
       end
       timeseries = tmp
+      ks = tmp_dy
     end
     t = ts[end]
     u = timeseries[end]

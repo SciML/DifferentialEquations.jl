@@ -89,6 +89,8 @@ lazily (i.e. not during the solve).
 
 * ODE.jl
 
+The ODE.jl algorithms all come with a 3rd order Hermite polynomial interpolation.
+
   - `:ode23` - Bogakai-Shampine's 2/3 method
   - `:ode45` - Dormand-Prince's 4/5 method
   - `:ode78` - Runge-Kutta-Fehlberg 7/8 method
