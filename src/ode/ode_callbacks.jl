@@ -80,7 +80,7 @@ end
 macro ode_change_cachesize(cache,resize_ex)
   resize_ex = cache_replace_length(resize_ex)
   esc(quote
-    for i in 2:length($cache)
+    for i in 1:length($cache)
       resize!($cache[i],$resize_ex)
     end
   end)
