@@ -46,8 +46,6 @@ function ode_interpolation{alg}(tval::Number,ts,timeseries,ks,T::Type{Val{alg}},
   else
     Δt = ts[i] - ts[i-1]
     Θ = (tval-ts[i-1])/Δt
-    println(i)
-    println(ts[i-1])
     ode_addsteps!(ks[i],ts[i-1],timeseries[i-1],Δt,alg,f) # update the kcurrent, since kprevious not used in special algs
     val = ode_interpolant(Θ,Δt,timeseries[i-1],timeseries[i],ks[i-1],ks[i],alg)
   end
@@ -372,6 +370,81 @@ function ode_interpolant(Θ,Δt,y₀,y₁,kprevious,k,T::Type{Val{:DP8Vectorized
   y₀ + Δt*Θ*(k[1] + Θ1*(k[2] + Θ*(k[3]+Θ1*conpar)))
 end
 
+function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:DP5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k)<4
+    a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
+    k1 = f(t,u)
+    k2 = f(t+c1*Δt,u+Δt*(a21*k1))
+    k3 = f(t+c2*Δt,u+Δt*(a31*k1+a32*k2))
+    k4 = f(t+c3*Δt,u+Δt*(a41*k1+a42*k2+a43*k3))
+    k5 = f(t+c4*Δt,u+Δt*(a51*k1+a52*k2+a53*k3+a54*k4))
+    k6 = f(t+Δt,u+Δt*(a61*k1+a62*k2+a63*k3+a64*k4+a65*k5))
+    update = a71*k1+a73*k3+a74*k4+a75*k5+a76*k6
+    k7 = f(t+Δt,u+Δt*update)
+    push!(k,update)
+    bspl = k1 - update
+    push!(k,bspl)
+    push!(k,update - k7 - bspl)
+    push!(k,d1*k1+d3*k3+d4*k4+d5*k5+d6*k6+d7*k7)
+  end
+  nothing
+end
+
+function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:DP5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k)<4
+    a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
+    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
+    rtmp = rateType(size(u)); k1 = rateType(size(u)); k2 = rateType(size(u))
+    k3 = rateType(size(u)); k4 = rateType(size(u)); k5 = rateType(size(u))
+    k6 = rateType(size(u)); k7 = rateType(size(u))
+    f(t,u,k1)
+    f(t+c1*Δt,u+Δt*(a21*k1),k2)
+    f(t+c2*Δt,u+Δt*(a31*k1+a32*k2),k3)
+    f(t+c3*Δt,u+Δt*(a41*k1+a42*k2+a43*k3),k4)
+    f(t+c4*Δt,u+Δt*(a51*k1+a52*k2+a53*k3+a54*k4),k5)
+    f(t+Δt,u+Δt*(a61*k1+a62*k2+a63*k3+a64*k4+a65*k5),k6)
+    rtmp = a71*k1+a73*k3+a74*k4+a75*k5+a76*k6
+    f(t+Δt,u+Δt*rtmp,k7)
+    push!(k,rtmp)
+    bspl = k1 - rtmp
+    push!(k,bspl)
+    push!(k,rtmp - k7 - bspl)
+    push!(k,d1*k1+d3*k3+d4*k4+d5*k5+d6*k6+d7*k7)
+  end
+  nothing
+end
+
+function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Tsit5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k)<7
+    c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,b1,b2,b3,b4,b5,b6,b7 = constructTsit5(uEltypeNoUnits)
+    push!(k,f(t,u))
+    push!(k,f(t+c1*Δt,u+Δt*(a21*k1)))
+    push!(k,f(t+c2*Δt,u+Δt*(a31*k1+a32*k2)))
+    push!(k,f(t+c3*Δt,u+Δt*(a41*k1+a42*k2+a43*k3)))
+    push!(k,f(t+c4*Δt,u+Δt*(a51*k1+a52*k2+a53*k3+a54*k4)))
+    push!(k,f(t+Δt,u+Δt*(a61*k1+a62*k2+a63*k3+a64*k4+a65*k5)))
+    utmp = u+Δt*(a71*k1+a72*k2+a73*k3+a74*k4+a75*k5+a76*k6)
+    push!(k,f(t+Δt,utmp))
+  end
+  nothing
+end
+
+function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Tsit5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k)<7
+    c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a72,a73,a74,a75,a76,b1,b2,b3,b4,b5,b6,b7 = constructTsit5(uEltypeNoUnits)
+    rtmp = rateType(size(u))
+    f(t,u,rtmp); push!(k,copy(rtmp))
+    f(t+c1*Δt,u+Δt*(a21*k[1]),rtmp); push!(k,copy(rtmp))
+    f(t+c2*Δt,u+Δt*(a31*k[1]+a32*k[2]),rtmp); push!(k,copy(rtmp))
+    f(t+c3*Δt,u+Δt*(a41*k[1]+a42*k[2]+a43*k[3]),rtmp); push!(k,copy(rtmp))
+    f(t+c4*Δt,u+Δt*(a51*k[1]+a52*k[2]+a53*k[3]+a54*k[4]),rtmp); push!(k,copy(rtmp))
+    f(t+Δt,u+Δt*(a61*k[1]+a62*k[2]+a63*k[3]+a64*k[4]+a65*k[5]),rtmp); push!(k,copy(rtmp))
+    utmp = u+Δt*(a71*k[1]+a72*k[2]+a73*k[3]+a74*k[4]+a75*k[5]+a76*k[6]);
+    f(t+Δt,utmp,rtmp); push!(k,copy(rtmp))
+  end
+  nothing
+end
 
 """
 An Efficient Runge-Kutta (4,5) Pair by P.Bogacki and L.F.Shampine
@@ -489,7 +562,6 @@ end
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:Vern6}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
   if length(k) < 9
     c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
-    println("in here")
     rtmp = rateType(size(u))
     f(t,u,rtmp); push!(k,copy(rtmp))
     f(t+c1*Δt,u+Δt*(a21*k[1]),rtmp); push!(k,copy(rtmp))
@@ -854,4 +926,137 @@ function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Ty
     f(t+c26*Δt,u+Δt*(a2601*k[1]+a2608*k[8]+a2609*k[9]+a2610*k[10]+a2611*k[11]+a2612*k[12]+a2613*k[13]+a2614*k[14]+a2615*k[15]+a2617*k[17]+a2618*k[18]+a2619*k[19]+a2620*k[20]+a2621*k[21]),rtmp); push!(k,copy(rtmp))
  end
   nothing
+end
+
+function ode_addsteps!{rateType<:Number,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:DP8}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k)<7
+    c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = constructDP8(uEltypeNoUnits)
+    c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
+    d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
+    k1 = f(t,u)
+    k2 = f(t+c2*Δt,u+Δt*(a0201*k1))
+    k3 = f(t+c3*Δt,u+Δt*(a0301*k1+a0302*k2))
+    k4 = f(t+c4*Δt,u+Δt*(a0401*k1       +a0403*k3))
+    k5 = f(t+c5*Δt,u+Δt*(a0501*k1       +a0503*k3+a0504*k4))
+    k6 = f(t+c6*Δt,u+Δt*(a0601*k1                +a0604*k4+a0605*k5))
+    k7 = f(t+c7*Δt,u+Δt*(a0701*k1                +a0704*k4+a0705*k5+a0706*k6))
+    k8 = f(t+c8*Δt,u+Δt*(a0801*k1                +a0804*k4+a0805*k5+a0806*k6+a0807*k7))
+    k9 = f(t+c9*Δt,u+Δt*(a0901*k1                +a0904*k4+a0905*k5+a0906*k6+a0907*k7+a0908*k8))
+    k10= f(t+c10*Δt,u+Δt*(a1001*k1                +a1004*k4+a1005*k5+a1006*k6+a1007*k7+a1008*k8+a1009*k9))
+    k11= f(t+c11*Δt,u+Δt*(a1101*k1                +a1104*k4+a1105*k5+a1106*k6+a1107*k7+a1108*k8+a1109*k9+a1110*k10))
+    k12= f(t+Δt,u+Δt*(a1201*k1                +a1204*k4+a1205*k5+a1206*k6+a1207*k7+a1208*k8+a1209*k9+a1210*k10+a1211*k11))
+    kupdate= b1*k1+b6*k6+b7*k7+b8*k8+b9*k9+b10*k10+b11*k11+b12*k12
+    update = Δt*kupdate
+    utmp = u + update
+    k13 = f(t+Δt,utmp)
+    k14 = f(t+c14*Δt,u+Δt*(a1401*k1         +a1407*k7+a1408*k8+a1409*k9+a1410*k10+a1411*k11+a1412*k12+a1413*k13))
+    k15 = f(t+c15*Δt,u+Δt*(a1501*k1+a1506*k6+a1507*k7+a1508*k8                   +a1511*k11+a1512*k12+a1513*k13+a1514*k14))
+    k16 = f(t+c16*Δt,u+Δt*(a1601*k1+a1606*k6+a1607*k7+a1608*k8+a1609*k9                              +a1613*k13+a1614*k14+a1615*k15))
+    udiff = kupdate
+    push!(k,udiff)
+    bspl = k1 - udiff
+    push!(k,bspl)
+    push!(k,udiff - k13 - bspl)
+    push!(k,(d401*k1+d406*k6+d407*k7+d408*k8+d409*k9+d410*k10+d411*k11+d412*k12+d413*k13+d414*k14+d415*k15+d416*k16))
+    push!(k,(d501*k1+d506*k6+d507*k7+d508*k8+d509*k9+d510*k10+d511*k11+d512*k12+d513*k13+d514*k14+d515*k15+d516*k16))
+    push!(k,(d601*k1+d606*k6+d607*k7+d608*k8+d609*k9+d610*k10+d611*k11+d612*k12+d613*k13+d614*k14+d615*k15+d616*k16))
+    push!(k,(d701*k1+d706*k6+d707*k7+d708*k8+d709*k9+d710*k10+d711*k11+d712*k12+d713*k13+d714*k14+d715*k15+d716*k16))
+  end
+end
+
+function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:DP8}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
+  if length(k)<7
+    sizeu = size(u)
+    k13 = rateType(sizeu)
+    k14 = rateType(sizeu)
+    k15 = rateType(sizeu)
+    k16 = rateType(sizeu)
+    udiff = rateType(sizeu)
+    bspl = rateType(sizeu)
+    k1 = rateType(sizeu); k2  = rateType(sizeu); k3  = rateType(sizeu);  k4 = rateType(sizeu)
+    k5 = rateType(sizeu); k6  = rateType(sizeu); k7  = rateType(sizeu);  k8 = rateType(sizeu)
+    k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
+    kupdate = rateType(sizeu); update = similar(u); uidx = eachindex(u); tmp = similar(u);
+    utmp = similar(u)
+    c7,c8,c9,c10,c11,c6,c5,c4,c3,c2,b1,b6,b7,b8,b9,b10,b11,b12,bhh1,bhh2,bhh3,er1,er6,er7,er8,er9,er10,er11,er12,a0201,a0301,a0302,a0401,a0403,a0501,a0503,a0504,a0601,a0604,a0605,a0701,a0704,a0705,a0706,a0801,a0804,a0805,a0806,a0807,a0901,a0904,a0905,a0906,a0907,a0908,a1001,a1004,a1005,a1006,a1007,a1008,a1009,a1101,a1104,a1105,a1106,a1107,a1108,a1109,a1110,a1201,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211 = constructDP8(uEltypeNoUnits)
+    c14,c15,c16,a1401,a1407,a1408,a1409,a1410,a1411,a1412,a1413,a1501,a1506,a1507,a1508,a1511,a1512,a1513,a1514,a1601,a1606,a1607,a1608,a1609,a1613,a1614,a1615 = DP8Interp(uEltypeNoUnits)
+    d401,d406,d407,d408,d409,d410,d411,d412,d413,d414,d415,d416,d501,d506,d507,d508,d509,d510,d511,d512,d513,d514,d515,d516,d601,d606,d607,d608,d609,d610,d611,d612,d613,d614,d615,d616,d701,d706,d707,d708,d709,d710,d711,d712,d713,d714,d715,d716 = DP8Interp_polyweights(uEltypeNoUnits)
+    for i in 1:7
+      push!(k,rateType(size(u)))
+    end
+    f(t,u,k1)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0201*k1[i])
+    end
+    f(t+c2*Δt,tmp,k2)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0301*k1[i]+a0302*k2[i])
+    end
+    f(t+c3*Δt,tmp,k3)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0401*k1[i]+a0403*k3[i])
+    end
+    f(t+c4*Δt,tmp,k4)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0501*k1[i]+a0503*k3[i]+a0504*k4[i])
+    end
+    f(t+c5*Δt,tmp,k5)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0601*k1[i]+a0604*k4[i]+a0605*k5[i])
+    end
+    f(t+c6*Δt,tmp,k6)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0701*k1[i]+a0704*k4[i]+a0705*k5[i]+a0706*k6[i])
+    end
+    f(t+c7*Δt,tmp,k7)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0801*k1[i]+a0804*k4[i]+a0805*k5[i]+a0806*k6[i]+a0807*k7[i])
+    end
+    f(t+c8*Δt,tmp,k8)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a0901*k1[i]+a0904*k4[i]+a0905*k5[i]+a0906*k6[i]+a0907*k7[i]+a0908*k8[i])
+    end
+    f(t+c9*Δt,tmp,k9)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a1001*k1[i]+a1004*k4[i]+a1005*k5[i]+a1006*k6[i]+a1007*k7[i]+a1008*k8[i]+a1009*k9[i])
+    end
+    f(t+c10*Δt,tmp,k10)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a1101*k1[i]+a1104*k4[i]+a1105*k5[i]+a1106*k6[i]+a1107*k7[i]+a1108*k8[i]+a1109*k9[i]+a1110*k10[i])
+    end
+    f(t+c11*Δt,tmp,k11)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a1201*k1[i]+a1204*k4[i]+a1205*k5[i]+a1206*k6[i]+a1207*k7[i]+a1208*k8[i]+a1209*k9[i]+a1210*k10[i]+a1211*k11[i])
+    end
+    f(t+Δt,tmp,k12)
+    for i in uidx
+      kupdate[i] = b1*k1[i]+b6*k6[i]+b7*k7[i]+b8*k8[i]+b9*k9[i]+b10*k10[i]+b11*k11[i]+b12*k12[i]
+      update[i] = Δt*kupdate[i]
+      utmp[i] = u[i] + update[i]
+    end
+    f(t+Δt,utmp,k13)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a1401*k1[i]+a1407*k7[i]+a1408*k8[i]+a1409*k9[i]+a1410*k10[i]+a1411*k11[i]+a1412*k12[i]+a1413*k13[i])
+    end
+    f(t+c14*Δt,tmp,k14)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a1501*k1[i]+a1506*k6[i]+a1507*k7[i]+a1508*k8[i]+a1511*k11[i]+a1512*k12[i]+a1513*k13[i]+a1514*k14[i])
+    end
+    f(t+c15*Δt,tmp,k15)
+    for i in uidx
+      tmp[i] = u[i]+Δt*(a1601*k1[i]+a1606*k6[i]+a1607*k7[i]+a1608*k8[i]+a1609*k9[i]+a1613*k13[i]+a1614*k14[i]+a1615*k15[i])
+    end
+    f(t+c16*Δt,tmp,k16)
+    for i in uidx
+      udiff[i]= kupdate[i]
+      k[1][i] = udiff[i]
+      bspl[i] = k1[i] - udiff[i]
+      k[2][i] = bspl[i]
+      k[3][i] = udiff[i] - k13[i] - bspl[i]
+      k[4][i] = (d401*k1[i]+d406*k6[i]+d407*k7[i]+d408*k8[i]+d409*k9[i]+d410*k10[i]+d411*k11[i]+d412*k12[i]+d413*k13[i]+d414*k14[i]+d415*k15[i]+d416*k16[i])
+      k[5][i] = (d501*k1[i]+d506*k6[i]+d507*k7[i]+d508*k8[i]+d509*k9[i]+d510*k10[i]+d511*k11[i]+d512*k12[i]+d513*k13[i]+d514*k14[i]+d515*k15[i]+d516*k16[i])
+      k[6][i] = (d601*k1[i]+d606*k6[i]+d607*k7[i]+d608*k8[i]+d609*k9[i]+d610*k10[i]+d611*k11[i]+d612*k12[i]+d613*k13[i]+d614*k14[i]+d615*k15[i]+d616*k16[i])
+      k[7][i] = (d701*k1[i]+d706*k6[i]+d707*k7[i]+d708*k8[i]+d709*k9[i]+d710*k10[i]+d711*k11[i]+d712*k12[i]+d713*k13[i]+d714*k14[i]+d715*k15[i]+d716*k16[i])
+    end
+  end
 end
