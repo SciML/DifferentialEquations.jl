@@ -1810,10 +1810,13 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
   else
     fsal = false
   end
+  if fsal # Pre-start fsal
+    k1 = f(t,u)
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
-      if calck
+      if fsal
         k1 = fsalfirst
       else
         k1 = f(t,u)
@@ -1900,6 +1903,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
 
     fsal = false
   end
+
   if custom_callback
     if calck
       cache = (u,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k...,kprev...,uprev,udiff,bspl,utilde,update,utmp,tmp,atmp,atmp2,kupdate)
@@ -1908,6 +1912,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
   end
 
+  if fsal # Pre-start FSAL
+    f(t,u,k1)
+  end
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
