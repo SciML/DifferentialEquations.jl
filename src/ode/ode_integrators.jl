@@ -141,6 +141,7 @@ end
     return u,t,timeseries,ts,ks
   end
   Δt = min(Δt,abs(T-t))
+  uidx = eachindex(u)
 end
 
 @def ode_savevalues begin
@@ -1038,9 +1039,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1] = update
   end
   k1 = fsalfirst; k7 = fsallast
-  cache = (u,uidx,k1,k2,k3,k4,k5,k6,k7,tmp,atmp,utilde,bspl,update,kprev...)
+  cache = (Ref(uidx),u,k...,k1,k2,k3,k4,k5,k6,k7,tmp,utmp,atmp,utilde,bspl,uprev,kprev...)
   f(t,u,fsalfirst);  # Pre-start fsal
-  @inbounds for T in Ts
+  for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx

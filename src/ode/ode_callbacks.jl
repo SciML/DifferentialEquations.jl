@@ -76,3 +76,32 @@ macro ode_event(event_f,apply_event!,interp_points=0,Δt_safety=1)
     end
   end)
 end
+
+macro ode_change_cachesize(cache,resize_ex)
+  resize_ex = cache_replace_length(resize_ex)
+  esc(quote
+    for i in 2:length($cache)
+      resize!($cache[i],$resize_ex)
+    end
+  end)
+end
+
+function cache_replace_length(ex::Expr)
+  for (i,arg) in enumerate(ex.args)
+    if isa(arg,Expr)
+      cache_replace_length(ex)
+    elseif isa(arg,Symbol)
+      if arg == :length
+        ex.args[i] = :(length(cache[i]))
+      end
+    end
+  end
+  ex
+end
+
+function cache_replace_length(ex::Symbol)
+  if ex == :length
+    ex = :(length(cache[i]))
+  end
+  ex
+end
