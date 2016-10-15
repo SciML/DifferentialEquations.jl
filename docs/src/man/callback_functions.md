@@ -91,7 +91,7 @@ because if your problem is oscillatory, sometimes too large of a timestep will
 miss the event. One may want to specify a number of points in the interval to interpolate
 to match the computational effort to the problem. This is done with one more parameter to `@ode_event`.
 Note that the interpolations are comparatively cheap to calculate so it's recommended
-that one use a few (if the memory for `current_dense` is available).
+that one use a few (if the memory for `calck` is available).
 
 Another parameter you can set for `@ode_event` is whether to use a rootfinder.
 By default, when an event is detected, a rootfinding algorithm (provided by
@@ -125,7 +125,8 @@ plot(sol)
 As you can see from the resulting image, DifferentialEquations.jl is smart enough
 to use the interpolation to hone in on the time of the event and apply the event
 back at the correct time. Thus one does not have to worry about the adaptive timestepping
-"overshooting" the event as this is handled for you.
+"overshooting" the event as this is handled for you. Notice that the event macro
+will save the value(s) at the discontinuity.
 
 ### Example 2: Growing Cell Population
 

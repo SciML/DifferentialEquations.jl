@@ -34,6 +34,7 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   alg::Symbol
   callback::Function
   custom_callback::Bool
+  calck::Bool
 end
 
 @def ode_preamble begin
@@ -42,8 +43,7 @@ end
   local Δt::tType
   local Ts::Vector{tType}
   local adaptiveorder::Int
-  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg, callback, custom_callback = integrator
-  const calck = dense || !isempty(saveat) # Both dense and saveat need the k's
+  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg, callback, custom_callback,calck = integrator
   const calcprevs = !isempty(saveat) || custom_callback # Calculate the previous values
   const issimple_dense = (ksEltype==rateType) # Means ks[i] = f(t[i],timeseries[i]), for Hermite
 
