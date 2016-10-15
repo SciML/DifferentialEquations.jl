@@ -12,8 +12,10 @@ end
 macro ode_event(event_f,apply_event!,rootfind_event_loc=true,interp_points=5,Δt_safety=1)
   esc(quote
     # Event Handling
-    ode_addsteps!(k,tprev,uprev,Δtprev,alg,f)
-    Θs = linspace(0,1,$(interp_points))
+    if $interp_points!=0
+      ode_addsteps!(k,tprev,uprev,Δtprev,alg,f)
+      Θs = linspace(0,1,$(interp_points))
+    end
     interp_index = 0
     # Check if the event occured
     if $event_f(t,u)<0
