@@ -29,8 +29,9 @@ println("Convergence Test on Linear")
 testTol = 0.3
 superduperbool = Vector{Bool}(3)
 bools = Vector{Bool}(0)
+alg = :ExplicitRK
 
-for i = 1:3 # 1 = num, 2 = ExplicitRK, 3 = Vectorized
+for i = 1:2 # 1 = num, 2 = ExplicitRK
   if i>1
     prob = probArr[2]
     bigprob = bigprobArr[2]
@@ -38,11 +39,7 @@ for i = 1:3 # 1 = num, 2 = ExplicitRK, 3 = Vectorized
     prob = probArr[1]
     bigprob = bigprobArr[1]
   end
-  if i>2
-    alg = :ExplicitRKVectorized
-  else
-    alg = :ExplicitRK
-  end
+
 
   # Order 2
 
