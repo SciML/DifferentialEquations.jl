@@ -71,23 +71,6 @@ Choose one of these methods with the `alg` keyword in `solve`.
   - `:Rosenbrock23` - An Order 2/3 L-Stable fast solver which is good for mildy stiff equations with oscillations.
   - `:Rosenbrock32` - An Order 3/2 A-Stable fast solver which is good for mildy stiff equations without oscillations.
 
-* DifferentialEquations.jl Vectorized Implementations (Not as efficient, allocate, but may be useful for specific purposes)
-
-    - `ExplicitRKVectorized` - A general Runge-Kutta solver which takes in a tableau. Can be adaptive.
-    - `BS3Vectorized` - Bogacki-Shampine 3/2 Runge-Kutta method.
-    - `Tsit5Vectorized` - Tsitouras 5/4 Runge-Kutta method.
-    - `BS5Vectorized` - Bogacki-Shampine 5/4 Runge-Kutta method.
-    - `Vern6Vectorized` - Verner's "Most Efficient" 6/5 Runge-Kutta method.
-    - `Vern6Vectorized` - Verner's "Most Efficient" 7/6 Runge-Kutta method.
-    - `TanYam7Vectorized` - Tanaka-Yamashita 7 Runge-Kutta method.
-    - `DP8Vectorized` - Hairer's 8/5/3 adaption of the Dormand-Prince 8 method Runge-Kutta method.
-    - `TsitPap8Vectorized` - Tsitouras-Papakostas 8/7 Runge-Kutta method.
-    - `Vern8Vectorized` - Verner's "Most Efficient" 8/7 Runge-Kutta method.
-    - `Vern9Vectorized` - Verner's "Most Efficient" 9/8 Runge-Kutta method.
-    - `:Feagin10Vectorized` - Feagin's 10th-order Runge-Kutta method.
-    - `:Feagin12Vectorized` - Feagin's 12th-order Runge-Kutta method.
-    - `:Feagin14Vectorized` - Feagin's 14th-order Runge-Kutta method.
-
 * ODEInterface.jl
 
   - `:dopri5` - Hairer's classic implementation of the Dormand-Prince 4/5 method.
