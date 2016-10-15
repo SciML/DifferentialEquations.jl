@@ -141,7 +141,9 @@ end
     return u,t,timeseries,ts,ks
   end
   Δt = min(Δt,abs(T-t))
-  uidx = eachindex(u)
+  if uType<:AbstractArray
+    uidx = eachindex(u)
+  end
 end
 
 @def ode_savevalues begin
@@ -321,7 +323,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k = rateType(sizeu) # Not initialized if not dense
   end
   f(t,u,k) # For the interpolation, needs k at the updated point
-  cache = (uidx,u,k)
+  cache = (u,k)
   @inbounds for T in Ts
       while t < T
       @ode_loopheader
@@ -362,7 +364,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   k = rateType(sizeu)
   du = rateType(sizeu)
-  cache = (uidx,u,k,du,utilde,kprev)
+  cache = (u,k,du,utilde,kprev)
   @inbounds for T in Ts
       while t < T
       @ode_loopheader
@@ -418,7 +420,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   tmp = similar(u)
   uidx = eachindex(u)
-  cache = (uidx,u,tmp,k₁,k₂,k₃,k₄,kprev)
+  cache = (u,tmp,k₁,k₂,k₃,k₄,kprev)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -531,7 +533,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k = kk[end]
   end
   f(t,u,kk[1]) # pre-start fsal
-  cache = (uidx,u,tmp,utilde,uEEst,utmp,kk...)
+  cache = (u,tmp,utilde,uEEst,utmp,kk...)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -649,7 +651,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k = fsallast
   k1 = fsalfirst # done by pointers, no copying
   k4 = fsallast
-  cache = (uidx,u,k1,k2,k3,k4,utilde,atmp,tmp)
+  cache = (u,k1,k2,k3,k4,utilde,atmp,tmp)
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -773,7 +775,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
   end
   fsalfirst = k1; fsallast = k8  # setup pointers
-  cache = (uidx,u,k1,k2,k3,k4,k5,k6,k7,k8,utilde,uhat,tmp,atmp,atmptilde,kprev...)
+  cache = (u,k1,k2,k3,k4,k5,k6,k7,k8,utilde,uhat,tmp,atmp,atmptilde,kprev...)
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -908,7 +910,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       kprev = deepcopy(k)
     end
   end
-  cache = (u,uidx,k1,k2,k3,k4,k5,k6,k7,utilde,tmp,atmp,kprev...)
+  cache = (u,k1,k2,k3,k4,k5,k6,k7,utilde,tmp,atmp,kprev...)
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1039,9 +1041,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1] = update
   end
   k1 = fsalfirst; k7 = fsallast
-  cache = (Ref(uidx),u,k...,k1,k2,k3,k4,k5,k6,k7,tmp,utmp,atmp,utilde,bspl,uprev,kprev...)
+  cache = (u,k...,k1,k2,k3,k4,k5,k6,k7,tmp,utmp,atmp,utilde,bspl,uprev,kprev...)
   f(t,u,fsalfirst);  # Pre-start fsal
-  for T in Ts
+  @inbounds for T in Ts
     while t < T
       @ode_loopheader
       for i in uidx
@@ -1121,7 +1123,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   k1 = fsalfirst; k7 = fsallast
   f(t,u,fsalfirst);  # Pre-start fsal
-  cache = (u,uidx,k1,k2,k3,k4,k5,k6,k7,tmp,atmp,utilde,bspl,update,kprev...)
+  cache = (u,k1,k2,k3,k4,k5,k6,k7,tmp,atmp,utilde,bspl,update,kprev...)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1276,7 +1278,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  cache = (u,uidx,k...,utilde,tmp,atmp,kprev...)
+  cache = (u,k...,utilde,tmp,atmp,kprev...)
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1396,7 +1398,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  cache = (u,uidx,k...,kprev...,utilde,update,tmp,atmp)
+  cache = (u,k...,kprev...,utilde,update,tmp,atmp)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1527,7 +1529,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  cache = (u,uidx,k...,kprev...,utilde,update,tmp,atmp)
+  cache = (u,k...,kprev...,utilde,update,tmp,atmp)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1656,7 +1658,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks) # Get rid of the one it starts with
   end
   k = k1
-  cache = (u,uidx,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,utilde,update,tmp,atmp)
+  cache = (u,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,utilde,update,tmp,atmp)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1819,9 +1821,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k16 = rateType(sizeu)
     udiff = rateType(sizeu)
     bspl = rateType(sizeu)
-    cache = (u,uidx,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k...,kprev...,udiff,bspl,utilde,update,tmp,atmp,atmp2,kupdate)
+    cache = (u,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k...,kprev...,udiff,bspl,utilde,update,tmp,atmp,atmp2,kupdate)
   else
-    cache = (u,uidx,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,utilde,update,tmp,atmp,atmp2,kupdate)
+    cache = (u,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,utilde,update,tmp,atmp,atmp2,kupdate)
   end
 
   for T in Ts
@@ -2134,7 +2136,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
-  cache = (u,uidx,k...,utilde,tmp,atmp,kprev...)
+  cache = (u,k...,utilde,tmp,atmp,kprev...)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2891,7 +2893,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
 
   uhold = vec(u); u_old = similar(u)
-  cache = (u,uidx,u_old,dual_cache)
+  cache = (u,u_old,dual_cache)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2938,7 +2940,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   uhold = vec(u); u_old = similar(u)
 
-  cache = (u,uidx,u_old,cache1,cache2)
+  cache = (u,u_old,cache1,cache2)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -3014,7 +3016,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = fsalfirst
   end
-  cache = (u,uidx,du1,du2,f₀,f₁,vectmp3,utmp,vectmp2,dT,vectmp,tmp2,J,W,jidx)
+  cache = (u,du1,du2,f₀,f₁,vectmp3,utmp,vectmp2,dT,vectmp,tmp2,J,W,jidx)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -3134,7 +3136,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = fsalfirst
   end
-  cache = (u,uidx,du1,du2,f₀,f₁,vectmp3,utmp,vectmp2,dT,vectmp,tmp2,J,W,jidx)
+  cache = (u,du1,du2,f₀,f₁,vectmp3,utmp,vectmp2,dT,vectmp,tmp2,J,W,jidx)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
