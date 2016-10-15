@@ -97,7 +97,6 @@ end
   if uType <: Number
     cache = ()
   end
-
   qminc = inv(qmin) #facc1
   qmaxc = inv(qmax) #facc2
   local EEst::uEltypeNoUnits = zero(uEltypeNoUnits)
@@ -197,7 +196,7 @@ end
         Δtpropose = min(Δtmax,Δtnew)
         Δtprev = Δt
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+        cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
 
         if fsal
           if reeval_fsal
@@ -252,7 +251,7 @@ end
         Δtpropose = min(Δtmax,q*Δt)
         Δtprev = Δt
         Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+        cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -281,7 +280,7 @@ end
       end
     end
     Δtprev = Δt
-    cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst)
+    cursaveat,Δt,t,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
     if calcprevs
       # Store previous for interpolation
       tprev = t
@@ -649,6 +648,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k = fsallast
   k1 = fsalfirst # done by pointers, no copying
   k4 = fsallast
+  cache = (uidx,u,k1,k2,k3,k4,utilde,atmp,tmp)
   f(t,u,fsalfirst) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -772,6 +772,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8
   end
   fsalfirst = k1; fsallast = k8  # setup pointers
+  cache = (uidx,u,k1,k2,k3,k4,k5,k6,k7,k8,utilde,uhat,tmp,atmp,atmptilde,kprev...)
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -906,6 +907,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       kprev = deepcopy(k)
     end
   end
+  cache = (u,uidx,k1,k2,k3,k4,k5,k6,k7,utilde,tmp,atmp,kprev...)
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1036,6 +1038,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k[1] = update
   end
   k1 = fsalfirst; k7 = fsallast
+  cache = (u,uidx,k1,k2,k3,k4,k5,k6,k7,tmp,atmp,utilde,bspl,update,kprev...)
   f(t,u,fsalfirst);  # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1117,6 +1120,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
   k1 = fsalfirst; k7 = fsallast
   f(t,u,fsalfirst);  # Pre-start fsal
+  cache = (u,uidx,k1,k2,k3,k4,k5,k6,k7,tmp,atmp,utilde,bspl,update,kprev...)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1140,65 +1144,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
       if calck
         dp5threaded_denseloop(bspl,update,k1,k3,k4,k5,k6,k7,k,d1,d3,d4,d5,d6,d7,uidx)
-      end
-      @ode_loopfooter
-    end
-  end
-  return u,t,timeseries,ts,ks
-end
-
-function ode_solve{uType<:AbstractArray,uEltype<:Float64,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:DP5Threaded,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
-  @ode_preamble
-  a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
-  k2::rateType = rateType(sizeu)
-  k3::rateType = rateType(sizeu)
-  k4::rateType = rateType(sizeu)
-  k5::rateType = rateType(sizeu)
-  k6::rateType = rateType(sizeu)
-  update::rateType = rateType(sizeu)
-  bspl::rateType = rateType(sizeu)
-  utilde = similar(u)
-  tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
-  uidx::Base.OneTo{Int64} = eachindex(u)
-  const kshortsize = 4
-  if calck
-    d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
-    k = ksEltype()
-    for i in 1:kshortsize
-      push!(k,rateType(sizeu))
-    end
-    push!(ks,deepcopy(k)) #Initialize ks
-    # Setup k pointers
-    k[1] = update
-    if calcprevs
-      kprev = deepcopy(k)
-    end
-  end
-  k1 = fsalfirst; k7 = fsallast # Setup pointers
-  f(t,u,fsalfirst);  # Pre-start fsal
-  @inbounds for T in Ts
-    while t < T
-      @ode_loopheader
-      dp5threaded_loop1(Δt,tmp,u,k1,uidx)
-      f(t+c1*Δt,tmp,k2)
-      dp5threaded_loop2(Δt,tmp,u,k1,k2,uidx)
-      f(t+c2*Δt,tmp,k3)
-      dp5threaded_loop3(Δt,tmp,u,k1,k2,k3,uidx)
-      f(t+c3*Δt,tmp,k4)
-      dp5threaded_loop4(Δt,tmp,u,k1,k2,k3,k4,uidx)
-      f(t+c4*Δt,tmp,k5)
-      dp5threaded_loop5(Δt,tmp,u,k1,k2,k3,k4,k5,uidx)
-      f(t+Δt,tmp,k6)
-      dp5threaded_loop6(Δt,utmp,u,k1,k3,k4,k5,k6,update,uidx)
-      f(t+Δt,utmp,k7)
-      if adaptive
-        dp5threaded_adaptiveloop(Δt,utilde,u,k1,k3,k4,k5,k6,k7,atmp,utmp,abstol,reltol,uidx)
-        EEst = sqrt( sum(atmp) * normfactor)
-      else
-        recursivecopy!(u, utmp)
-      end
-      if calck
-        dp5threaded_denseloop(bspl,update,k1,k3,k4,k5,k6,k7,k,uidx)
       end
       @ode_loopfooter
     end
@@ -1259,60 +1204,6 @@ end
   end
 end
 
-@noinline function dp5threaded_loop1{T<:Float64,N}(Δt,tmp::Array{T,N},u,k1,uidx)
-  Threads.@threads for i in uidx
-    tmp[i] = u[i]+Δt*(0.2*k1[i])
-  end
-end
-
-@noinline function dp5threaded_loop2{T<:Float64,N}(Δt,tmp::Array{T,N},u,k1,k2,uidx)
-  Threads.@threads for i in uidx
-    tmp[i] = u[i]+Δt*(0.075*k1[i]+0.225*k2[i])
-  end
-end
-
-@noinline function dp5threaded_loop3{T<:Float64,N}(Δt,tmp::Array{T,N},u,k1,k2,k3,uidx)
-  Threads.@threads for i in uidx
-    tmp[i] = u[i]+Δt*(0.9777777777777777*k1[i]-3.7333333333333334*k2[i]+3.5555555555555554*k3[i])
-  end
-end
-
-@noinline function dp5threaded_loop4{T<:Float64,N}(Δt,tmp::Array{T,N},u,k1,k2,k3,k4,uidx)
-  Threads.@threads for i in uidx
-    tmp[i] =u[i]+ Δt*(2.9525986892242035*k1[i]+-11.595793324188385*k2[i]+9.822892851699436*k3[i]-0.2908093278463649*k4[i])
-  end
-end
-
-@noinline function dp5threaded_loop5{T<:Float64,N}(Δt,tmp::Array{T,N},u,k1,k2,k3,k4,k5,uidx)
-  Threads.@threads for i in uidx
-    tmp[i] = u[i]+Δt*(2.8462752525252526*k1[i]-10.757575757575758*k2[i]+8.906422717743473*k3[i]+0.2784090909090909*k4[i]-0.2735313036020583*k5[i])
-  end
-end
-
-@noinline function dp5threaded_loop6{T<:Float64,N}(Δt,utmp::Array{T,N},u,k1,k3,k4,k5,k6,update,uidx)
-  Threads.@threads for i in uidx
-    update[i] = 0.09114583333333333*k1[i]+0.44923629829290207*k3[i]+0.6510416666666666*k4[i]-0.322376179245283*k5[i]+0.13095238095238096*k6[i]
-    utmp[i] = u[i]+Δt*update[i]
-  end
-end
-
-@noinline function dp5threaded_adaptiveloop{T<:Float64,N}(Δt,utilde::Array{T,N},u,k1,k3,k4,k5,k6,k7,tmp,utmp,abstol,reltol,uidx)
-  Threads.@threads for i in uidx
-    utilde[i] = u[i] + Δt*(0.08991319444444444*k1[i] + 0.4534890685834082*k3[i] + 0.6140625*k4[i] - 0.2715123820754717*k5[i] + 0.08904761904761904*k6[i] + 0.025*k7[i])
-    tmp[i] = ((utilde[i]-utmp[i])/(abstol+max(abs(u[i]),abs(utmp[i]))*reltol))^2
-  end
-end
-
-@noinline function dp5threaded_denseloop{T<:Float64,N}(bspl::Array{T,N},update,k1,k3,k4,k5,k6,k7,k,uidx)
-  Threads.@threads for i in uidx
-    bspl[i] = k1[i] - update[i]
-    k[2][i] = bspl[i]
-    k[3][i] = update[i] - k7[i] - bspl[i]
-    k[4][i] = (-1.1270175653862835k1[i]+2.675424484351598k3[i]+-5.685526961588504k4[i]+3.5219323679207912k5[i]+-1.7672812570757455k6[i]+2.382468931778144k7[i])
-  end
-end
-
-
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Vern6,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   c1,c2,c3,c4,c5,c6,a21,a31,a32,a41,a43,a51,a53,a54,a61,a63,a64,a65,a71,a73,a74,a75,a76,a81,a83,a84,a85,a86,a87,a91,a94,a95,a96,a97,a98,b1,b4,b5,b6,b7,b8,b9= constructVern6(uEltypeNoUnits)
@@ -1334,6 +1225,7 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       end
     end
   end
+
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1373,12 +1265,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   utilde = similar(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
   k1 = fsalfirst ; k9 = fsallast
   if calck
-    k = ksEltype()
-    for i in 1:kshortsize
-      push!(k,rateType(sizeu))
-    end
-    push!(ks,deepcopy(k)) #Initialize ks
+    k = ksEltype(kshortsize)
     k[1]=k1; k[2]=k2; k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9 # Set the pointers
+    push!(ks,deepcopy(k)) #Initialize ks
     if calcprevs
       kprev = deepcopy(k)
       for i in 1:3
@@ -1386,6 +1275,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
+  cache = (u,uidx,k...,utilde,tmp,atmp,kprev...)
   f(t,u,k1) # Pre-start fsal
   @inbounds for T in Ts
     while t < T
@@ -1495,10 +1385,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   uidx = eachindex(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   const kshortsize = 10
   if calck
-    k = ksEltype()
-    for i in 1:kshortsize
-      push!(k,rateType(sizeu))
-    end
+    k = ksEltype(kshortsize)
     push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10 # Setup pointers
     if calcprevs
@@ -1508,6 +1395,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
+  cache = (u,uidx,k...,kprev...,utilde,update,tmp,atmp)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1628,10 +1516,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   uidx = eachindex(u); atmp = similar(u,uEltypeNoUnits)
   const kshortsize = 13
   if calck
-    k = ksEltype()
-    for i in 1:kshortsize
-      push!(k,rateType(sizeu))
-    end
+    k = ksEltype(kshortsize)
     push!(ks,deepcopy(k)) #Initialize ks
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13 # Setup pointers
     if calcprevs
@@ -1641,6 +1526,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
+  cache = (u,uidx,k...,kprev...,utilde,update,tmp,atmp)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1769,6 +1655,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks) # Get rid of the one it starts with
   end
   k = k1
+  cache = (u,uidx,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,utilde,update,tmp,atmp)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -1906,7 +1793,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   k1 = rateType(sizeu); k2  = rateType(sizeu); k3  = rateType(sizeu);  k4 = rateType(sizeu)
   k5 = rateType(sizeu); k6  = rateType(sizeu); k7  = rateType(sizeu);  k8 = rateType(sizeu)
   k9 = rateType(sizeu); k10 = rateType(sizeu); k11 = rateType(sizeu); k12 = rateType(sizeu)
-  kupdate = rateType(sizeu); utilde = similar(u); err5 = similar(u); err3 = similar(u)
+  kupdate = rateType(sizeu); utilde = similar(u);
+  #err5 = similar(u); err3 = similar(u)
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u); atmp2 = similar(u,uEltypeNoUnits); update = similar(u)
   local k13::rateType; local k14::rateType; local k15::rateType; local k16::rateType;
   local udiff::rateType; local bspl::rateType
@@ -1930,7 +1818,11 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     k16 = rateType(sizeu)
     udiff = rateType(sizeu)
     bspl = rateType(sizeu)
+    cache = (u,uidx,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k...,kprev...,udiff,bspl,utilde,update,tmp,atmp,atmp2,kupdate)
+  else
+    cache = (u,uidx,k,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,utilde,update,tmp,atmp,atmp2,kupdate)
   end
+
   for T in Ts
     while t < T
       @ode_loopheader
@@ -2089,6 +1981,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
+  cache = (u,uix,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,update,tmp,atmp,utilde,kprev)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2230,12 +2123,9 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   utilde = similar(u); tmp = similar(u); atmp = similar(u,uEltypeNoUnits); uidx = eachindex(u)
   const kshortsize = 16
   if calck
-    k = ksEltype()
-    for i in 1:kshortsize
-      push!(k,rateType(sizeu))
-    end
-    push!(ks,deepcopy(k)) #Initialize ks
+    k = ksEltype(kshortsize)
     k[1]=k1;k[2]=k2;k[3]=k3;k[4]=k4;k[5]=k5;k[6]=k6;k[7]=k7;k[8]=k8;k[9]=k9;k[10]=k10;k[11]=k11;k[12]=k12;k[13]=k13;k[14]=k14;k[15]=k15;k[16]=k16 # Setup pointers
+    push!(ks,deepcopy(k)) #Initialize ks
     if calcprevs
       kprev = deepcopy(k)
       for i in 1:3 # Make it full-sized
@@ -2243,6 +2133,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       end
     end
   end
+  cache = (u,uidx,k...,utilde,tmp,atmp,kprev...)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2325,6 +2216,54 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   return u,t,timeseries,ts,ks
 end
 
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Feagin10,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+  @ode_preamble
+  adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16 = constructFeagin10(uEltypeNoUnits)
+  local k1::rateType; local k2::rateType; local k3::rateType; local k4::rateType; local k5::rateType
+  local k6::rateType; local k7::rateType; local k8::rateType; local k9::rateType; local k10::rateType
+  local k11::rateType; local k12::rateType; local k13::rateType; local k14::rateType
+  local k15::rateType; local k16::rateType; local k17::rateType
+  if calck
+    pop!(ks)
+  end
+  @inbounds for T in Ts
+    while t < T
+      @ode_loopheader
+      k   = f(t,u)
+      k1  = k
+      k2  = f(t + c1*Δt,u  + Δt*(a0100*k1))
+      k3  = f(t + c2*Δt ,u + Δt*(a0200*k1 + a0201*k2))
+      k4  = f(t + c3*Δt,u  + Δt*(a0300*k1              + a0302*k3))
+      k5  = f(t + c4*Δt,u  + Δt*(a0400*k1              + a0402*k3 + a0403*k4))
+      k6  = f(t + c5*Δt,u  + Δt*(a0500*k1                           + a0503*k4 + a0504*k5))
+      k7  = f(t + c6*Δt,u  + Δt*(a0600*k1                           + a0603*k4 + a0604*k5 + a0605*k6))
+      k8  = f(t + c7*Δt,u  + Δt*(a0700*k1                                        + a0704*k5 + a0705*k6 + a0706*k7))
+      k9  = f(t + c8*Δt,u  + Δt*(a0800*k1                                                     + a0805*k6 + a0806*k7 + a0807*k8))
+      k10 = f(t + c9*Δt,u  + Δt*(a0900*k1                                                     + a0905*k6 + a0906*k7 + a0907*k8 + a0908*k9))
+      k11 = f(t + c10*Δt,u + Δt*(a1000*k1                                                     + a1005*k6 + a1006*k7 + a1007*k8 + a1008*k9 + a1009*k10))
+      k12 = f(t + c11*Δt,u + Δt*(a1100*k1                                                     + a1105*k6 + a1106*k7 + a1107*k8 + a1108*k9 + a1109*k10 + a1110*k11))
+      k13 = f(t + c12*Δt,u + Δt*(a1200*k1                           + a1203*k4 + a1204*k5 + a1205*k6 + a1206*k7 + a1207*k8 + a1208*k9 + a1209*k10 + a1210*k11 + a1211*k12))
+      k14 = f(t + c13*Δt,u + Δt*(a1300*k1              + a1302*k3 + a1303*k4              + a1305*k6 + a1306*k7 + a1307*k8 + a1308*k9 + a1309*k10 + a1310*k11 + a1311*k12 + a1312*k13))
+      k15 = f(t + c14*Δt,u + Δt*(a1400*k1 + a1401*k2                           + a1404*k5              + a1406*k7 +                                                                     a1412*k13 + a1413*k14))
+      k16 = f(t + c15*Δt,u + Δt*(a1500*k1              + a1502*k3                                                                                                                                                     + a1514*k15))
+      k17 = f(t + c16*Δt,u + Δt*(a1600*k1 + a1601*k2 + a1602*k3              + a1604*k5 + a1605*k6 + a1606*k7 + a1607*k8 + a1608*k9 + a1609*k10 + a1610*k11 + a1611*k12 + a1612*k13 + a1613*k14 + a1614*k15 + a1615*k16))
+      update = Δt*((b1*k1 + b2*k2 + b3*k3 + b5*k5) + (b7*k7 + b9*k9 + b10*k10 + b11*k11) + (b12*k12 + b13*k13 + b14*k14 + b15*k15) + (b16*k16 + b17*k17))
+      if adaptive
+        utmp = u + update
+        EEst = norm((Δt*(k2 - k16) * adaptiveConst)./(abstol+u*reltol),internalnorm)
+      else
+        u = u + update
+      end
+      @ode_loopfooter
+    end
+  end
+  if calck
+    k = f(t,u)
+    push!(ks,k)
+  end
+  return u,t,timeseries,ts,ks
+end
+
 function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:AbstractArray,ksEltype}(integrator::ODEIntegrator{:Feagin10,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
   adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16 = constructFeagin10(uEltypeNoUnits)
@@ -2335,7 +2274,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   tmp = similar(u); atmp = similar(u,uEltypeNoUnits)
   utmp = similar(u);
   uidx = eachindex(u)
-  k = rateType(sizeu)
   if calcprevs
     kprev = rateType(sizeu)
   end
@@ -2343,6 +2281,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
+  cache =  (u,uidx,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,tmp,atmp,utmp,kprev)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2435,13 +2374,15 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   return u,t,timeseries,ts,ks
 end
 
-function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Feagin10,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Feagin12,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1203,a1204,a1205,a1206,a1207,a1208,a1209,a1210,a1211,a1300,a1302,a1303,a1305,a1306,a1307,a1308,a1309,a1310,a1311,a1312,a1400,a1401,a1404,a1406,a1412,a1413,a1500,a1502,a1514,a1600,a1601,a1602,a1604,a1605,a1606,a1607,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16 = constructFeagin10(uEltypeNoUnits)
+  adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1208,a1209,a1210,a1211,a1300,a1308,a1309,a1310,a1311,a1312,a1400,a1408,a1409,a1410,a1411,a1412,a1413,a1500,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1600,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,a1700,a1705,a1706,a1707,a1708,a1709,a1710,a1711,a1712,a1713,a1714,a1715,a1716,a1800,a1805,a1806,a1807,a1808,a1809,a1810,a1811,a1812,a1813,a1814,a1815,a1816,a1817,a1900,a1904,a1905,a1906,a1908,a1909,a1910,a1911,a1912,a1913,a1914,a1915,a1916,a1917,a1918,a2000,a2003,a2004,a2005,a2007,a2009,a2010,a2017,a2018,a2019,a2100,a2102,a2103,a2106,a2107,a2109,a2110,a2117,a2118,a2119,a2120,a2200,a2201,a2204,a2206,a2220,a2221,a2300,a2302,a2322,a2400,a2401,a2402,a2404,a2406,a2407,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2416,a2417,a2418,a2419,a2420,a2421,a2422,a2423,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b24,b25 = constructFeagin12(uEltypeNoUnits)
   local k1::rateType; local k2::rateType; local k3::rateType; local k4::rateType; local k5::rateType
   local k6::rateType; local k7::rateType; local k8::rateType; local k9::rateType; local k10::rateType
   local k11::rateType; local k12::rateType; local k13::rateType; local k14::rateType
-  local k15::rateType; local k16::rateType; local k17::rateType
+  local k15::rateType; local k16::rateType; local k17::rateType; local k18::rateType
+  local k19::rateType; local k20::rateType; local k21::rateType; local k22::rateType
+  local k23::rateType; local k24::rateType; local k25::rateType
   if calck
     pop!(ks)
   end
@@ -2461,16 +2402,25 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       k10 = f(t + c9*Δt,u  + Δt*(a0900*k1                                                     + a0905*k6 + a0906*k7 + a0907*k8 + a0908*k9))
       k11 = f(t + c10*Δt,u + Δt*(a1000*k1                                                     + a1005*k6 + a1006*k7 + a1007*k8 + a1008*k9 + a1009*k10))
       k12 = f(t + c11*Δt,u + Δt*(a1100*k1                                                     + a1105*k6 + a1106*k7 + a1107*k8 + a1108*k9 + a1109*k10 + a1110*k11))
-      k13 = f(t + c12*Δt,u + Δt*(a1200*k1                           + a1203*k4 + a1204*k5 + a1205*k6 + a1206*k7 + a1207*k8 + a1208*k9 + a1209*k10 + a1210*k11 + a1211*k12))
-      k14 = f(t + c13*Δt,u + Δt*(a1300*k1              + a1302*k3 + a1303*k4              + a1305*k6 + a1306*k7 + a1307*k8 + a1308*k9 + a1309*k10 + a1310*k11 + a1311*k12 + a1312*k13))
-      k15 = f(t + c14*Δt,u + Δt*(a1400*k1 + a1401*k2                           + a1404*k5              + a1406*k7 +                                                                     a1412*k13 + a1413*k14))
-      k16 = f(t + c15*Δt,u + Δt*(a1500*k1              + a1502*k3                                                                                                                                                     + a1514*k15))
-      k17 = f(t + c16*Δt,u + Δt*(a1600*k1 + a1601*k2 + a1602*k3              + a1604*k5 + a1605*k6 + a1606*k7 + a1607*k8 + a1608*k9 + a1609*k10 + a1610*k11 + a1611*k12 + a1612*k13 + a1613*k14 + a1614*k15 + a1615*k16))
-      update = Δt*((b1*k1 + b2*k2 + b3*k3 + b5*k5) + (b7*k7 + b9*k9 + b10*k10 + b11*k11) + (b12*k12 + b13*k13 + b14*k14 + b15*k15) + (b16*k16 + b17*k17))
+      k13 = f(t + c12*Δt,u + Δt*(a1200*k1                                                                                            + a1208*k9 + a1209*k10 + a1210*k11 + a1211*k12))
+      k14 = f(t + c13*Δt,u + Δt*(a1300*k1                                                                                            + a1308*k9 + a1309*k10 + a1310*k11 + a1311*k12 + a1312*k13))
+      k15 = f(t + c14*Δt,u + Δt*(a1400*k1                                                                                            + a1408*k9 + a1409*k10 + a1410*k11 + a1411*k12 + a1412*k13 + a1413*k14))
+      k16 = f(t + c15*Δt,u + Δt*(a1500*k1                                                                                            + a1508*k9 + a1509*k10 + a1510*k11 + a1511*k12 + a1512*k13 + a1513*k14 + a1514*k15))
+      k17 = f(t + c16*Δt,u + Δt*(a1600*k1                                                                                            + a1608*k9 + a1609*k10 + a1610*k11 + a1611*k12 + a1612*k13 + a1613*k14 + a1614*k15 + a1615*k16))
+      k18 = f(t + c17*Δt,u + Δt*(a1700*k1                                                     + a1705*k6 + a1706*k7 + a1707*k8 + a1708*k9 + a1709*k10 + a1710*k11 + a1711*k12 + a1712*k13 + a1713*k14 + a1714*k15 + a1715*k16 + a1716*k17))
+      k19 = f(t + c18*Δt,u + Δt*(a1800*k1                                                     + a1805*k6 + a1806*k7 + a1807*k8 + a1808*k9 + a1809*k10 + a1810*k11 + a1811*k12 + a1812*k13 + a1813*k14 + a1814*k15 + a1815*k16 + a1816*k17 + a1817*k18))
+      k20 = f(t + c19*Δt,u + Δt*(a1900*k1                                        + a1904*k5 + a1905*k6 + a1906*k7              + a1908*k9 + a1909*k10 + a1910*k11 + a1911*k12 + a1912*k13 + a1913*k14 + a1914*k15 + a1915*k16 + a1916*k17 + a1917*k18 + a1918*k19))
+      k21 = f(t + c20*Δt,u + Δt*(a2000*k1                           + a2003*k4 + a2004*k5 + a2005*k6              + a2007*k8              + a2009*k10 + a2010*k11                                                                                     + a2017*k18 + a2018*k19 + a2019*k20))
+      k22 = f(t + c21*Δt,u + Δt*(a2100*k1              + a2102*k3 + a2103*k4                           + a2106*k7 + a2107*k8              + a2109*k10 + a2110*k11                                                                                     + a2117*k18 + a2118*k19 + a2119*k20 + a2120*k21))
+      k23 = f(t + c22*Δt,u + Δt*(a2200*k1 + a2201*k2                           + a2204*k5              + a2206*k7                                                                                                                                                                                     + a2220*k21 + a2221*k22))
+      k24 = f(t + c23*Δt,u + Δt*(a2300*k1              + a2302*k3                                                                                                                                                                                                                                                                     + a2322*k23))
+      k25 = f(t + c24*Δt,u + Δt*(a2400*k1 + a2401*k2 + a2402*k3              + a2404*k5              + a2406*k7 + a2407*k8 + a2408*k9 + a2409*k10 + a2410*k11 + a2411*k12 + a2412*k13 + a2413*k14 + a2414*k15 + a2415*k16 + a2416*k17 + a2417*k18 + a2418*k19 + a2419*k20 + a2420*k21 + a2421*k22 + a2422*k23 + a2423*k24))
+
+      update = Δt*((b1*k1 + b2*k2 + b3*k3 + b5*k5) + (b7*k7 + b8*k8 + b10*k10 + b11*k11) + (b13*k13 + b14*k14 + b15*k15 + b16*k16) + (b17*k17 + b18*k18 + b19*k19 + b20*k20) + (b21*k21 + b22*k22 + b23*k23 + b24*k24) + (b25*k25))
       if adaptive
         utmp = u + update
-        EEst = norm((Δt*(k2 - k16) * adaptiveConst)./(abstol+u*reltol),internalnorm)
-      else
+        EEst = norm((Δt*(k2 - k24) * adaptiveConst)./(abstol+u*reltol),internalnorm)
+      else #no chance of rejecting so in-place
         u = u + update
       end
       @ode_loopfooter
@@ -2504,6 +2454,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
+  cache =  (u,uidx,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,tmp,atmp,utmp,kprev,update)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2628,15 +2579,18 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   return u,t,timeseries,ts,ks
 end
 
-function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Feagin12,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
+function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Feagin14,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
-  adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1208,a1209,a1210,a1211,a1300,a1308,a1309,a1310,a1311,a1312,a1400,a1408,a1409,a1410,a1411,a1412,a1413,a1500,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1600,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,a1700,a1705,a1706,a1707,a1708,a1709,a1710,a1711,a1712,a1713,a1714,a1715,a1716,a1800,a1805,a1806,a1807,a1808,a1809,a1810,a1811,a1812,a1813,a1814,a1815,a1816,a1817,a1900,a1904,a1905,a1906,a1908,a1909,a1910,a1911,a1912,a1913,a1914,a1915,a1916,a1917,a1918,a2000,a2003,a2004,a2005,a2007,a2009,a2010,a2017,a2018,a2019,a2100,a2102,a2103,a2106,a2107,a2109,a2110,a2117,a2118,a2119,a2120,a2200,a2201,a2204,a2206,a2220,a2221,a2300,a2302,a2322,a2400,a2401,a2402,a2404,a2406,a2407,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2416,a2417,a2418,a2419,a2420,a2421,a2422,a2423,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b24,b25 = constructFeagin12(uEltypeNoUnits)
+  adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1208,a1209,a1210,a1211,a1300,a1308,a1309,a1310,a1311,a1312,a1400,a1408,a1409,a1410,a1411,a1412,a1413,a1500,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1600,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,a1700,a1712,a1713,a1714,a1715,a1716,a1800,a1812,a1813,a1814,a1815,a1816,a1817,a1900,a1912,a1913,a1914,a1915,a1916,a1917,a1918,a2000,a2012,a2013,a2014,a2015,a2016,a2017,a2018,a2019,a2100,a2112,a2113,a2114,a2115,a2116,a2117,a2118,a2119,a2120,a2200,a2212,a2213,a2214,a2215,a2216,a2217,a2218,a2219,a2220,a2221,a2300,a2308,a2309,a2310,a2311,a2312,a2313,a2314,a2315,a2316,a2317,a2318,a2319,a2320,a2321,a2322,a2400,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2416,a2417,a2418,a2419,a2420,a2421,a2422,a2423,a2500,a2508,a2509,a2510,a2511,a2512,a2513,a2514,a2515,a2516,a2517,a2518,a2519,a2520,a2521,a2522,a2523,a2524,a2600,a2605,a2606,a2607,a2608,a2609,a2610,a2612,a2613,a2614,a2615,a2616,a2617,a2618,a2619,a2620,a2621,a2622,a2623,a2624,a2625,a2700,a2705,a2706,a2707,a2708,a2709,a2711,a2712,a2713,a2714,a2715,a2716,a2717,a2718,a2719,a2720,a2721,a2722,a2723,a2724,a2725,a2726,a2800,a2805,a2806,a2807,a2808,a2810,a2811,a2813,a2814,a2815,a2823,a2824,a2825,a2826,a2827,a2900,a2904,a2905,a2906,a2909,a2910,a2911,a2913,a2914,a2915,a2923,a2924,a2925,a2926,a2927,a2928,a3000,a3003,a3004,a3005,a3007,a3009,a3010,a3013,a3014,a3015,a3023,a3024,a3025,a3027,a3028,a3029,a3100,a3102,a3103,a3106,a3107,a3109,a3110,a3113,a3114,a3115,a3123,a3124,a3125,a3127,a3128,a3129,a3130,a3200,a3201,a3204,a3206,a3230,a3231,a3300,a3302,a3332,a3400,a3401,a3402,a3404,a3406,a3407,a3409,a3410,a3411,a3412,a3413,a3414,a3415,a3416,a3417,a3418,a3419,a3420,a3421,a3422,a3423,a3424,a3425,a3426,a3427,a3428,a3429,a3430,a3431,a3432,a3433,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b24,b25,b26,b27,b28,b29,b30,b31,b32,b33,b34,b35 = constructFeagin14(uEltypeNoUnits)
   local k1::rateType; local k2::rateType; local k3::rateType; local k4::rateType; local k5::rateType
   local k6::rateType; local k7::rateType; local k8::rateType; local k9::rateType; local k10::rateType
   local k11::rateType; local k12::rateType; local k13::rateType; local k14::rateType
   local k15::rateType; local k16::rateType; local k17::rateType; local k18::rateType
   local k19::rateType; local k20::rateType; local k21::rateType; local k22::rateType
   local k23::rateType; local k24::rateType; local k25::rateType
+  local k26::rateType; local k27::rateType; local k28::rateType
+  local k29::rateType; local k30::rateType; local k31::rateType; local k32::rateType
+  local k33::rateType; local k34::rateType; local k35::rateType
   if calck
     pop!(ks)
   end
@@ -2661,20 +2615,29 @@ function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<
       k15 = f(t + c14*Δt,u + Δt*(a1400*k1                                                                                            + a1408*k9 + a1409*k10 + a1410*k11 + a1411*k12 + a1412*k13 + a1413*k14))
       k16 = f(t + c15*Δt,u + Δt*(a1500*k1                                                                                            + a1508*k9 + a1509*k10 + a1510*k11 + a1511*k12 + a1512*k13 + a1513*k14 + a1514*k15))
       k17 = f(t + c16*Δt,u + Δt*(a1600*k1                                                                                            + a1608*k9 + a1609*k10 + a1610*k11 + a1611*k12 + a1612*k13 + a1613*k14 + a1614*k15 + a1615*k16))
-      k18 = f(t + c17*Δt,u + Δt*(a1700*k1                                                     + a1705*k6 + a1706*k7 + a1707*k8 + a1708*k9 + a1709*k10 + a1710*k11 + a1711*k12 + a1712*k13 + a1713*k14 + a1714*k15 + a1715*k16 + a1716*k17))
-      k19 = f(t + c18*Δt,u + Δt*(a1800*k1                                                     + a1805*k6 + a1806*k7 + a1807*k8 + a1808*k9 + a1809*k10 + a1810*k11 + a1811*k12 + a1812*k13 + a1813*k14 + a1814*k15 + a1815*k16 + a1816*k17 + a1817*k18))
-      k20 = f(t + c19*Δt,u + Δt*(a1900*k1                                        + a1904*k5 + a1905*k6 + a1906*k7              + a1908*k9 + a1909*k10 + a1910*k11 + a1911*k12 + a1912*k13 + a1913*k14 + a1914*k15 + a1915*k16 + a1916*k17 + a1917*k18 + a1918*k19))
-      k21 = f(t + c20*Δt,u + Δt*(a2000*k1                           + a2003*k4 + a2004*k5 + a2005*k6              + a2007*k8              + a2009*k10 + a2010*k11                                                                                     + a2017*k18 + a2018*k19 + a2019*k20))
-      k22 = f(t + c21*Δt,u + Δt*(a2100*k1              + a2102*k3 + a2103*k4                           + a2106*k7 + a2107*k8              + a2109*k10 + a2110*k11                                                                                     + a2117*k18 + a2118*k19 + a2119*k20 + a2120*k21))
-      k23 = f(t + c22*Δt,u + Δt*(a2200*k1 + a2201*k2                           + a2204*k5              + a2206*k7                                                                                                                                                                                     + a2220*k21 + a2221*k22))
-      k24 = f(t + c23*Δt,u + Δt*(a2300*k1              + a2302*k3                                                                                                                                                                                                                                                                     + a2322*k23))
-      k25 = f(t + c24*Δt,u + Δt*(a2400*k1 + a2401*k2 + a2402*k3              + a2404*k5              + a2406*k7 + a2407*k8 + a2408*k9 + a2409*k10 + a2410*k11 + a2411*k12 + a2412*k13 + a2413*k14 + a2414*k15 + a2415*k16 + a2416*k17 + a2417*k18 + a2418*k19 + a2419*k20 + a2420*k21 + a2421*k22 + a2422*k23 + a2423*k24))
-
-      update = Δt*((b1*k1 + b2*k2 + b3*k3 + b5*k5) + (b7*k7 + b8*k8 + b10*k10 + b11*k11) + (b13*k13 + b14*k14 + b15*k15 + b16*k16) + (b17*k17 + b18*k18 + b19*k19 + b20*k20) + (b21*k21 + b22*k22 + b23*k23 + b24*k24) + (b25*k25))
+      k18 = f(t + c17*Δt,u + Δt*(a1700*k1                                                                                                                                                   + a1712*k13 + a1713*k14 + a1714*k15 + a1715*k16 + a1716*k17))
+      k19 = f(t + c18*Δt,u + Δt*(a1800*k1                                                                                                                                                   + a1812*k13 + a1813*k14 + a1814*k15 + a1815*k16 + a1816*k17 + a1817*k18))
+      k20 = f(t + c19*Δt,u + Δt*(a1900*k1                                                                                                                                                   + a1912*k13 + a1913*k14 + a1914*k15 + a1915*k16 + a1916*k17 + a1917*k18 + a1918*k19))
+      k21 = f(t + c20*Δt,u + Δt*(a2000*k1                                                                                                                                                   + a2012*k13 + a2013*k14 + a2014*k15 + a2015*k16 + a2016*k17 + a2017*k18 + a2018*k19 + a2019*k20))
+      k22 = f(t + c21*Δt,u + Δt*(a2100*k1                                                                                                                                                   + a2112*k13 + a2113*k14 + a2114*k15 + a2115*k16 + a2116*k17 + a2117*k18 + a2118*k19 + a2119*k20 + a2120*k21))
+      k23 = f(t + c22*Δt,u + Δt*(a2200*k1                                                                                                                                                   + a2212*k13 + a2213*k14 + a2214*k15 + a2215*k16 + a2216*k17 + a2217*k18 + a2218*k19 + a2219*k20 + a2220*k21 + a2221*k22))
+      k24 = f(t + c23*Δt,u + Δt*(a2300*k1                                                                                            + a2308*k9 + a2309*k10 + a2310*k11 + a2311*k12 + a2312*k13 + a2313*k14 + a2314*k15 + a2315*k16 + a2316*k17 + a2317*k18 + a2318*k19 + a2319*k20 + a2320*k21 + a2321*k22 + a2322*k23))
+      k25 = f(t + c24*Δt,u + Δt*(a2400*k1                                                                                            + a2408*k9 + a2409*k10 + a2410*k11 + a2411*k12 + a2412*k13 + a2413*k14 + a2414*k15 + a2415*k16 + a2416*k17 + a2417*k18 + a2418*k19 + a2419*k20 + a2420*k21 + a2421*k22 + a2422*k23 + a2423*k24))
+      k26 = f(t + c25*Δt,u + Δt*(a2500*k1                                                                                            + a2508*k9 + a2509*k10 + a2510*k11 + a2511*k12 + a2512*k13 + a2513*k14 + a2514*k15 + a2515*k16 + a2516*k17 + a2517*k18 + a2518*k19 + a2519*k20 + a2520*k21 + a2521*k22 + a2522*k23 + a2523*k24 + a2524*k25))
+      k27 = f(t + c26*Δt,u + Δt*(a2600*k1                                                     + a2605*k6 + a2606*k7 + a2607*k8 + a2608*k9 + a2609*k10 + a2610*k11               + a2612*k13 + a2613*k14 + a2614*k15 + a2615*k16 + a2616*k17 + a2617*k18 + a2618*k19 + a2619*k20 + a2620*k21 + a2621*k22 + a2622*k23 + a2623*k24 + a2624*k25 + a2625*k26))
+      k28 = f(t + c27*Δt,u + Δt*(a2700*k1                                                     + a2705*k6 + a2706*k7 + a2707*k8 + a2708*k9 + a2709*k10               + a2711*k12 + a2712*k13 + a2713*k14 + a2714*k15 + a2715*k16 + a2716*k17 + a2717*k18 + a2718*k19 + a2719*k20 + a2720*k21 + a2721*k22 + a2722*k23 + a2723*k24 + a2724*k25 + a2725*k26 + a2726*k27))
+      k29 = f(t + c28*Δt,u + Δt*(a2800*k1                                                     + a2805*k6 + a2806*k7 + a2807*k8 + a2808*k9               + a2810*k11 + a2811*k12               + a2813*k14 + a2814*k15 + a2815*k16                                                                                                   + a2823*k24 + a2824*k25 + a2825*k26 + a2826*k27 + a2827*k28))
+      k30 = f(t + c29*Δt,u + Δt*(a2900*k1                                        + a2904*k5 + a2905*k6 + a2906*k7                           + a2909*k10 + a2910*k11 + a2911*k12               + a2913*k14 + a2914*k15 + a2915*k16                                                                                                   + a2923*k24 + a2924*k25 + a2925*k26 + a2926*k27 + a2927*k28 + a2928*k29))
+      k31 = f(t + c30*Δt,u + Δt*(a3000*k1                           + a3003*k4 + a3004*k5 + a3005*k6              + a3007*k8              + a3009*k10 + a3010*k11                             + a3013*k14 + a3014*k15 + a3015*k16                                                                                                   + a3023*k24 + a3024*k25 + a3025*k26               + a3027*k28 + a3028*k29 + a3029*k30))
+      k32 = f(t + c31*Δt,u + Δt*(a3100*k1              + a3102*k3 + a3103*k4                           + a3106*k7 + a3107*k8              + a3109*k10 + a3110*k11                             + a3113*k14 + a3114*k15 + a3115*k16                                                                                                   + a3123*k24 + a3124*k25 + a3125*k26               + a3127*k28 + a3128*k29 + a3129*k30 + a3130*k31))
+      k33 = f(t + c32*Δt,u + Δt*(a3200*k1 + a3201*k2                           + a3204*k5              + a3206*k7                                                                                                                                                                                                                                                                                                                                 + a3230*k31 + a3231*k32))
+      k34 = f(t + c33*Δt,u + Δt*(a3300*k1              + a3302*k3                                                                                                                                                                                                                                                                                                                                                                                                                 + a3332*k33))
+      k35 = f(t + c34*Δt,u + Δt*(a3400*k1 + a3401*k2 + a3402*k3              + a3404*k5              + a3406*k7 + a3407*k8              + a3409*k10 + a3410*k11 + a3411*k12 + a3412*k13 + a3413*k14 + a3414*k15 + a3415*k16 + a3416*k17 + a3417*k18 + a3418*k19 + a3419*k20 + a3420*k21 + a3421*k22 + a3422*k23 + a3423*k24 + a3424*k25 + a3425*k26 + a3426*k27 + a3427*k28 + a3428*k29 + a3429*k30 + a3430*k31 + a3431*k32 + a3432*k33 + a3433*k34))
+      update = Δt*((b1*k1 + b2*k2 + b3*k3 + b5*k5) + (b7*k7 + b8*k8 + b10*k10 + b11*k11) + (b12*k12 + b14*k14 + b15*k15 + b16*k16) + (b18*k18 + b19*k19 + b20*k20 + b21*k21) + (b22*k22 + b23*k23 + b24*k24 + b25*k25) + (b26*k26 + b27*k27 + b28*k28 + b29*k29) + (b30*k30 + b31*k31 + b32*k32 + b33*k33) + (b34*k34 + b35*k35))
       if adaptive
         utmp = u + update
-        EEst = norm((Δt*(k2 - k24) * adaptiveConst)./(abstol+u*reltol),internalnorm)
-      else #no chance of rejecting so in-place
+        EEst = norm((Δt*(k2 - k34) * adaptiveConst)./(abstol+u*reltol),internalnorm)
+      else #no chance of rejecting, so in-place
         u = u + update
       end
       @ode_loopfooter
@@ -2712,6 +2675,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     pop!(ks)
   end
   k = k1
+  cache =  (u,uidx,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,tmp,atmp,utmp,kprev,update)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -2876,76 +2840,6 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   return u,t,timeseries,ts,ks
 end
 
-function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Feagin14,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
-  @ode_preamble
-  adaptiveConst,a0100,a0200,a0201,a0300,a0302,a0400,a0402,a0403,a0500,a0503,a0504,a0600,a0603,a0604,a0605,a0700,a0704,a0705,a0706,a0800,a0805,a0806,a0807,a0900,a0905,a0906,a0907,a0908,a1000,a1005,a1006,a1007,a1008,a1009,a1100,a1105,a1106,a1107,a1108,a1109,a1110,a1200,a1208,a1209,a1210,a1211,a1300,a1308,a1309,a1310,a1311,a1312,a1400,a1408,a1409,a1410,a1411,a1412,a1413,a1500,a1508,a1509,a1510,a1511,a1512,a1513,a1514,a1600,a1608,a1609,a1610,a1611,a1612,a1613,a1614,a1615,a1700,a1712,a1713,a1714,a1715,a1716,a1800,a1812,a1813,a1814,a1815,a1816,a1817,a1900,a1912,a1913,a1914,a1915,a1916,a1917,a1918,a2000,a2012,a2013,a2014,a2015,a2016,a2017,a2018,a2019,a2100,a2112,a2113,a2114,a2115,a2116,a2117,a2118,a2119,a2120,a2200,a2212,a2213,a2214,a2215,a2216,a2217,a2218,a2219,a2220,a2221,a2300,a2308,a2309,a2310,a2311,a2312,a2313,a2314,a2315,a2316,a2317,a2318,a2319,a2320,a2321,a2322,a2400,a2408,a2409,a2410,a2411,a2412,a2413,a2414,a2415,a2416,a2417,a2418,a2419,a2420,a2421,a2422,a2423,a2500,a2508,a2509,a2510,a2511,a2512,a2513,a2514,a2515,a2516,a2517,a2518,a2519,a2520,a2521,a2522,a2523,a2524,a2600,a2605,a2606,a2607,a2608,a2609,a2610,a2612,a2613,a2614,a2615,a2616,a2617,a2618,a2619,a2620,a2621,a2622,a2623,a2624,a2625,a2700,a2705,a2706,a2707,a2708,a2709,a2711,a2712,a2713,a2714,a2715,a2716,a2717,a2718,a2719,a2720,a2721,a2722,a2723,a2724,a2725,a2726,a2800,a2805,a2806,a2807,a2808,a2810,a2811,a2813,a2814,a2815,a2823,a2824,a2825,a2826,a2827,a2900,a2904,a2905,a2906,a2909,a2910,a2911,a2913,a2914,a2915,a2923,a2924,a2925,a2926,a2927,a2928,a3000,a3003,a3004,a3005,a3007,a3009,a3010,a3013,a3014,a3015,a3023,a3024,a3025,a3027,a3028,a3029,a3100,a3102,a3103,a3106,a3107,a3109,a3110,a3113,a3114,a3115,a3123,a3124,a3125,a3127,a3128,a3129,a3130,a3200,a3201,a3204,a3206,a3230,a3231,a3300,a3302,a3332,a3400,a3401,a3402,a3404,a3406,a3407,a3409,a3410,a3411,a3412,a3413,a3414,a3415,a3416,a3417,a3418,a3419,a3420,a3421,a3422,a3423,a3424,a3425,a3426,a3427,a3428,a3429,a3430,a3431,a3432,a3433,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b24,b25,b26,b27,b28,b29,b30,b31,b32,b33,b34,b35 = constructFeagin14(uEltypeNoUnits)
-  local k1::rateType; local k2::rateType; local k3::rateType; local k4::rateType; local k5::rateType
-  local k6::rateType; local k7::rateType; local k8::rateType; local k9::rateType; local k10::rateType
-  local k11::rateType; local k12::rateType; local k13::rateType; local k14::rateType
-  local k15::rateType; local k16::rateType; local k17::rateType; local k18::rateType
-  local k19::rateType; local k20::rateType; local k21::rateType; local k22::rateType
-  local k23::rateType; local k24::rateType; local k25::rateType
-  local k26::rateType; local k27::rateType; local k28::rateType
-  local k29::rateType; local k30::rateType; local k31::rateType; local k32::rateType
-  local k33::rateType; local k34::rateType; local k35::rateType
-  if calck
-    pop!(ks)
-  end
-  @inbounds for T in Ts
-    while t < T
-      @ode_loopheader
-      k   = f(t,u)
-      k1  = k
-      k2  = f(t + c1*Δt,u  + Δt*(a0100*k1))
-      k3  = f(t + c2*Δt ,u + Δt*(a0200*k1 + a0201*k2))
-      k4  = f(t + c3*Δt,u  + Δt*(a0300*k1              + a0302*k3))
-      k5  = f(t + c4*Δt,u  + Δt*(a0400*k1              + a0402*k3 + a0403*k4))
-      k6  = f(t + c5*Δt,u  + Δt*(a0500*k1                           + a0503*k4 + a0504*k5))
-      k7  = f(t + c6*Δt,u  + Δt*(a0600*k1                           + a0603*k4 + a0604*k5 + a0605*k6))
-      k8  = f(t + c7*Δt,u  + Δt*(a0700*k1                                        + a0704*k5 + a0705*k6 + a0706*k7))
-      k9  = f(t + c8*Δt,u  + Δt*(a0800*k1                                                     + a0805*k6 + a0806*k7 + a0807*k8))
-      k10 = f(t + c9*Δt,u  + Δt*(a0900*k1                                                     + a0905*k6 + a0906*k7 + a0907*k8 + a0908*k9))
-      k11 = f(t + c10*Δt,u + Δt*(a1000*k1                                                     + a1005*k6 + a1006*k7 + a1007*k8 + a1008*k9 + a1009*k10))
-      k12 = f(t + c11*Δt,u + Δt*(a1100*k1                                                     + a1105*k6 + a1106*k7 + a1107*k8 + a1108*k9 + a1109*k10 + a1110*k11))
-      k13 = f(t + c12*Δt,u + Δt*(a1200*k1                                                                                            + a1208*k9 + a1209*k10 + a1210*k11 + a1211*k12))
-      k14 = f(t + c13*Δt,u + Δt*(a1300*k1                                                                                            + a1308*k9 + a1309*k10 + a1310*k11 + a1311*k12 + a1312*k13))
-      k15 = f(t + c14*Δt,u + Δt*(a1400*k1                                                                                            + a1408*k9 + a1409*k10 + a1410*k11 + a1411*k12 + a1412*k13 + a1413*k14))
-      k16 = f(t + c15*Δt,u + Δt*(a1500*k1                                                                                            + a1508*k9 + a1509*k10 + a1510*k11 + a1511*k12 + a1512*k13 + a1513*k14 + a1514*k15))
-      k17 = f(t + c16*Δt,u + Δt*(a1600*k1                                                                                            + a1608*k9 + a1609*k10 + a1610*k11 + a1611*k12 + a1612*k13 + a1613*k14 + a1614*k15 + a1615*k16))
-      k18 = f(t + c17*Δt,u + Δt*(a1700*k1                                                                                                                                                   + a1712*k13 + a1713*k14 + a1714*k15 + a1715*k16 + a1716*k17))
-      k19 = f(t + c18*Δt,u + Δt*(a1800*k1                                                                                                                                                   + a1812*k13 + a1813*k14 + a1814*k15 + a1815*k16 + a1816*k17 + a1817*k18))
-      k20 = f(t + c19*Δt,u + Δt*(a1900*k1                                                                                                                                                   + a1912*k13 + a1913*k14 + a1914*k15 + a1915*k16 + a1916*k17 + a1917*k18 + a1918*k19))
-      k21 = f(t + c20*Δt,u + Δt*(a2000*k1                                                                                                                                                   + a2012*k13 + a2013*k14 + a2014*k15 + a2015*k16 + a2016*k17 + a2017*k18 + a2018*k19 + a2019*k20))
-      k22 = f(t + c21*Δt,u + Δt*(a2100*k1                                                                                                                                                   + a2112*k13 + a2113*k14 + a2114*k15 + a2115*k16 + a2116*k17 + a2117*k18 + a2118*k19 + a2119*k20 + a2120*k21))
-      k23 = f(t + c22*Δt,u + Δt*(a2200*k1                                                                                                                                                   + a2212*k13 + a2213*k14 + a2214*k15 + a2215*k16 + a2216*k17 + a2217*k18 + a2218*k19 + a2219*k20 + a2220*k21 + a2221*k22))
-      k24 = f(t + c23*Δt,u + Δt*(a2300*k1                                                                                            + a2308*k9 + a2309*k10 + a2310*k11 + a2311*k12 + a2312*k13 + a2313*k14 + a2314*k15 + a2315*k16 + a2316*k17 + a2317*k18 + a2318*k19 + a2319*k20 + a2320*k21 + a2321*k22 + a2322*k23))
-      k25 = f(t + c24*Δt,u + Δt*(a2400*k1                                                                                            + a2408*k9 + a2409*k10 + a2410*k11 + a2411*k12 + a2412*k13 + a2413*k14 + a2414*k15 + a2415*k16 + a2416*k17 + a2417*k18 + a2418*k19 + a2419*k20 + a2420*k21 + a2421*k22 + a2422*k23 + a2423*k24))
-      k26 = f(t + c25*Δt,u + Δt*(a2500*k1                                                                                            + a2508*k9 + a2509*k10 + a2510*k11 + a2511*k12 + a2512*k13 + a2513*k14 + a2514*k15 + a2515*k16 + a2516*k17 + a2517*k18 + a2518*k19 + a2519*k20 + a2520*k21 + a2521*k22 + a2522*k23 + a2523*k24 + a2524*k25))
-      k27 = f(t + c26*Δt,u + Δt*(a2600*k1                                                     + a2605*k6 + a2606*k7 + a2607*k8 + a2608*k9 + a2609*k10 + a2610*k11               + a2612*k13 + a2613*k14 + a2614*k15 + a2615*k16 + a2616*k17 + a2617*k18 + a2618*k19 + a2619*k20 + a2620*k21 + a2621*k22 + a2622*k23 + a2623*k24 + a2624*k25 + a2625*k26))
-      k28 = f(t + c27*Δt,u + Δt*(a2700*k1                                                     + a2705*k6 + a2706*k7 + a2707*k8 + a2708*k9 + a2709*k10               + a2711*k12 + a2712*k13 + a2713*k14 + a2714*k15 + a2715*k16 + a2716*k17 + a2717*k18 + a2718*k19 + a2719*k20 + a2720*k21 + a2721*k22 + a2722*k23 + a2723*k24 + a2724*k25 + a2725*k26 + a2726*k27))
-      k29 = f(t + c28*Δt,u + Δt*(a2800*k1                                                     + a2805*k6 + a2806*k7 + a2807*k8 + a2808*k9               + a2810*k11 + a2811*k12               + a2813*k14 + a2814*k15 + a2815*k16                                                                                                   + a2823*k24 + a2824*k25 + a2825*k26 + a2826*k27 + a2827*k28))
-      k30 = f(t + c29*Δt,u + Δt*(a2900*k1                                        + a2904*k5 + a2905*k6 + a2906*k7                           + a2909*k10 + a2910*k11 + a2911*k12               + a2913*k14 + a2914*k15 + a2915*k16                                                                                                   + a2923*k24 + a2924*k25 + a2925*k26 + a2926*k27 + a2927*k28 + a2928*k29))
-      k31 = f(t + c30*Δt,u + Δt*(a3000*k1                           + a3003*k4 + a3004*k5 + a3005*k6              + a3007*k8              + a3009*k10 + a3010*k11                             + a3013*k14 + a3014*k15 + a3015*k16                                                                                                   + a3023*k24 + a3024*k25 + a3025*k26               + a3027*k28 + a3028*k29 + a3029*k30))
-      k32 = f(t + c31*Δt,u + Δt*(a3100*k1              + a3102*k3 + a3103*k4                           + a3106*k7 + a3107*k8              + a3109*k10 + a3110*k11                             + a3113*k14 + a3114*k15 + a3115*k16                                                                                                   + a3123*k24 + a3124*k25 + a3125*k26               + a3127*k28 + a3128*k29 + a3129*k30 + a3130*k31))
-      k33 = f(t + c32*Δt,u + Δt*(a3200*k1 + a3201*k2                           + a3204*k5              + a3206*k7                                                                                                                                                                                                                                                                                                                                 + a3230*k31 + a3231*k32))
-      k34 = f(t + c33*Δt,u + Δt*(a3300*k1              + a3302*k3                                                                                                                                                                                                                                                                                                                                                                                                                 + a3332*k33))
-      k35 = f(t + c34*Δt,u + Δt*(a3400*k1 + a3401*k2 + a3402*k3              + a3404*k5              + a3406*k7 + a3407*k8              + a3409*k10 + a3410*k11 + a3411*k12 + a3412*k13 + a3413*k14 + a3414*k15 + a3415*k16 + a3416*k17 + a3417*k18 + a3418*k19 + a3419*k20 + a3420*k21 + a3421*k22 + a3422*k23 + a3423*k24 + a3424*k25 + a3425*k26 + a3426*k27 + a3427*k28 + a3428*k29 + a3429*k30 + a3430*k31 + a3431*k32 + a3432*k33 + a3433*k34))
-      update = Δt*((b1*k1 + b2*k2 + b3*k3 + b5*k5) + (b7*k7 + b8*k8 + b10*k10 + b11*k11) + (b12*k12 + b14*k14 + b15*k15 + b16*k16) + (b18*k18 + b19*k19 + b20*k20 + b21*k21) + (b22*k22 + b23*k23 + b24*k24 + b25*k25) + (b26*k26 + b27*k27 + b28*k28 + b29*k29) + (b30*k30 + b31*k31 + b32*k32 + b33*k33) + (b34*k34 + b35*k35))
-      if adaptive
-        utmp = u + update
-        EEst = norm((Δt*(k2 - k34) * adaptiveConst)./(abstol+u*reltol),internalnorm)
-      else #no chance of rejecting, so in-place
-        u = u + update
-      end
-      @ode_loopfooter
-    end
-  end
-  if calck
-    k = f(t,u)
-    push!(ks,k)
-  end
-  return u,t,timeseries,ts,ks
-end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:ImplicitEuler,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
   @ode_preamble
@@ -2977,16 +2871,16 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   local nlres::NLsolve.SolverResults{uEltype}
   uidx = eachindex(u)
   if autodiff
-    cache = DiffCache(u)
-    rhs_ie = (u,resid,u_old,t,Δt,cache) -> begin
-      du = get_du(cache, eltype(u))
+    dual_cache = DiffCache(u)
+    rhs_ie = (u,resid,u_old,t,Δt,dual_cache) -> begin
+      du = get_du(dual_cache, eltype(u))
       f(t+Δt,reshape(u,sizeu),du)
       for i in uidx
         resid[i] = u[i] - u_old[i] - Δt*du[i]
       end
     end
   else
-    cache = similar(u)
+    dual_cache = similar(u)
     rhs_ie = (u,resid,u_old,t,Δt,du) -> begin
       f(t+Δt,reshape(u,sizeu),du)
       for i in uidx
@@ -2996,11 +2890,12 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   end
 
   uhold = vec(u); u_old = similar(u)
+  cache = (u,uidx,u_old,dual_cache)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
       copy!(u_old,uhold)
-      nlres = NLsolve.nlsolve((uhold,resid)->rhs_ie(uhold,resid,u_old,t,Δt,cache),uhold,autodiff=autodiff)
+      nlres = NLsolve.nlsolve((uhold,resid)->rhs_ie(uhold,resid,u_old,t,Δt,dual_cache),uhold,autodiff=autodiff)
       uhold[:] = nlres.zero
       if calck
         f(t+Δt,u,k)
@@ -3041,6 +2936,8 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
     end
   end
   uhold = vec(u); u_old = similar(u)
+
+  cache = (u,uidx,u_old,cache1,cache2)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -3116,6 +3013,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = fsalfirst
   end
+  cache = (u,uidx,du1,du2,f₀,f₁,vectmp3,utmp,vectmp2,dT,vectmp,tmp2,J,W,jidx)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
@@ -3235,6 +3133,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
   if calck
     k = fsalfirst
   end
+  cache = (u,uidx,du1,du2,f₀,f₁,vectmp3,utmp,vectmp2,dT,vectmp,tmp2,J,W,jidx)
   @inbounds for T in Ts
     while t < T
       @ode_loopheader
