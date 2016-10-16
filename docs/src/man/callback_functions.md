@@ -120,7 +120,7 @@ sol = solve(prob,tspan,callback=callback)
 plot(sol)
 ```
 
-[BallBounce](../assets/ballbounce.png)
+![BallBounce](../assets/ballbounce.png)
 
 As you can see from the resulting image, DifferentialEquations.jl is smart enough
 to use the interpolation to hone in on the time of the event and apply the event
@@ -198,7 +198,7 @@ plot(sol.t,map((x)->length(x),sol[:]),lw=3,
      ylabel="Number of Cells",xlabel="Time")
 ```
 
-[NumberOfCells](../assets/numcells.png)
+![NumberOfCells](../assets/numcells.png)
 
 Now let's check-in on a cell. We can still use the interpolation to get a nice
 plot of the concentration of cell 1 over time. This is done with the command:
@@ -209,7 +209,7 @@ plot(ts,map((x)->x[1],sol.(ts)),lw=3,
      ylabel="Amount of X in Cell 1",xlabel="Time")
 ```
 
-[Cell1](../assets/cell1.png)
+![Cell1](../assets/cell1.png)
 
 Notice that every time it hits 1 the cell divides, giving cell 1 a random amount
 of `X` which then grows until the next division.
