@@ -214,6 +214,16 @@ plot(ts,map((x)->x[1],sol.(ts)),lw=3,
 Notice that every time it hits 1 the cell divides, giving cell 1 a random amount
 of `X` which then grows until the next division.
 
+Note that one macro which was not shown in this example is `@ode_change_deleteat`
+which performs `deleteat!` on the caches. For example, to delete the second cell,
+we could use:
+
+```julia
+@ode_change_deleteat cache 2
+```
+
+This allows you to build sophisticated models of 
+
 ## Advanced: Callback Function API
 
 The callback functions have access to a lot of the functionality of the solver.
