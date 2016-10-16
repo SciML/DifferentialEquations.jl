@@ -125,9 +125,9 @@ end
 # Modify by area
 ve2 = node[elem[:,1],:]-node[elem[:,3],:]
 ve3 = node[elem[:,2],:]-node[elem[:,1],:]
-area = 0.5*abs(-ve3[:,1].*ve2[:,2]+ve3[:,2].*ve2[:,1])
+area = 0.5*abs.(-ve3[:,1].*ve2[:,2]+ve3[:,2].*ve2[:,1])
 err = area.*err
-err[isnan(err)] = 0 # singular values are excluded
+err[isnan.(err)] = 0 # singular values are excluded
 err = sqrt(sum(err))
 return(err)
 end
@@ -380,7 +380,7 @@ function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
   #Only ℙ1 Implemented
   if (size(uh,2) == 2) && (Nu == NT)      # uh is a piecewise constant vector
       Duh = uh
-      area = abs(simplexvolume(node,elem))
+      area = abs.(simplexvolume(node,elem))
   elseif size(uh,2) == 1   # scalar function uh
       if Nu==N      # piecewise linear function ℙ1 element
               Duh,area = ∇u(node,elem,uh)
@@ -459,7 +459,7 @@ function getH1error(node,elem,Du,uh,K=[],quad𝒪=[])
       err = K.*err    # K is piecewise constant
   end
   err = area.*err
-  err[isnan(err)] = 0 # singular values are excluded
+  err[isnan.(err)] = 0 # singular values are excluded
   err = sqrt(sum(err))
   return(err)
 end

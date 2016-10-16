@@ -117,7 +117,7 @@ function checkSRIOrder(RosslerSRI;tol=1e-6)
   conditions[21]= abs(sum(β₁'*B₁*(B₁*e))-0) < tol
   conditions[23]= abs(sum(β₃'*B₁*(B₁*e))-0) < tol
   conditions[24]= abs(sum(β₄'*B₁*(B₁*e))-1) < tol
-  conditions[25]= abs(.5*β₁'*(A₁*(B₀*e)) + (1/3)*β₃'*(A₁*(B₀*e)))[1] < tol
+  conditions[25]= abs.(.5*β₁'*(A₁*(B₀*e)) + (1/3)*β₃'*(A₁*(B₀*e)))[1] .< tol
   return(conditions)
 end
 

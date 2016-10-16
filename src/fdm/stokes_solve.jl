@@ -395,15 +395,15 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
       end
     end
     if converrors
-      push!(converror_maxu,maximum(abs(u-u_analytic)))
-      push!(converror_maxv,maximum(abs(v-vTrue)))
-      push!(converror_maxp,maximum(abs(p-pTrue)))
+      push!(converror_maxu,maximum(abs.(u-u_analytic)))
+      push!(converror_maxv,maximum(abs.(v-vTrue)))
+      push!(converror_maxp,maximum(abs.(p-pTrue)))
       push!(converror_l2u,norm(u-u_analytic,2))
       push!(converror_l2v,norm(v-vTrue,2))
       push!(converror_l2p,norm(p-pTrue,2))
-      push!(converror_relmaxu,maximum(abs(u-u_analytic))/maximum(abs(u)))
-      push!(converror_relmaxv,maximum(abs(v-vTrue))/maximum(abs(v)))
-      push!(converror_relmaxp,maximum(abs(p-pTrue))/maximum(abs(p)))
+      push!(converror_relmaxu,maximum(abs.(u-u_analytic))/maximum(abs.(u)))
+      push!(converror_relmaxv,maximum(abs.(v-vTrue))/maximum(abs.(v)))
+      push!(converror_relmaxp,maximum(abs.(p-pTrue))/maximum(abs.(p)))
       push!(converror_rell2u,norm(u-u_analytic,2)/norm(u,2))
       push!(converror_rell2v,norm(v-vTrue,2)/norm(v,2))
       push!(converror_rell2p,norm(p-pTrue,2)/norm(p,2))
@@ -416,12 +416,12 @@ function solve(prob::StokesProblem,mesh::FDMMesh;converrors=true,maxiters=100,al
 
   #Generate and return solution type
   if trueknown
-    errors = Dict(:ul∞=>maximum(abs(u-u_analytic)),:vl∞=>maximum(abs(v-vTrue)),
-                  :pl∞=>maximum(abs(p-pTrue)),:ul2=>norm(u-u_analytic,2),
+    errors = Dict(:ul∞=>maximum(abs.(u-u_analytic)),:vl∞=>maximum(abs.(v-vTrue)),
+                  :pl∞=>maximum(abs.(p-pTrue)),:ul2=>norm(u-u_analytic,2),
                   :vl2=>norm(v-vTrue,2),:pl2=>norm(p-pTrue,2),
-                  :rul∞=>maximum(abs(u-u_analytic))/maximum(abs(u)),
-                  :rvl∞=>maximum(abs(v-vTrue))/maximum(abs(v)),
-                  :rpl∞=>maximum(abs(p-pTrue))/maximum(abs(p)),
+                  :rul∞=>maximum(abs.(u-u_analytic))/maximum(abs.(u)),
+                  :rvl∞=>maximum(abs.(v-vTrue))/maximum(abs.(v)),
+                  :rpl∞=>maximum(abs.(p-pTrue))/maximum(abs.(p)),
                   :rul2=>norm(u-u_analytic,2)/norm(u,2),
                   :rvl2=>norm(v-vTrue,2)/norm(v,2),
                   :rpl2=>norm(p-pTrue,2)/norm(p,2),
