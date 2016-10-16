@@ -1,15 +1,15 @@
 macro ode_callback(ex)
   esc(quote
-    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck)
+    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
       reeval_fsal = false
       event_occured = false
       $(ex)
-      cursaveat,Δt,t,reeval_fsal
+      cursaveat,Δt,t,T,reeval_fsal
     end
   end)
 end
 
-macro ode_event(event_f,apply_event!,rootfind_event_loc=true,interp_points=5,Δt_safety=1)
+macro ode_event(event_f,apply_event!,rootfind_event_loc=true,interp_points=5,terminate_on_event=false,Δt_safety=1)
   esc(quote
     # Event Handling
     if $interp_points!=0
@@ -68,21 +68,25 @@ macro ode_event(event_f,apply_event!,rootfind_event_loc=true,interp_points=5,Δt
     @ode_savevalues
 
     if event_occured
-      $apply_event!(u,cache)
-      if calck
-        if alg ∉ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
-          if typeof(u) <: Number
-            k = f(t,u)
-          else
-            f(t,u,k)
+      if $terminate_on_event
+        @ode_terminate
+      else
+        $apply_event!(u,cache)
+        if calck
+          if alg ∉ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
+            if typeof(u) <: Number
+              k = f(t,u)
+            else
+              f(t,u,k)
+            end
           end
         end
+        @ode_savevalues
+        if fsal
+          reeval_fsal = true
+        end
+        Δt *= $Δt_safety # Safety Δt change
       end
-      @ode_savevalues
-      if fsal
-        reeval_fsal = true
-      end
-      Δt *= $Δt_safety # Safety Δt change
     end
   end)
 end
@@ -127,4 +131,11 @@ end
 
 function cache_replace_length(ex::Any)
   ex
+end
+
+@def ode_terminate begin
+  T = t
+  while length(Ts)>1
+    pop!(Ts)
+  end
 end

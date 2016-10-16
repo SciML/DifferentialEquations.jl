@@ -7,7 +7,7 @@ f = function (t,u,du)
   end
 end
 
-function event_f(t,u) # Event when event_f(t,u,k) == 0
+function event_f(t,u) # Event when event_f(t,u) == 0
   1-maximum(u)
 end
 
@@ -19,11 +19,8 @@ end
   u[end] = 1-Θ
 end
 
-const Δt_safety = 1
-const interp_points = 10
-const rootfind_event_loc = true
 callback = @ode_callback begin
-  @ode_event event_f apply_event! rootfind_event_loc interp_points Δt_safety
+  @ode_event event_f apply_event! true 10
 end
 u0 = [0.2]
 prob = ODEProblem(f,u0)
