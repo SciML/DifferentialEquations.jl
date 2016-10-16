@@ -430,7 +430,7 @@ prob_sde_2Dlinear = SDEProblem(f,σ,ones(4,2)/2,analytic=analytic)
 
 f = (t,u) -> -.25*u*(1-u^2)
 σ = (t,u) -> .5*(1-u^2)
-analytic = (t,u₀,W) -> ((1+u₀).*exp(W)+u₀-1)./((1+u₀).*exp(W)+1-u₀)
+analytic = (t,u₀,W) -> ((1+u₀).*exp.(W)+u₀-1)./((1+u₀).*exp.(W)+1-u₀)
 """
 ```math
 du_t = \\frac{1}{4}u(1-u^2)dt + \\frac{1}{2}(1-u^2)dW_t
@@ -444,9 +444,9 @@ u(t,u₀,W_t)=\\frac{(1+u₀)\\exp(W_t)+u₀-1}{(1+u₀)\\exp(W_t)+1-u₀}
 """
 prob_sde_cubic = SDEProblem(f,σ,1/2,analytic=analytic)
 
-f = (t,u) -> -0.01*sin(u).*cos(u).^3
-σ = (t,u) -> 0.1*cos(u).^2
-analytic = (t,u₀,W) -> atan(0.1*W + tan(u₀))
+f = (t,u) -> -0.01*sin.(u).*cos.(u).^3
+σ = (t,u) -> 0.1*cos.(u).^2
+analytic = (t,u₀,W) -> atan.(0.1*W + tan.(u₀))
 """
 ```math
 du_t = -\\frac{1}{100}\sin(u)\cos^3(u)dt + \\frac{1}{10}\cos^{2}(u_t) dW_t
@@ -674,7 +674,7 @@ end
 ### Finite Element Examples
 
 analytic_moving(t,x) = 0.1*(1-exp.(-100*(t-0.5).^2)).*exp.(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))
-Du = (t,x) -> -50[analytic_moving(t,x).*(0.5-t+x[:,1])  analytic_moving(t,x).*(0.5-t+x[:,2])]
+Du = (t,x) -> -50[analytic_moving.(t,x).*(0.5-t+x[:,1])  analytic_moving.(t,x).*(0.5-t+x[:,2])]
 f = (t,x) -> (-5).*exp.((-25).*((3/2)+6.*t.^2+x[:,1]+x[:,1].^2+x[:,2]+x[:,2].^2+(-2).*t.*(3+x[:,1]+
   x[:,2]))).*((-20)+(-100).*t.^2+(-49).*x[:,1]+(-50).*x[:,1].^2+(-49).*x[:,2]+(-50).*
   x[:,2].^2+2.*t.*(47+50.*x[:,1]+50.*x[:,2])+exp.(25.*(1+(-2).*t).^2).*(22+
@@ -693,7 +693,7 @@ prob_femheat_moving = HeatProblem(analytic_moving,Du,f)
 
 analytic_diffuse(t,x) = exp.(-10((x[:,1]-.5).^2 + (x[:,2]-.5).^2 )-t)
 f = (t,x) -> exp.(-t-5*(1-2x[:,1]+2x[:,1].^2 - 2x[:,2] +2x[:,2].^2)).*(-161 + 400*(x[:,1] - x[:,1].^2 + x[:,2] - x[:,2].^2))
-Du = (t,x) -> -20[analytic_diffuse(t,x).*(x[:,1]-.5) analytic_diffuse(t,x).*(x[:,2]-.5)]
+Du = (t,x) -> -20[analytic_diffuse.(t,x).*(x[:,1]-.5) analytic_diffuse.(t,x).*(x[:,2]-.5)]
 """
 Example problem defined by the solution:
 
@@ -707,7 +707,7 @@ prob_femheat_diffuse = HeatProblem(analytic_diffuse,Du,f)
 
 
 f = (t,x)  -> zeros(size(x,1))
-u₀ = (x) -> float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) #Only mass at middle of (0,1)^2
+u₀ = (x) -> float((abs.(x[:,1]-.5) .< 1e-6) & (abs.(x[:,2]-.5) .< 1e-6)) #Only mass at middle of (0,1)^2
 """
 Example problem which starts with a Dirac δ cenetered at (0.5,0.5) and solves with ``f=gD=0``.
 This gives the Green's function solution.
@@ -731,7 +731,7 @@ Homogenous reaction-diffusion which starts at 1/2 and solves the system ``f(u)=1
 prob_femheat_birthdeathsystem = HeatProblem(u₀,f)
 
 f = (t,x,u)  -> [zeros(size(x,1))    zeros(size(x,1))]
-u₀ = (x) -> [float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6)) float((abs(x[:,1]-.5) .< 1e-6) & (abs(x[:,2]-.5) .< 1e-6))]  # size (x,2), 2 meaning 2 variables
+u₀ = (x) -> [float((abs.(x[:,1]-.5) .< 1e-6) & (abs.(x[:,2]-.5) .< 1e-6)) float((abs.(x[:,1]-.5) .< 1e-6) & (abs.(x[:,2]-.5) .< 1e-6))]  # size (x,2), 2 meaning 2 variables
 """
 Example problem which solves the homogeneous Heat equation with all mass starting at (1/2,1/2) with two different diffusion constants,
 ``D₁=0.01`` and ``D₂=0.001``. Good animation test.
