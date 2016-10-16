@@ -64,7 +64,7 @@ terminate_callback = @ode_callback begin
   @ode_event event_f apply_event! true interp_points true Δt_safety
 end
 
-sol5 = solve(prob,tspan,callback=terminate_callback)
+sol5 = solve(prob,[0.0;Inf],callback=terminate_callback)
 
 bool3 = sol5[end][1] < 1e-13
 
