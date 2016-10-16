@@ -462,9 +462,9 @@ prob_sde_wave = SDEProblem(f,σ,1.,analytic=analytic)
 
 const sde_wave_α = 0.1
 const sde_wave_β = 0.05
-f = (t,u) -> sde_wave_β./sqrt(1+t) - u./(2*(1+t))
-σ = (t,u) -> sde_wave_α*sde_wave_β./sqrt(1+t)
-analytic = (t,u₀,W) -> u₀./sqrt(1+t) + sde_wave_β*(t+sde_wave_α*W)./sqrt(1+t)
+f = (t,u) -> sde_wave_β./sqrt.(1+t) - u./(2*(1+t))
+σ = (t,u) -> sde_wave_α*sde_wave_β./sqrt.(1+t)
+analytic = (t,u₀,W) -> u₀./sqrt.(1+t) + sde_wave_β*(t+sde_wave_α*W)./sqrt.(1+t)
 """
 Additive noise problem
 
@@ -674,7 +674,7 @@ end
 ### Finite Element Examples
 
 analytic_moving(t,x) = 0.1*(1-exp.(-100*(t-0.5).^2)).*exp.(-25((x[:,1]-t+0.5).^2 + (x[:,2]-t+0.5).^2))
-Du = (t,x) -> -50[analytic_moving.(t,x).*(0.5-t+x[:,1])  analytic_moving.(t,x).*(0.5-t+x[:,2])]
+Du = (t,x) -> -50[analytic_moving(t,x).*(0.5-t+x[:,1])  analytic_moving(t,x).*(0.5-t+x[:,2])]
 f = (t,x) -> (-5).*exp.((-25).*((3/2)+6.*t.^2+x[:,1]+x[:,1].^2+x[:,2]+x[:,2].^2+(-2).*t.*(3+x[:,1]+
   x[:,2]))).*((-20)+(-100).*t.^2+(-49).*x[:,1]+(-50).*x[:,1].^2+(-49).*x[:,2]+(-50).*
   x[:,2].^2+2.*t.*(47+50.*x[:,1]+50.*x[:,2])+exp.(25.*(1+(-2).*t).^2).*(22+
