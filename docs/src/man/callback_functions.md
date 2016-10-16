@@ -63,7 +63,7 @@ this (but it needs to be "root-findable"). For here it's clear that we just
 want to check if the ball's height ever hits zero:
 
 ```julia
-function event_f(t,u) # Event when event_f(t,u,k) == 0
+function event_f(t,u) # Event when event_f(t,u) == 0
   u[1]
 end
 ```
@@ -98,6 +98,12 @@ By default, when an event is detected, a rootfinding algorithm (provided by
 NLsolve) is used to find the exact timepoint of the event. This can be computationally
 costly for large systems and thus there's an option to turn it off.
 
+The next option is to allow for termination on event. This will make the ODE
+solver stop when the event happens. For example, if we set it to true in our example,
+then the ODE solver will return the solution the first time the ball hits the
+ground. Whether it will save the "overshot" point or the "true end" depends on
+whether rootfinding is used.
+
 Lastly, you can also tell the solver to decrease Δt after the event occurs.
 This can be helpful if the discontinuity changes the problem immensely.
 Using the full power of the macro, we can define an event as
@@ -105,8 +111,9 @@ Using the full power of the macro, we can define an event as
 ```julia
 const Δt_safety = 1 # Multiplier to Δt after an event
 const interp_points = 10
+const terminate_on_event = false
 callback = @ode_callback begin
-  @ode_event event_f apply_event! rootfind_event_loc interp_points Δt_safety
+  @ode_event event_f apply_event! rootfind_event_loc interp_points terminate_on_event Δt_safety
 end
 ```
 
@@ -149,7 +156,7 @@ Our model is that, whenever the protein `X` gets to a concentration of 1, it
 triggers a cell division. So we check to see if any concentrations hit 1:
 
 ```julia
-function event_f(t,u) # Event when event_f(t,u,k) == 0
+function event_f(t,u) # Event when event_f(t,u) == 0
   1-maximum(u)
 end
 ```
@@ -222,7 +229,7 @@ we could use:
 @ode_change_deleteat cache 2
 ```
 
-This allows you to build sophisticated models of 
+This allows you to build sophisticated models of populations with births and deaths.
 
 ## Advanced: Callback Function API
 
@@ -232,11 +239,11 @@ The macro defines a function which is written as follows:
 ```julia
 macro ode_callback(ex)
   esc(quote
-    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
+    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
       reeval_fsal = false
       event_occured = false
       $(ex)
-      cursaveat,Δt,t,reeval_fsal
+      cursaveat,Δt,t,T,reeval_fsal
     end
   end)
 end
@@ -254,7 +261,7 @@ reasons it's usually recommended to use the event handling macro, though this ki
 of code will allow you handle pretty much anything!
 
 ```julia
-manual_callback = function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache)
+manual_callback = function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
   reeval_fsal = false
   event_occured = false
   Δt_safety = 1
@@ -324,6 +331,6 @@ manual_callback = function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtpr
     Δt *= Δt_safety # Safety Δt change
   end
 
-  cursaveat,Δt,t,reeval_fsal
+  cursaveat,Δt,t,T,reeval_fsal
 end
 ```
