@@ -30,7 +30,7 @@ sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:ImplicitEuler,autodiff=fals
 TEST_PLOT && plot(sol)
 
 #Returns true if nonlinear solver is correct
-bool1 = maximum(abs(sol.u - .777))<.01
+bool1 = maximum(abs.(sol.u - .777))<.01
 
 ### Stochastic Tests
 

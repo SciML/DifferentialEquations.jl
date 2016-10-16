@@ -12,7 +12,7 @@ sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 TEST_PLOT && plot(sol,plot_analytic=false,zlim=(0,2))
 
 #Returns true if computed solution is homogenous near 2
-bool1 = maximum(abs(sol.u .- [2 1]))< 1e-8
+bool1 = maximum(abs.(sol.u .- [2 1]))< 1e-8
 
 ### Harder system
 
@@ -22,6 +22,6 @@ sol = solve(fem_mesh::FEMmesh,prob::PoissonProblem)
 
 TEST_PLOT && plot(sol,plot_analytic=false,zlim=(0,2),cbar=false)
 
-bool2 = maximum(abs(sol.u .- [2 1]))< 1e-8
+bool2 = maximum(abs.(sol.u .- [2 1]))< 1e-8
 
 bool1 && bool2
