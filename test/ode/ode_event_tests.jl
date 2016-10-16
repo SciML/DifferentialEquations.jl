@@ -22,9 +22,9 @@ end
 
 const Δt_safety = 1
 const interp_points = 10
-
+const terminate_on_event = false
 callback = @ode_callback begin
-  @ode_event event_f apply_event! true interp_points Δt_safety
+  @ode_event event_f apply_event! true interp_points terminate_on_event Δt_safety
 end
 
 u0 = [50.0,0.0]
@@ -60,4 +60,12 @@ sol4 = solve(prob,tspan,callback=default_callback)
 
 bool2 = sol2(3) ≈ sol(3)
 
-bool1 && bool2
+terminate_callback = @ode_callback begin
+  @ode_event event_f apply_event! true interp_points true Δt_safety
+end
+
+sol5 = solve(prob,tspan,callback=terminate_callback)
+
+bool3 = sol5[end][1] < 1e-13
+
+bool1 && bool2 && bool3
