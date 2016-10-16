@@ -146,7 +146,7 @@ module DifferentialEquations
 
   #Callback Necessary
   export ode_addsteps!, ode_interpolant, DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS,
-         @ode_callback, @ode_event, @ode_change_cachesize
+         @ode_callback, @ode_event, @ode_change_cachesize, @ode_change_deleteat
 
   #=
    include("precompile.jl")
