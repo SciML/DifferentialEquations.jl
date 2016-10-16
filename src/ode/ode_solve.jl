@@ -130,9 +130,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     ### Algorithm-specific defaults ###
 
     if o[:qmin] == nothing # Use default qmin
-      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+      if alg == :DP5 || alg == :DP5Threaded
         qmin = 0.2
-      elseif alg == :DP8 || alg == :DP8Vectorized
+      elseif alg == :DP8
         qmin = 0.333
       else
         qmin = 0.2
@@ -141,9 +141,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       qmin = o[:qmin]
     end
     if o[:qmax] == nothing # Use default qmax
-      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+      if alg == :DP5 || alg == :DP5Threaded
         qmax = 10.0
-      elseif alg == :DP8 || alg == :DP8Vectorized
+      elseif alg == :DP8
         qmax = 6.0
       else
         qmax = 10.0
@@ -152,7 +152,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       qmax = o[:qmax]
     end
     if o[:β] == nothing # Use default β
-      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+      if alg == :DP5 || alg == :DP5Threaded
         β = 0.04 # More than Hairer's suggestion
       elseif alg == :DP8 || alg == :DP8Vectorized
         β = 0.07 # More than Hairer's suggestion
@@ -163,9 +163,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       β = o[:β]
     end
     if o[:expo1] == nothing # Use default expo1
-      if alg == :DP5 || alg == :DP5Vectorized || alg == :DP5Threaded
+      if alg == :DP5 || alg == :DP5Threaded
         expo1 = 1/order - .75β
-      elseif alg == :DP8 || alg == :DP8Vectorized
+      elseif alg == :DP8
         expo1 = 1/order - .2β
       else
         expo1 = .7/order
