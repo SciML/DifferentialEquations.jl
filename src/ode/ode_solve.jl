@@ -425,7 +425,7 @@ function ode_determine_initΔt(u₀::AbstractArray,t,abstol,reltol,internalnorm,
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
   else
-    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order))
   end
   Δt = min(100Δt₀,Δt₁)
 end
@@ -445,7 +445,7 @@ function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
   else
-    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order))
   end
   Δt = min(100Δt₀,Δt₁)
 end

@@ -42,7 +42,7 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
                                  :qmax=>nothing,
                                  :qmin=>nothing,
                                  :qoldinit=>1//10^4, #facold
-                                 :fullnormalize=>false,
+                                 :fullnormalize=>true,
                                  :β=>nothing,
                                  :expo1=>nothing, #alpha
                                  :timechoicealg=>:Lund,

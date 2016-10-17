@@ -7,8 +7,10 @@ module DifferentialEquations
   import Base: length, size, getindex, endof, show, print, max, linspace
   import ForwardDiff.Dual
 
-  "`PdeProblem`: Defines differential equation problems via its internal functions"
+  "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
+  abstract AbstractODEProblem
+  abstract AbstractSDEProblem
   "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
@@ -65,7 +67,7 @@ module DifferentialEquations
   export DEProblem, DESolution, DEParameters, HeatProblem, PoissonProblem, FEMSolution, Mesh,
          ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
          SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau, MonteCarloSimulation,
-         ImplicitRKTableau, Shootout, ShootoutSet
+         ImplicitRKTableau, Shootout, ShootoutSet,AbstractODEProblem, AbstractSDEProblem
 
   #SDE Example Problems
   export prob_sde_wave, prob_sde_linear, prob_sde_cubic, prob_sde_2Dlinear, prob_sde_lorenz,
@@ -98,7 +100,10 @@ module DifferentialEquations
   export  plot, animate, stability_region
 
   #General Functions
-  export appxTrue!, accumarray, solve, test_convergence, monteCarloSim
+  export appxTrue!, accumarray, solve, test_convergence
+
+  #Stochastic Utils
+  export monteCarloSim, construct_correlated_noisefunc
 
   #FEM Functions
   export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,

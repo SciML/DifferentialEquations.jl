@@ -104,7 +104,7 @@ sol =solve(prob::ODEProblem,tspan,Δt=Δt,alg=:Vern7,adaptive=false)
 plot(sol)
 ```
 
-![Better ODE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introODEplot.png)
+![Better ODE Solution](../assets/introODEplot.png)
 
 
 Please see the solver documentation for more algorithms and keyword arguments.
@@ -136,7 +136,7 @@ sol = solve(prob,tspan)
 plot(sol)
 ```
 
-![ODE System Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/multiODEplot.png)
+![ODE System Solution](../assets/multiODEplot.png)
 
 
 ### Defining Systems of Equations Eloquently Using @ode_define

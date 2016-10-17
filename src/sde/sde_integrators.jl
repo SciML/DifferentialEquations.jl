@@ -1,6 +1,6 @@
 immutable SDEIntegrator{T1,uType,uEltype,Nm1,N,tType,tableauType,uEltypeNoUnits,randType,rateType}
   f::Function
-  σ::Function
+  g::Function
   u::uType
   t::tType
   Δt::tType
@@ -40,7 +40,7 @@ end
   local T::tType
   local ΔW::randType
   local ΔZ::randType
-  @unpack f,σ,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau = integrator
+  @unpack f,g,u,t,Δt,T,maxiters,timeseries,Ws,ts,timeseries_steps,save_timeseries,adaptive,adaptivealg,δ,γ,abstol,reltol,qmax,Δtmax,Δtmin,internalnorm,numvars,discard_length,progressbar,atomloaded,progress_steps,rands,sqΔt,W,Z,tableau = integrator
   sizeu = size(u)
   iter = 0
   max_stack_size = 0
@@ -114,7 +114,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   @fastmath @inbounds while t<T
     @sde_loopheader
 
-    u = u + Δt.*f(t,u) + σ(t,u).*ΔW
+    u = u + Δt.*f(t,u) + g(t,u).*ΔW
 
     t = t + Δt
     W = W + ΔW
@@ -130,7 +130,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   @fastmath @inbounds while t<T
     @sde_loopheader
     f(t,u,utmp1)
-    σ(t,u,utmp2)
+    g(t,u,utmp2)
     for i in eachindex(u)
       u[i] = u[i] + Δt*utmp1[i] + utmp2[i]*ΔW[i]
       W[i] = W[i] + ΔW[i]
@@ -160,7 +160,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   B0temp2::uType = similar(u); B1temp2::uType = similar(u)
   atemp::uType = similar(u); btemp::uType = similar(u)
   E₁::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
-  ftemp::uType = similar(u); σtemp::uType = similar(u)
+  ftemp::uType = similar(u); gtemp::uType = similar(u)
   chi1::randType = similar(ΔW); chi2::randType = similar(ΔW); chi3::randType = similar(ΔW)
   @sde_adaptiveprelim
   @fastmath @inbounds while t<T
@@ -182,12 +182,12 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
       B1temp[:]=zero(uEltype)
       for j = 1:i-1
         f(t + c₀[j]*Δt,H0[j],ftemp)
-        σ(t + c₁[j]*Δt,H1[j],σtemp)
+        g(t + c₁[j]*Δt,H1[j],gtemp)
         for k in eachindex(u)
           A0temp[k] += A₀[i,j]*ftemp[k]
-          B0temp[k] += B₀[i,j]*σtemp[k]
+          B0temp[k] += B₀[i,j]*gtemp[k]
           A1temp[k] += A₁[i,j]*ftemp[k]
-          B1temp[k] += B₁[i,j]*σtemp[k]
+          B1temp[k] += B₁[i,j]*gtemp[k]
         end
       end
       H0[i] = u + A0temp*Δt + B0temp.*chi2
@@ -199,11 +199,11 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
     E₁temp[:]=zero(uEltype)
     for i = 1:stages
       f(t+c₀[i]*Δt,H0[i],ftemp)
-      σ(t+c₁[i]*Δt,H1[i],σtemp)
+      g(t+c₁[i]*Δt,H1[i],gtemp)
       for j in eachindex(u)
         atemp[j] += α[i]*ftemp[j]
-        btemp[j] += (β₁[i]*ΔW[j] + β₂[i]*chi1[j])*σtemp[j]
-        E₂[j]    += (β₃[i]*chi2[j] + β₄[i]*chi3[j])*σtemp[j]
+        btemp[j] += (β₁[i]*ΔW[j] + β₂[i]*chi1[j])*gtemp[j]
+        E₂[j]    += (β₃[i]*chi2[j] + β₄[i]*chi3[j])*gtemp[j]
       end
       if i<3 #1 or 2
         for j in eachindex(u)
@@ -228,20 +228,20 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   chi2::randType = similar(ΔW)
   chi3::randType = similar(ΔW)
   fH01o4::uType = similar(u)
-  σ₁o2::uType = similar(u)
+  g₁o2::uType = similar(u)
   H0::uType = similar(u)
   H11::uType = similar(u)
   H12::uType = similar(u)
   H13::uType = similar(u)
-  σ₂o3::uType = similar(u)
-  Fσ₂o3::uType = similar(u)
-  σ₃o3::uType = similar(u)
-  Tσ₃o3::uType = similar(u)
-  mσ₁::uType = similar(u)
+  g₂o3::uType = similar(u)
+  Fg₂o3::uType = similar(u)
+  g₃o3::uType = similar(u)
+  Tg₃o3::uType = similar(u)
+  mg₁::uType = similar(u)
   E₁::uType = similar(u)
   E₂::uType = similar(u)
   fH01::uType = similar(u); fH02::uType = similar(u)
-  σ₁::uType = similar(u); σ₂::uType = similar(u); σ₃::uType = similar(u); σ₄::uType = similar(u)
+  g₁::uType = similar(u); g₂::uType = similar(u); g₃::uType = similar(u); g₄::uType = similar(u)
   @sde_adaptiveprelim
   @fastmath @inbounds while t<T
     @sde_loopheader
@@ -252,32 +252,32 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
       chi3[i] = (ΔW[i].^3 - 3ΔW[i]*Δt)/6Δt #I_(1,1,1)/h
     end
     f(t,u,fH01);fH01*=Δt
-    σ(t,u,σ₁)
+    g(t,u,g₁)
     Δto4 = Δt/4
     for i in eachindex(u)
       fH01o4[i] = fH01[i]/4
-      σ₁o2[i] = σ₁[i]/2
-      H0[i] =  u[i] + 3*(fH01o4[i]  + chi2[i]*σ₁o2[i])
-      H11[i] = u[i] + fH01o4[i]   + sqΔt*σ₁o2[i]
-      H12[i] = u[i] + fH01[i]     - sqΔt*σ₁[i]
+      g₁o2[i] = g₁[i]/2
+      H0[i] =  u[i] + 3*(fH01o4[i]  + chi2[i]*g₁o2[i])
+      H11[i] = u[i] + fH01o4[i]   + sqΔt*g₁o2[i]
+      H12[i] = u[i] + fH01[i]     - sqΔt*g₁[i]
     end
-    σ(t+Δto4,H11,σ₂)
-    σ(t+Δt,H12,σ₃)
+    g(t+Δto4,H11,g₂)
+    g(t+Δt,H12,g₃)
     for i in eachindex(u)
-      H13[i] = u[i] + fH01o4[i] + sqΔt*(-5σ₁[i] + 3σ₂[i] + σ₃[i]/2)
+      H13[i] = u[i] + fH01o4[i] + sqΔt*(-5g₁[i] + 3g₂[i] + g₃[i]/2)
     end
 
-    σ(t+Δto4,H13,σ₄)
+    g(t+Δto4,H13,g₄)
     f(t+3Δto4,H0,fH02); fH02*=Δt
     for i in eachindex(u)
-      σ₂o3[i] = σ₂[i]/3
-      Fσ₂o3[i] = 4σ₂o3[i]
-      σ₃o3[i] = σ₃[i]/3
-      Tσ₃o3[i] = 2σ₃o3[i]
-      mσ₁[i] = -σ₁[i]
+      g₂o3[i] = g₂[i]/3
+      Fg₂o3[i] = 4g₂o3[i]
+      g₃o3[i] = g₃[i]/3
+      Tg₃o3[i] = 2g₃o3[i]
+      mg₁[i] = -g₁[i]
       E₁[i] = fH01[i]+fH02[i]
-      E₂[i] = chi2[i]*(2σ₁[i] - Fσ₂o3[i] - Tσ₃o3[i]) + chi3[i]*(2mσ₁[i] + 5σ₂o3[i] - Tσ₃o3[i] + σ₄[i])
-      u[i] = u[i] +  (fH01[i] + 2fH02[i])/3 + ΔW[i]*(mσ₁[i] + Fσ₂o3[i] + Tσ₃o3[i]) + chi1[i]*(mσ₁[i] + Fσ₂o3[i] - σ₃o3[i]) + E₂[i]
+      E₂[i] = chi2[i]*(2g₁[i] - Fg₂o3[i] - Tg₃o3[i]) + chi3[i]*(2mg₁[i] + 5g₂o3[i] - Tg₃o3[i] + g₄[i])
+      u[i] = u[i] +  (fH01[i] + 2fH02[i])/3 + ΔW[i]*(mg₁[i] + Fg₂o3[i] + Tg₃o3[i]) + chi1[i]*(mg₁[i] + Fg₂o3[i] - g₃o3[i]) + E₂[i]
     end
 
     @sde_loopfooter
@@ -289,14 +289,14 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
   @sde_preamble
   local H0::uType
   @sde_adaptiveprelim
-  local fH01::uType; local σ₁::uType
-  local fH01o4::uType; local σ₁o2::uType
+  local fH01::uType; local g₁::uType
+  local fH01o4::uType; local g₁o2::uType
   local H11::uType; local H12::uType
-  local σ₂::uType; local σ₃::uType; local σ₄::uType
+  local g₂::uType; local g₃::uType; local g₄::uType
   local H13::uType; local fH02::uType
-  local σ₂o3::uType; local Fσ₂o3::uType
-  local σ₃o3::uType; local Tσ₃o3::uType
-  local mσ₁::uType; local E₁::uType; local E₂::uType
+  local g₂o3::uType; local Fg₂o3::uType
+  local g₃o3::uType; local Tg₃o3::uType
+  local mg₁::uType; local E₁::uType; local E₂::uType
   @fastmath @inbounds while t<T
     @sde_loopheader
 
@@ -305,30 +305,30 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     chi3 = (ΔW.^3 - 3ΔW*Δt)/6Δt #I_(1,1,1)/h
     fH01 = Δt*f(t,u)
 
-    σ₁ = σ(t,u)
+    g₁ = g(t,u)
     fH01o4 = fH01/4
     Δto4 = Δt/4
-    σ₁o2 = σ₁/2
-    H0 =  u + 3*(fH01o4  + chi2.*σ₁o2)
-    H11 = u + fH01o4   + sqΔt*σ₁o2
-    H12 = u + fH01     - sqΔt*σ₁
-    σ₂ = σ(t+Δto4,H11)
-    σ₃ = σ(t+Δt,H12)
-    H13 = u + fH01o4 + sqΔt*(-5σ₁ + 3σ₂ + σ₃/2)
+    g₁o2 = g₁/2
+    H0 =  u + 3*(fH01o4  + chi2.*g₁o2)
+    H11 = u + fH01o4   + sqΔt*g₁o2
+    H12 = u + fH01     - sqΔt*g₁
+    g₂ = g(t+Δto4,H11)
+    g₃ = g(t+Δt,H12)
+    H13 = u + fH01o4 + sqΔt*(-5g₁ + 3g₂ + g₃/2)
 
 
-    σ₄ = σ(t+Δto4,H13)
+    g₄ = g(t+Δto4,H13)
     fH02 = Δt*f(t+3Δto4,H0)
 
-    σ₂o3 = σ₂/3
-    Fσ₂o3 = 4σ₂o3
-    σ₃o3 = σ₃/3
-    Tσ₃o3 = 2σ₃o3
-    mσ₁ = -σ₁
+    g₂o3 = g₂/3
+    Fg₂o3 = 4g₂o3
+    g₃o3 = g₃/3
+    Tg₃o3 = 2g₃o3
+    mg₁ = -g₁
     E₁ = fH01+fH02
-    E₂ = chi2.*(2σ₁ - Fσ₂o3 - Tσ₃o3) + chi3.*(2mσ₁ + 5σ₂o3 - Tσ₃o3 + σ₄)
+    E₂ = chi2.*(2g₁ - Fg₂o3 - Tg₃o3) + chi3.*(2mg₁ + 5g₂o3 - Tg₃o3 + g₄)
 
-    u = u + (fH01 + 2fH02)/3 + ΔW.*(mσ₁ + Fσ₂o3 + Tσ₃o3) + chi1.*(mσ₁ + Fσ₂o3 - σ₃o3) + E₂
+    u = u + (fH01 + 2fH02)/3 + ΔW.*(mg₁ + Fg₂o3 + Tg₃o3) + chi1.*(mg₁ + Fg₂o3 - g₃o3) + E₂
 
     @sde_loopfooter
   end
@@ -364,9 +364,9 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
       B1temp = zero(u)
       for j = 1:i-1
         A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[j])
-        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H1[j])
+        B0temp += B₀[i,j]*g(t + c₁[j]*Δt,H1[j])
         A1temp += A₁[i,j]*f(t + c₀[j]*Δt,H0[j])
-        B1temp += B₁[i,j]*σ(t + c₁[j]*Δt,H1[j])
+        B1temp += B₁[i,j]*g(t + c₁[j]*Δt,H1[j])
       end
       H0[i] = u + A0temp*Δt + B0temp.*chi2
       H1[i] = u + A1temp*Δt + B1temp*sqΔt
@@ -378,8 +378,8 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     for i = 1:stages
       ftemp = f(t+c₀[i]*Δt,H0[i])
       atemp += α[i]*ftemp
-      btemp += (β₁[i]*ΔW + β₂[i]*chi1).*σ(t+c₁[i]*Δt,H1[i])
-      E₂    += (β₃[i]*chi2 + β₄[i]*chi3).*σ(t+c₁[i]*Δt,H1[i])
+      btemp += (β₁[i]*ΔW + β₂[i]*chi1).*g(t+c₁[i]*Δt,H1[i])
+      E₂    += (β₃[i]*chi2 + β₄[i]*chi3).*g(t+c₁[i]*Δt,H1[i])
       if i<3 #1 or 2
         E₁temp += ftemp
       end
@@ -410,15 +410,15 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     H0[:]=zeros(uType,4)
     H1[:]=zeros(uType,4)
     for i = 1:stages
-      H0temp = u + Δt*dot(vec(A₀[i,:]),f(t + c₀*Δt,H0)) + chi2*dot(vec(B₀[i,:]),σ(t+c₁*Δt,H1))
-      H1[i]  = u + Δt*dot(vec(A₁[i,:]),f(t + c₀*Δt,H0)) + sqΔt*dot(vec(B₁[i,:]),σ(t+c₁*Δt,H1))
+      H0temp = u + Δt*dot(vec(A₀[i,:]),f(t + c₀*Δt,H0)) + chi2*dot(vec(B₀[i,:]),g(t+c₁*Δt,H1))
+      H1[i]  = u + Δt*dot(vec(A₁[i,:]),f(t + c₀*Δt,H0)) + sqΔt*dot(vec(B₁[i,:]),g(t+c₁*Δt,H1))
       H0[i] = H0temp
     end
     fVec = Δt*f(t+c₀*Δt,H0)
     E₁ = fVec[1]+fVec[2]
-    E₂ = dot(β₃*chi2 + β₄*chi3,σ(t+c₁*Δt,H1))
+    E₂ = dot(β₃*chi2 + β₄*chi3,g(t+c₁*Δt,H1))
 
-    u = u + dot(α,fVec) + dot(β₁*ΔW + β₂*chi1,σ(t+c₁*Δt,H1)) + E₂
+    u = u + dot(α,fVec) + dot(β₁*ΔW + β₂*chi1,g(t+c₁*Δt,H1)) + E₂
 
     @sde_loopfooter
   end
@@ -432,12 +432,12 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   @fastmath @inbounds while t<T
     @sde_loopheader
     f(t,u,du1)
-    σ(t,u,L)
+    g(t,u,L)
     for i in eachindex(u)
       K[i] = u[i] + Δt*du1[i]
       utilde[i] = K[i] + L[i]*sqΔt
     end
-    σ(t,utilde,du2)
+    g(t,utilde,du2)
     for i in eachindex(u)
       u[i] = K[i]+L[i]*ΔW[i]+(du2[i]-L[i])./(2sqΔt).*(ΔW[i].^2 - Δt)
       W[i] = W[i] + ΔW[i]
@@ -456,9 +456,9 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     @sde_loopheader
 
     K = u + Δt.*f(t,u)
-    L = σ(t,u)
+    L = g(t,u)
     utilde = K + L*sqΔt
-    u = K+L*ΔW+(σ(t,utilde)-σ(t,u))/(2sqΔt)*(ΔW^2 - Δt)
+    u = K+L*ΔW+(g(t,utilde)-g(t,u))/(2sqΔt)*(ΔW^2 - Δt)
 
     t = t + Δt
     W = W + ΔW
@@ -479,11 +479,11 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
 
     chi2 = (ΔW + ΔZ/sqrt(3))/2 #I_(1,0)/h
     k₁ = Δt*f(t,u)
-    k₂ = Δt*f(t+3Δt/4,u+3k₁/4 + 3chi2*σ(t+Δt,u)/2)
+    k₂ = Δt*f(t+3Δt/4,u+3k₁/4 + 3chi2*g(t+Δt,u)/2)
     E₁ = k₁ + k₂
-    E₂ = chi2.*(σ(t,u)-σ(t+Δt,u)) #Only for additive!
+    E₂ = chi2.*(g(t,u)-g(t+Δt,u)) #Only for additive!
 
-    u = u + k₁/3 + 2k₂/3 + E₂ + ΔW*σ(t+Δt,u)
+    u = u + k₁/3 + 2k₂/3 + E₂ + ΔW*g(t+Δt,u)
 
     @sde_loopfooter
   end
@@ -496,24 +496,24 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
   H0 = Array{uEltype}(size(u)...,2)
   chi2::randType = similar(ΔW)
   tmp1::uType = similar(u)
-  E₁::uType = similar(u); σt::uType = similar(u); σpΔt::uType = similar(u)
+  E₁::uType = similar(u); gt::uType = similar(u); gpΔt::uType = similar(u)
   E₂::uType = similar(u); k₁::uType = similar(u); k₂::uType = similar(u)
   @sde_adaptiveprelim
   @fastmath @inbounds while t<T
     @sde_loopheader
-    σ(t,u,σt)
-    σ(t+Δt,u,σpΔt)
+    g(t,u,gt)
+    g(t+Δt,u,gpΔt)
     f(t,u,k₁); k₁*=Δt
     for i in eachindex(u)
       chi2[i] = (ΔW[i] + ΔZ[i]/sqrt(3))/2 #I_(1,0)/h
-      tmp1[i] = u[i]+3k₁[i]/4 + 3chi2[i]*σpΔt[i]/2
+      tmp1[i] = u[i]+3k₁[i]/4 + 3chi2[i]*gpΔt[i]/2
     end
 
     f(t+3Δt/4,tmp1,k₂); k₂*=Δt
     for i in eachindex(u)
       E₁[i] = k₁[i] + k₂[i]
-      E₂[i] = chi2[i]*(σt[i]-σpΔt[i]) #Only for additive!
-      u[i] = u[i] + k₁[i]/3 + 2k₂[i]/3 + E₂[i] + ΔW[i]*σpΔt[i]
+      E₂[i] = chi2[i]*(gt[i]-gpΔt[i]) #Only for additive!
+      u[i] = u[i] + k₁[i]/3 + 2k₂[i]/3 + E₂[i] + ΔW[i]*gpΔt[i]
     end
     @sde_loopfooter
   end
@@ -530,7 +530,7 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
     push!(H0,similar(u))
   end
   A0temp::uType = similar(u); B0temp::uType = similar(u)
-  ftmp::uType = similar(u); σtmp::uType = similar(u); chi2::uType = similar(u)
+  ftmp::uType = similar(u); gtmp::uType = similar(u); chi2::uType = similar(u)
   atemp::uType = similar(u); btemp::uType = similar(u); E₂::uType = similar(u); E₁temp::uType = similar(u)
   E₁::uType = similar(u)
   @sde_adaptiveprelim
@@ -547,10 +547,10 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
       B0temp[:] = zero(uEltype)
       for j = 1:i-1
         f(t + c₀[j]*Δt,H0[j],ftmp)
-        σ(t + c₁[j]*Δt,H0[j],σtmp)
+        g(t + c₁[j]*Δt,H0[j],gtmp)
         for k in eachindex(u)
           A0temp[k] += A₀[i,j]*ftmp[k]
-          B0temp[k] += B₀[i,j]*σtmp[k]
+          B0temp[k] += B₀[i,j]*gtmp[k]
         end
       end
       for j in eachindex(u)
@@ -564,11 +564,11 @@ function sde_solve{uType<:AbstractArray,uEltype<:Number,Nm1,N,tType<:Number,tabl
 
     for i = 1:stages
       f(t+c₀[i]*Δt,H0[i],ftmp)
-      σ(t+c₁[i]*Δt,H0[i],σtmp)
+      g(t+c₁[i]*Δt,H0[i],gtmp)
       for j in eachindex(u)
         atemp[j] += α[i]*ftmp[j]
-        btemp[j] += (β₁[i]*ΔW[j])*σtmp[j]
-        E₂[j]    += (β₂[i]*chi2[j])*σtmp[j]
+        btemp[j] += (β₁[i]*ΔW[j])*gtmp[j]
+        E₂[j]    += (β₂[i]*chi2[j])*gtmp[j]
         E₁temp[j] += ftmp[j]
       end
     end
@@ -602,7 +602,7 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
       B0temp = zero(u)
       for j = 1:i-1
         A0temp += A₀[i,j]*f(t + c₀[j]*Δt,H0[j])
-        B0temp += B₀[i,j]*σ(t + c₁[j]*Δt,H0[j]) #H0[..,i] argument ignored
+        B0temp += B₀[i,j]*g(t + c₁[j]*Δt,H0[j]) #H0[..,i] argument ignored
       end
       H0[i] = u + A0temp*Δt + B0temp.*chi2
     end
@@ -615,8 +615,8 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     for i = 1:stages
       ftemp = f(t+c₀[i]*Δt,H0[i])
       atemp += α[i]*ftemp
-      btemp += (β₁[i]*ΔW ).*σ(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
-      E₂    += (β₂[i]*chi2).*σ(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
+      btemp += (β₁[i]*ΔW ).*g(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
+      E₂    += (β₂[i]*chi2).*g(t+c₁[i]*Δt,H0[i]) #H0[..,i] argument ignored
 
       E₁temp += ftemp
     end
@@ -642,13 +642,13 @@ function sde_solve{uType<:Number,uEltype<:Number,Nm1,N,tType<:Number,tableauType
     chi2 = .5*(ΔW + ΔZ/sqrt(3)) #I_(1,0)/h
     H0[:]=zeros(stages)
     for i = 1:stages
-      H0[i] = u + Δt*dot(vec(A₀[i,:]),f(t + c₀*Δt,H0)) + chi2*dot(vec(B₀[i,:]),σ(t+c₁*Δt,H0))
+      H0[i] = u + Δt*dot(vec(A₀[i,:]),f(t + c₀*Δt,H0)) + chi2*dot(vec(B₀[i,:]),g(t+c₁*Δt,H0))
     end
     fVec = f(t+c₀*Δt,H0)
     E₁ = Δt*(fVec[1]+fVec[2])
-    E₂ = dot(β₂*chi2,σ(t+c₁*Δt,H0))
+    E₂ = dot(β₂*chi2,g(t+c₁*Δt,H0))
 
-    u = u + Δt*dot(α,f(t+c₀*Δt,H0)) + dot(β₁*ΔW,σ(t+c₁*Δt,H0)) + E₂
+    u = u + Δt*dot(α,f(t+c₀*Δt,H0)) + dot(β₁*ΔW,g(t+c₁*Δt,H0)) + E₂
 
     @sde_loopfooter
   end
