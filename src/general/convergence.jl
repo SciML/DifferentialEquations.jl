@@ -39,14 +39,14 @@ A type which holds the data from a convergence simulation.
 * `convergence_axis`: The axis along which convergence is calculated. For example, if
    we calculate the Δt convergence, convergence_axis is the Δts used in the calculation.
 """
-type ConvergenceSimulation
-  solutions::Array{DESolution}
+type ConvergenceSimulation{SolType<:DESolution}
+  solutions::Array{SolType}
   errors
   N
   auxdata
   𝒪est
   convergence_axis
-  function ConvergenceSimulation(solutions::Array{DESolution},convergence_axis;auxdata=nothing)
+  function ConvergenceSimulation{SolType<:DESolution}(solutions::Array{SolType},convergence_axis;auxdata=nothing)
     N = size(solutions,1)
     uEltype = eltype(solutions[1].u)
     errors = Dict() #Should add type information
@@ -63,9 +63,6 @@ type ConvergenceSimulation
     𝒪est = 𝒪esttmp
     return(new(solutions,errors,N,auxdata,𝒪est,convergence_axis))
   end
-end
-function ConvergenceSimulation(solutions::Array{SDESolution},convergence_axis;auxdata=nothing)
-  ConvergenceSimulation(convert(Array{DESolution},solutions),convergence_axis;auxdata=auxdata)
 end
 
 """
@@ -109,7 +106,7 @@ solved over the given Δts.
 """
 function test_convergence(Δts::AbstractArray,prob::ODEProblem;tspan=[0,1],save_timeseries=true,adaptive=false,kwargs...)
   N = length(Δts)
-  solutions = DESolution[solve(prob::ODEProblem,tspan;Δt=Δts[i],save_timeseries=save_timeseries,adaptive=adaptive,kwargs...) for i=1:N]
+  solutions = [solve(prob::ODEProblem,tspan;Δt=Δts[i],save_timeseries=save_timeseries,adaptive=adaptive,kwargs...) for i=1:N]
   auxdata = Dict(:Δts =>  Δts)
   ConvergenceSimulation(solutions,Δts,auxdata=auxdata)
 end
@@ -129,7 +126,7 @@ axis is the axis along which convergence is calculated. For example, when testin
 """
 function test_convergence(Δts::AbstractArray,Δxs::AbstractArray,prob::HeatProblem,convergence_axis;T=1,alg=:Euler)
   if length(Δts)!=length(Δxs) error("Lengths of Δts!=Δxs. Invalid convergence simulation") end
-  solutions = DESolution[solve(parabolic_squaremesh([0 1 0 1],Δxs[i],Δts[i],T,:dirichlet),prob,alg=alg) for i in eachindex(Δts)]
+  solutions = [solve(parabolic_squaremesh([0 1 0 1],Δxs[i],Δts[i],T,:dirichlet),prob,alg=alg) for i in eachindex(Δts)]
   auxdata = Dict(
             :Δts => [sol.fem_mesh.Δt for sol in solutions],
             :Δxs => [sol.fem_mesh.Δx for sol in solutions],
@@ -149,7 +146,7 @@ Tests the convergence of the solver algorithm on the given Poisson problem with
 * `solver`: Which solver to use. Default is "Direct".
 """
 function test_convergence(Δxs::AbstractArray,prob::PoissonProblem)
-  solutions = DESolution[solve(notime_squaremesh([0 1 0 1],Δxs[i],:dirichlet),prob,solver=:Direct) for i in eachindex(Δxs)]
+  solutions = [solve(notime_squaremesh([0 1 0 1],Δxs[i],:dirichlet),prob,solver=:Direct) for i in eachindex(Δxs)]
   auxdata = Dict("Δxs" => [sol.fem_mesh.Δx for sol in solutions])
   return(ConvergenceSimulation(solutions,Δxs,auxdata=auxdata))
 end

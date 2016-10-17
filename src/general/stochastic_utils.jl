@@ -37,22 +37,22 @@ function monteCarloSim(prob::AbstractSDEProblem,tspan=[0,1];numMonte=10000,save_
   if prob.knownanalytic
     N = size(solutions,1)
     errors = Dict() #Should add type information
-    means  = Dict()
-    medians= Dict()
+    error_means  = Dict()
+    error_medians= Dict()
     for k in keys(solutions[1].errors)
       errors[k] = reshape(Float64[sol.errors[k] for sol in solutions],size(solutions)...)
-      means[k] = mean(errors[k])
-      medians[k]=median(errors[k])
+      error_means[k] = mean(errors[k])
+      error_medians[k]=median(errors[k])
     end
   end
-  return(MonteCarloSimulation(solutions,errors,means,medians,N,elapsedTime))
+  return(MonteCarloSimulation(solutions,errors,error_means,error_medians,N,elapsedTime))
 end
 
 type MonteCarloSimulation
   solutions::Array{SDESolution}
   errors
-  means
-  medians
+  error_means
+  error_medians
   N
   elapsedTime
 end
