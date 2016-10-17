@@ -35,7 +35,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 
 For a full list of algorithms, please see the solver documentation.
 """
-function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
+function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[],ts=[],ks=[];kwargs...)
   if tspan[end]-tspan[1]<0
     tspan = vec(tspan)
     error("final time must be greater than starting time. Aborting.")
@@ -205,11 +205,24 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
       ksEltype = rateType # Makes simple_dense
     end
 
+    timeseries = convert(Vector{uType},timeseries)
+    ts = convert(Vector{tType},ts)
+    ks = convert(Vector{ksEltype},ks)
+    if length(timeseries) == 0
+      push!(timeseries,copy(u))
+    else
+      timeseries[1] = copy(u)
+    end
+
+    if length(ts) == 0
+      push!(ts,t)
+    else
+      timeseries[1] = copy(u)
+    end
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
-    #println(@code_typed ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck)))
+    #println(@code_typed ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck,timeseries,ts,ks)))
 
-    u,t,timeseries,ts,ks = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck))
-
+    u,t = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck,timeseries,ts,ks))
     if ts[end] != t
       push!(ts,t)
       push!(timeseries,u)

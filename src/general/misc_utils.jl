@@ -8,6 +8,15 @@ function recursivecopy!{T<:AbstractArray,N}(b::Array{T,N},a::Array{T,N})
   end
 end
 
+@inline function pushat!(a::AbstractVector,i::Int,x)
+  if length(a) >= i
+    a[i] = x
+  else
+    push!(a,x)
+  end
+  nothing
+end
+
 """
 `numparameters(f)`
 
