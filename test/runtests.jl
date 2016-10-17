@@ -69,6 +69,9 @@ println("ODE Feagin Tests")
 println("ODE Number Type Tests")
 @time @test include("ode/ode_numbertype_tests.jl")
 
+#DAE
+println("Resrob DAE Tests")
+@time @test include("dae/dae_resrob_tests.jl")
 
 #SDE
 println("Linear SDE Tests")

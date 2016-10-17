@@ -5,7 +5,7 @@ A type which holds the data from a convergence simulation.
 
 ### Fields
 
-* `solutions::Array{DESolution}`: Holds all the PdeSolutions.
+* `solutions::Array{<:DESolution}`: Holds all the PdeSolutions.
 * `errors`: Dictionary of the error calculations. Can contain:
 
     - `h1Errors`: Vector of the H1 errors.
@@ -46,23 +46,24 @@ type ConvergenceSimulation{SolType<:DESolution}
   auxdata
   𝒪est
   convergence_axis
-  function ConvergenceSimulation(solutions,convergence_axis;auxdata=nothing)
-    N = size(solutions,1)
-    uEltype = eltype(solutions[1].u)
-    errors = Dict() #Should add type information
-    for k in keys(solutions[1].errors)
-      errors[k] = reshape(uEltype[sol.errors[k] for sol in solutions],size(solutions)...)
-    end
-    𝒪est = Dict(map(calc𝒪estimates,errors))
-    𝒪esttmp = Dict() #Makes Dict of Any to be more compatible
-    for (k,v) in 𝒪est
-      if length(v)==1 push!(𝒪esttmp,Pair(k,v[1]))
-      else push!(𝒪esttmp,Pair(k,v))
-      end
-    end
-    𝒪est = 𝒪esttmp
-    return(new(solutions,errors,N,auxdata,𝒪est,convergence_axis))
+end
+
+function ConvergenceSimulation(solutions,convergence_axis;auxdata=nothing)
+  N = size(solutions,1)
+  uEltype = eltype(solutions[1].u)
+  errors = Dict() #Should add type information
+  for k in keys(solutions[1].errors)
+    errors[k] = reshape(uEltype[sol.errors[k] for sol in solutions],size(solutions)...)
   end
+  𝒪est = Dict(map(calc𝒪estimates,errors))
+  𝒪esttmp = Dict() #Makes Dict of Any to be more compatible
+  for (k,v) in 𝒪est
+    if length(v)==1 push!(𝒪esttmp,Pair(k,v[1]))
+    else push!(𝒪esttmp,Pair(k,v))
+    end
+  end
+  𝒪est = 𝒪esttmp
+  return(ConvergenceSimulation(solutions,errors,N,auxdata,𝒪est,convergence_axis))
 end
 
 """

@@ -3,8 +3,9 @@ __precompile__()
 module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
-        ChunkedArrays, InplaceOps, SIUnits
+        ChunkedArrays, InplaceOps, SIUnits, Sundials
   import Base: length, size, getindex, endof, show, print, max, linspace
+  import Plots: plot
   import ForwardDiff.Dual
 
   "`DEProblem`: Defines differential equation problems via its internal functions"
@@ -15,6 +16,7 @@ module DifferentialEquations
   abstract AbstractDDEProblem <: DEProblem
   "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
+  abstract AbstractODESolution <: DESolution
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
@@ -61,15 +63,17 @@ module DifferentialEquations
   include("ode/ode_callbacks.jl")
   include("ode/ode_solve.jl")
   include("ode/ode_dense.jl")
+  include("dae/dae_solve.jl")
   include("sde/sde_tableaus.jl")
   include("general/benchmark.jl")
   include("general/plotrecipes.jl")
 
   #Types
   export DEProblem, DESolution, DEParameters, HeatProblem, PoissonProblem, FEMSolution, Mesh,
-         ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
-         SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau, MonteCarloSimulation,
-         ImplicitRKTableau, Shootout, ShootoutSet,AbstractODEProblem, AbstractSDEProblem
+         ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, DAEProblem,
+         DAESolution, SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau,
+         MonteCarloSimulation,ImplicitRKTableau, Shootout, ShootoutSet,AbstractODEProblem,
+         AbstractSDEProblem
 
   #SDE Example Problems
   export prob_sde_wave, prob_sde_linear, prob_sde_cubic, prob_sde_2Dlinear, prob_sde_lorenz,
@@ -89,6 +93,9 @@ module DifferentialEquations
           prob_poisson_birthdeathinteractingsystem, prob_femheat_birthdeathinteractingsystem,
           prob_femheat_birthdeathsystem, prob_femheat_diffusionconstants,
           heatProblemExample_grayscott,heatProblemExample_gierermeinhardt
+
+  #DAE Example Problems
+  export prob_dae_resrob
 
   #Example Meshes
   export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,
