@@ -11,6 +11,8 @@ module DifferentialEquations
   abstract DEProblem
   abstract AbstractODEProblem <: DEProblem
   abstract AbstractSDEProblem <: DEProblem
+  abstract AbstractDAEProblem <: DEProblem
+  abstract AbstractDDEProblem <: DEProblem
   "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
