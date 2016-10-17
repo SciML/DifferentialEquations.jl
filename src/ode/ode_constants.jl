@@ -46,7 +46,7 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
                                  :β=>nothing,
                                  :expo1=>nothing, #alpha
                                  :timechoicealg=>:Lund,
-                                 :maxiters => round(Int,1e9),
+                                 :maxiters => 10000,
                                  :Δtmax=>nothing,
                                  :Δtmin=>nothing,
                                  :autodiff=>true,

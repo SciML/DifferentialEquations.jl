@@ -31,7 +31,6 @@ module DifferentialEquations
   #Constants
 
   const TEST_FLOPS_CUTOFF = 1e10
-  const atomloaded = isdefined(Main,:Atom)
   const initialized_backends = Set{Symbol}()
 
   include("general/units.jl")
