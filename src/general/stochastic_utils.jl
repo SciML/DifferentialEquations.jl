@@ -10,6 +10,17 @@ function getNoise(u,node,elem;noisetype=:White)
 end
 
 """
+construct_correlated_noisefunc(Γ::AbstractArray)
+
+Takes in a constant Covariance matrix Γ and spits out the noisefunc.
+"""
+function construct_correlated_noisefunc(Γ::AbstractArray)
+  γ = svdfact(Γ)
+  A = γ[:U]*Diagonal(√γ[:S])
+  noisefunc = (N...) -> A*randn(N...)
+end
+
+"""
 `monteCarloSim(Δt::Number,prob::SDEProblem)`
 
 Performs a parallel Monte-Carlo simulation to solve the SDE problem with Δt numMonte times.
@@ -18,11 +29,10 @@ Returns a vector of solution objects.
 ### Keyword Arguments
 * `T` - Final time. Default is 1.
 * `numMonte` - Number of Monte-Carlo simulations to run. Default is 10000
-* `save_timeseries` - Denotes whether save_timeseries should be turned on in each run. Default is true.
-* `alg` - Algorithm for solving the SDEs. Default is "EM"
+* `save_timeseries` - Denotes whether save_timeseries should be turned on in each run. Default is false.
 """
-function monteCarloSim(prob::SDEProblem;Δt::Number=0,tspan=[0,1],numMonte=10000,save_timeseries=false,kwargs...)
-  elapsedTime = @elapsed solutions = pmap((i)->solve(prob,tspan,Δt=Δt,save_timeseries=save_timeseries,kwargs...),1:numMonte)
+function monteCarloSim(prob::AbstractSDEProblem,tspan=[0,1];numMonte=10000,save_timeseries=false,kwargs...)
+  elapsedTime = @elapsed solutions = pmap((i)->solve(prob,tspan;save_timeseries=save_timeseries,kwargs...),1:numMonte)
   solutions = convert(Array{SDESolution},solutions)
   if prob.knownanalytic
     N = size(solutions,1)

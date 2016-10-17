@@ -53,4 +53,4 @@ Plots.gui()
 
 Here is the plot shown against the analytical solution to show the accuracy:
 
-![Poisson Example Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introductionExample.png)
+![Poisson Example Solution](../assets/introductionExample.png)
