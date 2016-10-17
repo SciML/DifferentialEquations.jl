@@ -223,6 +223,7 @@ folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/exam
 Pages = [
     "tutorials/ode_example.md",
     "tutorials/sde_example.md",
+    "tutorials/dae_example.md",
     "tutorials/fempoisson_example.md",
     "tutorials/femheat_example.md",
     "tutorials/femstochastic_example.md"

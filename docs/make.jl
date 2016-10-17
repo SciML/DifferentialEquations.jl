@@ -17,6 +17,7 @@ makedocs(modules=[DifferentialEquations],
          "Solver Options" => Any[
            "solvers/ode_solve.md",
            "solvers/sde_solve.md",
+           "solvers/dae_solve.md",
            "solvers/fempoisson_solve.md",
            "solvers/femheat_solve.md",
            "solvers/fdmstokes_solve.md"
