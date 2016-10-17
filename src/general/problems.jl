@@ -416,7 +416,7 @@ end
 Wraps the data which defines an DAE problem
 
 ```math
-f(t,u,du₀) = 0
+f(t,u,du) = 0
 ```
 
 with initial conditions ``u₀`` and ``du₀``.
@@ -436,7 +436,7 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type DAEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number,rateType<:Union{AbstractArray,Number}} <: AbstractODEProblem
+type DAEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number,rateType<:Union{AbstractArray,Number}} <: AbstractDAEProblem
   f::Function
   u₀::uType
   du₀::rateType

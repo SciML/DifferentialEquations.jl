@@ -368,7 +368,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
         ts = float([ts;Ts[1:end-1]])
         sort(ts)
       end
-      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator)
+      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator,abstol=float(abstol),reltol=float(reltol))
       timeseries = Vector{uType}(0)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
@@ -396,27 +396,6 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   else
     return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
   end
-  #=
-
-  if knownanalytic
-    u_analytic = analytic(t,u₀)
-    if save_timeseries
-      timeseries_analytic = Vector{uType}(0)
-      for i in 1:size(timeseries,1)
-        push!(timeseries_analytic,analytic(ts[i],u₀))
-      end
-      return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
-    else
-      return(ODESolution(u,u_analytic,prob,alg))
-    end
-  else #No known analytic
-    if save_timeseries
-      return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
-    else
-      return(ODESolution(u,prob,alg))
-    end
-  end
-  =#
 end
 
 function buildOptions(o,optionlist,aliases,aliases_reversed)
