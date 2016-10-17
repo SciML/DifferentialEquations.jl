@@ -25,7 +25,7 @@ Solves the DAE as defined by prob on the time interval tspan. If not given, tspa
 """
 function solve(prob::AbstractDAEProblem,tspan::AbstractArray=[0,1];Δt::Number=0.0,save_timeseries::Bool = true,
               timeseries_steps::Int = 1,alg=nothing,adaptive=false,γ=2.0,alg_hint=nothing,
-              abstol=1e-3,reltol=1e-6,qmax=1.125,maxiters::Int = round(Int,1e9),
+              abstol=1e-3,reltol=1e-6,qmax=1.125,maxiters::Int = round(Int,1e5),
               Δtmax=nothing,Δtmin=nothing,progress_steps=1000,internalnorm=2, saveat=[],
               progressbar=false,tType=typeof(Δt))
 
