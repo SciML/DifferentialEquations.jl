@@ -42,11 +42,11 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
                                  :qmax=>nothing,
                                  :qmin=>nothing,
                                  :qoldinit=>1//10^4, #facold
-                                 :fullnormalize=>false,
+                                 :fullnormalize=>true,
                                  :β=>nothing,
                                  :expo1=>nothing, #alpha
                                  :timechoicealg=>:Lund,
-                                 :maxiters => round(Int,1e9),
+                                 :maxiters => 10000,
                                  :Δtmax=>nothing,
                                  :Δtmin=>nothing,
                                  :autodiff=>true,
@@ -56,7 +56,7 @@ const DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS = Dict(:Δt => 0.0,
                                  :callback=>nothing)
 
 const ODEJL_OPTION_LIST = Set([:tout,:tstop,:reltol,:abstol,:minstep,:maxstep,:initstep,:norm,:maxiters,:isoutofdomain])
-const ODEJL_ALIASES = Dict{Symbol,Symbol}(:minstep=>:Δtmin,:maxstep=>:Δtmax,:initstep=>:Δt,:tstop=>:T)
+const ODEJL_ALIASES = Dict{Symbol,Symbol}(:minstep=>:Δtmin,:maxstep=>:Δtmax,:initstep=>:Δt,:tstop=>:T,:maxiters=>:maxiters)
 const ODEJL_ALIASES_REVERSED = Dict{Symbol,Symbol}([(v,k) for (k,v) in ODEJL_ALIASES])
 
 const SUNDIALS_OPTION_LIST = Set([:reltol,:abstol])

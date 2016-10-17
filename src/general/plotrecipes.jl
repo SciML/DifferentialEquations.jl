@@ -36,51 +36,11 @@ end
   sol.fem_mesh.node[:,1], sol.fem_mesh.node[:,2], out
 end
 
-@recipe function f(sol::SDESolution;plot_analytic=false)
-  plotseries = Vector{Any}(0)
-  if typeof(sol.u) <:AbstractArray
-    for i in eachindex(sol.u)
-      tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
-      for j in 1:length(sol.timeseries)
-        tmp[j] = sol.timeseries[j][i]
-      end
-      push!(plotseries,tmp)
-    end
-  else
-    push!(plotseries,sol.timeseries)
-  end
-  if plot_analytic
-    if typeof(sol.u) <: AbstractArray
-      for i in eachindex(sol.u)
-        tmp = Vector{eltype(sol.u)}(length(sol.timeseries))
-        for j in 1:length(sol.timeseries)
-          tmp[j] = sol.timeseries_analytic[j][i]
-        end
-        push!(plotseries,tmp)
-      end
-    else
-      push!(plotseries,sol.timeseries_analytic)
-    end
-  end
-  for i in eachindex(plotseries)
-    if eltype(plotseries[i]) <: SIUnits.SIQuantity
-      plotseries[i] = map((x)->x.val,plotseries[i])
-    end
-  end
-  seriestype --> :path
-  lw --> 3
-  xtickfont --> font(11)
-  ytickfont --> font(11)
-  legendfont --> font(11)
-  guidefont  --> font(11)
-  #layout --> length(u)
-  sol.t, plotseries
-end
-
-@recipe function f(sol::ODESolution;plot_analytic=false,denseplot=true,plotdensity=100)
+@recipe function f(sol::AbstractODESolution;plot_analytic=false,denseplot=true,plotdensity=100)
+  if typeof(sol) <: SDESolution; denseplot=false; end
   plotseries = Vector{Any}(0)
 
-  if sol.dense && denseplot # Generate the points from the plot from dense function
+  if denseplot && sol.dense # Generate the points from the plot from dense function
     plott = collect(linspace(sol.t[1],sol.t[end],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic

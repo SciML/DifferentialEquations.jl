@@ -35,7 +35,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 
 For a full list of algorithms, please see the solver documentation.
 """
-function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProblem{uType,uEltype},tspan::AbstractArray=[0,1];kwargs...)
+function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   if tspan[end]-tspan[1]<0
     tspan = vec(tspan)
     error("final time must be greater than starting time. Aborting.")
@@ -45,6 +45,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   o[:t] = tspan[1]
   o[:Ts] = tspan[2:end]
   @unpack u₀,knownanalytic,analytic,numvars,isinplace = prob
+
+  uType = typeof(u₀)
+  uEltype = eltype(u₀)
 
   command_opts = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   for (k,v) in o
@@ -112,7 +115,11 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       o[:Δtmax] = tType((tspan[end]-tspan[1]))
     end
     if o[:Δtmin] == nothing
-      o[:Δtmin] = tType(1//10^(10))
+      if tType <: AbstractFloat
+        o[:Δtmin] = tType(10)*eps(tType)
+      else
+        o[:Δtmin] = tType(1//10^(10))
+      end
     end
     if o[:fullnormalize] == true
       normfactor = uEltype(1/length(u))
@@ -153,9 +160,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Threaded
-        β = 0.04 # More than Hairer's suggestion
+        β = 0.04
       elseif alg == :DP8 || alg == :DP8Vectorized
-        β = 0.07 # More than Hairer's suggestion
+        β = 0.00
       else
         β = 0.4 / order
       end
@@ -238,6 +245,17 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,f!,[t;Ts],vec(u),opts)
     elseif alg==:radau5
       ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,f!,[t;Ts],vec(u),opts)
+    end
+    if retcode < 0
+      if retcode == -1
+        warn("Input is not consistent.")
+      elseif retcode == -2
+        warn("Interrupted. Larger maxiters is needed.")
+      elseif retcode == -3
+        warn("Step size went too small.")
+      elseif retcode == -4
+        warn("Interrupted. Problem is probably stiff.")
+      end
     end
     t = ts[end]
     if typeof(u₀)<:AbstractArray
@@ -350,7 +368,7 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
         ts = float([ts;Ts[1:end-1]])
         sort(ts)
       end
-      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator)
+      vectimeseries = Sundials.cvode(f!,vec(u),ts,integrator=integrator,abstol=float(abstol),reltol=float(reltol))
       timeseries = Vector{uType}(0)
       if typeof(u₀)<:AbstractArray
         for i=1:size(vectimeseries,1)
@@ -378,27 +396,6 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   else
     return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
   end
-  #=
-
-  if knownanalytic
-    u_analytic = analytic(t,u₀)
-    if save_timeseries
-      timeseries_analytic = Vector{uType}(0)
-      for i in 1:size(timeseries,1)
-        push!(timeseries_analytic,analytic(ts[i],u₀))
-      end
-      return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
-    else
-      return(ODESolution(u,u_analytic,prob,alg))
-    end
-  else #No known analytic
-    if save_timeseries
-      return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
-    else
-      return(ODESolution(u,prob,alg))
-    end
-  end
-  =#
 end
 
 function buildOptions(o,optionlist,aliases,aliases_reversed)
@@ -425,7 +422,7 @@ function ode_determine_initΔt(u₀::AbstractArray,t,abstol,reltol,internalnorm,
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
   else
-    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order))
   end
   Δt = min(100Δt₀,Δt₁)
 end
@@ -445,7 +442,7 @@ function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order
   if max(d₁,d₂)<=1//10^(15)
     Δt₁ = max(1//10^(6),Δt₀*1//10^(3))
   else
-    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order+1))
+    Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order))
   end
   Δt = min(100Δt₀,Δt₁)
 end

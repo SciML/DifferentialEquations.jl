@@ -3,14 +3,20 @@ __precompile__()
 module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
-        ChunkedArrays, InplaceOps, SIUnits
+        ChunkedArrays, InplaceOps, SIUnits, Sundials
   import Base: length, size, getindex, endof, show, print, max, linspace
+  import Plots: plot
   import ForwardDiff.Dual
 
-  "`PdeProblem`: Defines differential equation problems via its internal functions"
+  "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
+  abstract AbstractODEProblem <: DEProblem
+  abstract AbstractSDEProblem <: DEProblem
+  abstract AbstractDAEProblem <: DEProblem
+  abstract AbstractDDEProblem <: DEProblem
   "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
+  abstract AbstractODESolution <: DESolution
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
@@ -29,7 +35,6 @@ module DifferentialEquations
   #Constants
 
   const TEST_FLOPS_CUTOFF = 1e10
-  const atomloaded = isdefined(Main,:Atom)
   const initialized_backends = Set{Symbol}()
 
   include("general/units.jl")
@@ -41,6 +46,7 @@ module DifferentialEquations
   include("fem/fem_assembly.jl")
   include("fem/fem_boundary.jl")
   include("fem/fem_error.jl")
+  include("sde/sde_noise_process.jl")
   include("general/problems.jl")
   include("general/solutions.jl")
   include("general/stochastic_utils.jl")
@@ -57,15 +63,17 @@ module DifferentialEquations
   include("ode/ode_callbacks.jl")
   include("ode/ode_solve.jl")
   include("ode/ode_dense.jl")
+  include("dae/dae_solve.jl")
   include("sde/sde_tableaus.jl")
   include("general/benchmark.jl")
   include("general/plotrecipes.jl")
 
   #Types
   export DEProblem, DESolution, DEParameters, HeatProblem, PoissonProblem, FEMSolution, Mesh,
-         ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem,
-         SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau, MonteCarloSimulation,
-         ImplicitRKTableau, Shootout, ShootoutSet
+         ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, DAEProblem,
+         DAESolution, SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau,
+         MonteCarloSimulation,ImplicitRKTableau, Shootout, ShootoutSet,AbstractODEProblem,
+         AbstractSDEProblem
 
   #SDE Example Problems
   export prob_sde_wave, prob_sde_linear, prob_sde_cubic, prob_sde_2Dlinear, prob_sde_lorenz,
@@ -86,6 +94,9 @@ module DifferentialEquations
           prob_femheat_birthdeathsystem, prob_femheat_diffusionconstants,
           heatProblemExample_grayscott,heatProblemExample_gierermeinhardt
 
+  #DAE Example Problems
+  export prob_dae_resrob
+
   #Example Meshes
   export  meshExample_bunny, meshExample_flowpastcylindermesh, meshExample_lakemesh,
           meshExample_Lshapemesh, meshExample_Lshapeunstructure, meshExample_oilpump,
@@ -98,7 +109,10 @@ module DifferentialEquations
   export  plot, animate, stability_region
 
   #General Functions
-  export appxTrue!, accumarray, solve, test_convergence, monteCarloSim
+  export appxTrue!, accumarray, solve, test_convergence
+
+  #Stochastic Utils
+  export monteCarloSim, construct_correlated_noisefunc, WHITE_NOISE, NoiseProcess
 
   #FEM Functions
   export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,

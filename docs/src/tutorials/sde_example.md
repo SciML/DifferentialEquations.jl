@@ -7,10 +7,10 @@ folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/exam
 In this example we will solve the equation
 
 ```math
-du = f(t,u)dt + Σσᵢ(t,u)dWⁱ
+du = f(t,u)dt + Σgᵢ(t,u)dWⁱ
 ```
 
-where ``f(t,u)=αu`` and ``σ(t,u)=βu``. We know via Stochastic Calculus that the
+where ``f(t,u)=αu`` and ``g(t,u)=βu``. We know via Stochastic Calculus that the
 solution to this equation is ``u(t,W)=u₀\exp((α-\frac{β^2}{2})t+βW)``. To solve this
 numerically, we define a problem type by giving it the equation and the initial
 condition:
@@ -21,7 +21,7 @@ using DifferentialEquations
 β=1
 u₀=1/2
 f(t,u) = α*u
-σ(t,u) = β*u
+g(t,u) = β*u
 Δt = 1//2^(4) #The initial timestepping size. It will automatically assigned if not given.
 tspan = [0,1] # The timespan. This is the default if not given.
 ```
@@ -33,7 +33,7 @@ of the algorithms for methods developers. Thus we define the problem object with
 
 ```julia
 analytic(t,u₀,W) = u₀*exp((α-(β^2)/2)*t+β*W)
-prob = SDEProblem(f,σ,u₀,analytic=analytic)
+prob = SDEProblem(f,g,u₀,analytic=analytic)
 ```
 
 and then we pass this information to the solver and plot:
@@ -44,7 +44,7 @@ sol =solve(prob::SDEProblem,tspan,Δt=Δt,alg=:EM)
 plot(sol,plot_analytic=true)
 ```
 
-![SDE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introSDEplot.png)
+![SDE Solution](../assets/introSDEplot.png)
 
 We can choose a higher-order solver for a more accurate result:
 
@@ -53,4 +53,4 @@ sol =solve(prob::SDEProblem,tspan,Δt=Δt,alg=:SRIW1Optimized)
 plot(sol,plot_analytic=true)
 ```
 
-![Better SDE Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introSDEplotSRI.png)
+![Better SDE Solution](../assets/introSDEplotSRI.png)
