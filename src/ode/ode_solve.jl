@@ -69,7 +69,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   if :alg ∈ keys(o)
     alg = o[:alg]
   else
-    alg = :DP5 # Default algorithm
+    alg = plan_ode(command_opts[:alg_hint],command_opts[:abstol],command_opts[:reltol])
   end
   if alg ∈ DIFFERENTIALEQUATIONSJL_ALGORITHMS
     o2 = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
@@ -445,4 +445,8 @@ function ode_determine_initΔt(u₀::Number,t,abstol,reltol,internalnorm,f,order
     Δt₁ = 10.0^(-(2+log10(max(d₁,d₂)))/(order))
   end
   Δt = min(100Δt₀,Δt₁)
+end
+
+function plan_ode(alg_hint,abstol,reltol)
+  :DP5
 end
