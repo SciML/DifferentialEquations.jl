@@ -10,10 +10,10 @@ ODE_DEFAULT_CALLBACK
 
 All it does is call the saving functionality.
 """
-const ODE_DEFAULT_CALLBACK = function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+@inline function ODE_DEFAULT_CALLBACK(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
   @ode_savevalues
   reeval_fsal = false
-  cursaveat,Δt,t,T,reeval_fsal
+  cursaveat,saveiter,Δt,t,T,reeval_fsal
 end
 
 
