@@ -460,7 +460,7 @@ function DAEProblem(f::Function,u₀,du₀;analytic=nothing)
   else
     numvars = size(u₀)[end]
   end
-  DAEProblem{typeof(u₀),eltype(u₀)}(f,u₀,du₀,analytic,knownanalytic,numvars,isinplace)
+  DAEProblem{typeof(u₀),eltype(u₀),typeof(du₀)}(f,u₀,du₀,analytic,knownanalytic,numvars,isinplace)
 end
 
 
@@ -503,17 +503,4 @@ type StokesProblem
   trueknown::Bool
   StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic) = new(f₁,f₂,g,uanalytic,vanalytic,uanalytic,vanalytic,panalytic,true)
   StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
-end
-
-"""
-`numparameters(f)`
-
-Returns the number of parameters of `f` for the method which has the most parameters.
-"""
-function numparameters(f)
-  if length(methods(f))>1
-    warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
-  end
-  numparm = maximum([length(m.sig.parameters) for m in methods(f)]) #in v0.5, all are generic
-  return (numparm-1) #-1 in v0.5 since it adds f as the first parameter
 end
