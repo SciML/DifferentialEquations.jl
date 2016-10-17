@@ -48,6 +48,10 @@ saving the derivatives at two timesteps, and thus has a drastically reduced memo
 footprint than full dense output. Note that this, being associated with dense output,
 is only available for the ODE solvers.
 
+One fact to note is that `saveat` can be used even when `save_timeseries=false`.
+If this is done, then the only values that will be saved are the values chosen
+in `saveat` (matching Sundial's default behavior).
+
 Another way to specify an output location is to add that value to `tspan`. For example,
 we can force the solver to solve at `0.5` via `tspan=[0,0.5,1]`. However, notice that
 this will require that the solver actually hits `t=0.5`. In some cases this can slow

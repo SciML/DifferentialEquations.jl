@@ -112,7 +112,11 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       o[:Δtmax] = tType((tspan[end]-tspan[1]))
     end
     if o[:Δtmin] == nothing
-      o[:Δtmin] = tType(1//10^(10))
+      if tType <: AbstractFloat
+        o[:Δtmin] = tType(10)*eps(tType)
+      else
+        o[:Δtmin] = tType(1//10^(10))
+      end
     end
     if o[:fullnormalize] == true
       normfactor = uEltype(1/length(u))
@@ -153,9 +157,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
     end
     if o[:β] == nothing # Use default β
       if alg == :DP5 || alg == :DP5Threaded
-        β = 0.04 # More than Hairer's suggestion
+        β = 0.04
       elseif alg == :DP8 || alg == :DP8Vectorized
-        β = 0.07 # More than Hairer's suggestion
+        β = 0.00
       else
         β = 0.4 / order
       end
@@ -238,6 +242,17 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
       ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau,f!,[t;Ts],vec(u),opts)
     elseif alg==:radau5
       ts,vectimeseries,retcode,stats = ODEInterface.odecall(ODEInterface.radau5,f!,[t;Ts],vec(u),opts)
+    end
+    if retcode < 0
+      if retcode == -1
+        warn("Input is not consistent.")
+      elseif retcode == -2
+        warn("Interrupted. Larger maxiters is needed.")
+      elseif retcode == -3
+        warn("Step size went too small.")
+      elseif retcode == -4
+        warn("Interrupted. Problem is probably stiff.")
+      end
     end
     t = ts[end]
     if typeof(u₀)<:AbstractArray
