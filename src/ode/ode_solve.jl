@@ -35,7 +35,7 @@ Solves the ODE defined by prob on the interval tspan. If not given, tspan defaul
 
 For a full list of algorithms, please see the solver documentation.
 """
-function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProblem{uType,uEltype},tspan::AbstractArray=[0,1];kwargs...)
+function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1];kwargs...)
   if tspan[end]-tspan[1]<0
     tspan = vec(tspan)
     error("final time must be greater than starting time. Aborting.")
@@ -45,6 +45,9 @@ function solve{uType<:Union{AbstractArray,Number},uEltype<:Number}(prob::ODEProb
   o[:t] = tspan[1]
   o[:Ts] = tspan[2:end]
   @unpack u₀,knownanalytic,analytic,numvars,isinplace = prob
+
+  uType = typeof(u₀)
+  uEltype = eltype(u₀)
 
   command_opts = copy(DIFFERENTIALEQUATIONSJL_DEFAULT_OPTIONS)
   for (k,v) in o

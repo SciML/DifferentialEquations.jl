@@ -393,7 +393,7 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: DEProblem
+type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: AbstractODEProblem
   f::Function
   u₀::uType
   analytic::Function

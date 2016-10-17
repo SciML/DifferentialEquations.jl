@@ -9,8 +9,8 @@ module DifferentialEquations
 
   "`DEProblem`: Defines differential equation problems via its internal functions"
   abstract DEProblem
-  abstract AbstractODEProblem
-  abstract AbstractSDEProblem
+  abstract AbstractODEProblem <: DEProblem
+  abstract AbstractSDEProblem <: DEProblem
   "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
@@ -102,7 +102,7 @@ module DifferentialEquations
   export appxTrue!, accumarray, solve, test_convergence
 
   #Stochastic Utils
-  export monteCarloSim, construct_correlated_noisefunc
+  export monteCarloSim, construct_correlated_noisefunc, WHITE_NOISE
 
   #FEM Functions
   export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,
