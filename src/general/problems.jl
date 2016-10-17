@@ -1,11 +1,3 @@
-type NoiseProcess
-  noise_type
-  noise_func
-end
-
-const WHITE_NOISE = NoiseProcess(:Diagonal,randn)
-
-
 """
 `HeatProblem`
 
@@ -335,8 +327,7 @@ defines the solution if analytic is given.
 * `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
 * `sizeu`: The size of the initial condition (and thus `u`)
-* `noisefunc`: The function applied to the noise upon generation. The default is
-  `randn` which generates independent Brownian trajectories.
+* `noise`: The noise process applied to the noise upon generation.
 
 """
 type SDEProblem <: AbstractSDEProblem

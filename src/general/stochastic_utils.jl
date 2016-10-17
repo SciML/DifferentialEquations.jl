@@ -10,17 +10,6 @@ function getNoise(u,node,elem;noisetype=:White)
 end
 
 """
-construct_correlated_noisefunc(Γ::AbstractArray)
-
-Takes in a constant Covariance matrix Γ and spits out the noisefunc.
-"""
-function construct_correlated_noisefunc(Γ::AbstractArray)
-  γ = svdfact(Γ)
-  A = γ[:U]*Diagonal(√γ[:S])
-  noisefunc = (N...) -> A*randn(N...)
-end
-
-"""
 `monteCarloSim(Δt::Number,prob::SDEProblem)`
 
 Performs a parallel Monte-Carlo simulation to solve the SDE problem with Δt numMonte times.

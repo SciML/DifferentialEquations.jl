@@ -46,7 +46,7 @@ type ConvergenceSimulation{SolType<:DESolution}
   auxdata
   𝒪est
   convergence_axis
-  function ConvergenceSimulation{SolType<:DESolution}(solutions::Array{SolType},convergence_axis;auxdata=nothing)
+  function ConvergenceSimulation(solutions,convergence_axis;auxdata=nothing)
     N = size(solutions,1)
     uEltype = eltype(solutions[1].u)
     errors = Dict() #Should add type information

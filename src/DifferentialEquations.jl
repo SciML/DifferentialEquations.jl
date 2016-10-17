@@ -42,6 +42,7 @@ module DifferentialEquations
   include("fem/fem_assembly.jl")
   include("fem/fem_boundary.jl")
   include("fem/fem_error.jl")
+  include("sde/sde_noise_process.jl")
   include("general/problems.jl")
   include("general/solutions.jl")
   include("general/stochastic_utils.jl")
@@ -102,7 +103,7 @@ module DifferentialEquations
   export appxTrue!, accumarray, solve, test_convergence
 
   #Stochastic Utils
-  export monteCarloSim, construct_correlated_noisefunc, WHITE_NOISE
+  export monteCarloSim, construct_correlated_noisefunc, WHITE_NOISE, NoiseProcess
 
   #FEM Functions
   export  assemblematrix, findboundary, setboundary, findbdtype, getL2error, quadpts, getH1error,
