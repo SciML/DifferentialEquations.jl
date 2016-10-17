@@ -1,10 +1,10 @@
 macro ode_callback(ex)
   esc(quote
-    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+    function (alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
       reeval_fsal = false
       event_occured = false
       $(ex)
-      cursaveat,Δt,t,T,reeval_fsal
+      cursaveat,saveiter,Δt,t,T,reeval_fsal
     end
   end)
 end

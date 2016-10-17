@@ -1,11 +1,28 @@
 function recursivecopy!{T<:Number,N}(b::Array{T,N},a::Array{T,N})
-  copy!(b,a)
+  @inbounds copy!(b,a)
 end
 
 function recursivecopy!{T<:AbstractArray,N}(b::Array{T,N},a::Array{T,N})
-  for i in eachindex(a)
+  @inbounds for i in eachindex(a)
     recursivecopy!(b[i],a[i])
   end
+end
+
+@inline function copyat_or_push!{T}(a::AbstractVector{T},i::Int,x)
+  @inbounds if length(a) >= i
+    if T <: Number
+      a[i] = x
+    else
+      recursivecopy!(a[i],x)
+    end
+  else
+    if T <: Number
+      push!(a,copy(x))
+    else
+      push!(a,deepcopy(x))
+    end
+  end
+  nothing
 end
 
 """
