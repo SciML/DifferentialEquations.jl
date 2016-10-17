@@ -136,8 +136,7 @@ end
 @def ode_loopheader begin
   iter += 1
   if iter > maxiters
-    warn("Max Iters Reached. Aborting")
-    # u = map((x)->oftype(x,NaN),u)
+    warn("Interrupted. Larger maxiters is needed.")
     return u,t,timeseries,ts,ks
   end
   Δt = min(Δt,abs(T-t))

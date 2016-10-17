@@ -308,37 +308,39 @@ end
 Wraps the data which defines an SDE problem
 
 ```math
-u = f(u,t)dt + Σσᵢ(u,t)dWⁱ
+u = f(u,t)dt + Σgᵢ(u,t)dWⁱ
 ```
 
 with initial condition ``u₀``.
 
 ### Constructors
 
-`SDEProblem(f,σ,u₀;analytic=nothing)` : Defines the SDE with the specified functions and
+`SDEProblem(f,g,u₀;analytic=nothing)` : Defines the SDE with the specified functions and
 defines the solution if analytic is given.
 
 ### Fields
 
 * `f`: The drift function in the SDE.
-* `σ`: The noise function in the SDE.
+* `g`: The noise function in the SDE.
 * `u₀`: The initial condition.
 * `analytic`: A function which describes the solution.
 * `knownanalytic`: True if the solution is given.
 * `numvars`: The number of variables in the system
 * `sizeu`: The size of the initial condition (and thus `u`)
+* `noise`: The noise process applied to the noise upon generation.
 
 """
-type SDEProblem <: DEProblem
+type SDEProblem <: AbstractSDEProblem
   f::Function
-  σ::Function
+  g::Function
   u₀#::AbstractArray
   analytic::Function
   knownanalytic::Bool
   numvars::Int
   sizeu#::Tuple
   isinplace::Bool
-  function SDEProblem(f,σ,u₀;analytic=nothing)
+  noise::NoiseProcess
+  function SDEProblem(f,g,u₀;analytic=nothing,noise=WHITE_NOISE)
     isinplace = numparameters(f)>=3
     if analytic==nothing
       knownanalytic = false
@@ -353,14 +355,14 @@ type SDEProblem <: DEProblem
       sizeu = size(u₀)
       numvars = size(u₀)[end]
     end
-    new(f,σ,u₀,analytic,knownanalytic,numvars,sizeu,isinplace)
+    new(f,g,u₀,analytic,knownanalytic,numvars,sizeu,isinplace,noise)
   end
 end
 
 """
 `ODEProblem`
 
-Wraps the data which defines an SDE problem
+Wraps the data which defines an ODE problem
 
 ```math
 \\frac{du}{dt} = f(t,u)
@@ -370,7 +372,7 @@ with initial condition ``u₀``.
 
 ### Constructors
 
-`ODEProblem(f,u₀;analytic=nothing)` : Defines the SDE with the specified functions and
+`ODEProblem(f,u₀;analytic=nothing)` : Defines the ODE with the specified functions and
 defines the solution if analytic is given.
 
 ### Fields
@@ -382,7 +384,7 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: DEProblem
+type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: AbstractODEProblem
   f::Function
   u₀::uType
   analytic::Function
@@ -407,7 +409,60 @@ function ODEProblem(f::Function,u₀;analytic=nothing)
   end
   ODEProblem{typeof(u₀),eltype(u₀)}(f,u₀,analytic,knownanalytic,numvars,isinplace)
 end
-#ODEProblem{uType<:Union{AbstractArray,Number}}(f,u₀::uType,)
+
+"""
+`DAEProblem`
+
+Wraps the data which defines an DAE problem
+
+```math
+f(t,u,du) = 0
+```
+
+with initial conditions ``u₀`` and ``du₀``.
+
+### Constructors
+
+`DAEProblem(f,u₀,du₀;analytic=nothing)` : Defines the SDE with the specified functions and
+defines the solution if analytic is given.
+
+### Fields
+
+* `f`: The drift function in the DAE.
+* `u₀`: The initial condition.
+* `du₀`: The initial derivative.
+* `analytic`: A function which describes the solution.
+* `knownanalytic`: True if the solution is given.
+* `numvars`: The number of variables in the system
+
+"""
+type DAEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number,rateType<:Union{AbstractArray,Number}} <: AbstractDAEProblem
+  f::Function
+  u₀::uType
+  du₀::rateType
+  analytic::Function
+  knownanalytic::Bool
+  numvars::Int
+  isinplace::Bool
+end
+
+function DAEProblem(f::Function,u₀,du₀;analytic=nothing)
+  isinplace = numparameters(f)>=4
+  if analytic==nothing
+    knownanalytic = false
+    analytic=(t,u,du,out)->0
+  else
+    knownanalytic = true
+  end
+  if typeof(u₀) <: Number
+    sizeu = (1,)
+    numvars = 1
+  else
+    numvars = size(u₀)[end]
+  end
+  DAEProblem{typeof(u₀),eltype(u₀),typeof(du₀)}(f,u₀,du₀,analytic,knownanalytic,numvars,isinplace)
+end
+
 
 """
 `StokesProblem`
@@ -448,17 +503,4 @@ type StokesProblem
   trueknown::Bool
   StokesProblem(f₁,f₂,g,uanalytic,vanalytic,panalytic) = new(f₁,f₂,g,uanalytic,vanalytic,uanalytic,vanalytic,panalytic,true)
   StokesProblem(f₁,f₂,g,ugD,vgD) = new(f₁,f₂,g,ugD,vgD,nothing,nothing,nothing,false)
-end
-
-"""
-`numparameters(f)`
-
-Returns the number of parameters of `f` for the method which has the most parameters.
-"""
-function numparameters(f)
-  if length(methods(f))>1
-    warn("Number of methods for f is greater than 1. Choosing linearity based off of method with most parameters")
-  end
-  numparm = maximum([length(m.sig.parameters) for m in methods(f)]) #in v0.5, all are generic
-  return (numparm-1) #-1 in v0.5 since it adds f as the first parameter
 end

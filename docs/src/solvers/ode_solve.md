@@ -1,7 +1,7 @@
 # Ordinary Differential Equation Solvers
 
 ```@docs
-solve(::ODEProblem,::AbstractArray)
+solve(::AbstractODEProblem,::AbstractArray)
 ```
 
 ## Recommended Methods

@@ -45,9 +45,9 @@ sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04)
 
 
 # Should be identical
-sol1 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:DP5,β=0.04,expo1=.17,qmin=0.2,qmax=10.0,fullnormalize=true)
-sol2 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:ExplicitRK,β=0.04,expo1=.17,qmin=0.2,qmax=10.0,fullnormalize=true)
-sol3 =solve(prob::ODEProblem,[0,10],Δt=1/2^6,alg=:dopri5,β=0.04)
+sol1 =solve(prob::ODEProblem,[0,10],alg=:DP5)
+sol2 =solve(prob::ODEProblem,[0,10],alg=:ExplicitRK)
+sol3 =solve(prob::ODEProblem,[0,10],alg=:dopri5)
 
 push!(bools,length(sol1) == length(sol2) == length(sol3))
 
@@ -228,8 +228,8 @@ sol1 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8,adaptive=false,save_ti
 sol2 =solve(probnum::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8)
 
 # Should be identical
-sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8,β=0.08,expo1=0.109,qmin=0.333,qmax=6.0,fullnormalize=true)
-sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:dop853,β=0.08)
+sol1 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:DP8)
+sol2 =solve(probbig::ODEProblem,[0,10],Δt=1/2^6,alg=:dop853)
 
 push!(bools,length(sol1) == length(sol2))
 

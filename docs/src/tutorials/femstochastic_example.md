@@ -28,7 +28,7 @@ solve(prob)
 
 This gives the following plot (with adding the deterministic solution from the previous example):
 
-![Stochastic Poisson Example Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/introductionStochasticExample.png)
+![Stochastic Poisson Example Solution](../assets/introductionStochasticExample.png)
 
 ## Finite Element Stochastic Heat Equation
 
@@ -57,4 +57,4 @@ sol = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler,save_timeseries=true,
 animate(sol::FEMSolution;zlim=(0,3),cbar=false)
 ```
 
-![Stochastic Heat Solution](https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/stochasticHeatAnimation.gif)
+![Stochastic Heat Solution](../assets/stochasticHeatAnimation.gif)
