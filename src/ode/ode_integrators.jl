@@ -35,6 +35,9 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   callback::Function
   custom_callback::Bool
   calck::Bool
+  timeseries::Vector{uType}
+  ts::Vector{tType}
+  ks::Vector{ksEltype}
 end
 
 @def ode_preamble begin
@@ -44,6 +47,9 @@ end
   local Ts::Vector{tType}
   local adaptiveorder::Int
   @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg, callback, custom_callback,calck = integrator
+  timeseries = integrator.timeseries
+  ts = integrator.ts
+  ks = integrator.ks
   const calcprevs = !isempty(saveat) || custom_callback # Calculate the previous values
   const issimple_dense = (ksEltype==rateType) # Means ks[i] = f(t[i],timeseries[i]), for Hermite
 
@@ -51,6 +57,7 @@ end
 
   Tfinal = Ts[end]
   local iter::Int = 0
+  local saveiter::Int = 1 # Starts at 1 so first save is at 2
   sizeu = size(u)
   local utmp::uType
   local k::ksEltype
@@ -104,12 +111,6 @@ end
     @unpack abstol,reltol,qmax,Δtmax,Δtmin,internalnorm = integrator
   end
 
-  timeseries = Vector{uType}(0)
-
-  push!(timeseries,copy(u))
-  ts = Vector{tType}(0)
-  push!(ts,t)
-  ks = Vector{ksEltype}(0)
   if issimple_dense #If issimple_dense, then ks[1]=f(ts[1],timeseries[1])
     const kshortsize = 1
     if calck
@@ -149,34 +150,42 @@ end
   if !isempty(saveat) # Perform saveat
     while cursaveat <= length(saveat) && saveat[cursaveat]<= t
       if saveat[cursaveat]<t # If we already saved at the point, ignore it
+        saveiter += 1
         curt = saveat[cursaveat]
         ode_addsteps!(k,tprev,uprev,Δt,alg,f)
         Θ = (curt - tprev)/Δt
         val = ode_interpolant(Θ,Δt,uprev,u,kprev,k,alg)
-        push!(ts,curt)
-        push!(timeseries,val)
+        pushat!(ts,saveiter,curt)
+        pushat!(timeseries,saveiter,val)
       end
       cursaveat+=1
     end
   end
   if save_timeseries && iter%timeseries_steps==0
+    saveiter += 1
     if uEltype <: Number
-      push!(timeseries,copy(u))
+      pushat!(timeseries,saveiter,copy(u))
     else
-      push!(timeseries,deepcopy(u))
+      pushat!(timeseries,saveiter,deepcopy(u))
     end
-    push!(ts,t)
+    pushat!(ts,saveiter,t)
     if dense
       if ksEltype <: AbstractArray
-        push!(ks,deepcopy(k))
+        pushat!(ks,saveiter,deepcopy(k))
       else
-        push!(ks,copy(k))
+        pushat!(ks,saveiter,copy(k))
       end
     end
   end
   if !issimple_dense
     resize!(k,kshortsize)
   end
+end
+
+@def ode_postamble begin
+  resize!(timeseries,saveiter-1)
+  resize!(ts,saveiter-1)
+  resize!(ks,saveiter-1)
 end
 
 @def ode_loopfooter begin
@@ -198,7 +207,7 @@ end
         Δtpropose = min(Δtmax,Δtnew)
         Δtprev = Δt
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+        cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
 
         if fsal
           if reeval_fsal
@@ -255,7 +264,7 @@ end
         Δtpropose = min(Δtmax,q*Δt)
         Δtprev = Δt
         Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+        cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -284,7 +293,7 @@ end
       end
     end
     Δtprev = Δt
-    cursaveat,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+    cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
     if calcprevs
       # Store previous for interpolation
       tprev = t
@@ -339,7 +348,7 @@ function ode_solve{uType<:AbstractArray,uEltype<:Number,N,tType<:Number,uEltypeN
       @ode_loopfooter
     end
   end
-  return u,t,timeseries,ts,ks
+  return u,t
 end
 
 function ode_solve{uType<:Number,uEltype<:Number,N,tType<:Number,uEltypeNoUnits<:Number,rateType<:Number,ksEltype}(integrator::ODEIntegrator{:Midpoint,uType,uEltype,N,tType,uEltypeNoUnits,rateType,ksEltype})
