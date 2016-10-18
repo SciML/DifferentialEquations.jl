@@ -39,6 +39,8 @@ times ts (sorted), with values timeseries and derivatives ks
 """
 function ode_interpolation{alg}(tval::Number,ts,timeseries,ks,T::Type{Val{alg}},f)
   i = findfirst((x)->x>=tval,ts) # It's in the interval ts[i-1] to ts[i]
+  println(tval)
+  println(ts)
   if ts[i] == tval
     val = timeseries[i]
   elseif ts[i-1] == tval # Can happen if it's the first value!

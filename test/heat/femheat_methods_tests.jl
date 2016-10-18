@@ -76,7 +76,7 @@ T = 1//2^(5)
 Δt = 1//2^(11)
 fem_mesh = parabolic_squaremesh([0 1 0 1],Δx,Δt,T,:dirichlet)
 sol2 = solve(fem_mesh::FEMmesh,prob::HeatProblem,alg=:Euler)
-appxTrue!(sol,sol2)
+appxtrue!(sol,sol2)
 TEST_PLOT && plot(sol,plot_analytic=true,cbar=false)
 
 sol.errors[:l2]<.005 #Returns true if res solution is near the apprxTrue res2 solution
