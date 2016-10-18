@@ -78,7 +78,7 @@ T = 1u"s"
 Δt = (1//2^(7))u"s"
 fem_mesh = parabolic_squaremesh([0u"m" 1u"m" 0u"m" 1u"m"],Δx,Δt,T,:dirichlet)
 f = (u,x,t)  -> (float(ones(size(x,1))))u"N" - .5u
-u₀ = (x) -> map((x)->(x)Newton,zeros(size(x,1)))
+u₀ = (x) -> map((x)->(x)u"N",zeros(size(x,1)))
 prob = HeatProblem(u₀,f)
 #=
 println("Euler")
