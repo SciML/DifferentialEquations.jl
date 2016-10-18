@@ -36,7 +36,7 @@ function ode_shootout(prob::ODEProblem,tspan,setups;endsol=nothing,numruns=20,na
     sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
     sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
     t = @elapsed for j in 1:numruns
-      sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...)
+      sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,setups[i]...)
     end
     if endsol != nothing && error_estimate == :final
       errors[i] = norm(sol.u-endsol,2)
@@ -144,7 +144,7 @@ function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,n
     sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
     sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
     t = @elapsed for j in 1:numruns
-      sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i])
+      sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,abstol=abstols[i],reltol=reltols[i])
     end
     t = t/numruns
     if endsol != nothing && error_estimate == :final
