@@ -10,6 +10,7 @@ makedocs(modules=[DifferentialEquations],
          "Tutorials" => Any[
              "tutorials/ode_example.md",
              "tutorials/sde_example.md",
+             "tutorials/dae_example.md",
              "tutorials/fempoisson_example.md",
              "tutorials/femheat_example.md",
              "tutorials/femstochastic_example.md"
