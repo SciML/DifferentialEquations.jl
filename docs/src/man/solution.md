@@ -64,6 +64,6 @@ DifferentialEquations.StokesSolution
 ## Related Functions
 
 ```@docs
-DifferentialEquations.appxTrue!
+DifferentialEquations.appxtrue!
 DifferentialEquations.FEMSolutionTS
 ```
