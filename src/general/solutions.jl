@@ -136,6 +136,7 @@ type ODESolution <: AbstractODESolution
   interp::Function
   dense::Bool
   function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
+    save_timeseries = length(timeseries) > 2
     trueknown = false
     dense = k != []
     saveat_idxs = find((x)->x∈saveat,t)
