@@ -1,4 +1,4 @@
-# Ordinary Differential Equation (ODE) Example
+# Ordinary Differential Equations (ODE)
 
 This tutorial will introduce you to the functionality for solving ODEs. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
