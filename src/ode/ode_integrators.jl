@@ -95,9 +95,9 @@ end
   local Θ = one(t)/one(t) # No units
   local tprev::tType = t
   local uprev::uType = deepcopy(u)
-  local standard::uEltype = 0
+  local standard::uEltype = uEltype(0)
   local q::uEltypeNoUnits = 0
-  local Δtpropose::tType = 0
+  local Δtpropose::tType = tType(0)
   local q11::uEltypeNoUnits = 0
   local qold::uEltypeNoUnits = qoldinit
   local expo1::uEltypeNoUnits

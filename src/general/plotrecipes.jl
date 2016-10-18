@@ -82,11 +82,6 @@ end
       push!(plotseries,plot_analytic_timeseries)
     end
   end
-  for i in eachindex(plotseries)
-    if eltype(plotseries[i]) <: SIUnits.SIQuantity
-      plotseries[i] = map((x)->x.val,plotseries[i])
-    end
-  end
   seriestype --> :path
   lw --> 3
   xtickfont --> font(11)
@@ -154,9 +149,6 @@ end
   mesh.node[:,1], mesh.node[:,2], ones(mesh.node[:,1])
 end
 
-@recipe function f{ND,N,m,kg,s,A,K,mol,cd,rad,sr}(::Type{Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND}},x::Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND})
-  map((y)->y.val,x)
-end
 # mesh = meshExample_lakemesh()
 # PyPlot.plot_trisurf(mesh.node[:,1],mesh.node[:,2],ones(mesh.node[:,2]),triangles=mesh.elem-1)
 
