@@ -52,7 +52,6 @@ function ConvergenceSimulation(solutions,convergence_axis;auxdata=nothing)
   N = size(solutions,1)
   uEltype = eltype(solutions[1].u)
   errors = Dict() #Should add type information
-  Main.Media.render(solutions)
   for k in keys(solutions[1].errors)
     println(k)
 
