@@ -149,6 +149,7 @@ function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,n
     if appxsol != nothing
       appxtrue!(sol,appxsol)
     end
+    
     errors[i] = sol.errors[error_estimate]
     times[i] = t
   end
