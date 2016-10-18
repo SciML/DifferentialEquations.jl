@@ -271,7 +271,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern7,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 3e-9)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 5e-9)
 
 ### Vern8
 
@@ -319,7 +319,7 @@ interpd = sol(0:1//2^(4):1)
 
 sol2 =solve(prob::ODEProblem,[0,1];Δt=1//2^(4),alg=:Vern9,dense=true,adaptive=false)
 
-push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 1e-9)
+push!(bools,maximum(map((x)->maximum(abs(x)),sol2[:] - interpd)) < 2e-9)
 
 ### Rosenbrock32
 
