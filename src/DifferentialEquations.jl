@@ -3,7 +3,7 @@ __precompile__()
 module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
-        ChunkedArrays, InplaceOps, SIUnits, Sundials
+        ChunkedArrays, InplaceOps, Sundials
   import Base: length, size, getindex, endof, show, print, max, linspace
   import Plots: plot
   import ForwardDiff.Dual
@@ -37,7 +37,6 @@ module DifferentialEquations
   const TEST_FLOPS_CUTOFF = 1e10
   const initialized_backends = Set{Symbol}()
 
-  include("general/units.jl")
   include("general/backends.jl")
   include("general/replacement_macros.jl")
   include("general/misc_utils.jl")
