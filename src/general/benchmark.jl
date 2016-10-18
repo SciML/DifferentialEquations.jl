@@ -22,7 +22,7 @@ type ShootoutSet
   winners::Vector{String}
 end
 
-function ode_shootout(prob::ODEProblem,tspan,setups;endsol=nothing,numruns=20,names=nothing,error_estimate=:final,kwargs...)
+function ode_shootout(prob::ODEProblem,tspan,setups;appxsol=nothing,numruns=20,names=nothing,error_estimate=:final,kwargs...)
   N = length(setups)
   errors = Vector{Float64}(N)
   solutions = Vector{ODESolution}(N)
@@ -38,11 +38,10 @@ function ode_shootout(prob::ODEProblem,tspan,setups;endsol=nothing,numruns=20,na
     t = @elapsed for j in 1:numruns
       sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,setups[i]...)
     end
-    if endsol != nothing && error_estimate == :final
-      errors[i] = norm(sol.u-endsol,2)
-    else endsol == nothing
-      errors[i] = sol.errors[error_estimate]
+    if endsol != nothing
+      appxtrue!(sol,appxsol)
     end
+    errors[i] = sol.errors[error_estimate]
     t = t/numruns
     effs[i] = 1/(errors[i]*t)
     solutions[i] = sol
