@@ -41,7 +41,7 @@ end
   plotseries = Vector{Any}(0)
 
   if denseplot && sol.dense # Generate the points from the plot from dense function
-    plott = collect(linspace(sol.t[1],sol.t[end],plotdensity))
+    plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
       plot_analytic_timeseries = Vector{typeof(sol.u)}(length(plott))
