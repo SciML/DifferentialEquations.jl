@@ -121,8 +121,19 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
         o[:Δtmin] = tType(1//10^(10))
       end
     end
+
+    if uType <: AbstractArray
+      uEltypeNoUnits = eltype(u./u)
+    else
+      uEltypeNoUnits = typeof(u./u)
+    end
+
+    Ts = map(tType,o[:Ts])
+    t = tType(o[:t])
+    rateType = typeof(u/zero(t)) ## Can be different if united
+
     if o[:fullnormalize] == true
-      normfactor = uEltype(1/length(u))
+      normfactor = uEltypeNoUnits(1/length(u))
     else
       normfactor = 1
     end
@@ -187,17 +198,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
       @unpack fsal = o[:tableau]
     end
 
-    Ts = map(tType,o[:Ts])
-    t = tType(o[:t])
-
     o[:abstol] = convert(uEltype,o[:abstol])
-
-    if uType <: AbstractArray
-      uEltypeNoUnits = eltype(u./u)
-    else
-      uEltypeNoUnits = typeof(u./u)
-    end
-    rateType = typeof(u/zero(t)) ## Can be different if united
 
     if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
       ksEltype = Vector{rateType} # Store more ks for the special algs
@@ -221,7 +222,6 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     end
     @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
     #println(@code_typed ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck,timeseries,ts,ks)))
-
     u,t = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(timeseries,ts,ks,f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck))
     if ts[end] != t
       push!(ts,t)
