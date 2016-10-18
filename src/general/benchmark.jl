@@ -38,7 +38,7 @@ function ode_shootout(prob::ODEProblem,tspan,setups;appxsol=nothing,numruns=20,n
     t = @elapsed for j in 1:numruns
       sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,setups[i]...)
     end
-    if endsol != nothing
+    if appxsol != nothing
       appxtrue!(sol,appxsol)
     end
     errors[i] = sol.errors[error_estimate]
@@ -132,7 +132,7 @@ type WorkPrecisionSet
   names
 end
 
-function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,numruns=20,endsol=nothing,error_estimate=:final,kwargs...)
+function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,numruns=20,appxsol=nothing,error_estimate=:final,kwargs...)
   N = length(abstols)
   errors = Vector{Float64}(N)
   times = Vector{Float64}(N)
@@ -146,24 +146,23 @@ function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,n
       sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,abstol=abstols[i],reltol=reltols[i])
     end
     t = t/numruns
-    if endsol != nothing && error_estimate == :final
-      errors[i] = norm(sol.u-endsol,2)
-    else endsol == nothing
-      errors[i] = sol.errors[error_estimate]
+    if appxsol != nothing
+      appxtrue!(sol,appxsol)
     end
+    errors[i] = sol.errors[error_estimate]
     times[i] = t
   end
   return WorkPrecision(prob,tspan,abstols,reltols,errors,times,name,N)
 end
 
-function ode_workprecision_set(prob::ODEProblem,tspan,abstols,reltols,setups;numruns=20,names=nothing,endsol=nothing,kwargs...)
+function ode_workprecision_set(prob::ODEProblem,tspan,abstols,reltols,setups;numruns=20,names=nothing,appxsol=nothing,kwargs...)
   N = length(setups)
   wps = Vector{WorkPrecision}(N)
   if names == nothing
     names = [string(setups[i][:alg]) for i=1:length(setups)]
   end
   for i in 1:N
-    wps[i] = ode_workprecision(prob,tspan,abstols,reltols;numruns=numruns,endsol=endsol,name=names[i],kwargs...,setups[i]...)
+    wps[i] = ode_workprecision(prob,tspan,abstols,reltols;numruns=numruns,appxsol=appxsol,name=names[i],kwargs...,setups[i]...)
   end
   return WorkPrecisionSet(wps,N,abstols,reltols,prob,tspan,setups,names)
 end
