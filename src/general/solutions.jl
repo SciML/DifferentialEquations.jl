@@ -158,7 +158,7 @@ type ODESolution <: AbstractODESolution
     save_timeseries = length(timeseries) > 2
     trueknown = true
 
-    dense = k != []
+    dense = length(k)>1
     saveat_idxs = find((x)->x∈saveat,t)
     t_nosaveat = view(t,symdiff(1:length(t),saveat_idxs))
     timeseries_nosaveat = view(timeseries,symdiff(1:length(t),saveat_idxs))
