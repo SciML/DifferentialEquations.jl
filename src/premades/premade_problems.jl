@@ -309,7 +309,7 @@ From Solving Differential Equations in R by Karline Soetaert
 
 or Hairer Norsett Wanner Solving Ordinary Differential Euations I - Nonstiff Problems Page 244
 
-Usually solved from 0 to 20. Periodic at 10 and 20.
+Usually solved from 0 to 20.
 """
 prob_ode_rigidbody = ODEProblem(f,[1.0,0.0,0.9])
 
