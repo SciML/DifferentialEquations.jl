@@ -52,6 +52,8 @@ println("ODE Unrolled Tests")
 (LONGER_TESTS) && @compat !is_windows() && @time @test include("ode/ode_unrolled_comparison_tests.jl")
 println("ODE Initial Dt Tests")
 @time @test include("ode/ode_initdt_tests.jl")
+println("ODE AppxTrue Tests")
+@time @test include("ode/ode_appxtrue_tests.jl")
 println("ODE Rosenbrock Tests")
 @time @test include("ode/ode_rosenbrock_tests.jl")
 println("ODE Initial Dt Tests")
@@ -148,6 +150,6 @@ println("ODEInterface Tests")
 println("ODE.jl Tests")
 (TEST_CONDITIONAL_DEPS) && @time @test include("ode/ODEJL_tests.jl")
 println("Sundials.jl Tests")
-#(TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl") # Not until tags
+(TEST_CONDITIONAL_DEPS) && @time @test include("ode/Sundials_tests.jl") # Not until tags
 
 toc()

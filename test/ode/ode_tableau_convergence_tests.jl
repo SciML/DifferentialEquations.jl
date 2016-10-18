@@ -362,10 +362,10 @@ for i = 1:2 # 1 = num, 2 = ExplicitRK
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
   push!(bools,abs(sim.𝒪est[:l∞]-10.5) < testTol) #Only works to Float64
 
-  Δts = 1.//2.^(1:-1:0)
+  Δts = 1.//2.^(3:-1:1)
   tab = constructTsitouras92(BigFloat)
   sim = test_convergence(Δts,bigprob,alg=alg,tableau=tab)
-  push!(bools,abs(sim.𝒪est[:l∞]-8) < testTol)  #Only works to Float64
+  push!(bools,abs(sim.𝒪est[:l∞]-9) < testTol)  #Only works to Float64
 
   ## Order 10
 

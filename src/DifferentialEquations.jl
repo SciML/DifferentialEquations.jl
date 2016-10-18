@@ -73,7 +73,7 @@ module DifferentialEquations
          ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, DAEProblem,
          DAESolution, SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau,
          MonteCarloSimulation,ImplicitRKTableau, Shootout, ShootoutSet,AbstractODEProblem,
-         AbstractSDEProblem
+         AbstractSDEProblem, TestSolution
 
   #SDE Example Problems
   export prob_sde_wave, prob_sde_linear, prob_sde_cubic, prob_sde_2Dlinear, prob_sde_lorenz,
@@ -109,7 +109,7 @@ module DifferentialEquations
   export  plot, animate, stability_region
 
   #General Functions
-  export appxTrue!, accumarray, solve, test_convergence
+  export appxtrue!, accumarray, solve, test_convergence
 
   #Stochastic Utils
   export monteCarloSim, construct_correlated_noisefunc, WHITE_NOISE, NoiseProcess
