@@ -322,7 +322,9 @@ f = (t,u,du) -> begin
   w = view(u,22:28) # y′
   du[1:7] .= v
   du[8:14].= w
-  du[14:21]=zero(u)
+  for i in 14:21
+    du[i] = zero(u)
+  end
   for i=1:7,j=1:7
     if i != j
       r = ((x[i]-x[j])^2 + (y[i] - y[j])^2)^(3/2)
