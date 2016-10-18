@@ -109,7 +109,7 @@ module DifferentialEquations
   export  plot, animate, stability_region
 
   #General Functions
-  export appxTrue!, accumarray, solve, test_convergence
+  export appxtrue!, accumarray, solve, test_convergence
 
   #Stochastic Utils
   export monteCarloSim, construct_correlated_noisefunc, WHITE_NOISE, NoiseProcess

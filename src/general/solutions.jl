@@ -10,7 +10,7 @@ Holds the data for the solution to a finite element problem.
 * `trueknown::Bool`: Boolean flag for if the true solution is given.
 * `u_analytic::AbstractArrayOrVoid`: The true solution at the final timepoint.
 * `errors`: A dictionary of the error calculations.
-* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
+* `appxtrue::Bool`: Boolean flag for if u_analytic was an approximation.
 * `timeseries`::AbstractArrayOrVoid`: u over time. Only saved if `save_timeseries=true`
   is specified in the solver.
 * `t::AbstractArrayOrVoid`: All the t's in the solution. Only saved if `save_timeseries=true`
@@ -25,7 +25,7 @@ type FEMSolution <: DESolution
   trueknown::Bool
   u_analytic::AbstractArrayOrVoid
   errors#::Dict{String,Float64}
-  appxTrue::Bool
+  appxtrue::Bool
   timeseries#::GrowableArray
   t::AbstractArrayOrVoid
   prob::DEProblem
@@ -64,7 +64,7 @@ Holds the data for the solution to a SDE problem.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each save point.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
-* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
+* `appxtrue::Bool`: Boolean flag for if u_analytic was an approximation.
 
 """
 type SDESolution <: AbstractODESolution
@@ -77,7 +77,7 @@ type SDESolution <: AbstractODESolution
   Δt::AbstractArrayOrVoid
   Ws::AbstractArrayOrVoid
   timeseries_analytic::AbstractArrayOrVoid
-  appxTrue::Bool
+  appxtrue::Bool
   save_timeseries::Bool
   maxstacksize::Int
   W
@@ -96,7 +96,7 @@ type SDESolution <: AbstractODESolution
     return(new(u,trueknown,u_analytic,errors,timeseries,t,Δt,Ws,timeseries_analytic,false,save_timeseries,maxstacksize,W))
   end
   #Required to convert pmap results
-  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.t,a.Δt,a.Ws,a.timeseries_analytic,a.appxTrue,a.save_timeseries,a.maxstacksize,a.W)
+  SDESolution(a::Any) = new(a.u,a.trueknown,a.u_analytic,a.errors,a.timeseries,a.t,a.Δt,a.Ws,a.timeseries_analytic,a.appxtrue,a.save_timeseries,a.maxstacksize,a.W)
 end
 
 """
@@ -117,7 +117,7 @@ Holds the data for the solution to an ODE problem.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each timestep.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
-* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
+* `appxtrue::Bool`: Boolean flag for if u_analytic was an approximation.
 
 """
 type ODESolution <: AbstractODESolution
@@ -128,7 +128,7 @@ type ODESolution <: AbstractODESolution
   timeseries::AbstractArrayOrVoid
   t::AbstractArrayOrVoid
   timeseries_analytic::AbstractArrayOrVoid
-  appxTrue::Bool
+  appxtrue::Bool
   save_timeseries::Bool
   k#::uType
   prob#
@@ -209,7 +209,7 @@ Holds the data for the solution to an ODE problem.
 * `timeseries_analytic`: If `save_timeseries=true`, saves the solution at each timestep.
 * `prob::DEProblem`: Holds the problem object used to define the problem.
 * `save_timeseries::Bool`: True if solver saved the extra timepoints.
-* `appxTrue::Bool`: Boolean flag for if u_analytic was an approximation.
+* `appxtrue::Bool`: Boolean flag for if u_analytic was an approximation.
 
 """
 type DAESolution <: AbstractODESolution
@@ -223,7 +223,7 @@ type DAESolution <: AbstractODESolution
   t::AbstractArrayOrVoid
   timeseries_analytic::AbstractArrayOrVoid
   timeseries_du_analytic::AbstractArrayOrVoid
-  appxTrue::Bool
+  appxtrue::Bool
   save_timeseries::Bool
   k#::uType
   prob#
@@ -328,13 +328,13 @@ TestSolution(u,interp) = TestSolution(u,interp,true)
 TestSolution(interp::DESolution) = TestSolution(nothing,interp,true)
 
 """
-`appxTrue!(sol::AbstractODESolution,sol2::TestSolution)`
+`appxtrue!(sol::AbstractODESolution,sol2::TestSolution)`
 
 Uses the interpolant from the higher order solution sol2 to approximate
 errors for sol. If sol2 has no interpolant, only the final error is
 calculated.
 """
-function appxTrue!(sol::AbstractODESolution,sol2::TestSolution)
+function appxtrue!(sol::AbstractODESolution,sol2::TestSolution)
   if sol2.u == nothing && sol2.dense
     sol2.u = sol2(sol.t[end])
   end
@@ -352,33 +352,33 @@ function appxTrue!(sol::AbstractODESolution,sol2::TestSolution)
   end
   sol.u_analytic = sol2.u
   sol.errors = errors
-  sol.appxTrue = true
+  sol.appxtrue = true
   nothing
 end
 
 """
-`appxTrue!(sol::FEMSolution,sol2::FEMSolution)`
+`appxtrue!(sol::FEMSolution,sol2::FEMSolution)`
 
 Adds the solution from `sol2` to the `FEMSolution` object `sol`.
 Useful to add a quasi-true solution when none is known by
 computing once at a very small time/space step and taking
 that solution as the "true" solution
 """
-function appxTrue!(sol::FEMSolution,sol2::FEMSolution)
+function appxtrue!(sol::FEMSolution,sol2::FEMSolution)
   sol.u_analytic = sol2.u
   sol.errors = Dict(:l∞=>maximum(abs.(sol.u-sol.u_analytic)),:l2=>norm(sol.u-sol.u_analytic,2))
-  sol.appxTrue = true
+  sol.appxtrue = true
   nothing
 end
 
 """
-`appxTrue!(sol::AbstractODESolution,sol2::AbstractODESolution)`
+`appxtrue!(sol::AbstractODESolution,sol2::AbstractODESolution)`
 
 Uses the interpolant from the higher order solution sol2 to approximate
 errors for sol. If sol2 has no interpolant, only the final error is
 calculated.
 """
-function appxTrue!(sol::AbstractODESolution,sol2::AbstractODESolution)
+function appxtrue!(sol::AbstractODESolution,sol2::AbstractODESolution)
   errors = Dict(:final=>mean(abs.(sol.u-sol2.u)))
   if sol.save_timeseries && !(typeof(sol2) <: SDESolution) && sol2.dense
     timeseries_analytic = sol2(sol.t)
@@ -394,7 +394,7 @@ function appxTrue!(sol::AbstractODESolution,sol2::AbstractODESolution)
 
   sol.u_analytic = sol2.u
   sol.errors = errors
-  sol.appxTrue = true
+  sol.appxtrue = true
   nothing
 end
 
