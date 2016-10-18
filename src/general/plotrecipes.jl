@@ -123,6 +123,7 @@ end
 @recipe function f(wp::WorkPrecision)
   seriestype --> :path
   label -->  wp.name
+  lw --> 3
   yguide --> "Time (s)"
   xguide --> "Error"
   xscale --> :log10
@@ -132,7 +133,8 @@ end
 
 @recipe function f(wp_set::WorkPrecisionSet)
   seriestype --> :path
-  label -->  wp_set.names'
+  label -->  reshape(wp_set.names,1,length(wp_set))
+  lw --> 3
   yguide --> "Time (s)"
   xguide --> "Error"
   xscale --> :log10
