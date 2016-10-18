@@ -136,7 +136,7 @@ type ODESolution <: AbstractODESolution
   interp::Function
   dense::Bool
   function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
-    save_timeseries = timeseries == []
+    save_timeseries = length(timeseries) > 2
     trueknown = false
     dense = k != []
     saveat_idxs = find((x)->x∈saveat,t)
@@ -155,13 +155,10 @@ type ODESolution <: AbstractODESolution
     return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
   end
   function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
-    save_timeseries = timeseries != []
+    save_timeseries = length(timeseries) > 2
     trueknown = true
-    errors = Dict(:final=>mean(abs.(u-u_analytic)))
-    if save_timeseries
-      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply((x)->abs.(x),timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
-    end
-    dense = k != []
+
+    dense = length(k)>1
     saveat_idxs = find((x)->x∈saveat,t)
     t_nosaveat = view(t,symdiff(1:length(t),saveat_idxs))
     timeseries_nosaveat = view(timeseries,symdiff(1:length(t),saveat_idxs))
@@ -174,6 +171,18 @@ type ODESolution <: AbstractODESolution
       interp = (tvals) -> ode_interpolation(tvals,t_nosaveat,timeseries_nosaveat,k,alg,f!)
     else
       interp = (tvals) -> nothing
+    end
+
+    errors = Dict(:final=>mean(abs.(u-u_analytic)))
+    if save_timeseries
+      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply((x)->abs.(x),timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
+      if dense
+        densetimes = collect(linspace(t[1],t[end],100))
+        interp_u = interp(densetimes)
+        interp_analytic = [prob.analytic(t,timeseries[1]) for t in densetimes]
+        interp_errors = Dict(:L∞=>maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)),:L2=>sqrt(mean(vecvecapply((x)->float(x).^2,interp_u-interp_analytic))))
+        errors = merge(errors,interp_errors)
+      end
     end
     return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
   end
