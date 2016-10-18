@@ -74,11 +74,3 @@ at JuliaODE/ODE.jl. To install this version of ODE.jl, use the following command
 ```julia
 Pkg.clone("https://github.com/JuliaODE/ODE.jl")
 ```
-
-### Sundials.jl
-The wrapper works on the master branch. You can install this via:
-
-```julia
-Pkg.clone("https://github.com/JuliaDiffEq/Sundials.jl")
-Pkg.checkout("Sundials")
-```
