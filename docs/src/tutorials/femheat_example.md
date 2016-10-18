@@ -1,4 +1,4 @@
-# Heat Equation Finite Element Method Example
+# Heat Equation Finite Element Method
 
 This tutorial will introduce you to the functionality for solving a PDE. Other
 introductions can be found by [checking out the IJulia notebooks in the examples folder](https://github.com/JuliaDiffEq/DifferentialEquations.jl/tree/master/examples).
