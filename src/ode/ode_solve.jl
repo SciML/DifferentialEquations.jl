@@ -137,7 +137,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     else
       normfactor = 1
     end
-    saveat = tType[convert(tType,x) for x in o[:saveat]]
+    saveat = tType[convert(tType,x) for x in setdiff(o[:saveat],tspan)]
 
     if o[:calck]==nothing
       calck = !isempty(saveat) || o[:dense]
