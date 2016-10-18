@@ -1,4 +1,4 @@
-# Overview of DifferentialEquations.jl Usage
+# Overview of DifferentialEquations.jl
 
 The general workflow for using the package is as follows:
 
