@@ -1,9 +1,9 @@
-__precompile__()
+#__precompile__()
 
 module DifferentialEquations
 
   using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
-        ChunkedArrays, InplaceOps, Sundials
+        ChunkedArrays, InplaceOps, Sundials, ParameterizedFunctions, Ranges
   import Base: length, size, getindex, endof, show, print, max, linspace
   import Plots: plot
   import ForwardDiff.Dual
@@ -17,6 +17,7 @@ module DifferentialEquations
   "`PdeSolution`: Wrapper for the objects obtained from a solver"
   abstract DESolution
   abstract AbstractODESolution <: DESolution
+  abstract DESensitivity
   "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
   abstract Mesh
   "`Tableau`: Holds the information for a Runge-Kutta Tableau"
@@ -39,8 +40,9 @@ module DifferentialEquations
 
   const TIMESERIES_ERRORS = Set([:l2,:l∞,:L2,:L∞])
   const DENSE_ERRORS = Set([:L2,:L∞])
-  
+
   include("general/backends.jl")
+  include("general/sensitivity.jl")
   include("general/replacement_macros.jl")
   include("general/misc_utils.jl")
   include("fem/fem_heatintegrators.jl")
