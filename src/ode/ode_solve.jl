@@ -220,12 +220,26 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     else
       timeseries[1] = copy(u)
     end
-    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense = o
-    #println(@code_typed ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck,timeseries,ts,ks)))
-    u,t = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(timeseries,ts,ks,f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck))
+    @materialize maxiters,timeseries_steps,save_timeseries,adaptive,progress_steps,abstol,reltol,γ,Δtmax,Δtmin,internalnorm,tableau,autodiff,timechoicealg,qoldinit,dense,sensitivity_params = o
+    if !isempty(sensitivity_params)
+      sensitivity_series = Vector{Vector{uType}}(length(sensitivity_params))
+      for i in eachindex(sensitivity_series)
+        sensitivity_series[i] = [zeros(size(u))]
+      end
+    else
+      sensitivity_series = Vector{Vector{uType}}()
+    end
+
+    # @code_warntype ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(timeseries,ts,ks,f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck,sensitivity_params,sensitivity_series))
+    u,t = ode_solve(ODEIntegrator{alg,uType,uEltype,ndims(u)+1,tType,uEltypeNoUnits,rateType,ksEltype}(timeseries,ts,ks,f!,u,t,Δt,Ts,maxiters,timeseries_steps,save_timeseries,adaptive,abstol,reltol,γ,qmax,qmin,Δtmax,Δtmin,internalnorm,progressbar,tableau,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal,dense,saveat,alg,callback,custom_callback,calck,sensitivity_params,sensitivity_series))
     if ts[end] != t
       push!(ts,t)
       push!(timeseries,u)
+    end
+    if !isempty(sensitivity_params)
+      sensitvity_res = ODELocalSensitivity(sensitivity_params,sensitivity_series)
+    else
+      sensitvity_res = ODELocalSensitivity()
     end
   elseif alg ∈ ODEINTERFACE_ALGORITHMS
     sizeu = size(u)
@@ -280,7 +294,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
       timeseries = vec(vectimeseries)
     end
     u = timeseries[end]
-
+    sensitvity_res = ODELocalSensitivity()
   elseif alg ∈ ODEJL_ALGORITHMS
     if typeof(u) <: Number
       u = [u]
@@ -336,6 +350,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     end
     t = ts[end]
     u = timeseries[end]
+    sensitvity_res = ODELocalSensitivity()
   elseif alg ∈ SUNDIALS_ALGORITHMS
     if alg == :cvode_BDF
       integrator = :BDF
@@ -395,6 +410,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     end
     t = ts[end]
     u = timeseries[end]
+    sensitvity_res = ODELocalSensitivity()
   end
 
   (atomloaded && progressbar) ? Main.Atom.progress(1) : nothing #Use Atom's progressbar if loaded
@@ -407,9 +423,10 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     end
     return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat,
     timeseries_errors = command_opts[:timeseries_errors],
-    dense_errors = command_opts[:dense_errors]))
+    dense_errors = command_opts[:dense_errors],
+    sensitvity_res = sensitvity_res))
   else
-    return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
+    return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat,sensitvity_res=sensitvity_res))
   end
 end
 
