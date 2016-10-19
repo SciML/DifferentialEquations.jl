@@ -198,7 +198,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
       @unpack fsal = o[:tableau]
     end
 
-    o[:abstol] = convert(uEltype,o[:abstol])
+    o[:abstol] = uEltype(1)*o[:abstol]
 
     if alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
       ksEltype = Vector{rateType} # Store more ks for the special algs

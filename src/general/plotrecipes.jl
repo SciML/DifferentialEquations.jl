@@ -41,7 +41,7 @@ end
   plotseries = Vector{Any}(0)
 
   if denseplot && sol.dense # Generate the points from the plot from dense function
-    plott = collect(linspace(sol.t[1],sol.t[end],plotdensity))
+    plott = collect(Ranges.linspace(sol.t[1],sol.t[end],plotdensity))
     plot_timeseries = sol(plott)
     if plot_analytic
       plot_analytic_timeseries = Vector{typeof(sol.u)}(length(plott))
@@ -80,11 +80,6 @@ end
       end
     else
       push!(plotseries,plot_analytic_timeseries)
-    end
-  end
-  for i in eachindex(plotseries)
-    if eltype(plotseries[i]) <: SIUnits.SIQuantity
-      plotseries[i] = map((x)->x.val,plotseries[i])
     end
   end
   seriestype --> :path
@@ -154,9 +149,6 @@ end
   mesh.node[:,1], mesh.node[:,2], ones(mesh.node[:,1])
 end
 
-@recipe function f{ND,N,m,kg,s,A,K,mol,cd,rad,sr}(::Type{Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND}},x::Array{SIUnits.SIQuantity{N,m,kg,s,A,K,mol,cd,rad,sr},ND})
-  map((y)->y.val,x)
-end
 # mesh = meshExample_lakemesh()
 # PyPlot.plot_trisurf(mesh.node[:,1],mesh.node[:,2],ones(mesh.node[:,2]),triangles=mesh.elem-1)
 

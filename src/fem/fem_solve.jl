@@ -220,16 +220,6 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   push!(timeseries,u)
   ts = Float64[t]
 
-  if typeof(Δt) <: Main.SIUnits.SIQuantity
-    Δt = Δt.val
-  end
-  if typeof(t) <: Main.SIUnits.SIQuantity
-    t = t.val
-  end
-  if typeof(T) <: Main.SIUnits.SIQuantity
-    T = T.val
-  end
-
   sqrtΔt= sqrt(Δt)
   #Setup f quadraturef
   mid = Array{eltype(node)}(size(node[vec(elem[:,2]),:])...,3)
@@ -240,11 +230,7 @@ function solve(fem_mesh::FEMmesh,prob::HeatProblem;alg::Symbol=:Euler,
   islinear ? linearity=:linear : linearity=:nonlinear
   stochastic ? stochasticity=:stochastic : stochasticity=:deterministic
 
-  if typeof(fem_mesh.μ) <: SIUnits.SIQuantity
-    testμ = fem_mesh.μ.val
-  else
-    testμ = fem_mesh.μ
-  end
+  testμ = fem_mesh.μ
 
   if alg==:Euler && testμ >=0.5
     warn("Euler method chosen but μ = $testμ >=.5 => Unstable. Results may be wrong.")
@@ -311,17 +297,7 @@ function quadfbasis(f,gD,gN,A,u,node,elem,area,bdnode,mid,N,NT,dirichlet,neumann
   if(!isempty(dirichlet))
     uz = zeros(b)
     uz[bdnode,:] = gD(node[bdnode,:])
-    #=
-    if eltype(b) <: SIUnits.SIQuantity
-      A = full(A) #Sparse multiplication does not work for SI Units
-    end
-    =#
-    if eltype(uz) <: SIUnits.SIQuantity
-      uzdeval = map((x)->x.val,uz)
-      b = b-((A*uzdeval).*(uz./uzdeval)) # Take units away for sparse mult, put them back
-    else
-      b = b-A*uz
-    end
+    b = b-A*uz
   end
 
   if(!isempty(neumann))
