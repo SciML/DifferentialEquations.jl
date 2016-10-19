@@ -137,7 +137,7 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     else
       normfactor = 1
     end
-    saveat = tType[convert(tType,x) for x in o[:saveat]]
+    saveat = tType[convert(tType,x) for x in setdiff(o[:saveat],tspan)]
 
     if o[:calck]==nothing
       calck = !isempty(saveat) || o[:dense]
@@ -405,7 +405,9 @@ function solve(prob::AbstractODEProblem,tspan::AbstractArray=[0,1],timeseries=[]
     for i in 1:size(timeseries,1)
       push!(timeseries_analytic,analytic(ts[i],u₀))
     end
-    return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat))
+    return(ODESolution(u,u_analytic,prob,alg,timeseries=timeseries,t=ts,timeseries_analytic=timeseries_analytic,k=ks,saveat=saveat,
+    timeseries_errors = command_opts[:timeseries_errors],
+    dense_errors = command_opts[:dense_errors]))
   else
     return(ODESolution(u,prob,alg,timeseries=timeseries,t=ts,k=ks,saveat=saveat))
   end

@@ -1,4 +1,4 @@
-# Stochastic Finite Element Examples
+# Stochastic Finite Element Method
 
 This tutorial will introduce you to the functionality for solving SPDEs. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
