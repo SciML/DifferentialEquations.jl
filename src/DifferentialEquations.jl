@@ -37,6 +37,9 @@ module DifferentialEquations
   const TEST_FLOPS_CUTOFF = 1e10
   const initialized_backends = Set{Symbol}()
 
+  const TIMESERIES_ERRORS = Set([:l2,:l∞,:L2,:L∞])
+  const DENSE_ERRORS = Set([:L2,:L∞])
+  
   include("general/backends.jl")
   include("general/replacement_macros.jl")
   include("general/misc_utils.jl")
