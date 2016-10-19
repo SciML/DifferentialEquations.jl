@@ -149,7 +149,8 @@ Pages = [
   "internals/fem_tools.md",
   "internals/extras.md",
   "internals/solver_helpers.md",
-  "internals/notes_on_algorithms.md"
+  "internals/notes_on_algorithms.md",
+  "internals/function_index.md"
 ]
 Depth = 2
 ```

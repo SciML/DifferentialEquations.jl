@@ -38,6 +38,8 @@ immutable ODEIntegrator{Alg,uType<:Union{AbstractArray,Number},uEltype<:Number,N
   callback::Function
   custom_callback::Bool
   calck::Bool
+  sensitivity_params::Vector{Symbol}
+  sensitivity_series::Vector{Vector{uType}}
 end
 
 @def ode_preamble begin
@@ -46,7 +48,7 @@ end
   local Δt::tType
   local Ts::Vector{tType}
   local adaptiveorder::Int
-  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg, callback, custom_callback,calck = integrator
+  @unpack f,u,t,Δt,Ts,maxiters,timeseries_steps,γ,qmax,qmin,save_timeseries,adaptive,progressbar,autodiff,adaptiveorder,order,atomloaded,progress_steps,β,expo1,timechoicealg,qoldinit,normfactor,fsal, dense, saveat, alg, callback, custom_callback,calck,sensitivity_params,sensitivity_series = integrator
   timeseries = integrator.timeseries
   ts = integrator.ts
   ks = integrator.ks
@@ -58,11 +60,23 @@ end
   Tfinal = Ts[end]
   local iter::Int = 0
   local saveiter::Int = 1 # Starts at 1 so first save is at 2
+  local T::tType
+  const parameterized = typeof(f)<:ParameterizedFunction
+  const calc_senstivity = parameterized && !isempty(sensitivity_params)
+  if calc_senstivity
+    vecu = vec(u)
+    sensitivity_J = Matrix{uEltype}(length(vecu),length(vecu))
+    sensitivity_df= similar(vecu)
+  else
+    sensitivity_J = Matrix{uEltype}(0,0)
+    sensitivity_df= Vector{uEltype}(0)
+  end
   sizeu = size(u)
   local utmp::uType
   local k::ksEltype
   local kprev::ksEltype
   local kshortsize::Int
+  local reeval_fsal::Bool
   if ksEltype <: AbstractArray  && alg ∈ DIFFERENTIALEQUATIONSJL_SPECIALDENSEALGS
     k = ksEltype[]
     kprev = ksEltype[]
@@ -168,6 +182,16 @@ end
     if dense
       copyat_or_push!(ks,saveiter,k)
     end
+    if calc_senstivity
+      if f.jac_exists
+        for i in eachindex(sensitivity_params)
+          f(t,u,sensitivity_J,:Jac)
+          f(t,u,getfield(f,sensitivity_params[i]),sensitivity_df,sensitivity_params[i],:Deriv)
+          println(det(sensitivity_J))
+          push!(sensitivity_series[i],sensitivity_series[i][end] + Δt*(sensitivity_J*sensitivity_series[i][end] + sensitivity_df))
+        end
+      end
+    end
   end
   if !issimple_dense
     resize!(k,kshortsize)
@@ -199,7 +223,7 @@ end
         Δtpropose = min(Δtmax,Δtnew)
         Δtprev = Δt
         Δt = max(Δtpropose,Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+        cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts,calc_senstivity,sensitivity_params,sensitivity_series,sensitivity_J,sensitivity_df)
 
         if fsal
           if reeval_fsal
@@ -256,7 +280,7 @@ end
         Δtpropose = min(Δtmax,q*Δt)
         Δtprev = Δt
         Δt = max(min(Δtpropose,abs(T-t)),Δtmin) #abs to fix complex sqrt issue at end
-        cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+        cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts,calc_senstivity,sensitivity_params,sensitivity_series,sensitivity_J,sensitivity_df)
         if calcprevs
           # Store previous for interpolation
           tprev = t
@@ -285,7 +309,7 @@ end
       end
     end
     Δtprev = Δt
-    cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts)
+    cursaveat,saveiter,Δt,t,T,reeval_fsal = callback(alg,f,t,u,k,tprev,uprev,kprev,ts,timeseries,ks,Δtprev,Δt,saveat,cursaveat,saveiter,iter,save_timeseries,timeseries_steps,uEltype,ksEltype,dense,kshortsize,issimple_dense,fsal,fsalfirst,cache,calck,T,Ts,calc_senstivity,sensitivity_params,sensitivity_series,sensitivity_J,sensitivity_df)
     if calcprevs
       # Store previous for interpolation
       tprev = t
