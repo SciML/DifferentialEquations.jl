@@ -29,12 +29,16 @@ function ode_shootout(prob::ODEProblem,tspan,setups;appxsol=nothing,numruns=20,n
   effs = Vector{Float64}(N)
   times = Vector{Float64}(N)
   effratios = Matrix{Float64}(N,N)
+  timeseries_errors = error_estimate ∈ TIMESERIES_ERRORS
+  dense_errors = error_estimate ∈ DENSE_ERRORS
   if names == nothing
     names = [string(setups[i][:alg]) for i=1:N]
   end
   for i in eachindex(setups)
-    sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
-    sol = solve(prob::ODEProblem,tspan;kwargs...,setups[i]...) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;timeseries_errors=timeseries_errors,
+    dense_errors = dense_errors,kwargs...,setups[i]...) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;timeseries_errors=timeseries_errors,
+    dense_errors = dense_errors,kwargs...,setups[i]...) # Compile and get result
     t = @elapsed for j in 1:numruns
       sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,setups[i]...)
     end
@@ -139,17 +143,25 @@ function ode_workprecision(prob::ODEProblem,tspan,abstols,reltols;name=nothing,n
   if name == nothing
     name = "WP-Alg"
   end
+  timeseries_errors = error_estimate ∈ TIMESERIES_ERRORS
+  dense_errors = error_estimate ∈ DENSE_ERRORS
   for i in 1:N
-    sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
-    sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],reltol=reltols[i]) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],
+    reltol=reltols[i],timeseries_errors=timeseries_errors,
+    dense_errors = dense_errors) # Compile and get result
+    sol = solve(prob::ODEProblem,tspan;kwargs...,abstol=abstols[i],
+    reltol=reltols[i],timeseries_errors=timeseries_errors,
+    dense_errors = dense_errors) # Compile and get result
     t = @elapsed for j in 1:numruns
-      sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,abstol=abstols[i],reltol=reltols[i])
+      sol = solve(prob::ODEProblem,tspan,sol[:],sol.t,sol.k;kwargs...,abstol=abstols[i],
+      reltol=reltols[i],timeseries_errors=timeseries_errors,
+      dense_errors = dense_errors)
     end
     t = t/numruns
     if appxsol != nothing
       appxtrue!(sol,appxsol)
     end
-    
+
     errors[i] = sol.errors[error_estimate]
     times[i] = t
   end
