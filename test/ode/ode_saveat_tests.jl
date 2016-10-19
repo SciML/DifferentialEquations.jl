@@ -61,4 +61,8 @@ sol2=solve(prob::ODEProblem,[0,1];Δt=1/2^(2),save_timeseries=true,alg=:Trapezoi
 
 push!(bools,symdiff(sol.t,sol2.t) == [.125,.6,.61,.8])
 
+sol=solve(prob::ODEProblem,[0,1];Δt=1/2^(2),save_timeseries=true,alg=:Trapezoid,dense=false,saveat=[0,.125,.6,.61,.8])
+
+push!(bools,!(sol.t[2] ≈ 0))
+
 minimum(bools)

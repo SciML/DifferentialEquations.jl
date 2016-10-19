@@ -1,4 +1,4 @@
-# Poisson Equation Finite Element Method Example
+# Poisson Equation Finite Element Method
 
 This tutorial will introduce you to the functionality for solving a PDE. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
