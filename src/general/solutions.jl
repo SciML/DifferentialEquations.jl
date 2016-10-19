@@ -135,7 +135,8 @@ type ODESolution <: AbstractODESolution
   alg
   interp::Function
   dense::Bool
-  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
+  sensitivity
+  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[],sensitvity_res=ODELocalSensitivity())
     save_timeseries = length(timeseries) > 2
     trueknown = false
     dense = k != []
@@ -152,9 +153,10 @@ type ODESolution <: AbstractODESolution
     else
       interp = (tvals) -> nothing
     end
-    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
+    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense,sensitvity_res))
   end
-  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[],timeseries_errors=true,dense_errors=true)
+  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],
+           t=[],k=[],saveat=[],timeseries_errors=true,dense_errors=true,sensitvity_res=ODELocalSensitivity())
     save_timeseries = length(timeseries) > 2
     trueknown = true
 
@@ -187,7 +189,7 @@ type ODESolution <: AbstractODESolution
         errors[:L2] = sqrt(mean(vecvecapply((x)->float(x).^2,interp_u-interp_analytic)))
       end
     end
-    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
+    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense,sensitvity_res))
   end
 end
 
