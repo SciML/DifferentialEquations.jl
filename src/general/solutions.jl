@@ -135,7 +135,8 @@ type ODESolution <: AbstractODESolution
   alg
   interp::Function
   dense::Bool
-  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
+  sensitivity
+  function ODESolution(u,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[],sensitvity_res=ODELocalSensitivity())
     save_timeseries = length(timeseries) > 2
     trueknown = false
     dense = k != []
@@ -152,9 +153,10 @@ type ODESolution <: AbstractODESolution
     else
       interp = (tvals) -> nothing
     end
-    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
+    return(new(u,trueknown,nothing,Dict(),timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense,sensitvity_res))
   end
-  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],t=[],k=[],saveat=[])
+  function ODESolution(u,u_analytic,prob,alg;timeseries=[],timeseries_analytic=[],
+           t=[],k=[],saveat=[],timeseries_errors=true,dense_errors=true,sensitvity_res=ODELocalSensitivity())
     save_timeseries = length(timeseries) > 2
     trueknown = true
 
@@ -173,18 +175,21 @@ type ODESolution <: AbstractODESolution
       interp = (tvals) -> nothing
     end
 
-    errors = Dict(:final=>mean(abs.(u-u_analytic)))
-    if save_timeseries
-      errors = Dict(:final=>mean(abs.(u-u_analytic)),:l∞=>maximum(vecvecapply((x)->abs.(x),timeseries-timeseries_analytic)),:l2=>sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic))))
-      if dense
+    errors = Dict{Symbol,eltype(u)}()
+    errors[:final] = mean(abs.(u-u_analytic))
+
+    if save_timeseries && timeseries_errors
+      errors[:l∞] = maximum(vecvecapply((x)->abs.(x),timeseries-timeseries_analytic))
+      errors[:l2] = sqrt(mean(vecvecapply((x)->float(x).^2,timeseries-timeseries_analytic)))
+      if dense && dense_errors
         densetimes = collect(linspace(t[1],t[end],100))
         interp_u = interp(densetimes)
         interp_analytic = [prob.analytic(t,timeseries[1]) for t in densetimes]
-        interp_errors = Dict(:L∞=>maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic)),:L2=>sqrt(mean(vecvecapply((x)->float(x).^2,interp_u-interp_analytic))))
-        errors = merge(errors,interp_errors)
+        errors[:L∞] = maximum(vecvecapply((x)->abs.(x),interp_u-interp_analytic))
+        errors[:L2] = sqrt(mean(vecvecapply((x)->float(x).^2,interp_u-interp_analytic)))
       end
     end
-    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense))
+    return(new(u,trueknown,u_analytic,errors,timeseries,t,timeseries_analytic,false,save_timeseries,k,prob,alg,interp,dense,sensitvity_res))
   end
 end
 

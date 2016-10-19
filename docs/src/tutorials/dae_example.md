@@ -1,4 +1,4 @@
-# Differential Algebraic Equation (DAE) Example
+# Differential Algebraic Equations (DAE)
 
 This tutorial will introduce you to the functionality for solving DAEs. Other
 introductions can be found by [checking out the IJulia notebooks in the examples
@@ -73,4 +73,4 @@ plot(sol)
 which, despite how interesting the model looks, produces a relatively simple
 output:
 
-![IntroDAEPlot](../assets/introDAEPlot.png)
+![IntroDAEPlot](../assets/introDAEplot.png)
