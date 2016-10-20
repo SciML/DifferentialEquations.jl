@@ -384,7 +384,7 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type ODEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number} <: AbstractODEProblem
+type ODEProblem{uType,uEltype} <: AbstractODEProblem
   f::Function
   u₀::uType
   analytic::Function
@@ -405,7 +405,7 @@ function ODEProblem(f::Function,u₀;analytic=nothing)
     sizeu = (1,)
     numvars = 1
   else
-    numvars = size(u₀)[end]
+    numvars = length(u₀)[end]
   end
   ODEProblem{typeof(u₀),eltype(u₀)}(f,u₀,analytic,knownanalytic,numvars,isinplace)
 end
@@ -436,7 +436,7 @@ defines the solution if analytic is given.
 * `numvars`: The number of variables in the system
 
 """
-type DAEProblem{uType<:Union{AbstractArray,Number},uEltype<:Number,rateType<:Union{AbstractArray,Number}} <: AbstractDAEProblem
+type DAEProblem{uType,uEltype,rateType} <: AbstractDAEProblem
   f::Function
   u₀::uType
   du₀::rateType

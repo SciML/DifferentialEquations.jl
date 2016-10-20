@@ -1,7 +1,8 @@
 # This definitely needs cleaning
 using DifferentialEquations
-probArr = Vector{DEProblem}(2)
+probArr = Vector{ODEProblem}(2)
 probArr[1] = prob_ode_linear
+
 probArr[2] = prob_ode_2Dlinear
 srand(100)
 ## Convergence Testing

@@ -25,7 +25,8 @@ function ode_interpolation{alg}(tvals,ts,timeseries,ks,T::Type{Val{alg}},f)
       Δt = ts[i] - ts[i-1]
       Θ = (t-ts[i-1])/Δt
       ode_addsteps!(ks[i],ts[i-1],timeseries[i-1],Δt,alg,f) # update the kcurrent, since kprevious not used in special algs
-      push!(vals,ode_interpolant(Θ,Δt,timeseries[i-1],timeseries[i],ks[i-1],ks[i],alg))
+      interp = ode_interpolant(Θ,Δt,timeseries[i-1],timeseries[i],ks[i-1],ks[i],alg)
+      push!(vals,interp)
     end
   end
   vals
@@ -337,6 +338,7 @@ end
 
 function ode_addsteps!{rateType<:AbstractArray,uEltypeNoUnits}(k,t,u,Δt,f,T::Type{Val{:DP5}},T2::Type{rateType},T3::Type{uEltypeNoUnits})
   if length(k)<4
+    println("here")
     a21,a31,a32,a41,a42,a43,a51,a52,a53,a54,a61,a62,a63,a64,a65,a71,a73,a74,a75,a76,b1,b3,b4,b5,b6,b7,c1,c2,c3,c4,c5,c6 = constructDP5(uEltypeNoUnits)
     d1,d3,d4,d5,d6,d7 = DP5_dense_ds(uEltypeNoUnits)
     rtmp = rateType(size(u)); k1 = rateType(size(u)); k2 = rateType(size(u))

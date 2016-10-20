@@ -2,32 +2,15 @@
 
 module DifferentialEquations
 
-  using IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
+  using DifferentialEquationsBase, IterativeSolvers, Parameters, Plots, GenericSVD, ForwardDiff,
         ChunkedArrays, InplaceOps, Sundials, ParameterizedFunctions, Ranges
   import Base: length, size, getindex, endof, show, print, max, linspace
   import Plots: plot
   import ForwardDiff.Dual
 
-  "`DEProblem`: Defines differential equation problems via its internal functions"
-  abstract DEProblem
-  abstract AbstractODEProblem <: DEProblem
-  abstract AbstractSDEProblem <: DEProblem
-  abstract AbstractDAEProblem <: DEProblem
-  abstract AbstractDDEProblem <: DEProblem
-  "`PdeSolution`: Wrapper for the objects obtained from a solver"
-  abstract DESolution
-  abstract AbstractODESolution <: DESolution
-  abstract DESensitivity
-  "`Mesh`: An abstract type which holds a (node,elem) pair and other information for a mesh"
-  abstract Mesh
-  "`Tableau`: Holds the information for a Runge-Kutta Tableau"
-  abstract Tableau
-  "`DEIntegrator`: A DifferentialEquations Integrator type, used to initiate a solver."
-  abstract DEIntegrator
-  "`DEParameters`: Holds the parameters used in a DifferntialEquations model"
-  abstract DEParameters
   "`ODERKTableau`: A Runge-Kutta Tableau for an ODE integrator"
   abstract ODERKTableau <: Tableau
+
   typealias KW Dict{Symbol,Any}
   AbstractArrayOrVoid = Union{AbstractArray,Void}
   NumberOrVoid = Union{Number,Void}
@@ -73,11 +56,11 @@ module DifferentialEquations
   include("general/plotrecipes.jl")
 
   #Types
-  export DEProblem, DESolution, DEParameters, HeatProblem, PoissonProblem, FEMSolution, Mesh,
+  export HeatProblem, PoissonProblem, FEMSolution,
          ConvergenceSimulation, FEMmesh, SimpleMesh, SDEProblem, StokesProblem, DAEProblem,
-         DAESolution, SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau,
-         MonteCarloSimulation,ImplicitRKTableau, Shootout, ShootoutSet,AbstractODEProblem,
-         AbstractSDEProblem, TestSolution, AbstractDAEProblem, AbstractDDEProblem
+         SDESolution, ODESolution, ODEProblem, FDMMesh, ExplicitRKTableau,
+         MonteCarloSimulation,ImplicitRKTableau, Shootout, ShootoutSet,
+         TestSolution
 
   #SDE Example Problems
   export prob_sde_wave, prob_sde_linear, prob_sde_cubic, prob_sde_2Dlinear, prob_sde_lorenz,

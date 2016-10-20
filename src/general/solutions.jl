@@ -141,8 +141,10 @@ type ODESolution <: AbstractODESolution
     trueknown = false
     dense = k != []
     saveat_idxs = find((x)->x∈saveat,t)
-    t_nosaveat = view(t,symdiff(1:length(t),saveat_idxs))
-    timeseries_nosaveat = view(timeseries,symdiff(1:length(t),saveat_idxs))
+    non_saveat_idxs = symdiff(1:length(t),saveat_idxs)
+
+    t_nosaveat = @view t[non_saveat_idxs]
+    timeseries_nosaveat = @view timeseries[non_saveat_idxs]
     if dense # dense
       if !prob.isinplace && typeof(u)<:AbstractArray
         f! = (t,u,du) -> (du[:] = prob.f(t,u))
