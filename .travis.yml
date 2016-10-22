@@ -5,8 +5,8 @@ os:
   - osx
 julia:
   - 0.5
-#  - release
-  - nightly
+allow_failures:
+  - julia: nightly
 notifications:
   email: false
 addons:
