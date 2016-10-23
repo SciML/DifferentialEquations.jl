@@ -61,8 +61,8 @@ end
   local iter::Int = 0
   local saveiter::Int = 1 # Starts at 1 so first save is at 2
   local T::tType
-  const parameterized = typeof(f)<:ParameterizedFunction
-  const calc_senstivity = parameterized && !isempty(sensitivity_params)
+  #const parameterized = typeof(f)<:ParameterizedFunction
+  const calc_senstivity = !isempty(sensitivity_params) # parameterized && 
   if calc_senstivity
     vecu = vec(u)
     sensitivity_J = Matrix{uEltype}(length(vecu),length(vecu))
