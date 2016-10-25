@@ -164,11 +164,3 @@ DifferentialEquations.stokes_prolongation
 DifferentialEquations.update_u!
 DifferentialEquations.GSv!
 ```
-
-## Extras
-
-```@docs
-DifferentialEquations.meshgrid
-DifferentialEquations.accumarray
-DifferentialEquations.@materialize
-```
