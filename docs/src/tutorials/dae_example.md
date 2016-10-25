@@ -15,8 +15,8 @@ the form
 
 ```math
 \begin{align}
-du = f(t,u)  
- 0 = g(t,u)
+du = f(t,u) \\
+ 0 = g(t,u) \\
  \end{align}
 ```
 
@@ -25,9 +25,9 @@ equation. The Roberts model can be written in the form:
 
 ```math
 \begin{align}
-dy_1 &= -0.04y₁ + 10^4 y_2 y_3
-dy_2 &= 0.04 y_1 - 10^4 y_2 y_3 - 3*10^7 y_{2}^2
-1 &=  y_{1}  y_{2} + y_{3}
+dy_1 &= -0.04y₁ + 10^4 y_2 y_3 \\
+dy_2 &= 0.04 y_1 - 10^4 y_2 y_3 - 3*10^7 y_{2}^2 \\
+1 &=  y_{1}  y_{2} + y_{3} \\
 \end{align}
 ```
 
