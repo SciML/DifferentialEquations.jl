@@ -132,6 +132,7 @@ Pages = [
     "man/output_specification.md",
     "man/callback_functions.md",
     "man/plot.md",
+    "man/parameter_estimation.md",
     "man/function_definition_macros.md",
     "man/benchmarks.md",
     "man/convergence.md",
