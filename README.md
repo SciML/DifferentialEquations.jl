@@ -30,4 +30,4 @@ If you have any questions, or just want to chat about solvers/using the package,
 --------------------------------
 
 
-<img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/examples/plots/DifferentialEquations_Example.png" align="middle"  />
+<img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
