@@ -11,6 +11,7 @@ module DifferentialEquations
   @reexport using OrdinaryDiffEq
   @reexport using AlgebraicDiffEq
   @reexport using StokesDiffEq
+  @reexport using DiffEqParamEstim
   @reexport using Plots
 
 end # module
