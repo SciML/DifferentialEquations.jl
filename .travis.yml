@@ -11,4 +11,4 @@ notifications:
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone(pwd())'
-  - julia -e 'Pkg.test("DifferentialEquations",coverage=true)'
+  - julia -e 'Pkg.test("DifferentialEquations")'
