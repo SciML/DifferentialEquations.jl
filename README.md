@@ -6,7 +6,7 @@
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaDiffEq.github.io/DiffEqDocs.jl/latest)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
-This is a package for numerically solving differential equations in Julia by Chris Rackauckas. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include:
+This is a suite for numerically solving differential equations in Julia. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include:
 
 - Ordinary differential equations (ODEs)
 - Stochastic ordinary differential equations (SODEs or SDEs)

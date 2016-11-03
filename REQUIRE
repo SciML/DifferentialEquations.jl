@@ -9,4 +9,5 @@ OrdinaryDiffEq
 AlgebraicDiffEq
 StokesDiffEq
 DiffEqParamEstim
+DiffEqSensitivity
 Plots 0.9.2

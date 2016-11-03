@@ -12,6 +12,7 @@ module DifferentialEquations
   @reexport using AlgebraicDiffEq
   @reexport using StokesDiffEq
   @reexport using DiffEqParamEstim
+  @reexport using DiffEqSensitivity
   @reexport using Plots
 
 end # module
