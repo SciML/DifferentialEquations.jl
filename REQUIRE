@@ -1,5 +1,5 @@
 julia 0.5
-Reexport 0.0.3
+Reexport
 ParameterizedFunctions 0.1.0
 DiffEqBase
 StochasticDiffEq
