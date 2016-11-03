@@ -1,6 +1,5 @@
 julia 0.5
 Reexport
-ParameterizedFunctions 0.1.0
 DiffEqBase
 StochasticDiffEq
 FiniteElementDiffEq
@@ -10,4 +9,3 @@ AlgebraicDiffEq
 StokesDiffEq
 DiffEqParamEstim
 DiffEqSensitivity
-Plots 0.9.2
