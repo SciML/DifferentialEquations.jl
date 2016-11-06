@@ -1,12 +1,11 @@
 julia 0.5
-Parameters 0.5.0
-ForwardDiff 0.2.4
-ChunkedArrays 0.0.2
-IterativeSolvers 0.2.2
-GenericSVD 0.0.2
-Compat 0.8.8
-Plots 0.9.2
-InplaceOps 0.0.5
-NLsolve 0.7.3
-Sundials 0.3.0
-Ranges 0.0.1
+Reexport
+DiffEqBase
+StochasticDiffEq
+FiniteElementDiffEq
+DiffEqDevTools
+OrdinaryDiffEq
+AlgebraicDiffEq
+StokesDiffEq
+DiffEqParamEstim
+DiffEqSensitivity

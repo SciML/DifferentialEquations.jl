@@ -1,4 +1,0 @@
-# Function Index
-
-```@index
-```
