@@ -9,3 +9,4 @@ AlgebraicDiffEq
 StokesDiffEq
 DiffEqParamEstim
 DiffEqSensitivity
+Sundials

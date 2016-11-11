@@ -13,5 +13,6 @@ module DifferentialEquations
   @reexport using StokesDiffEq
   @reexport using DiffEqParamEstim
   @reexport using DiffEqSensitivity
+  @reexport using Sundials
 
 end # module
