@@ -1,13 +1,13 @@
 julia 0.5
-Reexport
-DiffEqBase
-StochasticDiffEq
-FiniteElementDiffEq
-DiffEqDevTools
-OrdinaryDiffEq
-AlgebraicDiffEq
-StokesDiffEq
-DiffEqParamEstim
-DiffEqSensitivity
-Sundials
-ParameterizedFunctions
+Reexport 0.0.3
+DiffEqBase 0.1.3
+StochasticDiffEq 0.0.5
+FiniteElementDiffEq 0.0.5
+DiffEqDevTools 0.1.1
+OrdinaryDiffEq 0.1.1
+AlgebraicDiffEq 0.0.2
+StokesDiffEq 0.0.2
+DiffEqParamEstim 0.0.2
+DiffEqSensitivity 0.0.2
+Sundials 0.3.0
+ParameterizedFunctions 0.3.2
