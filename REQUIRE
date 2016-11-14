@@ -10,3 +10,4 @@ StokesDiffEq
 DiffEqParamEstim
 DiffEqSensitivity
 Sundials
+ParameterizedFunctions

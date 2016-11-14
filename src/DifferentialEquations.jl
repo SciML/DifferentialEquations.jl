@@ -14,5 +14,6 @@ module DifferentialEquations
   @reexport using DiffEqParamEstim
   @reexport using DiffEqSensitivity
   @reexport using Sundials
+  @reexport using ParameterizedFunctions
 
 end # module
