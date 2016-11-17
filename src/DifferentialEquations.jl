@@ -15,6 +15,7 @@ module DifferentialEquations
   @reexport using DiffEqSensitivity
   @reexport using Sundials
   @reexport using ParameterizedFunctions
+  @reexport using DiffEqProblemLibrary
 
   import DiffEqBase: solve
 
