@@ -1,4 +1,4 @@
 #!/usr/bin/env julia
 
-using DifferentialEquations
-# The test is that the package successfully builds and exports!
+using DifferentialEquations, Base.Test
+@time @testset "Default ODE Algorithm" begin include("default_ode_alg_test.jl") end
