@@ -20,6 +20,8 @@ module DifferentialEquations
   import DiffEqBase: solve
 
   include("ode_default_alg.jl")
+  include("sde_default_alg.jl")
+  include("dae_default_alg.jl")
 
   function solve(prob::DEProblem,args...;default_set=false,kwargs...)
     if default_set == true && !isempty(args)

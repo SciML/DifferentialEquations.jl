@@ -1,6 +1,6 @@
 function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,tType,inplace};kwargs...)
   o = Dict{Symbol,Any}(kwargs)
-  extra_kwargs = Any[]; alg=Tsit5 # Standard default
+  extra_kwargs = Any[]; alg=Tsit5() # Standard default
   uEltype = eltype(prob.u0)
 
   :alg_hints ∈ keys(o) ? alg_hints = o[:alg_hints] : alg_hints = Symbol[:nonstiff]
@@ -18,14 +18,14 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
     if uEltype <: AbstractFloat
       if !(uEltype <: Float64)
         # Most likely higher precision, so use a higher order method
-        alg = Vern8
+        alg = Vern8()
       end
     end
   else # The problem is stiff
     if uEltype <: Float64 # Sundials only works on Float64!
-      alg = CVODE_BDF
+      alg = CVODE_BDF()
     else
-      alg = Rosenbrock23
+      alg = Rosenbrock23()
     end
   end
   alg,extra_kwargs

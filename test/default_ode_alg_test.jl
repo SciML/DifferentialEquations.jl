@@ -3,12 +3,12 @@ using OrdinaryDiffEq, DiffEqProblemLibrary, DiffEqBase, Sundials, Base.Test
 alg, kwargs = default_algorithm(prob_ode_2Dlinear;dt=1//2^(4))
 sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
 
-@test typeof(sol.alg) == alg
+@test typeof(sol.alg) == typeof(alg)
 @test typeof(sol.alg) == Tsit5
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
-@test sol.alg == CVODE_BDF
+@test typeof(sol.alg) == CVODE_BDF
 
 const linear_bigα = parse(BigFloat,"1.01")
 f = (t,u,du) -> begin
