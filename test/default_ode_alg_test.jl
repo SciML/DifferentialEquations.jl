@@ -8,7 +8,7 @@ sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
-@test typeof(sol.alg) == CVODE_BDF
+@test typeof(sol.alg) == CVODE_BDF{:Newton,:Dense}
 
 const linear_bigα = parse(BigFloat,"1.01")
 f = (t,u,du) -> begin
