@@ -22,7 +22,7 @@ All of the algorithms are thoroughly tested to ensure accuracy via convergence t
 [can be found at DiffEqTutorials.jl](https://github.com/JuliaDiffEq/DiffEqTutorials.jl). Benchmarks [can be found at DiffEqBenchmarks.jl](https://github.com/JuliaDiffEq/DiffEqBenchmarks.jl). If you find any equation where there seems
 to be an error, please open an issue.
 
-If you have any questions, or just want to chat about solvers/using the package, please feel free to chat in the [Gitter channel](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. For help installing conditional dependencies such as the ODE.jl wrappers, see the [Conditional Dependences manual page](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html). If you're interested in contributing, please see the [Contributor's Guide](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/internals/contributors_guide.html).
+If you have any questions, or just want to chat about solvers/using the package, please feel free to chat in the [Gitter channel](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). For bug reports, feature requests, etc., please submit an issue. For help installing conditional dependencies such as the ODE.jl wrappers, see the [Conditional Dependences manual page](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/man/conditional_dependencies.html). If you're interested in contributing, please see the [Developer Documentation](https://juliadiffeq.github.io/DiffEqDevDocs.jl/latest/).
 
 --------------------------------
 
