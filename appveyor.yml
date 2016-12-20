@@ -1,7 +1,9 @@
 environment:
   matrix:
-  - JULIAVERSION: "julialang/bin/winnt/x64/0.5/julia-0.5-latest-win64.exe"
-  - JULIAVERSION: "julianightlies/bin/winnt/x64/julia-latest-win64.exe"
+    - JULIAVERSION: "julialang/bin/winnt/x64/0.5/julia-0.5-latest-win64.exe"
+matrix:
+  allow_failures:
+    - JULIAVERSION: "julianightlies/bin/winnt/x64/julia-latest-win64.exe"
 branches:
   only:
     - master
