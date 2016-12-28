@@ -18,7 +18,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
     if uEltype <: AbstractFloat
       if !(uEltype <: Float64)
         # Most likely higher precision, so use a higher order method
-        alg = Vern8()
+        alg = Vern7()
       end
     end
   else # The problem is stiff
