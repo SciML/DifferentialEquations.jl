@@ -5,6 +5,7 @@ module DifferentialEquations
   using Reexport
 
   @reexport using DiffEqBase
+  @reexport using DiffEqPDEBase
   @reexport using StochasticDiffEq
   @reexport using FiniteElementDiffEq
   @reexport using DiffEqDevTools
