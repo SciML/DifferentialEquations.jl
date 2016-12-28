@@ -23,7 +23,5 @@ function default_algorithm{islinear,isstochastic,MeshType<:FEMMesh}(
     alg = FEMDiffEqHeatSemiImplicitCrankNicholson()
   end
 
-  @show "here"
-
   alg, extra_kwargs
 end
