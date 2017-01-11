@@ -16,12 +16,17 @@ module DifferentialEquations
   @reexport using DiffEqSensitivity
   @reexport using Sundials
   @reexport using ParameterizedFunctions
+  @reexport using DelayDiffEq
+  @reexport using DiffEqCallbacks
+  @reexport using DiffEqMonteCarlo
+  @reexport using DiffEqUncertainty
 
   import DiffEqBase: solve
 
   include("ode_default_alg.jl")
   include("sde_default_alg.jl")
   include("dae_default_alg.jl")
+  include("dde_default_alg.jl")
   include("fem_default_alg.jl")
 
   function solve(prob::DEProblem,args...;default_set=false,kwargs...)

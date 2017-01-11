@@ -12,3 +12,7 @@ DiffEqSensitivity 0.0.2
 Sundials 0.4.1
 ParameterizedFunctions 0.3.2
 DiffEqPDEBase
+DelayDiffEq
+DiffEqCallbacks
+DiffEqMonteCarlo
+DiffEqUncertainty
