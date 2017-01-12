@@ -15,4 +15,3 @@ DiffEqPDEBase
 DelayDiffEq
 DiffEqCallbacks
 DiffEqMonteCarlo
-DiffEqUncertainty
