@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, DiffEqProblemLibrary, DiffEqBase, Sundials, Base.Test
+using DifferentialEquations, DiffEqProblemLibrary, Base.Test
 
 alg, kwargs = default_algorithm(prob_ode_2Dlinear;dt=1//2^(4))
 sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
@@ -26,7 +26,7 @@ default_algorithm(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
 sol =solve(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
-@test typeof(sol.alg) == Rosenbrock23
+@test typeof(sol.alg) == Rosenbrock23{0,true}
 
 immutable FooAlg end
 
