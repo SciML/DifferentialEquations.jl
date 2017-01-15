@@ -24,7 +24,7 @@ If you have any questions, or just want to chat about solvers/using the package,
 
 ## Supporting and Citing
 
-The software in this ecosystem was developed as part of academic research. If you would like to help support it, please star the repository as such metrics may help fund this work in the future. If you use JuliaDiffEq software as part of your research, teaching, or other activities, we would be grateful if you could cite our work. [Please see our citation page for guidelines](http://juliadiffeq.org/citing.html).
+The software in this ecosystem was developed as part of academic research. If you would like to help support it, please star the repository as such metrics may help us secure funding in the future. If you use JuliaDiffEq software as part of your research, teaching, or other activities, we would be grateful if you could cite our work. [Please see our citation page for guidelines](http://juliadiffeq.org/citing.html).
 
 --------------------------------
 
