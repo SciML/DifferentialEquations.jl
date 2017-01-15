@@ -3,8 +3,8 @@
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Travis](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl)
 [![AppVoyer](https://ci.appveyor.com/api/projects/status/1smlr9ryfqfx1ear?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/differentialequations-jl-1sx90)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://docs.juliadiffeq.org/stable/)
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](http://docs.juliadiffeq.org/latest/)
-[![Stable](https://img.shields.io/badge/docs-release-blue.svg)](http://docs.juliadiffeq.org/stable/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
 This is a suite for numerically solving differential equations in Julia. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include:
