@@ -4,7 +4,7 @@
 [![Travis](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl)
 [![AppVoyer](https://ci.appveyor.com/api/projects/status/1smlr9ryfqfx1ear?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/differentialequations-jl-1sx90)
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](http://docs.juliadiffeq.org/latest/)
-[![Release](https://img.shields.io/badge/docs-release-blue.svg)](http://docs.juliadiffeq.org/release/)
+[![Stable](https://img.shields.io/badge/docs-release-blue.svg)](http://docs.juliadiffeq.org/stable/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
 This is a suite for numerically solving differential equations in Julia. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include:
@@ -17,7 +17,7 @@ This is a suite for numerically solving differential equations in Julia. The pur
 
 The well-optimized DifferentialEquations solvers benchmark as the fastest Julia implementations, using classic algorithms and ones from recent research, and include algorithms optimized for high-precision and HPC applications.  It integrates with the Julia package sphere, for example using Juno's progress meter, automatic plotting, built-in interpolations, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument. It utilizes Julia's generality to be able to solve problems specified with arbitrary number types (types with units like Unitful, and arbitrary precision numbers like BigFloats and ArbFloats), arbitrary sized arrays (ODEs on matrices), and more. This gives a powerful mixture of speed and productivity features to help you solve and analyze your differential equations faster.
 
-For information on using the package, [see the documentation](http://docs.juliadiffeq.org/release/).
+For information on using the package, [see the stable documentation](http://docs.juliadiffeq.org/stable/). Use the [latest documentation](http://docs.juliadiffeq.org/latest/) for the version of the documentation which contains the un-released features.
 
 All of the algorithms are thoroughly tested to ensure accuracy via convergence tests. The algorithms are continuously tested to show correctness. IJulia tutorial notebooks [can be found at DiffEqTutorials.jl](https://github.com/JuliaDiffEq/DiffEqTutorials.jl). Benchmarks [can be found at DiffEqBenchmarks.jl](https://github.com/JuliaDiffEq/DiffEqBenchmarks.jl). If you find any equation where there seems to be an error, please open an issue.
 
