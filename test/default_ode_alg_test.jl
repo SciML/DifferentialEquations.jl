@@ -26,7 +26,7 @@ default_algorithm(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
 sol =solve(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
-@test typeof(sol.alg) == Rosenbrock23{0,true}
+@test typeof(sol.alg) == Rosenbrock23{0,true,typeof(lufact!)}
 
 immutable FooAlg end
 
