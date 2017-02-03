@@ -9,6 +9,7 @@
 
 This is a suite for numerically solving differential equations in Julia. The purpose of this package is to supply efficient Julia implementations of solvers for various differential equations. Equations within the realm of this package include:
 
+- Discrete equations (function maps, discrete stochastic (Gillespie/Markov) simulations)
 - Ordinary differential equations (ODEs)
 - Stochastic ordinary differential equations (SODEs or SDEs)
 - Algebraic differential equations (DAEs)
