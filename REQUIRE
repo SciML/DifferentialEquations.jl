@@ -15,3 +15,7 @@ DiffEqPDEBase
 DelayDiffEq 0.1.0
 DiffEqCallbacks
 DiffEqMonteCarlo
+DiffEqJump
+DiffEqFinancial
+DiffEqBiological
+MultiScaleArrays

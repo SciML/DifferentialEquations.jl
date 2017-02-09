@@ -20,6 +20,12 @@ module DifferentialEquations
   @reexport using DiffEqCallbacks
   @reexport using DiffEqMonteCarlo
 
+  @reexport using DiffEqJump
+
+  @reexport using DiffEqFinancial
+  @reexport using DiffEqBiological
+  @reexport using MultiScaleArrays
+
   import DiffEqBase: solve
 
   include("ode_default_alg.jl")
