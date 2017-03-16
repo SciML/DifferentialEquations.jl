@@ -14,6 +14,7 @@ This is a suite for numerically solving differential equations in Julia. The pur
 - Stochastic ordinary differential equations (SODEs or SDEs)
 - Algebraic differential equations (DAEs)
 - Delay differential equations (DDEs)
+- Mixed discrete and continuous equations (Hybrid Equations, Jump Diffusions)
 - (Stochastic) partial differential equations ((S)PDEs) (with both finite difference and finite element methods)
 
 The well-optimized DifferentialEquations solvers benchmark as the fastest Julia implementations, using classic algorithms and ones from recent research, and include algorithms optimized for high-precision and HPC applications.  It integrates with the Julia package sphere, for example using Juno's progress meter, automatic plotting, built-in interpolations, and wraps other differential equation solvers so that many different methods for solving the equations can be accessed by simply switching a keyword argument. It utilizes Julia's generality to be able to solve problems specified with arbitrary number types (types with units like Unitful, and arbitrary precision numbers like BigFloats and ArbFloats), arbitrary sized arrays (ODEs on matrices), and more. This gives a powerful mixture of speed and productivity features to help you solve and analyze your differential equations faster.
