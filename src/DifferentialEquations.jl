@@ -19,7 +19,6 @@ module DifferentialEquations
   @reexport using DelayDiffEq
   @reexport using DiffEqCallbacks
   @reexport using DiffEqMonteCarlo
-  @reexport using PyDSTool
 
   @reexport using DiffEqJump
 
