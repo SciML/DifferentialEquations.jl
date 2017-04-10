@@ -12,6 +12,7 @@ This is a suite for numerically solving differential equations in Julia. The pur
 - Discrete equations (function maps, discrete stochastic (Gillespie/Markov) simulations)
 - Ordinary differential equations (ODEs)
 - Stochastic ordinary differential equations (SODEs or SDEs)
+- Random differential equations (RODEs or RDEs)
 - Algebraic differential equations (DAEs)
 - Delay differential equations (DDEs)
 - Mixed discrete and continuous equations (Hybrid Equations, Jump Diffusions)
