@@ -1,4 +1,4 @@
-function default_algorithm{uType,tType,lType,isinplace,F,H}(prob::AbstractConstantLagDDEProblem{uType,tType,lType,isinplace,F,H};kwargs...)
+function default_algorithm{uType,tType,lType,isinplace}(prob::AbstractConstantLagDDEProblem{uType,tType,lType,isinplace};kwargs...)
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=MethodOfSteps(Tsit5()) # Standard default
   uEltype = eltype(prob.u0)

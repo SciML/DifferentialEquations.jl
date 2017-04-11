@@ -1,4 +1,4 @@
-function default_algorithm{uType,tType,isinplace,NoiseClass,F,F2,F3}(prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,F,F2,F3};kwargs...)
+function default_algorithm{uType,tType,isinplace,NoiseClass,ND}(prob::AbstractSDEProblem{uType,tType,isinplace,NoiseClass,ND};kwargs...)
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=SRIW1() # Standard default
   uEltype = eltype(prob.u0)
