@@ -1,6 +1,6 @@
 julia 0.5
 Reexport 0.0.3
-DiffEqBase 0.8.0
+DiffEqBase 0.15.0
 StochasticDiffEq 1.0.0
 FiniteElementDiffEq 0.0.5
 DiffEqDevTools 0.2.0
