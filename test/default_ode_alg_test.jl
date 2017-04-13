@@ -16,8 +16,8 @@ f = (t,u,du) -> begin
     du[i] = linear_bigα*u[i]
   end
 end
-analytic = (t,u0) -> u0*exp(linear_bigα*t)
-prob_ode_bigfloat2Dlinear = ODETestProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,analytic)
+(p::typeof(f))(::Type{Val{:analytic}},t,u0) = u0*exp(linear_bigα*t)
+prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,(0.0,1.0))
 
 sol =solve(prob_ode_bigfloat2Dlinear;dt=1//2^(4))
 @test typeof(sol.alg) == Vern7
