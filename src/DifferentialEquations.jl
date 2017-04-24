@@ -26,6 +26,8 @@ module DifferentialEquations
   @reexport using DiffEqBiological
   @reexport using MultiScaleArrays
 
+  @reexport using PyDSTool
+
   import DiffEqBase: solve
 
   include("ode_default_alg.jl")
