@@ -28,6 +28,8 @@ module DifferentialEquations
 
   @reexport using PyDSTool
 
+  @reexport using DimensionalPlotRecipes
+
   import DiffEqBase: solve
 
   include("ode_default_alg.jl")
