@@ -6,20 +6,24 @@ module DifferentialEquations
 
   @reexport using DiffEqBase
   @reexport using DiffEqPDEBase
+  @reexport using DiffEqNoiseProcess
+  @reexport using RecursiveArrayTools
+
+  @reexport using SteadyStateDiffEq
   @reexport using StochasticDiffEq
   @reexport using FiniteElementDiffEq
-  @reexport using DiffEqDevTools
   @reexport using OrdinaryDiffEq
   @reexport using AlgebraicDiffEq
   @reexport using StokesDiffEq
+  @reexport using Sundials
+  @reexport using DelayDiffEq
+
+  @reexport using ParameterizedFunctions
   @reexport using DiffEqParamEstim
   @reexport using DiffEqSensitivity
-  @reexport using Sundials
-  @reexport using ParameterizedFunctions
-  @reexport using DelayDiffEq
   @reexport using DiffEqCallbacks
   @reexport using DiffEqMonteCarlo
-
+  @reexport using DiffEqDevTools
   @reexport using DiffEqJump
 
   @reexport using DiffEqFinancial

@@ -21,3 +21,6 @@ DiffEqBiological
 MultiScaleArrays
 PyDSTool
 DimensionalPlotRecipes
+RecursiveArrayTools
+DiffEqNoiseProcess
+SteadyStateDiffEq
