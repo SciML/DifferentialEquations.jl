@@ -14,7 +14,6 @@ module DifferentialEquations
   @reexport using FiniteElementDiffEq
   @reexport using OrdinaryDiffEq
   @reexport using AlgebraicDiffEq
-  @reexport using StokesDiffEq
   @reexport using Sundials
   @reexport using DelayDiffEq
 
