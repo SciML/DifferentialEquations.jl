@@ -1,26 +1,25 @@
 julia 0.5
 Reexport 0.0.3
-DiffEqBase 0.15.0
-StochasticDiffEq 1.0.0
-FiniteElementDiffEq 0.0.5
-DiffEqDevTools 0.2.0
-OrdinaryDiffEq 1.2.0
-AlgebraicDiffEq 0.0.2
-StokesDiffEq 0.0.2
-DiffEqParamEstim 0.0.2
-DiffEqSensitivity 0.0.2
-Sundials 0.4.1
-ParameterizedFunctions 0.3.2
-DiffEqPDEBase
-DelayDiffEq 0.1.0
-DiffEqCallbacks
-DiffEqMonteCarlo
-DiffEqJump
-DiffEqFinancial
-DiffEqBiological
-MultiScaleArrays
-PyDSTool
-DimensionalPlotRecipes
-RecursiveArrayTools
-DiffEqNoiseProcess
-SteadyStateDiffEq
+DiffEqBase 1.0.0
+StochasticDiffEq 2.0.0
+FiniteElementDiffEq 0.3.0
+DiffEqDevTools 0.8.0
+OrdinaryDiffEq 2.0.0
+AlgebraicDiffEq 0.1.0
+DiffEqParamEstim 0.3.0
+DiffEqSensitivity 0.2.1
+Sundials 0.11.0
+ParameterizedFunctions 1.3.0
+DiffEqPDEBase 0.3.0
+DelayDiffEq 0.3.0
+DiffEqCallbacks 0.0.2
+DiffEqMonteCarlo 0.3.0
+DiffEqJump 0.3.0
+DiffEqFinancial 0.2.0
+DiffEqBiological 0.0.1
+MultiScaleArrays 0.1.0
+PyDSTool 0.1.2
+DimensionalPlotRecipes 0.0.2
+RecursiveArrayTools 0.4.1
+DiffEqNoiseProcess 0.0.1
+SteadyStateDiffEq 0.0.1
