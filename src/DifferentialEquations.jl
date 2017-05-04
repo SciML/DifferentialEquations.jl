@@ -24,6 +24,7 @@ module DifferentialEquations
   @reexport using DiffEqMonteCarlo
   @reexport using DiffEqDevTools
   @reexport using DiffEqJump
+  @reexport using DiffEqUncertainty
 
   @reexport using DiffEqFinancial
   @reexport using DiffEqBiological
