@@ -4,11 +4,27 @@ alg, kwargs = default_algorithm(prob_ode_2Dlinear;dt=1//2^(4))
 sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
 
 @test typeof(sol.alg) == typeof(alg)
-@test typeof(sol.alg) == Tsit5
+@test typeof(sol.alg) <: Tsit5
+
+sol =solve(prob_ode_2Dlinear;reltol=1e-1)
+
+@test typeof(sol.alg) <: BS3
+
+sol =solve(prob_ode_2Dlinear;reltol=1e-7)
+
+@test typeof(sol.alg) <: Vern7
+
+sol =solve(prob_ode_2Dlinear;reltol=1e-10)
+
+@test typeof(sol.alg) <: Vern8
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
 @test typeof(sol.alg) <: CVODE_BDF
+
+sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff],reltol=1e-1)
+
+@test typeof(sol.alg) <: Rosenbrock23
 
 const linear_bigα = parse(BigFloat,"1.01")
 f = (t,u,du) -> begin
@@ -20,7 +36,7 @@ end
 prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,(0.0,1.0))
 
 sol =solve(prob_ode_bigfloat2Dlinear;dt=1//2^(4))
-@test typeof(sol.alg) == Vern7
+@test typeof(sol.alg) <: Vern8
 
 default_algorithm(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
