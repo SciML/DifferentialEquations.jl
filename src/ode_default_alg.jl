@@ -5,6 +5,8 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
 
   alg_hints = get_alg_hints(o)
   tol_level = get_tolerance_level(o)
+  callbacks = callbacks_exists(o)
+  mm = mass_matrix_exists(prob)
 
   if :stiff ∈ alg_hints && :nonstiff ∈ alg_hints
     error("The problem must either be designated as stiff or non-stiff")
@@ -30,7 +32,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
     end
   else # The problem is stiff
     if uEltype <: Float64 # Sundials only works on Float64!
-      if tol_level == :high_tol
+      if tol_level == :high_tol || callbacks || mm # But not in these cases
         alg = Rosenbrock23()
       else
         alg = CVODE_BDF()

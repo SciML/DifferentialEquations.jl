@@ -16,3 +16,12 @@ function get_tolerance_level(o)
     return :extreme_tol
   end
 end
+
+function callbacks_exists(o)
+  :callback ∈ keys(o) ? callback = o[:callback] : callback = nothing
+  callback != nothing
+end
+
+function mass_matrix_exists(prob)
+  prob.mass_matrix != I
+end

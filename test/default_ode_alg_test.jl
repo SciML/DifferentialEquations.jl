@@ -55,3 +55,23 @@ immutable FooAlg end
 immutable FooAlg2 <: DEAlgorithm end
 
 @test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg2();default_set=true)
+
+prob = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0))
+
+sol =solve(prob;alg_hints=[:stiff])
+
+@test typeof(sol.alg) <: CVODE_BDF
+
+sol =solve(prob;alg_hints=[:stiff],reltol=1e-1)
+
+@test typeof(sol.alg) <: Rosenbrock23
+
+sol =solve(prob;alg_hints=[:stiff],callback=CallbackSet())
+
+@test typeof(sol.alg) <: Rosenbrock23
+
+prob_mm = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0),mass_matrix=nothing)
+
+alg, kwargs = default_algorithm(prob_mm;alg_hints=[:stiff])
+
+@test typeof(alg) <: Rosenbrock23
