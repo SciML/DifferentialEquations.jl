@@ -43,6 +43,8 @@ module DifferentialEquations
   include("dae_default_alg.jl")
   include("dde_default_alg.jl")
   include("fem_default_alg.jl")
-
+  include("discrete_default_alg.jl")
+  include("rode_default_alg.jl")
+  include("steady_state_default_alg.jl")
 
 end # module
