@@ -8,7 +8,7 @@ sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
-@test typeof(sol.alg) == CVODE_BDF{:Newton,:Dense}
+@test typeof(sol.alg) <: CVODE_BDF
 
 const linear_bigα = parse(BigFloat,"1.01")
 f = (t,u,du) -> begin
@@ -30,4 +30,8 @@ sol =solve(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
 immutable FooAlg end
 
-@test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg;default_set=true)
+@test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg();default_set=true)
+
+immutable FooAlg2 <: DEAlgorithm end
+
+@test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg2();default_set=true)
