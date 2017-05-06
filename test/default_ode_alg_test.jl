@@ -28,6 +28,10 @@ sol =solve(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
 @test typeof(sol.alg) <: Rosenbrock23
 
+sol =solve(prob_ode_bigfloat2Dlinear,DefaultAlgorithm();alg_hints=[:stiff])
+
+@test typeof(sol.alg) <: Rosenbrock23
+
 immutable FooAlg end
 
 @test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg();default_set=true)

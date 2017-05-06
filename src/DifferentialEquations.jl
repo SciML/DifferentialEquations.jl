@@ -42,6 +42,8 @@ module DifferentialEquations
   include("dde_default_alg.jl")
   include("fem_default_alg.jl")
 
+  immutable DefaultAlgorithm <: DEAlgorithm end
+
   function solve(prob::DEProblem,args...;default_set=false,kwargs...)
     if length(args)>0 && !(typeof(args[1]) <: DEAlgorithm)
       error("Inappropiate solve command. The arguements do not make sense. Likely,
@@ -56,7 +58,7 @@ module DifferentialEquations
       Please verify that the appropriate solver package has been installed.")
   end
 
-  function solve(prob::DEProblem,::Void,args...;default_set=false,kwargs...)
+  function solve(prob::DEProblem,::Union{Void,DefaultAlgorithm},args...;default_set=false,kwargs...)
     if default_set == true && !isempty(args)
       error("The chosen algorithm, "*string(args[1])*", does not exist.
         Please verify that the appropriate solver package has been installed.")
@@ -67,7 +69,7 @@ module DifferentialEquations
     solve(prob,alg,args...;default_set=true,kwargs...,extra_kwargs...)
   end
 
-  export default_algorithm
+  export default_algorithm, DefaultAlgorithm
 
 
 end # module
