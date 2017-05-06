@@ -3,7 +3,7 @@ function default_algorithm{uType,duType,tType,isinplace}(prob::AbstractDAEProble
   extra_kwargs = Any[]; alg=IDA() # Standard default
   uEltype = eltype(prob.u0)
 
-  :alg_hints ∈ keys(o) ? alg_hints = o[:alg_hints] : alg_hints = Symbol[:nonstiff]
+  alg_hints = get_alg_hints(o)
 
   # If adaptivity is not set and the tType is not a float, turn off adaptivity
   # Bad interaction with ForwardDiff

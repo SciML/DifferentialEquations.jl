@@ -3,7 +3,7 @@ function default_algorithm{uType,tType,isinplace,ND}(prob::AbstractSDEProblem{uT
   extra_kwargs = Any[]; alg=SRIW1() # Standard default
   uEltype = eltype(prob.u0)
 
-  :alg_hints ∈ keys(o) ? alg_hints = o[:alg_hints] : alg_hints = Symbol[:nonstiff]
+  alg_hints = get_alg_hints(o)
 
   if :additive ∈ alg_hints
     alg = SRA1()

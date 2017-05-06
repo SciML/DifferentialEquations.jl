@@ -3,7 +3,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
   extra_kwargs = Any[]; alg=Tsit5() # Standard default
   uEltype = eltype(prob.u0)
 
-  :alg_hints ∈ keys(o) ? alg_hints = o[:alg_hints] : alg_hints = Symbol[:nonstiff]
+  alg_hints = get_alg_hints(o)
 
   if :stiff ∈ alg_hints && :nonstiff ∈ alg_hints
     error("The problem must either be designated as stiff or non-stiff")
