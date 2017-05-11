@@ -9,7 +9,7 @@ AlgebraicDiffEq 0.1.0
 DiffEqParamEstim 0.3.0
 DiffEqSensitivity 0.2.1
 Sundials 0.11.0
-ParameterizedFunctions 1.3.0
+ParameterizedFunctions 2.0.0
 DiffEqPDEBase 0.3.0
 DelayDiffEq 0.3.0
 DiffEqCallbacks 0.0.2
@@ -18,7 +18,6 @@ DiffEqJump 0.3.0
 DiffEqFinancial 0.2.0
 DiffEqBiological 0.0.1
 MultiScaleArrays 0.1.0
-PyDSTool 0.1.2
 DimensionalPlotRecipes 0.0.2
 RecursiveArrayTools 0.4.1
 DiffEqNoiseProcess 0.0.1

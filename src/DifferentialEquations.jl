@@ -1,4 +1,4 @@
-__precompile__(false)
+__precompile__()
 
 module DifferentialEquations
 
@@ -29,8 +29,6 @@ module DifferentialEquations
   @reexport using DiffEqFinancial
   @reexport using DiffEqBiological
   @reexport using MultiScaleArrays
-
-  @reexport using PyDSTool
 
   @reexport using DimensionalPlotRecipes
 
