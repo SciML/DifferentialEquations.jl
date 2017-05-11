@@ -30,8 +30,6 @@ module DifferentialEquations
   @reexport using DiffEqBiological
   @reexport using MultiScaleArrays
 
-  @reexport using PyDSTool
-
   @reexport using DimensionalPlotRecipes
 
   import DiffEqBase: solve
