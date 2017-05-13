@@ -44,7 +44,7 @@ sol =solve(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
 @test typeof(sol.alg) <: Rosenbrock23
 
-sol =solve(prob_ode_bigfloat2Dlinear,DefaultAlgorithm();alg_hints=[:stiff])
+sol =solve(prob_ode_bigfloat2Dlinear,nothing;alg_hints=[:stiff])
 
 @test typeof(sol.alg) <: Rosenbrock23
 
