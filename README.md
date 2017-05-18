@@ -24,7 +24,7 @@ include:
 - (Stochastic) partial differential equations ((S)PDEs) (with both finite
   difference and finite element methods)
 
-The well-optimized DifferentialEquations solvers benchmark as the some of the fastest  
+The well-optimized DifferentialEquations solvers benchmark as the some of the fastest 
 implementations, using classic algorithms and ones from recent research which
 routinely outperform the "standard" C/Fortran methods, and include algorithms
 optimized for high-precision and HPC applications. It integrates with the Julia
