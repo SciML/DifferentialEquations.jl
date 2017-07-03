@@ -21,7 +21,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
     if uEltype <: AbstractFloat
       if !(uEltype <: Float64) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
-        alg = Vern8()
+        alg = Vern9()
       elseif tol_level == :low_tol
         alg = Vern7()
       elseif tol_level == :med_tol
