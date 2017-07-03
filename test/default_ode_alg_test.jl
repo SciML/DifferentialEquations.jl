@@ -16,7 +16,7 @@ sol =solve(prob_ode_2Dlinear;reltol=1e-7)
 
 sol =solve(prob_ode_2Dlinear;reltol=1e-10)
 
-@test typeof(sol.alg) <: Vern8
+@test typeof(sol.alg) <: Vern9
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
