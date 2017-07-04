@@ -36,7 +36,7 @@ end
 prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,(0.0,1.0))
 
 sol =solve(prob_ode_bigfloat2Dlinear;dt=1//2^(4))
-@test typeof(sol.alg) <: Vern8
+@test typeof(sol.alg) <: Vern9
 
 default_algorithm(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
