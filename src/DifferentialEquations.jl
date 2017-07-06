@@ -13,7 +13,6 @@ module DifferentialEquations
   @reexport using StochasticDiffEq
   @reexport using FiniteElementDiffEq
   @reexport using OrdinaryDiffEq
-  @reexport using AlgebraicDiffEq
   @reexport using Sundials
   @reexport using DelayDiffEq
 
