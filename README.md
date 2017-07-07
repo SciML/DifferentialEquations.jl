@@ -69,5 +69,10 @@ could cite our work.
 
 --------------------------------
 
+## Video Introduction
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/75SCMIRlNXM" frameborder="0" allowfullscreen></iframe>
 
 <img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
+
+
