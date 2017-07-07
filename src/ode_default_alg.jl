@@ -35,7 +35,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
       if tol_level == :high_tol || callbacks || mm # But not in these cases
         alg = Rosenbrock23()
       else
-        alg = CVODE_BDF()
+        alg = Rodas4()
       end
     else
       alg = Rosenbrock23()
