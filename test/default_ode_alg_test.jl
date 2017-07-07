@@ -20,7 +20,7 @@ sol =solve(prob_ode_2Dlinear;reltol=1e-10)
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
-@test typeof(sol.alg) <: CVODE_BDF
+@test typeof(sol.alg) <: Rodas4
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff],reltol=1e-1)
 
@@ -60,7 +60,7 @@ prob = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0))
 
 sol =solve(prob;alg_hints=[:stiff])
 
-@test typeof(sol.alg) <: CVODE_BDF
+@test typeof(sol.alg) <: Rodas4
 
 sol =solve(prob;alg_hints=[:stiff],reltol=1e-1)
 
