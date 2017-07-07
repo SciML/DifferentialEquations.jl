@@ -71,7 +71,7 @@ could cite our work.
 
 ## Video Introduction
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/75SCMIRlNXM" frameborder="0" allowfullscreen></iframe>
+[![Video Introduction to DifferentialEquations.jl](https://user-images.githubusercontent.com/1814174/27973992-e236a9a4-6310-11e7-84af-2b66097cecf9.PNG)](https://youtu.be/75SCMIRlNXM)
 
 <img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
 
