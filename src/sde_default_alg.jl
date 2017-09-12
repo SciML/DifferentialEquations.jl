@@ -9,12 +9,36 @@ function default_algorithm{uType,tType,isinplace,ND}(prob::AbstractSDEProblem{uT
     alg = SRA1()
   end
 
-  if prob.noise_rate_prototype != nothing
-    alg = EM()
+  if :commutative ∈ alg_hints
+    alg = RKMilCommute()
+  end
+
+  if :stiff ∈ alg_hints
+    alg = ImplicitRKMil()
   end
 
   if :stratonovich ∈ alg_hints
-    alg = EulerHeun()
+    if :stiff ∈ alg_hints
+      alg = ImplicitRKMil(interpretation=:stratonovich)
+    else
+      alg = RKMil(interpretation=:stratonovich)
+    end
+  end
+
+  if prob.noise_rate_prototype != nothing || prob.noise != nothing
+    if :stratonovich ∈ alg_hints
+      if :stiff ∈ alg_hints
+        alg = ImplicitEulerHeun()
+      else
+        alg = EulerHeun()
+      end
+    else
+      if :stiff ∈ alg_hints
+        alg = ImplicitEM()
+      else
+        alg = EM()
+      end
+    end
   end
 
   # If adaptivity is not set and the tType is not a float, turn off adaptivity

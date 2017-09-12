@@ -9,6 +9,10 @@ sol =solve(prob,dt=1/2^(3))
 sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
 @test typeof(sol.alg) <: SRA1
 
+sol =solve(prob,dt=1/2^(3),alg_hints=[:stratonovich])
+@test StochasticDiffEq.alg_interpretation(sol.alg) == :stratonovich
+@test typeof(sol.alg) <: RKMil
+
 f = (t,u,du) -> du.=1.01u
 g = function (t,u,du)
   du[1,1] = 0.3u[1]
