@@ -73,6 +73,14 @@ could cite our work.
 
 [![Video Introduction to DifferentialEquations.jl](https://user-images.githubusercontent.com/1814174/27973992-e236a9a4-6310-11e7-84af-2b66097cecf9.PNG)](https://youtu.be/75SCMIRlNXM)
 
+## Comparison to MATLAB, R, Julia, Python, C, Mathematica, Maple, and Fortran
+
+<a href="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-2.pdf"><img src="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-1-2-300x232.png" alt="Comparison Of Differential Equation Solver Software" width="300" height="232" class="aligncenter size-medium wp-image-715" /></a>
+
+[See the corresponding blog post](http://www.stochasticlifestyle.com/comparison-differential-equation-solver-suites-matlab-r-julia-python-c-fortran/)
+
+## Example Images
+
 <img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
 
 
