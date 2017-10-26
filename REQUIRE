@@ -3,6 +3,7 @@ Reexport 0.0.3
 DiffEqBase 1.0.0
 StochasticDiffEq 2.11.1
 FiniteElementDiffEq 0.3.0
+BoundaryValueDiffEq
 DiffEqDevTools 0.8.0
 OrdinaryDiffEq 2.11.0
 AlgebraicDiffEq 0.1.0
@@ -23,3 +24,4 @@ RecursiveArrayTools 0.4.1
 DiffEqNoiseProcess 0.0.1
 SteadyStateDiffEq 0.0.1
 DiffEqUncertainty
+DiffEqPhysics

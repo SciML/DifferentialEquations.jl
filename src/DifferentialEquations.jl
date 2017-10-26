@@ -15,6 +15,7 @@ module DifferentialEquations
   @reexport using OrdinaryDiffEq
   @reexport using Sundials
   @reexport using DelayDiffEq
+  @reexport using BoundaryValueDiffEq
 
   @reexport using ParameterizedFunctions
   @reexport using DiffEqParamEstim
@@ -28,6 +29,7 @@ module DifferentialEquations
   @reexport using DiffEqFinancial
   @reexport using DiffEqBiological
   @reexport using MultiScaleArrays
+  @reexport using DiffEqPhysics
 
   @reexport using DimensionalPlotRecipes
 
