@@ -75,7 +75,7 @@ could cite our work.
 
 ## Comparison to MATLAB, R, Julia, Python, C, Mathematica, Maple, and Fortran
 
-<a href="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-2.pdf"><img src="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-1-2.png" alt="Comparison Of Differential Equation Solver Software" align="middle"/></a>
+<a href="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-3.pdf"><img src="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-1-3.png" alt="Comparison Of Differential Equation Solver Software" align="middle"/></a>
 
 [See the corresponding blog post](http://www.stochasticlifestyle.com/comparison-differential-equation-solver-suites-matlab-r-julia-python-c-fortran/)
 
