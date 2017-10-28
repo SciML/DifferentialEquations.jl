@@ -15,7 +15,6 @@ module DifferentialEquations
   @reexport using OrdinaryDiffEq
   @reexport using Sundials
   @reexport using DelayDiffEq
-  @reexport using BoundaryValueDiffEq
 
   @reexport using ParameterizedFunctions
   @reexport using DiffEqParamEstim
