@@ -8,7 +8,7 @@ end
 h = (t) -> 0.0
 
 
-prob = ConstantLagDDEProblem(f,h,1.0,lags,(0.0,10.0))
+prob = DDEProblem(f,h,1.0,(0.0,10.0),lags)
 
 sol = solve(prob)
 
