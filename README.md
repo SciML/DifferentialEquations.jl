@@ -18,7 +18,7 @@ include:
 - Split and Partitioned ODEs (Symplectic integrators, IMEX Methods)
 - Stochastic ordinary differential equations (SODEs or SDEs)
 - Random differential equations (RODEs or RDEs)
-- Algebraic differential equations (DAEs)
+- Differential algebraic equations (DAEs)
 - Delay differential equations (DDEs)
 - Mixed discrete and continuous equations (Hybrid Equations, Jump Diffusions)
 - (Stochastic) partial differential equations ((S)PDEs) (with both finite
