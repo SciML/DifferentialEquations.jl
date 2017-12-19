@@ -31,13 +31,13 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
       end
     end
   else # The problem is stiff
-    if uType <: Array{Float64} && !mm && length(prob.u0) > 1000
+    if uType <: Array{Float64} && !mm && length(prob.u0) > 10000
+      # Use Krylov method when huge!
+      alg = CVODE_BDF(linear_solver=:BCG)
+    elseif uType <: Array{Float64} && !mm && length(prob.u0) > 1000
       # Sundials only works on Float64!
       # Sundials is fast when problems are large enough
       alg = CVODE_BDF()
-    elseif uType <: Array{Float64} && !mm && length(prob.u0) > 10000
-      # Use Krylov method when huge!
-      alg = CVODE_BDF(linear_solver=:BCG)
     else
       alg = Rosenbrock23()
     end
