@@ -42,11 +42,11 @@ default_algorithm(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
 sol =solve(prob_ode_bigfloat2Dlinear;alg_hints=[:stiff])
 
-@test typeof(sol.alg) <: Rosenbrock23
+@test typeof(sol.alg) <: Rodas4
 
 sol =solve(prob_ode_bigfloat2Dlinear,nothing;alg_hints=[:stiff])
 
-@test typeof(sol.alg) <: Rosenbrock23
+@test typeof(sol.alg) <: Rodas4
 
 immutable FooAlg end
 
@@ -68,10 +68,10 @@ sol =solve(prob;alg_hints=[:stiff],reltol=1e-1)
 
 sol =solve(prob;alg_hints=[:stiff],callback=CallbackSet())
 
-@test typeof(sol.alg) <: Rosenbrock23
+@test typeof(sol.alg) <: Rodas4
 
 prob_mm = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0),mass_matrix=nothing)
 
 alg, kwargs = default_algorithm(prob_mm;alg_hints=[:stiff])
 
-@test typeof(alg) <: Rosenbrock23
+@test typeof(alg) <: Rodas4
