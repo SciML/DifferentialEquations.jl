@@ -11,7 +11,6 @@ module DifferentialEquations
 
   @reexport using SteadyStateDiffEq
   @reexport using StochasticDiffEq
-  @reexport using FiniteElementDiffEq
   @reexport using OrdinaryDiffEq
   @reexport using Sundials
   @reexport using DelayDiffEq
@@ -40,7 +39,6 @@ module DifferentialEquations
   include("sde_default_alg.jl")
   include("dae_default_alg.jl")
   include("dde_default_alg.jl")
-  include("fem_default_alg.jl")
   include("discrete_default_alg.jl")
   include("rode_default_alg.jl")
   include("steady_state_default_alg.jl")

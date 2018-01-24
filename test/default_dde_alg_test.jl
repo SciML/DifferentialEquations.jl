@@ -2,7 +2,7 @@ using DifferentialEquations
 
 
 lags = [.2]
-f = function (t,u,h)
+f = function (u,h,p,t)
   out = -h(t-.2) + u
 end
 h = (t) -> 0.0

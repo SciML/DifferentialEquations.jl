@@ -9,4 +9,3 @@ println("Starting tests")
 @time @testset "Default RODE Algorithm" begin include("default_rode_alg_test.jl") end
 @time @testset "Default DDE Algorithm" begin include("default_dde_alg_test.jl") end
 @time @testset "Default DAE Algorithm" begin include("default_dae_alg_test.jl") end
-@time @testset "Default FEM Algorithm" begin include("default_fem_alg_test.jl") end

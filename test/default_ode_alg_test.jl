@@ -27,12 +27,12 @@ sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff],reltol=1e-1)
 @test typeof(sol.alg) <: Rosenbrock23
 
 const linear_bigα = parse(BigFloat,"1.01")
-f = (t,u,du) -> begin
+f = (du,u,p,t) -> begin
   for i in 1:length(u)
     du[i] = linear_bigα*u[i]
   end
 end
-(p::typeof(f))(::Type{Val{:analytic}},t,u0) = u0*exp(linear_bigα*t)
+(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(linear_bigα*t)
 prob_ode_bigfloat2Dlinear = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,(0.0,1.0))
 
 sol =solve(prob_ode_bigfloat2Dlinear;dt=1//2^(4))

@@ -1,18 +1,16 @@
 julia 0.6
 Reexport 0.0.3
-DiffEqBase 1.0.0
-StochasticDiffEq 2.11.1
-FiniteElementDiffEq 0.3.0
+DiffEqBase 3.0.0
+StochasticDiffEq 3.0.0
 BoundaryValueDiffEq
 DiffEqDevTools 0.8.0
-OrdinaryDiffEq 2.11.0
-AlgebraicDiffEq 0.1.0
+OrdinaryDiffEq 3.0.0
 DiffEqParamEstim 0.3.0
 DiffEqSensitivity 0.2.1
-Sundials 0.11.0
-ParameterizedFunctions 2.0.0
-DiffEqPDEBase 0.3.0
-DelayDiffEq 0.3.0
+Sundials 1.0.0
+ParameterizedFunctions 3.0.0
+DiffEqPDEBase 0.4.0
+DelayDiffEq 2.0.0
 DiffEqCallbacks 0.0.2
 DiffEqMonteCarlo 0.3.0
 DiffEqJump 0.3.0
