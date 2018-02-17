@@ -1,6 +1,6 @@
 function default_algorithm(prob::AbstractDiscreteProblem;kwargs...)
   o = Dict{Symbol,Any}(kwargs)
-  extra_kwargs = Any[]; alg=Discrete() # Standard default
+  extra_kwargs = Any[]; alg=FunctionMap() # Standard default
 
   alg_hints = get_alg_hints(o)
 
