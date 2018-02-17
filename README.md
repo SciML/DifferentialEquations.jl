@@ -72,7 +72,7 @@ could cite our work.
 
 ## Video Tutorial
 
-[![Video Tutorial](https://user-images.githubusercontent.com/1814174/36342799-80bf36ce-13b8-11e8-9cf8-29bf60929a27.PNG)](https://youtu.be/KPEqYtEd-zY)
+[![Video Tutorial](https://user-images.githubusercontent.com/1814174/36342812-bdfd0606-13b8-11e8-9eff-ff219de909e5.PNG)](https://youtu.be/KPEqYtEd-zY)
 
 ## Video Introduction
 
