@@ -70,6 +70,10 @@ could cite our work.
 
 --------------------------------
 
+## Video Tutorial
+
+[![Video Tutorial](https://user-images.githubusercontent.com/1814174/36342799-80bf36ce-13b8-11e8-9cf8-29bf60929a27.PNG)](https://youtu.be/KPEqYtEd-zY)
+
 ## Video Introduction
 
 [![Video Introduction to DifferentialEquations.jl](https://user-images.githubusercontent.com/1814174/27973992-e236a9a4-6310-11e7-84af-2b66097cecf9.PNG)](https://youtu.be/75SCMIRlNXM)
