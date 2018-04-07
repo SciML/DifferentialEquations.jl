@@ -54,7 +54,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
     if uEltype <: AbstractFloat
       if !(uEltype <: Float64) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
-        alg = AutoVern9(Rodas4())
+        alg = AutoVern9(Rodas5())
       elseif tol_level == :low_tol
         alg = AutoVern7(Rodas4())
       else # :med or low
