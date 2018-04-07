@@ -1,6 +1,6 @@
 function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,tType,inplace};kwargs...)
   o = Dict{Symbol,Any}(kwargs)
-  extra_kwargs = Any[]; alg=Tsit5() # Standard default
+  extra_kwargs = Any[]; alg=AutoTsit5(Rosenbrock23()) # Standard default
   uEltype = eltype(prob.u0)
 
   alg_hints = get_alg_hints(o)
@@ -30,7 +30,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
         alg = BS3()
       end
     end
-  else # The problem is stiff
+  elseif :stiff ∈ alg_hints # The problem is stiff
     if uType <: Array{Float64} && !mm && length(prob.u0) > 10000
       # Use Krylov method when huge!
       alg = CVODE_BDF(linear_solver=:BCG)
@@ -48,6 +48,17 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
         alg = Rodas4()
       else # This is only for Julia v0.6 lufact! bug
         alg = Rodas4(linsolve=LinSolveFactorize(qrfact!))
+      end
+    end
+  else # :auto ∈ alg_hints
+    if uEltype <: AbstractFloat
+      if !(uEltype <: Float64) || tol_level == :extreme_tol
+        # Most likely higher precision, so use a higher order method
+        alg = AutoVern9(Rodas4())
+      elseif tol_level == :low_tol
+        alg = AutoVern7(Rodas4())
+      else # :med or low
+        alg = AutoTsit5(Rosenbrock23())
       end
     end
   end
