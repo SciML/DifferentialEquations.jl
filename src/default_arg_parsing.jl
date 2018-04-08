@@ -1,4 +1,4 @@
-get_alg_hints(o) = :alg_hints ∈ keys(o) ? alg_hints = o[:alg_hints] : alg_hints = Symbol[:nonstiff]
+get_alg_hints(o) = :alg_hints ∈ keys(o) ? alg_hints = o[:alg_hints] : alg_hints = Symbol[:auto]
 
 const LOW_TOL = 1e-6
 const MED_TOL = 1e-2
