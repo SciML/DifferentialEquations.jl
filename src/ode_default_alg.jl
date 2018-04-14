@@ -1,6 +1,6 @@
 function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,tType,inplace};kwargs...)
   o = Dict{Symbol,Any}(kwargs)
-  extra_kwargs = Any[]; alg=AutoTsit5(Rosenbrock23()) # Standard default
+  extra_kwargs = Any[]; alg=AutoTsit5(Rosenbrock23(autodiff=false)) # Standard default
   uEltype = eltype(prob.u0)
 
   alg_hints = get_alg_hints(o)
@@ -17,7 +17,9 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
   #!(tType <: AbstractFloat) && (:adaptive ∉ keys(o)) && push!(extra_kwargs,:adaptive=>false)
 
 
-  if :nonstiff ∈ alg_hints
+  if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
+    # Don't default to implicit here because of memory requirements
+    # And because the linear system gets unruly
     if uEltype <: AbstractFloat
       if !(uEltype <: Float64) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
@@ -31,34 +33,34 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
       end
     end
   elseif :stiff ∈ alg_hints # The problem is stiff
-    if uType <: Array{Float64} && !mm && length(prob.u0) > 10000
+    if uType <: Array{Float64} && !mm && length(prob.u0) > 1000
       # Use Krylov method when huge!
-      alg = CVODE_BDF(linear_solver=:BCG)
-    elseif uType <: Array{Float64} && !mm && length(prob.u0) > 1000
+      alg = CVODE_BDF(linear_solver=:GMRES)
+    elseif uType <: Array{Float64} && !mm && length(prob.u0) > 200
       # Sundials only works on Float64!
       # Sundials is fast when problems are large enough
       alg = CVODE_BDF()
     else
-      alg = Rosenbrock23()
+      alg = Rosenbrock23(autodiff=false)
     end
     if tol_level == :high_tol
-      alg = Rosenbrock23()
+      alg = Rosenbrock23(autodiff=false)
     else
       if eltype(prob.u0) <: Float64
-        alg = Rodas4()
+        alg = Rodas4(autodiff=false)
       else # This is only for Julia v0.6 lufact! bug
-        alg = Rodas4(linsolve=LinSolveFactorize(qrfact!))
+        alg = Rodas4(autodiff=false,linsolve=LinSolveFactorize(qrfact!))
       end
     end
   else # :auto ∈ alg_hints
     if uEltype <: AbstractFloat
       if !(uEltype <: Float64) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
-        alg = AutoVern9(Rodas5())
+        alg = AutoVern9(Rodas5(autodiff=false))
       elseif tol_level == :low_tol
-        alg = AutoVern7(Rodas4())
+        alg = AutoVern7(Rodas4(autodiff=false))
       else # :med or low
-        alg = AutoTsit5(Rosenbrock23())
+        alg = AutoTsit5(Rosenbrock23(autodiff=false))
       end
     end
   end
