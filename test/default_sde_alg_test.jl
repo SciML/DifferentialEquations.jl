@@ -4,10 +4,10 @@ srand(100)
 
 prob = prob_sde_additive
 sol =solve(prob,dt=1/2^(3))
-@test typeof(sol.alg) <: SRIW1
+@test typeof(sol.alg) <: SOSRI
 
 sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
-@test typeof(sol.alg) <: SRA1
+@test typeof(sol.alg) <: SOSRA
 
 sol =solve(prob,dt=1/2^(3),alg_hints=[:stratonovich])
 @test StochasticDiffEq.alg_interpretation(sol.alg) == :stratonovich
@@ -26,8 +26,14 @@ g = function (du,u,p,t)
 end
 prob = SDEProblem(f,g,ones(2),(0.0,1.0),noise_rate_prototype=zeros(2,4))
 
-sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
+sol =solve(prob,dt=1/2^(3))
 @test typeof(sol.alg) <: EM
+
+sol =solve(prob,dt=1/2^(3),alg_hints=[:stiff])
+@test typeof(sol.alg) <: ISSEM
+
+sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
+@test typeof(sol.alg) <: SOSRA
 
 sol =solve(prob,dt=1/2^(3),alg_hints=[:stratonovich])
 @test typeof(sol.alg) <: EulerHeun

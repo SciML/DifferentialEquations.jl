@@ -6,7 +6,7 @@ function default_algorithm{uType,tType,lType,isinplace}(prob::AbstractDDEProblem
   alg_hints = get_alg_hints(o)
 
   if :stiff ∈ alg_hints
-    alg=MethodOfSteps(Rosenbrock23())
+    alg=MethodOfSteps(Rosenbrock23(autodiff=false))
   end
 
   # If adaptivity is not set and the tType is not a float, turn off adaptivity

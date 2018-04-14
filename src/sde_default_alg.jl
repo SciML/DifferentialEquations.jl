@@ -1,25 +1,21 @@
 function default_algorithm{uType,tType,isinplace,ND}(prob::AbstractSDEProblem{uType,tType,isinplace,ND};kwargs...)
   o = Dict{Symbol,Any}(kwargs)
-  extra_kwargs = Any[]; alg=SRIW1() # Standard default
+  extra_kwargs = Any[]; alg=SOSRI() # Standard default
   uEltype = eltype(prob.u0)
 
   alg_hints = get_alg_hints(o)
-
-  if :additive ∈ alg_hints
-    alg = SRA1()
-  end
 
   if :commutative ∈ alg_hints
     alg = RKMilCommute()
   end
 
   if :stiff ∈ alg_hints
-    alg = ImplicitRKMil()
+    alg = ImplicitRKMil(autodiff=false)
   end
 
   if :stratonovich ∈ alg_hints
     if :stiff ∈ alg_hints
-      alg = ImplicitRKMil(interpretation=:stratonovich)
+      alg = ImplicitRKMil(autodiff=false,interpretation=:stratonovich)
     else
       alg = RKMil(interpretation=:stratonovich)
     end
@@ -28,16 +24,24 @@ function default_algorithm{uType,tType,isinplace,ND}(prob::AbstractSDEProblem{uT
   if prob.noise_rate_prototype != nothing || prob.noise != nothing
     if :stratonovich ∈ alg_hints
       if :stiff ∈ alg_hints
-        alg = ImplicitEulerHeun()
+        alg = ImplicitEulerHeun(autodiff=false)
       else
         alg = EulerHeun()
       end
     else
       if :stiff ∈ alg_hints
-        alg = ImplicitEM()
+        alg = ISSEM(autodiff=false)
       else
         alg = EM()
       end
+    end
+  end
+
+  if :additive ∈ alg_hints
+    if :stiff ∈ alg_hints
+      alg = SKenCarp(autodiff=false)
+    else
+      alg = SOSRA()
     end
   end
 
