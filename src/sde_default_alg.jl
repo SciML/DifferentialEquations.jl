@@ -26,13 +26,13 @@ function default_algorithm{uType,tType,isinplace,ND}(prob::AbstractSDEProblem{uT
       if :stiff ∈ alg_hints
         alg = ImplicitEulerHeun(autodiff=false)
       else
-        alg = EulerHeun()
+        alg = LambaEulerHeun()
       end
     else
       if :stiff ∈ alg_hints
         alg = ISSEM(autodiff=false)
       else
-        alg = EM()
+        alg = LambaEM()
       end
     end
   end
