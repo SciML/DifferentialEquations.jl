@@ -16,21 +16,18 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
   # Bad interaction with ForwardDiff
   #!(tType <: AbstractFloat) && (:adaptive ∉ keys(o)) && push!(extra_kwargs,:adaptive=>false)
 
-
   if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
     # Don't default to implicit here because of memory requirements
     # And because the linear system gets unruly
-    if uEltype <: AbstractFloat
-      if !(uEltype <: Float64) || tol_level == :extreme_tol
-        # Most likely higher precision, so use a higher order method
-        alg = Vern9()
-      elseif tol_level == :low_tol
-        alg = Vern7()
-      elseif tol_level == :med_tol
-        alg = Tsit5()
-      else # tol_level == :high_tol
-        alg = BS3()
-      end
+    if (!(uEltype <: Float64) && !(uEltype <: Complex)) || tol_level == :extreme_tol
+      # Most likely higher precision, so use a higher order method
+      alg = Vern9()
+    elseif tol_level == :low_tol
+      alg = Vern7()
+    elseif tol_level == :med_tol
+      alg = Tsit5()
+    else # tol_level == :high_tol
+      alg = BS3()
     end
   elseif :stiff ∈ alg_hints # The problem is stiff
     if uType <: Array{Float64} && !mm && length(prob.u0) > 1000
@@ -40,10 +37,7 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
       # Sundials only works on Float64!
       # Sundials is fast when problems are large enough
       alg = CVODE_BDF()
-    else
-      alg = Rosenbrock23(autodiff=false)
-    end
-    if tol_level == :high_tol
+    elseif tol_level == :high_tol
       alg = Rosenbrock23(autodiff=false)
     else
       if eltype(prob.u0) <: Float64
@@ -53,15 +47,13 @@ function default_algorithm{uType,tType,inplace}(prob::AbstractODEProblem{uType,t
       end
     end
   else # :auto ∈ alg_hints
-    if uEltype <: AbstractFloat
-      if !(uEltype <: Float64) || tol_level == :extreme_tol
-        # Most likely higher precision, so use a higher order method
-        alg = AutoVern9(Rodas5(autodiff=false))
-      elseif tol_level == :low_tol
-        alg = AutoVern7(Rodas4(autodiff=false))
-      else # :med or low
-        alg = AutoTsit5(Rosenbrock23(autodiff=false))
-      end
+    if !(uEltype <: Float64) || tol_level == :extreme_tol
+      # Most likely higher precision, so use a higher order method
+      alg = AutoVern9(Rodas5(autodiff=false))
+    elseif tol_level == :low_tol
+      alg = AutoVern7(Rodas4(autodiff=false))
+    else # :med or low
+      alg = AutoTsit5(Rosenbrock23(autodiff=false))
     end
   end
   alg,extra_kwargs
