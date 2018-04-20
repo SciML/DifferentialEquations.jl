@@ -27,7 +27,7 @@ end
 prob = SDEProblem(f,g,ones(2),(0.0,1.0),noise_rate_prototype=zeros(2,4))
 
 sol =solve(prob,dt=1/2^(3))
-@test typeof(sol.alg) <: EM
+@test typeof(sol.alg) <: LambaEM
 
 sol =solve(prob,dt=1/2^(3),alg_hints=[:stiff])
 @test typeof(sol.alg) <: ISSEM
@@ -36,4 +36,4 @@ sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
 @test typeof(sol.alg) <: SOSRA
 
 sol =solve(prob,dt=1/2^(3),alg_hints=[:stratonovich])
-@test typeof(sol.alg) <: EulerHeun
+@test typeof(sol.alg) <: LambaEulerHeun
