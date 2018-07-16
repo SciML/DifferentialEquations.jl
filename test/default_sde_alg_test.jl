@@ -1,4 +1,4 @@
-using DifferentialEquations, DiffEqProblemLibrary, Base.Test
+using DifferentialEquations, DiffEqProblemLibrary, Test
 
 using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproblems()
 import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive

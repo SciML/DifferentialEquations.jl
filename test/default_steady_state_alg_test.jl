@@ -1,4 +1,4 @@
-using DifferentialEquations, Base.Test
+using DifferentialEquations, Test
 
 f = function (du,u,p,t)
   du[1] = 2 - 2u[1]

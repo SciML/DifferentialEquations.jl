@@ -1,4 +1,4 @@
-using DifferentialEquations, DiffEqProblemLibrary, Base.Test
+using DifferentialEquations, DiffEqProblemLibrary, Test
 
 using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems; importodeproblems()
 import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_2Dlinear
@@ -56,11 +56,11 @@ sol =solve(prob_ode_bigfloat2Dlinear,nothing;alg_hints=[:stiff])
 
 @test typeof(sol.alg) <: Rodas4
 
-immutable FooAlg end
+struct FooAlg end
 
 @test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg();default_set=true)
 
-immutable FooAlg2 <: DiffEqBase.DEAlgorithm end
+struct FooAlg2 <: DiffEqBase.DEAlgorithm end
 
 @test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg2();default_set=true)
 

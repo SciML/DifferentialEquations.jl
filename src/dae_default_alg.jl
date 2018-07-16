@@ -1,4 +1,4 @@
-function default_algorithm{uType,duType,tType,isinplace}(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tType,isinplace};kwargs...)
+function default_algorithm(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tType,isinplace};kwargs...) where {uType,duType,tType,isinplace}
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=IDA() # Standard default
   uEltype = eltype(prob.u0)

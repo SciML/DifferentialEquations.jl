@@ -1,4 +1,4 @@
-function default_algorithm{uType,tType,inplace}(prob::DiffEqBase.AbstractODEProblem{uType,tType,inplace};kwargs...)
+function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inplace};kwargs...) where {uType,tType,inplace}
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=AutoTsit5(Rosenbrock23(autodiff=false)) # Standard default
   uEltype = eltype(prob.u0)

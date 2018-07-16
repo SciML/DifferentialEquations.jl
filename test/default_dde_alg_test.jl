@@ -1,4 +1,4 @@
-using DifferentialEquations, Base.Test
+using DifferentialEquations, Test
 
 lags = [.2]
 f = function (u,h,p,t)

@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-using DifferentialEquations, Base.Test
+using DifferentialEquations, Test
 println("Starting tests")
 @time @testset "Default Discrete Algorithm" begin include("default_discrete_alg_test.jl") end
 @time @testset "Default ODE Algorithm" begin include("default_ode_alg_test.jl") end
