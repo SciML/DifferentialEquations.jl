@@ -1,4 +1,4 @@
-function default_algorithm(prob::AbstractDiscreteProblem;kwargs...)
+function default_algorithm(prob::DiffEqBase.AbstractDiscreteProblem;kwargs...)
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=FunctionMap() # Standard default
 

@@ -1,4 +1,4 @@
-function default_algorithm(prob::AbstractRODEProblem;kwargs...)
+function default_algorithm(prob::DiffEqBase.AbstractRODEProblem;kwargs...)
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=RandomEM() # Standard default
 

@@ -16,7 +16,7 @@ module DifferentialEquations
   @reexport using DelayDiffEq
 
   @reexport using ParameterizedFunctions
-  @reexport using DiffEqParamEstim
+  #@reexport using DiffEqParamEstim
   @reexport using DiffEqSensitivity
   @reexport using DiffEqCallbacks
   @reexport using DiffEqMonteCarlo

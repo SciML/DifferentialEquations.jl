@@ -1,5 +1,8 @@
 using DifferentialEquations, DiffEqProblemLibrary, Base.Test
 
+using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems; importodeproblems()
+import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_2Dlinear
+
 alg, kwargs = default_algorithm(prob_ode_2Dlinear;dt=1//2^(4))
 sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
 
@@ -57,7 +60,7 @@ immutable FooAlg end
 
 @test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg();default_set=true)
 
-immutable FooAlg2 <: DEAlgorithm end
+immutable FooAlg2 <: DiffEqBase.DEAlgorithm end
 
 @test_throws ErrorException solve(prob_ode_bigfloat2Dlinear,FooAlg2();default_set=true)
 

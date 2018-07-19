@@ -1,4 +1,4 @@
-function default_algorithm(prob::AbstractSteadyStateProblem;kwargs...)
+function default_algorithm(prob::DiffEqBase.AbstractSteadyStateProblem;kwargs...)
   o = Dict{Symbol,Any}(kwargs)
   extra_kwargs = Any[]; alg=SSRootfind() # Standard default
 

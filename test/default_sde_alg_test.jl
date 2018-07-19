@@ -1,5 +1,8 @@
 using DifferentialEquations, DiffEqProblemLibrary, Base.Test
 
+using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproblems()
+import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive
+
 srand(100)
 
 prob = prob_sde_additive
