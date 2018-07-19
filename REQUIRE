@@ -1,4 +1,4 @@
-julia 0.6
+julia 0.7-beta2
 Reexport 0.0.3
 DiffEqBase 3.0.0
 StochasticDiffEq 3.0.0
