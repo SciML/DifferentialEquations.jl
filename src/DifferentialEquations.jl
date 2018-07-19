@@ -31,6 +31,8 @@ module DifferentialEquations
 
   @reexport using DimensionalPlotRecipes
 
+  using LinearAlgebra
+
   import DiffEqBase: solve
 
   include("default_solve.jl")
