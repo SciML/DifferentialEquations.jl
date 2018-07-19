@@ -1,4 +1,4 @@
-using DifferentialEquations, Base.Test
+using DifferentialEquations, Test
 
 f = (u,p,t,W) -> 1.01u.+0.87u.*W
 u0 = 1.00
