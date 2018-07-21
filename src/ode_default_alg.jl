@@ -40,11 +40,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     elseif tol_level == :high_tol
       alg = Rosenbrock23(autodiff=false)
     else
-      if eltype(prob.u0) <: Float64
-        alg = Rodas4(autodiff=false)
-      else # This is only for Julia v0.6 lufact! bug
-        alg = Rodas4(autodiff=false,linsolve=LinSolveFactorize(qrfact!))
-      end
+      alg = Rodas4(autodiff=false)
     end
   else # :auto ∈ alg_hints
     if !(uEltype <: Float64) || tol_level == :extreme_tol

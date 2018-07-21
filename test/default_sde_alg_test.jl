@@ -3,6 +3,7 @@ using DifferentialEquations, DiffEqProblemLibrary, Test
 using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproblems()
 import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive
 
+using Random
 srand(100)
 
 prob = prob_sde_additive
