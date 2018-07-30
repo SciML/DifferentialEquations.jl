@@ -21,9 +21,9 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     # And because the linear system gets unruly
     if (!(uEltype <: Float64) && !(uEltype <: Complex)) || tol_level == :extreme_tol
       # Most likely higher precision, so use a higher order method
-      alg = Vern9()
+      alg = Vern9(lazy=!callbacks)
     elseif tol_level == :low_tol
-      alg = Vern7()
+      alg = Vern7(lazy=!callbacks)
     elseif tol_level == :med_tol
       alg = Tsit5()
     else # tol_level == :high_tol
@@ -45,11 +45,11 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
   else # :auto ∈ alg_hints
     if !(uEltype <: Float64) || tol_level == :extreme_tol
       # Most likely higher precision, so use a higher order method
-      alg = AutoVern9(Rodas5(autodiff=false))
+      alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
     elseif tol_level == :low_tol
-      alg = AutoVern7(Rodas4(autodiff=false))
+      alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)
     else # :med or low
-      alg = AutoTsit5(Rosenbrock23(autodiff=false))
+      alg = AutoTsit5(Rosenbrock23(autodiff=false),lazy=!callbacks)
     end
   end
   alg,extra_kwargs
