@@ -23,5 +23,5 @@ function callbacks_exists(o)
 end
 
 function mass_matrix_exists(prob)
-  prob.mass_matrix != I
+  prob.f.mass_matrix != I
 end

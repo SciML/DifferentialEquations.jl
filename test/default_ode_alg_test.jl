@@ -78,8 +78,8 @@ sol =solve(prob;alg_hints=[:stiff],callback=CallbackSet())
 
 @test typeof(sol.alg) <: Rodas4
 
-prob_mm = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0),mass_matrix=nothing)
+prob = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0))
 
-alg, kwargs = default_algorithm(prob_mm;alg_hints=[:stiff])
+alg, kwargs = default_algorithm(prob;alg_hints=[:stiff])
 
 @test typeof(alg) <: Rodas4
