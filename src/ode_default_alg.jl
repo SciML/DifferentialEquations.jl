@@ -49,7 +49,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     elseif tol_level == :low_tol
       alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)
     else # :med or low
-      alg = AutoTsit5(Rosenbrock23(autodiff=false),lazy=!callbacks)
+      alg = AutoTsit5(Rosenbrock23(autodiff=false))
     end
   end
   alg,extra_kwargs
