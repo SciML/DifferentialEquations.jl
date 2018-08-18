@@ -11,9 +11,9 @@ matrix:
     - julia: nightly
 notifications:
   email: false
-env:
-   - PYTHON=""
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd())'
-  - julia -e 'Pkg.test("DifferentialEquations")'
+#env:
+#   - PYTHON=""
+#script:
+#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#  - julia -e 'Pkg.clone(pwd())'
+#  - julia -e 'Pkg.test("DifferentialEquations")'
