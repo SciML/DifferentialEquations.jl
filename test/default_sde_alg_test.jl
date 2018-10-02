@@ -4,7 +4,7 @@ using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproble
 import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive
 
 using Random
-srand(100)
+Random.seed!(100)
 
 prob = prob_sde_additive
 sol =solve(prob,dt=1/2^(3))

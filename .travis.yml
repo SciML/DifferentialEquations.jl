@@ -4,16 +4,16 @@ os:
   - linux
   - osx
 julia:
-  - 0.7
+  - 1.0
   - nightly
 matrix:
   allow_failures:
     - julia: nightly
 notifications:
   email: false
-env:
-   - PYTHON=""
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd())'
-  - julia -e 'Pkg.test("DifferentialEquations")'
+#env:
+#   - PYTHON=""
+#script:
+#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#  - julia -e 'Pkg.clone(pwd())'
+#  - julia -e 'Pkg.test("DifferentialEquations")'
