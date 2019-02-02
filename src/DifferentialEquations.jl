@@ -12,7 +12,7 @@ module DifferentialEquations
   @reexport using SteadyStateDiffEq
   @reexport using StochasticDiffEq
   @reexport using OrdinaryDiffEq
-  @reexport using Sundials
+  using Sundials
   @reexport using DelayDiffEq
 
   @reexport using DiffEqCallbacks
