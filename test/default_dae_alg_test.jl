@@ -1,4 +1,4 @@
-using DifferentialEquations
+using DifferentialEquations, Test
 
 using DiffEqProblemLibrary.DAEProblemLibrary: importdaeproblems; importdaeproblems()
 import DiffEqProblemLibrary.DAEProblemLibrary: prob_dae_resrob

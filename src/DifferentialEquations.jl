@@ -15,17 +15,11 @@ module DifferentialEquations
   @reexport using Sundials
   @reexport using DelayDiffEq
 
-  @reexport using ParameterizedFunctions
-  @reexport using DiffEqParamEstim
-  @reexport using DiffEqSensitivity
   @reexport using DiffEqCallbacks
   @reexport using DiffEqMonteCarlo
-  @reexport using DiffEqDevTools
   @reexport using DiffEqJump
-  @reexport using DiffEqUncertainty
 
   @reexport using DiffEqFinancial
-  @reexport using DiffEqBiological
   @reexport using MultiScaleArrays
   @reexport using DiffEqPhysics
 
