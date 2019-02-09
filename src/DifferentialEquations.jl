@@ -5,7 +5,6 @@ module DifferentialEquations
   using Reexport
 
   @reexport using DiffEqBase
-  @reexport using DiffEqPDEBase
   @reexport using DiffEqNoiseProcess
   @reexport using RecursiveArrayTools
 
