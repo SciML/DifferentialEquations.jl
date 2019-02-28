@@ -1,11 +1,11 @@
 julia 1.0
 Reexport 0.2.0
-DiffEqBase 5.0.0
+DiffEqBase 5.4.0
 StochasticDiffEq 6.0.0
 BoundaryValueDiffEq 1.0.0
-OrdinaryDiffEq 5.0.0
+OrdinaryDiffEq 5.3.0
 Sundials 3.0.0
-DelayDiffEq 5.0.0
+DelayDiffEq 5.2.0
 DiffEqCallbacks 1.0.0
 DiffEqMonteCarlo 0.10.0
 DiffEqJump 6.0.0
