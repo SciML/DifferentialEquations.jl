@@ -14,7 +14,6 @@ module DifferentialEquations
   @reexport using DelayDiffEq
 
   @reexport using DiffEqCallbacks
-  @reexport using DiffEqMonteCarlo
   @reexport using DiffEqJump
 
   @reexport using DiffEqFinancial
