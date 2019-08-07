@@ -54,7 +54,7 @@ Additionally, DifferentialEquations.jl comes with built-in analysis features, in
 - [Forward and adjoint local sensitivity analysis](http://docs.juliadiffeq.org/latest/analysis/sensitivity.html) for fast gradient computations
 - [Optimization-based and Bayesian parameter estimation](http://docs.juliadiffeq.org/latest/analysis/parameter_estimation.html)
 - Neural differential equations with [DiffEqFlux.jl](https://github.com/JuliaDiffEq/DiffEqFlux.jl)
-  for efficient scientific machine learning and scientific AI.
+  for efficient scientific machine learning (scientific ML) and scientific AI.
 - [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](http://docs.juliadiffeq.org/latest/features/ensemble.html)
 - [Global sensitivity analysis](http://docs.juliadiffeq.org/latest/analysis/global_sensitivity.html)
 - [Uncertainty quantification](http://docs.juliadiffeq.org/latest/analysis/uncertainty_quantification.html)
