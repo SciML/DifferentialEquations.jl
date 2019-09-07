@@ -29,16 +29,38 @@ implementations, using classic algorithms and ones from recent research which
 routinely outperform the "standard" C/Fortran methods, and include algorithms
 optimized for high-precision and HPC applications. At the same time, it wraps
 the classic C/Fortran methods, making it easy to switch over to them whenever
-necessary. It integrates with the Julia package sphere, for example using Juno's
-progress meter, automatic plotting, built-in interpolations, and wraps other
-differential equation solvers so that many different methods for solving the
-equations can be accessed by simply switching a keyword argument. It utilizes
-Julia's generality to be able to solve problems specified with arbitrary number
-types (types with units like Unitful, and arbitrary precision numbers like
-BigFloats and ArbFloats), arbitrary sized arrays (ODEs on matrices), and more.
+necessary. Solving differential equations with different methods from 
+different languages and packages can be done by changing one line of code, 
+allowing for easy benchmarking to ensure you are using the fastest method possible.
+
+DifferentialEquations.jl integrates with the Julia package sphere with: 
+
+- GPU accleration through CUDAnative.jl and CuArrays.jl
+- Automated sparsity detection with [SparsityDetection.jl](https://github.com/JuliaDiffEq/SparsityDetection.jl)
+- Automatic Jacobian coloring with [SparseDiffTools.jl](https://github.com/JuliaDiffEq/SparseDiffTools.jl), allowing for fast solutions
+  to problems with sparse or structured (Tridiagonal, Banded, BlockBanded, etc.) Jacobians
+- Allowing the specification of linear solvers for maximal efficiency
+- Progress meter integration with the Juno IDE for estimated time to solution 
+- Automatic plotting of time series and phase plots 
+- Built-in interpolations
+- Wraps for common C/Fortran methods like Sundials and Hairer's radau
+- Arbitrary precision with BigFloats and Arbfloats
+- Arbitrary array types, allowing the definition of differential equations on 
+  matrices and distributed arrays
+- Unit checked arithmetic with Unitful
+
+Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
+
+- [Forward and adjoint local sensitivity analysis](http://docs.juliadiffeq.org/latest/analysis/sensitivity.html) for fast gradient computations
+- [Optimization-based and Bayesian parameter estimation](http://docs.juliadiffeq.org/latest/analysis/parameter_estimation.html)
+- Neural differential equations with [DiffEqFlux.jl](https://github.com/JuliaDiffEq/DiffEqFlux.jl)
+  for efficient scientific machine learning (scientific ML) and scientific AI.
+- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](http://docs.juliadiffeq.org/latest/features/ensemble.html)
+- [Global sensitivity analysis](http://docs.juliadiffeq.org/latest/analysis/global_sensitivity.html)
+- [Uncertainty quantification](http://docs.juliadiffeq.org/latest/analysis/uncertainty_quantification.html)
+
 This gives a powerful mixture of speed and productivity features to help you
 solve and analyze your differential equations faster.
-
 
 For information on using the package,
 [see the stable documentation](http://docs.juliadiffeq.org/stable/). Use the
@@ -80,7 +102,7 @@ could cite our work.
 
 ## Comparison to MATLAB, R, Julia, Python, C, Mathematica, Maple, and Fortran
 
-<a href="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-3.pdf"><img src="http://www.stochasticlifestyle.com/wp-content/uploads/2017/10/de_solver_software_comparsion-1-3.png" alt="Comparison Of Differential Equation Solver Software" align="middle"/></a>
+<a href="http://www.stochasticlifestyle.com/wp-content/uploads/2019/08/de_solver_software_comparsion.pdf"><img src="http://www.stochasticlifestyle.com/wp-content/uploads/2019/08/de_solver_software_comparsion-1.png" alt="Comparison Of Differential Equation Solver Software" align="middle"/></a>
 
 [See the corresponding blog post](http://www.stochasticlifestyle.com/comparison-differential-equation-solver-suites-matlab-r-julia-python-c-fortran/)
 
