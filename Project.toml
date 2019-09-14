@@ -41,7 +41,7 @@ Reexport = "≥ 0.2.0"
 SteadyStateDiffEq = "≥ 1.5.0"
 StochasticDiffEq = "6.9.0"
 Sundials = "3.7.0"
-julia = "1.1"
+julia = "1"
 
 [extras]
 DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
