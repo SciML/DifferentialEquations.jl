@@ -7,7 +7,8 @@
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](http://docs.juliadiffeq.org/latest/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
-This is a suite for numerically solving differential equations in Julia. The
+This is a suite for numerically solving differential equations written in Julia 
+and available for use in Julia, Python, and R. The
 purpose of this package is to supply efficient Julia implementations of solvers
 for various differential equations. Equations within the realm of this package
 include:
