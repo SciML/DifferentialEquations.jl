@@ -52,20 +52,20 @@ DifferentialEquations.jl integrates with the Julia package sphere with:
 
 Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
 
-- [Forward and adjoint local sensitivity analysis](http://docs.juliadiffeq.org/latest/analysis/sensitivity.html) for fast gradient computations
-- [Optimization-based and Bayesian parameter estimation](http://docs.juliadiffeq.org/latest/analysis/parameter_estimation.html)
+- [Forward and adjoint local sensitivity analysis](http://docs.juliadiffeq.org/dev/analysis/sensitivity.html) for fast gradient computations
+- [Optimization-based and Bayesian parameter estimation](http://docs.juliadiffeq.org/dev/analysis/parameter_estimation.html)
 - Neural differential equations with [DiffEqFlux.jl](https://github.com/JuliaDiffEq/DiffEqFlux.jl)
   for efficient scientific machine learning (scientific ML) and scientific AI.
-- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](http://docs.juliadiffeq.org/latest/features/ensemble.html)
-- [Global sensitivity analysis](http://docs.juliadiffeq.org/latest/analysis/global_sensitivity.html)
-- [Uncertainty quantification](http://docs.juliadiffeq.org/latest/analysis/uncertainty_quantification.html)
+- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](http://docs.juliadiffeq.org/dev/features/ensemble.html)
+- [Global sensitivity analysis](http://docs.juliadiffeq.org/dev/analysis/global_sensitivity.html)
+- [Uncertainty quantification](http://docs.juliadiffeq.org/dev/analysis/uncertainty_quantification.html)
 
 This gives a powerful mixture of speed and productivity features to help you
 solve and analyze your differential equations faster.
 
 For information on using the package,
 [see the stable documentation](http://docs.juliadiffeq.org/stable/). Use the
-[latest documentation](http://docs.juliadiffeq.org/latest/) for the version of
+[in-development documentation](http://docs.juliadiffeq.org/dev/) for the version of
 the documentation which contains the un-released features.
 
 All of the algorithms are thoroughly tested to ensure accuracy via convergence
@@ -80,7 +80,7 @@ If you have any questions, or just want to chat about solvers/using the package,
 please feel free to chat in the [Gitter channel](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 For bug reports, feature requests, etc., please submit an issue. If you're
 interested in contributing, please see the
-[Developer Documentation](https://juliadiffeq.github.io/DiffEqDevDocs.jl/latest/).
+[Developer Documentation](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/).
 
 ## Supporting and Citing
 
