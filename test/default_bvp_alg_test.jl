@@ -1,4 +1,4 @@
-using DifferentialEquations
+using DifferentialEquations, Test
 
 function f(du,u,p,t)
   (x, v) = u
@@ -18,5 +18,5 @@ resid_f = Array{Float64}(undef, 2)
 sol = solve(bvp, Shooting(Tsit5()))
 sol2 = solve(bvp)
 
-sol2.alg == Tsit5()
-sol.u .== sol2.u
+@test sol2.alg == Tsit5()
+@test all(sol.u .== sol2.u)
