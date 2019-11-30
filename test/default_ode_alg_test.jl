@@ -1,7 +1,10 @@
-using DifferentialEquations, DiffEqProblemLibrary, Test
+using DifferentialEquations, Test
 
-using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems; importodeproblems()
-import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_2Dlinear
+f_2dlinear = (du,u,p,t) -> (@. du = p*u)
+f_2dlinear_analytic = (u0,p,t) -> @. u0*exp(p*t)
+prob_ode_2Dlinear = ODEProblem(
+                    ODEFunction(f_2dlinear,analytic=f_2dlinear_analytic),
+                    rand(4,2),(0.0,1.0),1.01)
 
 alg, kwargs = default_algorithm(prob_ode_2Dlinear;dt=1//2^(4))
 sol =solve(prob_ode_2Dlinear;dt=1//2^(4))

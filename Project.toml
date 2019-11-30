@@ -32,7 +32,6 @@ DiffEqFinancial = "2.2"
 DiffEqJump = "6.2.1"
 DiffEqNoiseProcess = "3.6"
 DiffEqPhysics = "3.2"
-DiffEqProblemLibrary = "4.5.1"
 DimensionalPlotRecipes = "1"
 MultiScaleArrays = "1.5"
 OrdinaryDiffEq = "5.23.0"
@@ -44,10 +43,9 @@ Sundials = "3.8.1"
 julia = "1"
 
 [extras]
-DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "DiffEqProblemLibrary", "Random", "SafeTestsets"]
+test = ["Test", "Random", "SafeTestsets"]

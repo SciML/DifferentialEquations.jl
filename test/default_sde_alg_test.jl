@@ -1,7 +1,11 @@
-using DifferentialEquations, DiffEqProblemLibrary, Test
+using DifferentialEquations, Test
 
-using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproblems()
-import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive
+f_additive(u,p,t) = @. p[2]/sqrt(1+t) - u/(2*(1+t))
+σ_additive(u,p,t) = @. p[1]*p[2]/sqrt(1+t)
+p = (0.1,0.05)
+additive_analytic(u0,p,t,W) = @. u0/sqrt(1+t) + p[2]*(t+p[1]*W)/sqrt(1+t)
+ff_additive = SDEFunction(f_additive,σ_additive,analytic=additive_analytic)
+prob_sde_additive = SDEProblem(ff_additive,σ_additive,1.0,(0.0,1.0),p)
 
 using Random
 Random.seed!(100)
