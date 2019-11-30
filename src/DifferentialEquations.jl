@@ -35,5 +35,6 @@ module DifferentialEquations
   include("discrete_default_alg.jl")
   include("rode_default_alg.jl")
   include("steady_state_default_alg.jl")
+  include("bvp_default_alg.jl")
 
 end # module
