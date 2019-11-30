@@ -1,7 +1,7 @@
 #!/usr/bin/env julia
 
 using DifferentialEquations, Test, SafeTestsets
-println("Starting tests")
+@time begin
 @time @safetestset "Default Discrete Algorithm" begin include("default_discrete_alg_test.jl") end
 @time @safetestset "Default ODE Algorithm" begin include("default_ode_alg_test.jl") end
 @time @safetestset "Default Steady State Algorithm" begin include("default_steady_state_alg_test.jl") end
@@ -10,3 +10,4 @@ println("Starting tests")
 @time @safetestset "Default DDE Algorithm" begin include("default_dde_alg_test.jl") end
 @time @safetestset "Default DAE Algorithm" begin include("default_dae_alg_test.jl") end
 @time @safetestset "Default BVP Algorithm" begin include("default_bvp_alg_test.jl") end
+end
