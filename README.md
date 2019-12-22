@@ -52,20 +52,20 @@ DifferentialEquations.jl integrates with the Julia package sphere with:
 
 Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
 
-- [Forward and adjoint local sensitivity analysis](http://docs.juliadiffeq.org/dev/analysis/sensitivity.html) for fast gradient computations
-- [Optimization-based and Bayesian parameter estimation](http://docs.juliadiffeq.org/dev/analysis/parameter_estimation.html)
+- [Forward and adjoint local sensitivity analysis](https://docs.juliadiffeq.org/dev/analysis/sensitivity/) for fast gradient computations
+- [Optimization-based and Bayesian parameter estimation](https://docs.juliadiffeq.org/dev/analysis/parameter_estimation/)
 - Neural differential equations with [DiffEqFlux.jl](https://github.com/JuliaDiffEq/DiffEqFlux.jl)
   for efficient scientific machine learning (scientific ML) and scientific AI.
-- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](http://docs.juliadiffeq.org/dev/features/ensemble.html)
-- [Global sensitivity analysis](http://docs.juliadiffeq.org/dev/analysis/global_sensitivity.html)
-- [Uncertainty quantification](http://docs.juliadiffeq.org/dev/analysis/uncertainty_quantification.html)
+- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](https://docs.juliadiffeq.org/dev/features/ensemble/)
+- [Global sensitivity analysis](https://docs.juliadiffeq.org/dev/analysis/global_sensitivity/)
+- [Uncertainty quantification](https://docs.juliadiffeq.org/dev/analysis/uncertainty_quantification/)
 
 This gives a powerful mixture of speed and productivity features to help you
 solve and analyze your differential equations faster.
 
 For information on using the package,
-[see the stable documentation](http://docs.juliadiffeq.org/stable/). Use the
-[in-development documentation](http://docs.juliadiffeq.org/dev/) for the version of
+[see the stable documentation](https://docs.juliadiffeq.org/stable/). Use the
+[in-development documentation](https://docs.juliadiffeq.org/dev/) for the version of
 the documentation which contains the un-released features.
 
 All of the algorithms are thoroughly tested to ensure accuracy via convergence
