@@ -1,7 +1,7 @@
 name = "DifferentialEquations"
 uuid = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "v6.9.1"
+version = "v6.10.1"
 
 [deps]
 BoundaryValueDiffEq = "764a87c0-6b3e-53db-9096-fe964310641d"
@@ -35,7 +35,7 @@ DiffEqPhysics = "3.2"
 DimensionalPlotRecipes = "1"
 MultiScaleArrays = "1.5"
 OrdinaryDiffEq = "5.23.0"
-RecursiveArrayTools = "1"
+RecursiveArrayTools = "2"
 Reexport = "0.2"
 SteadyStateDiffEq = "1.5"
 StochasticDiffEq = "6.13.0"
