@@ -102,4 +102,4 @@ tspan = (0.0,10.0)
 prob = SecondOrderODEProblem(mass_system!,v0,u0,tspan)
 sol = solve(prob)
 
-@test typeof(sol.alg) <: DPRKN6()
+@test typeof(sol.alg) <: DPRKN6
