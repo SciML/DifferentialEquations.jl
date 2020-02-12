@@ -86,3 +86,20 @@ prob = ODEProblem(f,rand(4,2).*ones(4,2)/2,(0.0,1.0))
 alg, kwargs = default_algorithm(prob;alg_hints=[:stiff])
 
 @test typeof(alg) <: Rodas4
+
+m = 1.0
+ω = 1.0
+
+function mass_system!(du,u,p,t)
+    # a(t) = (1/m) w^2 x
+    (1/m)*(ω^2)*u[1]
+end
+
+v0 = 0.0
+u0 = 1.0
+tspan = (0.0,10.0)
+
+prob = SecondOrderODEProblem(mass_system!,v0,u0,tspan)
+sol = solve(prob)
+
+@test typeof(sol.alg) <: DPRKN6()
