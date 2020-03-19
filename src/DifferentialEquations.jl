@@ -21,6 +21,7 @@ module DifferentialEquations
   @reexport using DiffEqPhysics
 
   @reexport using DimensionalPlotRecipes
+  @reexport using ParameterizedFunctions
 
   using LinearAlgebra
 
