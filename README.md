@@ -1,10 +1,10 @@
 # DifferentialEquations.jl
 
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Travis](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DifferentialEquations.jl)
+[![Travis](https://travis-ci.org/SciML/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/SciML/DifferentialEquations.jl)
 [![AppVoyer](https://ci.appveyor.com/api/projects/status/1smlr9ryfqfx1ear?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/differentialequations-jl-1sx90)
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://docs.juliadiffeq.org/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://docs.juliadiffeq.org/dev/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://docs.sciml.ai/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://docs.sciml.ai/dev/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
 This is a suite for numerically solving differential equations written in Julia 
