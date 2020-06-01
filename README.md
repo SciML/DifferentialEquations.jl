@@ -7,7 +7,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://docs.sciml.ai/dev/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
-This is a suite for numerically solving differential equations written in Julia 
+This is a suite for numerically solving differential equations written in Julia
 and available for use in Julia, Python, and R. The
 purpose of this package is to supply efficient Julia implementations of solvers
 for various differential equations. Equations within the realm of this package
@@ -30,25 +30,25 @@ implementations, using classic algorithms and ones from recent research which
 routinely outperform the "standard" C/Fortran methods, and include algorithms
 optimized for high-precision and HPC applications. At the same time, it wraps
 the classic C/Fortran methods, making it easy to switch over to them whenever
-necessary. Solving differential equations with different methods from 
-different languages and packages can be done by changing one line of code, 
+necessary. Solving differential equations with different methods from
+different languages and packages can be done by changing one line of code,
 allowing for easy benchmarking to ensure you are using the fastest method possible.
 
-DifferentialEquations.jl integrates with the Julia package sphere with: 
+DifferentialEquations.jl integrates with the Julia package sphere with:
 
-- GPU accleration through CUDAnative.jl and CuArrays.jl
+- GPU acceleration through CUDAnative.jl and CuArrays.jl
 - Automated sparsity detection with [SparsityDetection.jl](https://github.com/JuliaDiffEq/SparsityDetection.jl)
 - Automatic Jacobian coloring with [SparseDiffTools.jl](https://github.com/JuliaDiffEq/SparseDiffTools.jl), allowing for fast solutions
   to problems with sparse or structured (Tridiagonal, Banded, BlockBanded, etc.) Jacobians
 - Allowing the specification of linear solvers for maximal efficiency
-- Progress meter integration with the Juno IDE for estimated time to solution 
-- Automatic plotting of time series and phase plots 
+- Progress meter integration with the Juno IDE for estimated time to solution
+- Automatic plotting of time series and phase plots
 - Built-in interpolations
-- Wraps for common C/Fortran methods like Sundials and Hairer's radau
+- Wraps for common C/Fortran methods, like Sundials and Hairer's radau
 - Arbitrary precision with BigFloats and Arbfloats
-- Arbitrary array types, allowing the definition of differential equations on 
+- Arbitrary array types, allowing the definition of differential equations on
   matrices and distributed arrays
-- Unit checked arithmetic with Unitful
+- Unit-checked arithmetic with Unitful
 
 Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
 
@@ -66,7 +66,7 @@ solve and analyze your differential equations faster.
 For information on using the package,
 [see the stable documentation](https://docs.juliadiffeq.org/stable/). Use the
 [in-development documentation](https://docs.juliadiffeq.org/dev/) for the version of
-the documentation which contains the un-released features.
+the documentation which contains the unreleased features.
 
 All of the algorithms are thoroughly tested to ensure accuracy via convergence
 tests. The algorithms are continuously tested to show correctness.
@@ -85,7 +85,7 @@ interested in contributing, please see the
 ## Supporting and Citing
 
 The software in this ecosystem was developed as part of academic research. If you
-would like to help support it, please star the repository as such metrics may
+would like to help support it, please star the repository, as such metrics may
 help us secure funding in the future. If you use JuliaDiffEq software as part
 of your research, teaching, or other activities, we would be grateful if you
 could cite our work.
@@ -101,7 +101,7 @@ could cite our work.
 
 [![Video Introduction to DifferentialEquations.jl](https://user-images.githubusercontent.com/1814174/27973992-e236a9a4-6310-11e7-84af-2b66097cecf9.PNG)](https://youtu.be/75SCMIRlNXM)
 
-## Comparison to MATLAB, R, Julia, Python, C, Mathematica, Maple, and Fortran
+## Comparison with MATLAB, R, Julia, Python, C, Mathematica, Maple, and Fortran
 
 <a href="http://www.stochasticlifestyle.com/wp-content/uploads/2019/08/de_solver_software_comparsion.pdf"><img src="http://www.stochasticlifestyle.com/wp-content/uploads/2019/08/de_solver_software_comparsion-1.png" alt="Comparison Of Differential Equation Solver Software" align="middle"/></a>
 
