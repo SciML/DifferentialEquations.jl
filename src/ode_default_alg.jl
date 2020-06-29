@@ -30,7 +30,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
       # Don't default to implicit here because of memory requirements
       # And because the linear system gets unruly
-      if (!(uEltype <: Float64) && !(uEltype <: Complex)) || tol_level == :extreme_tol
+      if (!(uEltype <: Float64) && !(uEltype <: Float32) && !(uEltype <: Complex)) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
         alg = Vern9(lazy=!callbacks)
       elseif tol_level == :low_tol
@@ -54,7 +54,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
         alg = Rodas4(autodiff=false)
       end
     else # :auto ∈ alg_hints
-      if !(uEltype <: Float64) || tol_level == :extreme_tol
+      if (!(uEltype <: Float64) && !(uEltype <: Float32)) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
         alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
       elseif tol_level == :low_tol
