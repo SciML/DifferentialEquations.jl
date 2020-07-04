@@ -1,14 +1,17 @@
 # Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
+branches:
+  only:
+    - master
 os:
   - linux
   - osx
 julia:
-  - 1.3
-  - nightly
-matrix:
-  allow_failures:
-    - julia: nightly
+  - 1
+#  - nightly
+#matrix:
+#  allow_failures:
+#    - julia: nightly
 notifications:
   email: false
 #env:
