@@ -3,8 +3,8 @@
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Travis](https://travis-ci.org/SciML/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/SciML/DifferentialEquations.jl)
 [![AppVoyer](https://ci.appveyor.com/api/projects/status/1smlr9ryfqfx1ear?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/differentialequations-jl-1sx90)
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://docs.sciml.ai/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://docs.sciml.ai/dev/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://diffeq.sciml.ai/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://diffeq.sciml.ai/dev/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
 This is a suite for numerically solving differential equations written in Julia
@@ -52,20 +52,20 @@ DifferentialEquations.jl integrates with the Julia package sphere with:
 
 Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
 
-- [Forward and adjoint local sensitivity analysis](https://docs.juliadiffeq.org/dev/analysis/sensitivity/) for fast gradient computations
-- [Optimization-based and Bayesian parameter estimation](https://docs.juliadiffeq.org/dev/analysis/parameter_estimation/)
-- Neural differential equations with [DiffEqFlux.jl](https://github.com/JuliaDiffEq/DiffEqFlux.jl)
+- [Forward and adjoint local sensitivity analysis](https://diffeq.sciml.ai/dev/analysis/sensitivity/) for fast gradient computations
+- [Optimization-based and Bayesian parameter estimation](https://diffeq.sciml.ai/dev/analysis/parameter_estimation/)
+- Neural differential equations with [DiffEqFlux.jl](https://github.com/SciML/DiffEqFlux.jl)
   for efficient scientific machine learning (scientific ML) and scientific AI.
-- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](https://docs.juliadiffeq.org/dev/features/ensemble/)
-- [Global sensitivity analysis](https://docs.juliadiffeq.org/dev/analysis/global_sensitivity/)
-- [Uncertainty quantification](https://docs.juliadiffeq.org/dev/analysis/uncertainty_quantification/)
+- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](https://diffeq.sciml.ai/dev/features/ensemble/)
+- [Global sensitivity analysis](https://diffeq.sciml.ai/dev/analysis/global_sensitivity/)
+- [Uncertainty quantification](https://diffeq.sciml.ai/dev/analysis/uncertainty_quantification/)
 
 This gives a powerful mixture of speed and productivity features to help you
 solve and analyze your differential equations faster.
 
 For information on using the package,
-[see the stable documentation](https://docs.juliadiffeq.org/stable/). Use the
-[in-development documentation](https://docs.juliadiffeq.org/dev/) for the version of
+[see the stable documentation](https://diffeq.sciml.ai/stable/). Use the
+[in-development documentation](https://diffeq.sciml.ai/dev/) for the version of
 the documentation which contains the unreleased features.
 
 All of the algorithms are thoroughly tested to ensure accuracy via convergence
@@ -86,10 +86,10 @@ interested in contributing, please see the
 
 The software in this ecosystem was developed as part of academic research. If you
 would like to help support it, please star the repository, as such metrics may
-help us secure funding in the future. If you use JuliaDiffEq software as part
+help us secure funding in the future. If you use SciML software as part
 of your research, teaching, or other activities, we would be grateful if you
 could cite our work.
-[Please see our citation page for guidelines](http://juliadiffeq.org/citing.html).
+[Please see our citation page for guidelines](http://sciml.ai/citing.html).
 
 --------------------------------
 
@@ -109,4 +109,4 @@ could cite our work.
 
 ## Example Images
 
-<img src="https://raw.githubusercontent.com/JuliaDiffEq/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
+<img src="https://raw.githubusercontent.com/SciML/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
