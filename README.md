@@ -21,6 +21,7 @@ include:
 - Random differential equations (RODEs or RDEs)
 - Differential algebraic equations (DAEs)
 - Delay differential equations (DDEs)
+- Stochastic delay differential equations (SDDEs)
 - Mixed discrete and continuous equations (Hybrid Equations, Jump Diffusions)
 - (Stochastic) partial differential equations ((S)PDEs) (with both finite
   difference and finite element methods)
