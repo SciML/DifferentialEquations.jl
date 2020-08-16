@@ -18,14 +18,17 @@ include:
 - Ordinary differential equations (ODEs)
 - Split and Partitioned ODEs (Symplectic integrators, IMEX Methods)
 - Stochastic ordinary differential equations (SODEs or SDEs)
+- Stochastic differential-algebraic equations (SDAEs)
 - Random differential equations (RODEs or RDEs)
 - Differential algebraic equations (DAEs)
 - Delay differential equations (DDEs)
+- Neutral, retarded, and algebraic delay differential equations (NDDEs, RDDEs, and DDAEs)
 - Stochastic delay differential equations (SDDEs)
+- Experimental support for stochastic neutral, retarded, and algebraic delay differential equations (SNDDEs, SRDDEs, and SDDAEs)
 - Mixed discrete and continuous equations (Hybrid Equations, Jump Diffusions)
 - (Stochastic) partial differential equations ((S)PDEs) (with both finite
   difference and finite element methods)
-
+  
 The well-optimized DifferentialEquations solvers benchmark as the some of the fastest
 implementations, using classic algorithms and ones from recent research which
 routinely outperform the "standard" C/Fortran methods, and include algorithms
