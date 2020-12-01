@@ -9,7 +9,6 @@ prob_ode_2Dlinear = ODEProblem(
 alg, kwargs = default_algorithm(prob_ode_2Dlinear;dt=1//2^(4))
 sol =solve(prob_ode_2Dlinear;dt=1//2^(4))
 
-@test typeof(sol.alg) == typeof(alg)
 @test typeof(sol.alg.algs[1]) <: Tsit5
 @test typeof(sol.alg.algs[2]) <: Rosenbrock23
 
