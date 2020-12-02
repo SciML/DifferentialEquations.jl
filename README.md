@@ -1,8 +1,7 @@
 # DifferentialEquations.jl
 
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Travis](https://travis-ci.org/SciML/DifferentialEquations.jl.svg?branch=master)](https://travis-ci.org/SciML/DifferentialEquations.jl)
-[![AppVoyer](https://ci.appveyor.com/api/projects/status/1smlr9ryfqfx1ear?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/differentialequations-jl-1sx90)
+[![Build Status](https://github.com/SciML/DifferentialEquations.jl/workflows/CI/badge.svg)](https://github.com/SciML/DifferentialEquations.jl/actions?query=workflow%3ACI)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://diffeq.sciml.ai/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://diffeq.sciml.ai/dev/)
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
