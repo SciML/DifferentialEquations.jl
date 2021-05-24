@@ -44,10 +44,10 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
       if uType <: Array{Float64} && !mm && length(prob.u0) > 1000
         # Use Krylov method when huge!
         alg = CVODE_BDF(linear_solver=:GMRES)
-      elseif uType <: Array{Float64} && !mm && length(prob.u0) > 200
+      elseif length(prob.u0) > 200
         # Sundials only works on Float64!
         # Sundials is fast when problems are large enough
-        alg = CVODE_BDF()
+        alg = QNDF()
       elseif tol_level == :high_tol
         alg = Rosenbrock23(autodiff=false)
       else
