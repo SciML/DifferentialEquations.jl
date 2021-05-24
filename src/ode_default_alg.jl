@@ -41,7 +41,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
         alg = BS3()
       end
     elseif :stiff ∈ alg_hints # The problem is stiff
-      if uType <: Array{Float64} && !mm && length(prob.u0) > 1000
+      if uType <: Array{Float64} && !mm && length(prob.u0) > 4000
         # Use Krylov method when huge!
         alg = CVODE_BDF(linear_solver=:GMRES)
       elseif length(prob.u0) > 200
