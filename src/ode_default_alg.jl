@@ -41,13 +41,11 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
         alg = BS3()
       end
     elseif :stiff ∈ alg_hints # The problem is stiff
-      if uType <: Array{Float64} && !mm && length(prob.u0) > 4000
+      if length(prob.u0) > 2000
         # Use Krylov method when huge!
-        alg = CVODE_BDF(linear_solver=:GMRES)
-      elseif length(prob.u0) > 200
-        # Sundials only works on Float64!
-        # Sundials is fast when problems are large enough
-        alg = QNDF()
+        alg = QNDF(autodiff=false,linsolve=LinSolveGMRES())
+      elseif length(prob.u0) > 100
+        alg = QNDF(autodiff=false)
       elseif tol_level == :high_tol
         alg = Rosenbrock23(autodiff=false)
       else
@@ -56,11 +54,23 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     else # :auto ∈ alg_hints
       if (!(uEltype <: Float64) && !(uEltype <: Float32)) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
-        alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
+        if length(prob.u0) > 100
+            alg = AutoVern9(KenCarp47(autodiff=false),lazy=!callbacks)
+        else
+            alg = AutoVern9(Rodas4(autodiff=false),lazy=!callbacks)
+        end
       elseif tol_level == :low_tol
-        alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)
+          if length(prob.u0) > 100
+            alg = AutoVern7(TRBDF2(autodiff=false),lazy=!callbacks)
+          else
+            alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)
+          end
       else # :med or low
-        alg = AutoTsit5(Rosenbrock23(autodiff=false))
+        if length(prob.u0) > 100
+          alg = AutoTsit5(TRBDF2(autodiff=false))
+        else
+          alg = AutoTsit5(Rosenbrock23(autodiff=false))
+        end
       end
     end
   end
