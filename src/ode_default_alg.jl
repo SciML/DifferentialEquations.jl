@@ -18,14 +18,6 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
 
   if typeof(prob.f) <: SplitFunction
     alg = KenCarp4(autodiff=false)
-  elseif typeof(prob.f) <: DynamicalODEFunction
-    if tol_level == :low_tol || tol_level == :med_tol
-      alg = DPRKN6()
-    elseif tol_level == :high_tol
-      alg = DPRKN8()
-    else
-      alg = DPRKN12()
-    end
   else # Standard ODE
     if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
       # Don't default to implicit here because of memory requirements
@@ -43,9 +35,21 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     elseif :stiff ∈ alg_hints # The problem is stiff
       if length(prob.u0) > 2000
         # Use Krylov method when huge!
-        alg = QNDF(autodiff=false,linsolve=LinSolveGMRES())
+        if callbacks && !m
+            alg = CVODE_BDF(linear_solver=:GMRES)
+        elseif !callbacks
+            alg = QNDF(autodiff=false,linsolve=LinSolveGMRES())
+        else
+            alg = Rodas4(autodiff=false)
+        end
       elseif length(prob.u0) > 100
-        alg = QNDF(autodiff=false)
+        if callbacks && !m
+            alg = CVODE_BDF()
+        elseif !callbacks
+            alg = QNDF(autodiff=false)
+        else
+            alg = Rodas4(autodiff=false)
+        end
       elseif tol_level == :high_tol
         alg = Rosenbrock23(autodiff=false)
       else
