@@ -25,7 +25,7 @@ sol =solve(prob_ode_2Dlinear;reltol=1e-7)
 sol =solve(prob_ode_2Dlinear;reltol=1e-10)
 
 @test typeof(sol.alg.algs[1]) <: Vern9
-@test typeof(sol.alg.algs[2]) <: Rodas5
+@test typeof(sol.alg.algs[2]) <: Rodas4
 
 sol =solve(prob_ode_2Dlinear;alg_hints=[:stiff])
 
@@ -101,4 +101,4 @@ tspan = (0.0,10.0)
 prob = SecondOrderODEProblem(mass_system!,v0,u0,tspan)
 sol = solve(prob)
 
-@test typeof(sol.alg) <: DPRKN6
+@test typeof(sol.alg) <: Tsit5
