@@ -20,11 +20,11 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     alg = KenCarp4(autodiff=false)
   elseif typeof(prob.f) <: DynamicalODEFunction
     if tol_level == :low_tol || tol_level == :med_tol
-      alg = DPRKN6()
+      alg = Tsit5()
     elseif tol_level == :high_tol
-      alg = DPRKN8()
+      alg = Vern7(lazy=!callbacks)
     else
-      alg = DPRKN12()
+      alg = Vern9(lazy=!callbacks)
     end
   else # Standard ODE
     if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
@@ -40,14 +40,24 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
       else # tol_level == :high_tol
         alg = BS3()
       end
-    elseif :stiff ∈ alg_hints # The problem is stiff
-      if uType <: Array{Float64} && !mm && length(prob.u0) > 4000
+    elseif :stiff ∈ alg_hints || mm # The problem is stiff
+      if length(prob.u0) > 2000
         # Use Krylov method when huge!
-        alg = CVODE_BDF(linear_solver=:GMRES)
-      elseif length(prob.u0) > 200
-        # Sundials only works on Float64!
-        # Sundials is fast when problems are large enough
-        alg = QNDF()
+        if callbacks && !m
+            alg = CVODE_BDF(linear_solver=:GMRES)
+        elseif !callbacks
+            alg = QNDF(autodiff=false,linsolve=LinSolveGMRES())
+        else
+            alg = Rodas4(autodiff=false)
+        end
+      elseif length(prob.u0) > 100
+        if callbacks && !m
+            alg = CVODE_BDF()
+        elseif !callbacks
+            alg = QNDF(autodiff=false)
+        else
+            alg = Rodas4(autodiff=false)
+        end
       elseif tol_level == :high_tol
         alg = Rosenbrock23(autodiff=false)
       else
@@ -56,11 +66,23 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
     else # :auto ∈ alg_hints
       if (!(uEltype <: Float64) && !(uEltype <: Float32)) || tol_level == :extreme_tol
         # Most likely higher precision, so use a higher order method
-        alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
+        if length(prob.u0) > 100
+            alg = AutoVern9(KenCarp47(autodiff=false),lazy=!callbacks)
+        else
+            alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
+        end
       elseif tol_level == :low_tol
-        alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)
+          if length(prob.u0) > 100
+            alg = AutoVern7(TRBDF2(autodiff=false),lazy=!callbacks)
+          else
+            alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)
+          end
       else # :med or low
-        alg = AutoTsit5(Rosenbrock23(autodiff=false))
+        if length(prob.u0) > 100
+          alg = AutoTsit5(TRBDF2(autodiff=false))
+        else
+          alg = AutoTsit5(Rosenbrock23(autodiff=false))
+        end
       end
     end
   end
