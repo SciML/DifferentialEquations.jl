@@ -18,6 +18,14 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
 
   if typeof(prob.f) <: SplitFunction
     alg = KenCarp4(autodiff=false)
+  elseif typeof(prob.f) <: DynamicalODEFunction
+    if tol_level == :low_tol || tol_level == :med_tol
+      alg = Tsit5()
+    elseif tol_level == :high_tol
+      alg = Vern7(lazy=!callbacks)
+    else
+      alg = Vern9(lazy=!callbacks)
+    end
   else # Standard ODE
     if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
       # Don't default to implicit here because of memory requirements
@@ -32,7 +40,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
       else # tol_level == :high_tol
         alg = BS3()
       end
-    elseif :stiff ∈ alg_hints # The problem is stiff
+    elseif :stiff ∈ alg_hints || mm # The problem is stiff
       if length(prob.u0) > 2000
         # Use Krylov method when huge!
         if callbacks && !m
@@ -61,7 +69,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
         if length(prob.u0) > 100
             alg = AutoVern9(KenCarp47(autodiff=false),lazy=!callbacks)
         else
-            alg = AutoVern9(Rodas4(autodiff=false),lazy=!callbacks)
+            alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
         end
       elseif tol_level == :low_tol
           if length(prob.u0) > 100
