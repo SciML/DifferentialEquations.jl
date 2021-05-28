@@ -83,7 +83,7 @@ If you have any questions, or just want to chat about solvers/using the package,
 please feel free to chat in the [Gitter channel](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 For bug reports, feature requests, etc., please submit an issue. If you're
 interested in contributing, please see the
-[Developer Documentation](https://juliadiffeq.github.io/DiffEqDevDocs.jl/dev/).
+[Developer Documentation](http://devdocs.sciml.ai/latest/).
 
 ## Supporting and Citing
 
