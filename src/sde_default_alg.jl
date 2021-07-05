@@ -9,12 +9,12 @@ function default_algorithm(prob::DiffEqBase.AbstractSDEProblem{uType,tType,isinp
     alg = RKMilCommute()
   end
 
-  if :stiff ∈ alg_hints
+  if :stiff ∈ alg_hints || prob.f.mass_matrix !== I
     alg = ImplicitRKMil(autodiff=false)
   end
 
   if :stratonovich ∈ alg_hints
-    if :stiff ∈ alg_hints
+    if :stiff ∈ alg_hints || prob.f.mass_matrix !== I
       alg = ImplicitRKMil(autodiff=false,interpretation=:stratonovich)
     else
       alg = RKMil(interpretation=:stratonovich)
@@ -23,13 +23,13 @@ function default_algorithm(prob::DiffEqBase.AbstractSDEProblem{uType,tType,isinp
 
   if prob.noise_rate_prototype != nothing || prob.noise != nothing
     if :stratonovich ∈ alg_hints
-      if :stiff ∈ alg_hints
+      if :stiff ∈ alg_hints || prob.f.mass_matrix !== I
         alg = ImplicitEulerHeun(autodiff=false)
       else
         alg = LambaEulerHeun()
       end
     else
-      if :stiff ∈ alg_hints
+      if :stiff ∈ alg_hints || prob.f.mass_matrix !== I
         alg = ISSEM(autodiff=false)
       else
         alg = LambaEM()
@@ -38,7 +38,7 @@ function default_algorithm(prob::DiffEqBase.AbstractSDEProblem{uType,tType,isinp
   end
 
   if :additive ∈ alg_hints
-    if :stiff ∈ alg_hints
+    if :stiff ∈ alg_hints || prob.f.mass_matrix !== I
       alg = SKenCarp(autodiff=false)
     else
       alg = SOSRA()
