@@ -28,9 +28,9 @@ include:
 - (Stochastic) partial differential equations ((S)PDEs) (with both finite
   difference and finite element methods)
   
-The well-optimized DifferentialEquations solvers benchmark as some of the fastest 
-implementations of classic algorithms. It also includes algorithms from recent 
-research which routinely outperform the "standard" C/Fortran methods, and algorithms 
+The well-optimized DifferentialEquations solvers benchmark as some of the fastest
+implementations of classic algorithms. It also includes algorithms from recent
+research which routinely outperform the "standard" C/Fortran methods, and algorithms
 optimized for high-precision and HPC applications. Simultaneously, it wraps
 the classic C/Fortran methods, making it easy to switch over to them whenever
 necessary. Solving differential equations with different methods from
