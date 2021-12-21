@@ -17,8 +17,8 @@ sol =solve(prob,dt=1/2^(3))
 sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
 @test typeof(sol.alg) <: SOSRA
 
-sol =solve(prob,dt=1/2^(3),alg_hints=[:stratonovich])
-@test StochasticDiffEq.alg_interpretation(sol.alg) == :stratonovich
+sol =solve(prob,dt=1/2^(3),alg_hints=[:Stratonovich])
+@test StochasticDiffEq.alg_interpretation(sol.alg) == :Stratonovich
 @test typeof(sol.alg) <: RKMil
 
 f = (du,u,p,t) -> du.=1.01u
@@ -43,5 +43,5 @@ sol =solve(prob,dt=1/2^(3),alg_hints=[:stiff])
 sol =solve(prob,dt=1/2^(3),alg_hints=[:additive])
 @test typeof(sol.alg) <: SOSRA
 
-sol =solve(prob,dt=1/2^(3),alg_hints=[:stratonovich])
+sol =solve(prob,dt=1/2^(3),alg_hints=[:Stratonovich])
 @test typeof(sol.alg) <: LambaEulerHeun

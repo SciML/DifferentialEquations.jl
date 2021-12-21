@@ -10,16 +10,16 @@ function default_algorithm(prob::DiffEqBase.AbstractSDEProblem{uType,tType,isinp
   end
 
   is_stiff = :stiff ∈ alg_hints
-  is_stratonovich = :stratonovich ∈ alg_hints
+  is_stratonovich = :Stratonovich ∈ alg_hints
   if is_stiff || prob.f.mass_matrix !== I
     alg = ImplicitRKMil(autodiff=false)
   end
 
   if is_stratonovich
     if is_stiff || prob.f.mass_matrix !== I
-      alg = ImplicitRKMil(autodiff=false,interpretation=:stratonovich)
+      alg = ImplicitRKMil(autodiff=false,interpretation=:Stratonovich)
     else
-      alg = RKMil(interpretation=:stratonovich)
+      alg = RKMil(interpretation=:Stratonovich)
     end
   end
 
