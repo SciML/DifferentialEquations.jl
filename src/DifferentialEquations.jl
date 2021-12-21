@@ -26,6 +26,7 @@ module DifferentialEquations
   using LinearAlgebra
 
   import DiffEqBase: solve
+  import LinearSolve
 
   include("default_solve.jl")
   include("default_arg_parsing.jl")

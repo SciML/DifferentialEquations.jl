@@ -46,7 +46,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
         if callbacks && !m
             alg = CVODE_BDF(linear_solver=:GMRES)
         elseif !callbacks
-            alg = QNDF(autodiff=false,linsolve=LinSolveGMRES())
+            alg = QNDF(autodiff=false,linsolve=IterativeSolversJL_GMRES())
         else
             alg = Rodas4(autodiff=false)
         end
