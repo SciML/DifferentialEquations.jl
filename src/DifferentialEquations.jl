@@ -16,13 +16,6 @@ module DifferentialEquations
   @reexport using DiffEqCallbacks
   @reexport using DiffEqJump
 
-  @reexport using DiffEqFinancial
-  @reexport using MultiScaleArrays
-  @reexport using DiffEqPhysics
-
-  @reexport using DimensionalPlotRecipes
-  @reexport using ParameterizedFunctions
-
   using LinearAlgebra
 
   import DiffEqBase: solve
