@@ -41,17 +41,15 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
         alg = BS3()
       end
     elseif :stiff ∈ alg_hints || mm # The problem is stiff
-      if length(prob.u0) > 2000
+      if length(prob.u0) > 500
         # Use Krylov method when huge!
-        if callbacks && !m
+        if !mm
             alg = CVODE_BDF(linear_solver=:GMRES)
-        elseif !callbacks
-            alg = QNDF(autodiff=false,linsolve=IterativeSolversJL_GMRES())
-        else
-            alg = Rodas4(autodiff=false)
+        elseif mm
+            alg = Rodas4(autodiff=false,linsolve=LinearSolve.KrylovJL_GMRES())
         end
-      elseif length(prob.u0) > 100
-        if callbacks && !m
+      elseif length(prob.u0) > 50
+        if callbacks && !mm
             alg = CVODE_BDF()
         elseif !callbacks
             alg = QNDF(autodiff=false)
@@ -72,7 +70,9 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType,tType,inpla
             alg = AutoVern9(Rodas5(autodiff=false),lazy=!callbacks)
         end
       elseif tol_level == :low_tol
-          if length(prob.u0) > 100
+          if length(prob.u0) > 500
+            alg = AutoVern7(Rodas4(autodiff=false,linsolve=LinearSolve.KrylovJL_GMRES()),lazy=!callbacks)
+          elseif length(prob.u0) > 50
             alg = AutoVern7(TRBDF2(autodiff=false),lazy=!callbacks)
           else
             alg = AutoVern7(Rodas4(autodiff=false),lazy=!callbacks)

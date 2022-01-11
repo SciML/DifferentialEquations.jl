@@ -19,7 +19,7 @@ module DifferentialEquations
   using LinearAlgebra
 
   import DiffEqBase: solve
-  import LinearSolve
+  @reexport using LinearSolve
 
   include("default_solve.jl")
   include("default_arg_parsing.jl")
