@@ -58,11 +58,13 @@ sol = solve(prob_ode_bigfloat2Dlinear, nothing; alg_hints = [:stiff])
 
 struct FooAlg end
 
-@test_throws DiffEqBase.NonSolverError solve(prob_ode_bigfloat2Dlinear, FooAlg(); default_set = true)
+@test_throws DiffEqBase.NonSolverError solve(prob_ode_bigfloat2Dlinear, FooAlg();
+                                             default_set = true)
 
 struct FooAlg2 <: DiffEqBase.DEAlgorithm end
 
-@test_throws DiffEqBase.ProblemSolverPairingError solve(prob_ode_bigfloat2Dlinear, FooAlg2(); default_set = true)
+@test_throws DiffEqBase.ProblemSolverPairingError solve(prob_ode_bigfloat2Dlinear,
+                                                        FooAlg2(); default_set = true)
 
 prob = ODEProblem(f, rand(4, 2) .* ones(4, 2) / 2, (0.0, 1.0))
 
