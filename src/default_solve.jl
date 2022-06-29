@@ -10,7 +10,7 @@ function DiffEqBase.__solve(prob::DiffEqBase.DEProblem,
 end
 
 #=
-function DiffEqBase.__solve(prob::DiffEqJump.JumpProblem,alg::Nothing,
+function DiffEqBase.__solve(prob::JumpProcesses.JumpProblem,alg::Nothing,
                args...;default_set=false,kwargs...)
   if default_set == true
     error("The chosen algorithm, $alg, does not exist. Please verify that the appropriate solver package has been installed.")

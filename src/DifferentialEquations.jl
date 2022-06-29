@@ -14,7 +14,7 @@ using Sundials
 @reexport using DelayDiffEq
 
 @reexport using DiffEqCallbacks
-@reexport using DiffEqJump
+@reexport using JumpProcesses
 
 using LinearAlgebra
 
