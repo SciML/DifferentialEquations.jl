@@ -32,7 +32,7 @@ OrdinaryDiffEq = "6"
 RecursiveArrayTools = "2"
 Reexport = "0.2, 1.0"
 SteadyStateDiffEq = "1.5"
-StochasticDiffEq = "6.37"
+StochasticDiffEq = "6.50"
 Sundials = "3.8.1, 4.0"
 julia = "1.6"
 
