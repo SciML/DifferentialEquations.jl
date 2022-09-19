@@ -24,7 +24,7 @@ sol = solve(prob_ode_2Dlinear; reltol = 1e-7)
 sol = solve(prob_ode_2Dlinear; reltol = 1e-10)
 
 @test typeof(sol.alg.algs[1]) <: Vern9
-@test typeof(sol.alg.algs[2]) <: Rodas5
+@test typeof(sol.alg.algs[2]) <: Rodas5P
 
 sol = solve(prob_ode_2Dlinear; alg_hints = [:stiff])
 
@@ -44,7 +44,7 @@ prob_ode_bigfloat2Dlinear = ODEProblem(f, map(BigFloat, rand(4, 2)) .* ones(4, 2
 
 sol = solve(prob_ode_bigfloat2Dlinear; dt = 1 // 2^(4))
 @test typeof(sol.alg.algs[1]) <: Vern9
-@test typeof(sol.alg.algs[2]) <: Rodas5
+@test typeof(sol.alg.algs[2]) <: Rodas5P
 
 default_algorithm(prob_ode_bigfloat2Dlinear; alg_hints = [:stiff])
 
