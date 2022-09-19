@@ -70,7 +70,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
                 if length(prob.u0) > 100
                     alg = AutoVern9(KenCarp47(autodiff = false), lazy = !callbacks)
                 else
-                    alg = AutoVern9(Rodas5(autodiff = false), lazy = !callbacks)
+                    alg = AutoVern9(Rodas5P(autodiff = false), lazy = !callbacks)
                 end
             elseif tol_level == :low_tol
                 if length(prob.u0) > 500
