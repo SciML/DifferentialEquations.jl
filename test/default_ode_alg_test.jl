@@ -6,6 +6,7 @@ prob_ode_2Dlinear = ODEProblem(ODEFunction(f_2dlinear, analytic = f_2dlinear_ana
                                rand(4, 2), (0.0, 1.0), 1.01)
 
 alg, kwargs = default_algorithm(prob_ode_2Dlinear; dt = 1 // 2^(4))
+integ = init(prob_ode_2Dlinear; dt = 1 // 2^(4))
 sol = solve(prob_ode_2Dlinear; dt = 1 // 2^(4))
 
 @test typeof(sol.alg.algs[1]) <: Tsit5
