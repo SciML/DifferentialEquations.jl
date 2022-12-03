@@ -60,13 +60,15 @@ DifferentialEquations.jl integrates with the Julia package sphere with:
 
 Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
 
-- [Forward and adjoint local sensitivity analysis](https://diffeq.sciml.ai/dev/analysis/sensitivity/) for fast gradient computations
-- [Optimization-based and Bayesian parameter estimation](https://diffeq.sciml.ai/dev/analysis/parameter_estimation/)
-- Neural differential equations with [DiffEqFlux.jl](https://github.com/SciML/DiffEqFlux.jl)
+Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
+
+- [Forward and Adjoint Sensitivity Analysis (Automatic Differentiation)](https://docs.sciml.ai/SciMLSensitivity/stable/) for fast gradient computations
+- [Parameter Estimation and Bayesian Analysis](https://docs.sciml.ai/Overview/stable/highlevels/inverse_problems/)
+- Neural differential equations with [DiffEqFlux.jl](https://docs.sciml.ai/DiffEqFlux/stable/)
   for efficient scientific machine learning (scientific ML) and scientific AI.
-- [Automatic distributed, multithreaded, and GPU parallelism of ensemble trajectories](https://diffeq.sciml.ai/dev/features/ensemble/)
-- [Global sensitivity analysis](https://diffeq.sciml.ai/dev/analysis/global_sensitivity/)
-- [Uncertainty quantification](https://diffeq.sciml.ai/dev/analysis/uncertainty_quantification/)
+- Automatic distributed, multithreaded, and GPU [Parallel Ensemble Simulations](https://diffeq.sciml.ai/dev/features/ensemble/)
+- [Global Sensitivity Analysis](https://docs.sciml.ai/GlobalSensitivity/stable/)
+- [Uncertainty Quantification](https://docs.sciml.ai/Overview/stable/highlevels/uncertainty_quantification/)
 
 This gives a powerful mixture of speed and productivity features to help you
 solve and analyze your differential equations faster.
@@ -79,9 +81,9 @@ the documentation which contains the unreleased features.
 All of the algorithms are thoroughly tested to ensure accuracy via convergence
 tests. The algorithms are continuously tested to show correctness.
 IJulia tutorial notebooks
-[can be found at DiffEqTutorials.jl](https://github.com/JuliaDiffEq/DiffEqTutorials.jl).
+[can be found at DiffEqTutorials.jl](https://github.com/SciML/SciMLTutorials.jl).
 Benchmarks
-[can be found at DiffEqBenchmarks.jl](https://github.com/JuliaDiffEq/DiffEqBenchmarks.jl).
+[can be found at DiffEqBenchmarks.jl](https://github.com/SciML/SciMLBenchmarks.jl).
 If you find any equation where there seems to be an error, please open an issue.
 
 If you have any questions, or just want to chat about solvers/using the package,
