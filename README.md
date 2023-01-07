@@ -60,8 +60,6 @@ DifferentialEquations.jl integrates with the Julia package sphere with:
 
 Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
 
-Additionally, DifferentialEquations.jl comes with built-in analysis features, including:
-
 - [Forward and Adjoint Sensitivity Analysis (Automatic Differentiation)](https://docs.sciml.ai/SciMLSensitivity/stable/) for fast gradient computations
 - [Parameter Estimation and Bayesian Analysis](https://docs.sciml.ai/Overview/stable/highlevels/inverse_problems/)
 - Neural differential equations with [DiffEqFlux.jl](https://docs.sciml.ai/DiffEqFlux/stable/)
