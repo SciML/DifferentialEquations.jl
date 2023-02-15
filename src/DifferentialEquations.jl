@@ -20,6 +20,7 @@ using LinearAlgebra
 
 import DiffEqBase: solve
 @reexport using LinearSolve
+using NonlinearSolve
 
 include("default_solve.jl")
 include("default_arg_parsing.jl")

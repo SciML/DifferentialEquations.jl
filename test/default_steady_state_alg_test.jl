@@ -9,4 +9,4 @@ prob = SteadyStateProblem(f, u0)
 
 sol = solve(prob)
 
-@test typeof(sol.alg) <: SSRootfind
+@test sol.alg isa DifferentialEquations.NonlinearSolve.NewtonRaphson
