@@ -1,7 +1,7 @@
 function default_algorithm(prob::DiffEqBase.AbstractSteadyStateProblem; kwargs...)
     o = Dict{Symbol, Any}(kwargs)
     extra_kwargs = Any[]
-    alg = SSRootfind() # Standard default
+    alg = NewtonRaphson() # Standard default
 
     alg_hints = get_alg_hints(o)
 
