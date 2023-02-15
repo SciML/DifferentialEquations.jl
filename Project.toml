@@ -25,7 +25,7 @@ Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 [compat]
 BoundaryValueDiffEq = "2.9"
 DelayDiffEq = "5.38.0"
-DiffEqBase = "6.105.0"
+DiffEqBase = "6.116.0"
 DiffEqCallbacks = "2.24"
 DiffEqNoiseProcess = "5.13"
 JumpProcesses = "9.2"
