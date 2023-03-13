@@ -17,7 +17,7 @@ jobs:
           - '1'
           - '1.6'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
