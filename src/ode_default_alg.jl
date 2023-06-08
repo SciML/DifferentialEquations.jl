@@ -1,5 +1,5 @@
 function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inplace};
-                           kwargs...) where {uType, tType, inplace}
+    kwargs...) where {uType, tType, inplace}
     o = Dict{Symbol, Any}(kwargs)
     extra_kwargs = Any[]
     alg = AutoTsit5(Rosenbrock23(autodiff = false)) # Standard default
@@ -75,8 +75,8 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
             elseif tol_level == :low_tol
                 if length(prob.u0) > 500
                     alg = AutoVern7(Rodas4(autodiff = false,
-                                           linsolve = LinearSolve.KrylovJL_GMRES()),
-                                    lazy = !callbacks)
+                            linsolve = LinearSolve.KrylovJL_GMRES()),
+                        lazy = !callbacks)
                 elseif length(prob.u0) > 50
                     alg = AutoVern7(TRBDF2(autodiff = false), lazy = !callbacks)
                 else
