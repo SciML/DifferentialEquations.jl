@@ -1,6 +1,6 @@
 function DiffEqBase.__solve(prob::DiffEqBase.DEProblem,
-                            alg::Union{Nothing, DiffEqBase.DEAlgorithm},
-                            args...; default_set = false, kwargs...)
+    alg::Union{Nothing, DiffEqBase.DEAlgorithm},
+    args...; default_set = false, kwargs...)
     if default_set == true
         error("The chosen algorithm, $alg, does not exist. Please verify that the appropriate solver package has been installed.")
     end
@@ -15,8 +15,8 @@ function DiffEqBase.__solve(prob::DiffEqBase.DEProblem,
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.DEProblem,
-                           alg::Union{Nothing, DiffEqBase.DEAlgorithm},
-                           args...; default_set = false, kwargs...)
+    alg::Union{Nothing, DiffEqBase.DEAlgorithm},
+    args...; default_set = false, kwargs...)
     if default_set == true
         error("The chosen algorithm, $alg, does not exist. Please verify that the appropriate solver package has been installed.")
     end

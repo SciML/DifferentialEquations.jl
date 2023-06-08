@@ -3,7 +3,7 @@ using DifferentialEquations, Test
 f_2dlinear = (du, u, p, t) -> (@. du = p * u)
 f_2dlinear_analytic = (u0, p, t) -> @. u0 * exp(p * t)
 prob_ode_2Dlinear = ODEProblem(ODEFunction(f_2dlinear, analytic = f_2dlinear_analytic),
-                               rand(4, 2), (0.0, 1.0), 1.01)
+    rand(4, 2), (0.0, 1.0), 1.01)
 
 alg, kwargs = default_algorithm(prob_ode_2Dlinear; dt = 1 // 2^(4))
 integ = init(prob_ode_2Dlinear; dt = 1 // 2^(4))
@@ -36,12 +36,14 @@ sol = solve(prob_ode_2Dlinear; alg_hints = [:stiff], reltol = 1e-1)
 @test typeof(sol.alg) <: Rosenbrock23
 
 const linear_bigα = parse(BigFloat, "1.01")
-f = (du, u, p, t) -> begin for i in 1:length(u)
-    du[i] = linear_bigα * u[i]
-end end
+f = (du, u, p, t) -> begin
+    for i in 1:length(u)
+        du[i] = linear_bigα * u[i]
+    end
+end
 (::typeof(f))(::Type{Val{:analytic}}, u0, p, t) = u0 * exp(linear_bigα * t)
 prob_ode_bigfloat2Dlinear = ODEProblem(f, map(BigFloat, rand(4, 2)) .* ones(4, 2) / 2,
-                                       (0.0, 1.0))
+    (0.0, 1.0))
 
 sol = solve(prob_ode_bigfloat2Dlinear; dt = 1 // 2^(4))
 @test typeof(sol.alg.algs[1]) <: Vern9
@@ -60,12 +62,12 @@ sol = solve(prob_ode_bigfloat2Dlinear, nothing; alg_hints = [:stiff])
 struct FooAlg end
 
 @test_throws DiffEqBase.NonSolverError solve(prob_ode_bigfloat2Dlinear, FooAlg();
-                                             default_set = true)
+    default_set = true)
 
 struct FooAlg2 <: DiffEqBase.DEAlgorithm end
 
 @test_throws DiffEqBase.ProblemSolverPairingError solve(prob_ode_bigfloat2Dlinear,
-                                                        FooAlg2(); default_set = true)
+    FooAlg2(); default_set = true)
 
 prob = ODEProblem(f, rand(4, 2) .* ones(4, 2) / 2, (0.0, 1.0))
 
