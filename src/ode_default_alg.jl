@@ -23,67 +23,46 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
     elseif typeof(prob.f) <: DynamicalODEFunction
         if tol_level == :low_tol || tol_level == :med_tol
             alg = Tsit5()
-        elseif tol_level == :high_tol
-            alg = Vern7(lazy = !callbacks)
         else
-            alg = Vern9(lazy = !callbacks)
+            alg = Vern7(lazy = !callbacks)
         end
     else # Standard ODE
-        if :nonstiff ∈ alg_hints || length(prob.u0) > 10000
+        if :nonstiff ∈ alg_hints
             # Don't default to implicit here because of memory requirements
             # And because the linear system gets unruly
             if (!(uEltype <: Float64) && !(uEltype <: Float32) && !(uEltype <: Complex)) ||
-               tol_level == :extreme_tol
+               tol_level == :extreme_tol || tol_level == :low_tol
                 # Most likely higher precision, so use a higher order method
-                alg = Vern9(lazy = !callbacks)
-            elseif tol_level == :low_tol
                 alg = Vern7(lazy = !callbacks)
-            elseif tol_level == :med_tol
+            else
                 alg = Tsit5()
-            else # tol_level == :high_tol
-                alg = BS3()
             end
         elseif :stiff ∈ alg_hints || mm # The problem is stiff
             if length(prob.u0) > 500
                 # Use Krylov method when huge!
-                if !mm
-                    alg = CVODE_BDF(linear_solver = :GMRES)
-                elseif mm
-                    alg = Rodas4(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES())
-                end
-            elseif length(prob.u0) > 50
-                if callbacks && !mm
-                    alg = CVODE_BDF()
-                elseif !callbacks
-                    alg = QNDF(autodiff = false)
-                else
-                    alg = Rodas4(autodiff = false)
-                end
+                alg = FBDF(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES())
+            elseif length(prob.u0) > 500
+                alg = FBDF(autodiff = false)
             elseif tol_level == :high_tol
                 alg = Rosenbrock23(autodiff = false)
             else
-                alg = Rodas4(autodiff = false)
+                alg = Rodas5P(autodiff = false)
             end
         else # :auto ∈ alg_hints
-            if (!(uEltype <: Float64) && !(uEltype <: Float32)) || tol_level == :extreme_tol
+            if (!(uEltype <: Float64) && !(uEltype <: Float32)) || tol_level == :extreme_tol  ||
+                tol_level == :low_tol
                 # Most likely higher precision, so use a higher order method
-                if length(prob.u0) > 100
-                    alg = AutoVern9(KenCarp47(autodiff = false), lazy = !callbacks)
-                else
-                    alg = AutoVern9(Rodas5P(autodiff = false), lazy = !callbacks)
-                end
-            elseif tol_level == :low_tol
                 if length(prob.u0) > 500
-                    alg = AutoVern7(Rodas4(autodiff = false,
-                            linsolve = LinearSolve.KrylovJL_GMRES()),
-                        lazy = !callbacks)
+                    alg = AutoVern7(KenCarp47(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES()), lazy = !callbacks)
                 elseif length(prob.u0) > 50
-                    alg = AutoVern7(TRBDF2(autodiff = false), lazy = !callbacks)
+                    alg = AutoVern7(KenCarp47(autodiff = false), lazy = !callbacks)
                 else
-                    alg = AutoVern7(Rodas4(autodiff = false), lazy = !callbacks)
+                    alg = AutoVern7(Rodas5P(autodiff = false), lazy = !callbacks)
                 end
             else # :med or low
-                if length(prob.u0) > 100
+                if length(prob.u0) > 500
+                    alg = AutoTsit5(TRBDF2(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES()))
+                elseif length(prob.u0) > 50
                     alg = AutoTsit5(TRBDF2(autodiff = false))
                 else
                     alg = AutoTsit5(Rosenbrock23(autodiff = false))
