@@ -11,7 +11,7 @@ function DiffEqBase.__solve(prob::DiffEqBase.DEProblem,
        prob isa SciMLBase.AbstractSteadyStateProblem
         prob = NonlinearProblem(prob)
     end
-    DiffEqBase.__solve(prob, alg, args...; default_set = true, kwargs..., extra_kwargs...)
+    DiffEqBase.solve(prob, alg, args...; default_set = true, kwargs..., extra_kwargs...)
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.DEProblem,
@@ -22,7 +22,7 @@ function DiffEqBase.__init(prob::DiffEqBase.DEProblem,
     end
     alg, extra_kwargs = default_algorithm(prob; kwargs...)
     alg = DiffEqBase.prepare_alg(alg, prob.u0, prob.p, prob)
-    DiffEqBase.__init(prob, alg, args...; default_set = true, kwargs..., extra_kwargs...)
+    DiffEqBase.init(prob, alg, args...; default_set = true, kwargs..., extra_kwargs...)
 end
 
 #=
