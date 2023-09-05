@@ -36,4 +36,4 @@ function DiffEqBase.__solve(prob::JumpProcesses.JumpProblem,alg::Nothing,
 end
 =#
 
-export default_algorithm 
+export default_algorithm
