@@ -19,12 +19,12 @@ jobs:
     - uses: julia-actions/setup-julia@v1
       with:
         version: '1'
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: julia-actions/julia-buildpkg@v1
     - uses: julia-actions/julia-invalidations@v1
       id: invs_pr
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.repository.default_branch }}
     - uses: julia-actions/julia-buildpkg@v1
