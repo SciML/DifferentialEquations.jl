@@ -1,7 +1,7 @@
 name = "DifferentialEquations"
 uuid = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "7.10.0"
+version = "7.11.0"
 
 [deps]
 BoundaryValueDiffEq = "764a87c0-6b3e-53db-9096-fe964310641d"
@@ -23,7 +23,7 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 
 [compat]
-BoundaryValueDiffEq = "4"
+BoundaryValueDiffEq = "5"
 DelayDiffEq = "5.42.0"
 DiffEqBase = "6.125.0"
 DiffEqCallbacks = "2.26"
