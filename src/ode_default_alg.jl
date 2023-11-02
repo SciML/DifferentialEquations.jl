@@ -18,9 +18,9 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
     # Bad interaction with ForwardDiff
     #!(tType <: AbstractFloat) && (:adaptive ∉ keys(o)) && push!(extra_kwargs,:adaptive=>false)
 
-    if typeof(prob.f) <: SplitFunction
+    if prob.f isa SplitFunction
         alg = KenCarp4(autodiff = false)
-    elseif typeof(prob.f) <: DynamicalODEFunction
+    elseif prob.f isa DynamicalODEFunction
         if tol_level == :low_tol || tol_level == :med_tol
             alg = Tsit5()
         else

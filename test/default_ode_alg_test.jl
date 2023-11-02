@@ -9,31 +9,31 @@ alg, kwargs = default_algorithm(prob_ode_2Dlinear; dt = 1 // 2^(4))
 integ = init(prob_ode_2Dlinear; dt = 1 // 2^(4))
 sol = solve(prob_ode_2Dlinear; dt = 1 // 2^(4))
 
-@test typeof(sol.alg.algs[1]) <: Tsit5
-@test typeof(sol.alg.algs[2]) <: Rosenbrock23
+@test sol.alg.algs[1] isa Tsit5
+@test sol.alg.algs[2] isa Rosenbrock23
 
 sol = solve(prob_ode_2Dlinear; reltol = 1e-1)
 
-@test typeof(sol.alg.algs[1]) <: Tsit5
-@test typeof(sol.alg.algs[2]) <: Rosenbrock23
+@test sol.alg.algs[1] isa Tsit5
+@test sol.alg.algs[2] isa Rosenbrock23
 
 sol = solve(prob_ode_2Dlinear; reltol = 1e-7)
 
-@test typeof(sol.alg.algs[1]) <: Vern7
-@test typeof(sol.alg.algs[2]) <: Rodas5P
+@test sol.alg.algs[1] isa Vern7
+@test sol.alg.algs[2] isa Rodas5P
 
 sol = solve(prob_ode_2Dlinear; reltol = 1e-10)
 
-@test typeof(sol.alg.algs[1]) <: Vern7
-@test typeof(sol.alg.algs[2]) <: Rodas5P
+@test sol.alg.algs[1] isa Vern7
+@test sol.alg.algs[2] isa Rodas5P
 
 sol = solve(prob_ode_2Dlinear; alg_hints = [:stiff])
 
-@test typeof(sol.alg) <: Rodas5P
+@test sol.alg isa Rodas5P
 
 sol = solve(prob_ode_2Dlinear; alg_hints = [:stiff], reltol = 1e-1)
 
-@test typeof(sol.alg) <: Rosenbrock23
+@test sol.alg isa Rosenbrock23
 
 const linear_bigα = parse(BigFloat, "1.01")
 f = (du, u, p, t) -> begin
@@ -46,18 +46,18 @@ prob_ode_bigfloat2Dlinear = ODEProblem(f, map(BigFloat, rand(4, 2)) .* ones(4, 2
     (0.0, 1.0))
 
 sol = solve(prob_ode_bigfloat2Dlinear; dt = 1 // 2^(4))
-@test typeof(sol.alg.algs[1]) <: Vern7
-@test typeof(sol.alg.algs[2]) <: Rodas5P
+@test sol.alg.algs[1] isa Vern7
+@test sol.alg.algs[2] isa Rodas5P
 
 default_algorithm(prob_ode_bigfloat2Dlinear; alg_hints = [:stiff])
 
 sol = solve(prob_ode_bigfloat2Dlinear; alg_hints = [:stiff])
 
-@test typeof(sol.alg) <: Rodas5P
+@test sol.alg isa Rodas5P
 
 sol = solve(prob_ode_bigfloat2Dlinear, nothing; alg_hints = [:stiff])
 
-@test typeof(sol.alg) <: Rodas5P
+@test sol.alg isa Rodas5P
 
 struct FooAlg end
 
@@ -73,21 +73,21 @@ prob = ODEProblem(f, rand(4, 2) .* ones(4, 2) / 2, (0.0, 1.0))
 
 sol = solve(prob; alg_hints = [:stiff])
 
-@test typeof(sol.alg) <: Rodas5P
+@test sol.alg isa Rodas5P
 
 sol = solve(prob; alg_hints = [:stiff], reltol = 1e-1)
 
-@test typeof(sol.alg) <: Rosenbrock23
+@test sol.alg isa Rosenbrock23
 
 sol = solve(prob; alg_hints = [:stiff], callback = CallbackSet())
 
-@test typeof(sol.alg) <: Rodas5P
+@test sol.alg isa Rodas5P
 
 prob = ODEProblem(f, rand(4, 2) .* ones(4, 2) / 2, (0.0, 1.0))
 
 alg, kwargs = default_algorithm(prob; alg_hints = [:stiff])
 
-@test typeof(alg) <: Rodas5P
+@test alg isa Rodas5P
 
 m = 1.0
 ω = 1.0
@@ -104,4 +104,4 @@ tspan = (0.0, 10.0)
 prob = SecondOrderODEProblem(mass_system!, v0, u0, tspan)
 sol = solve(prob)
 
-@test typeof(sol.alg) <: Tsit5
+@test sol.alg isa Tsit5

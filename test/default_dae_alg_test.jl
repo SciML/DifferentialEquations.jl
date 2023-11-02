@@ -13,4 +13,4 @@ prob_dae_resrob = DAEProblem(f, du0, u0, (0.0, 100000.0))
 prob = prob_dae_resrob
 sol = solve(prob)
 
-@test typeof(sol.alg) <: DifferentialEquations.Sundials.IDA
+@test sol.alg isa DifferentialEquations.Sundials.IDA

@@ -6,4 +6,4 @@ tspan = (0.0, 1.0)
 prob = RODEProblem(f, u0, tspan)
 sol = solve(prob, dt = 1 / 100)
 
-@test typeof(sol.alg) <: RandomEM
+@test sol.alg isa RandomEM
