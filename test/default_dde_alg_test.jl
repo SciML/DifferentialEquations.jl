@@ -10,6 +10,6 @@ prob = DDEProblem(f, 1.0, h, (0.0, 10.0), constant_lags = lags)
 
 sol = solve(prob)
 
-@test typeof(sol.alg) <: CompositeAlgorithm
-@test typeof(sol.alg.algs[1]) <: Tsit5
-@test typeof(sol.alg.algs[2]) <: Rosenbrock23
+@test sol.alg isa CompositeAlgorithm
+@test sol.alg.algs[1] isa Tsit5
+@test sol.alg.algs[2] isa Rosenbrock23

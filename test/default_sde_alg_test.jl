@@ -12,14 +12,14 @@ Random.seed!(100)
 
 prob = prob_sde_additive
 sol = solve(prob, dt = 1 / 2^(3))
-@test typeof(sol.alg) <: SOSRI
+@test sol.alg isa SOSRI
 
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
-@test typeof(sol.alg) <: SOSRA
+@test sol.alg isa SOSRA
 
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
 @test StochasticDiffEq.alg_interpretation(sol.alg) == :Stratonovich
-@test typeof(sol.alg) <: RKMil
+@test sol.alg isa RKMil
 
 f = (du, u, p, t) -> du .= 1.01u
 g = function (du, u, p, t)
@@ -35,13 +35,13 @@ end
 prob = SDEProblem(f, g, ones(2), (0.0, 1.0), noise_rate_prototype = zeros(2, 4))
 
 sol = solve(prob, dt = 1 / 2^(3))
-@test typeof(sol.alg) <: LambaEM
+@test sol.alg isa LambaEM
 
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stiff])
-@test typeof(sol.alg) <: ISSEM
+@test sol.alg isa ISSEM
 
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
-@test typeof(sol.alg) <: SOSRA
+@test sol.alg isa SOSRA
 
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
-@test typeof(sol.alg) <: LambaEulerHeun
+@test sol.alg isa LambaEulerHeun
