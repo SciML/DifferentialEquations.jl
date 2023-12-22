@@ -38,7 +38,7 @@ SciMLBase = "1.92, 2"
 SteadyStateDiffEq = "1.15"
 StochasticDiffEq = "6.61"
 Sundials = "4.19"
-julia = "1.6"
+julia = "1.9"
 
 [extras]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
