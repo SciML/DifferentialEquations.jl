@@ -9,4 +9,4 @@ prob = SteadyStateProblem(f, u0)
 
 sol = solve(prob)
 
-@test sol.alg isa DifferentialEquations.NonlinearSolve.NewtonRaphson
+@test DifferentialEquations.NonlinearSolve.get_name(sol.alg) === :NewtonRaphson
