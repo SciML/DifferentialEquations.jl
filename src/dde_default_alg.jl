@@ -1,6 +1,7 @@
-function default_algorithm(prob::DiffEqBase.AbstractDDEProblem{uType, tType, lType,
-        isinplace};
-    kwargs...) where {uType, tType, lType, isinplace}
+function default_algorithm(
+        prob::DiffEqBase.AbstractDDEProblem{uType, tType, lType,
+            isinplace};
+        kwargs...) where {uType, tType, lType, isinplace}
     o = Dict{Symbol, Any}(kwargs)
     extra_kwargs = Any[]
     alg = MethodOfSteps(AutoTsit5(Rosenbrock23(autodiff = false))) # Standard default

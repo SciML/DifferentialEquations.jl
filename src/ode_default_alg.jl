@@ -1,5 +1,5 @@
 function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inplace};
-    kwargs...) where {uType, tType, inplace}
+        kwargs...) where {uType, tType, inplace}
     o = Dict{Symbol, Any}(kwargs)
     extra_kwargs = Any[]
     alg = AutoTsit5(Rosenbrock23(autodiff = false)) # Standard default
@@ -49,11 +49,15 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
                 alg = Rodas5P(autodiff = false)
             end
         else # :auto ∈ alg_hints
-            if (!(uEltype <: Float64) && !(uEltype <: Float32)) || tol_level == :extreme_tol  ||
-                tol_level == :low_tol
+            if (!(uEltype <: Float64) && !(uEltype <: Float32)) ||
+               tol_level == :extreme_tol ||
+               tol_level == :low_tol
                 # Most likely higher precision, so use a higher order method
                 if length(prob.u0) > 500
-                    alg = AutoVern7(KenCarp47(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES()), lazy = !callbacks)
+                    alg = AutoVern7(
+                        KenCarp47(
+                            autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES()),
+                        lazy = !callbacks)
                 elseif length(prob.u0) > 50
                     alg = AutoVern7(KenCarp47(autodiff = false), lazy = !callbacks)
                 else
@@ -61,7 +65,8 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
                 end
             else # :med or low
                 if length(prob.u0) > 500
-                    alg = AutoTsit5(TRBDF2(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES()))
+                    alg = AutoTsit5(TRBDF2(
+                        autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES()))
                 elseif length(prob.u0) > 50
                     alg = AutoTsit5(TRBDF2(autodiff = false))
                 else

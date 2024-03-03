@@ -1,5 +1,6 @@
-function default_algorithm(prob::DiffEqBase.AbstractSDEProblem{uType, tType, isinplace, ND};
-    kwargs...) where {uType, tType, isinplace, ND}
+function default_algorithm(
+        prob::DiffEqBase.AbstractSDEProblem{uType, tType, isinplace, ND};
+        kwargs...) where {uType, tType, isinplace, ND}
     o = Dict{Symbol, Any}(kwargs)
     extra_kwargs = Any[]
     alg = SOSRI() # Standard default
