@@ -41,7 +41,7 @@ function default_algorithm(prob::DiffEqBase.AbstractODEProblem{uType, tType, inp
             if length(prob.u0) > 500
                 # Use Krylov method when huge!
                 alg = FBDF(autodiff = false, linsolve = LinearSolve.KrylovJL_GMRES())
-            elseif length(prob.u0) > 500
+            elseif length(prob.u0) > 50
                 alg = FBDF(autodiff = false)
             elseif tol_level == :high_tol
                 alg = Rosenbrock23(autodiff = false)
