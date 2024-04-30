@@ -1,0 +1,19 @@
+name: "Tests"
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_name != github.event.repository.default_branch || github.ref != 'refs/tags/v*' }}
+
+jobs:
+  tests:
+    name: "Tests"
+    uses: "SciML/.github/.github/workflows/tests.yml@v1"
+    secrets: "inherit"
