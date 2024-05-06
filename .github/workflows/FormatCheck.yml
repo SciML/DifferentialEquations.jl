@@ -1,42 +1,13 @@
-name: format-check
+name: "Format Check"
 
 on:
   push:
     branches:
       - 'master'
-      - 'release-'
     tags: '*'
   pull_request:
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        julia-version: [1]
-        julia-arch: [x86]
-        os: [ubuntu-latest]
-    steps:
-      - uses: julia-actions/setup-julia@latest
-        with:
-          version: ${{ matrix.julia-version }}
-
-      - uses: actions/checkout@v4
-      - name: Install JuliaFormatter and format
-        # This will use the latest version by default but you can set the version like so:
-        #
-        # julia  -e 'using Pkg; Pkg.add(PackageSpec(name="JuliaFormatter", version="0.13.0"))'
-        run: |
-          julia  -e 'using Pkg; Pkg.add(PackageSpec(name="JuliaFormatter"))'
-          julia  -e 'using JuliaFormatter; format(".", verbose=true)'
-      - name: Format check
-        run: |
-          julia -e '
-          out = Cmd(`git diff --name-only`) |> read |> String
-          if out == ""
-              exit(0)
-          else
-              @error "Some files have not been formatted !!!"
-              write(stdout, out)
-              exit(1)
-          end'
+  format-check:
+    name: "Format Check"
+    uses: "SciML/.github/.github/workflows/format-check.yml@v1"
