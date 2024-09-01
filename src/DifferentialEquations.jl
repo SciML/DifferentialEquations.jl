@@ -21,6 +21,7 @@ using LinearAlgebra
 import DiffEqBase: solve
 @reexport using LinearSolve
 using NonlinearSolve
+import SciMLBase
 
 include("default_solve.jl")
 include("default_arg_parsing.jl")

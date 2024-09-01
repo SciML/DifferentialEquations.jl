@@ -20,9 +20,10 @@ function default_algorithm(
 
     if is_stratonovich
         if is_stiff || prob.f.mass_matrix !== I
-            alg = ImplicitRKMil(autodiff = false, interpretation = :Stratonovich)
+            alg = ImplicitRKMil(autodiff = false,
+                interpretation = SciMLBase.AlgorithmInterpretation.Stratonovich)
         else
-            alg = RKMil(interpretation = :Stratonovich)
+            alg = RKMil(interpretation = SciMLBase.AlgorithmInterpretation.Stratonovich)
         end
     end
 

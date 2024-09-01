@@ -1,4 +1,5 @@
 using DifferentialEquations, Test
+import SciMLBase
 
 f_additive(u, p, t) = @. p[2] / sqrt(1 + t) - u / (2 * (1 + t))
 σ_additive(u, p, t) = @. p[1] * p[2] / sqrt(1 + t)
@@ -18,7 +19,8 @@ sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
 @test sol.alg isa SOSRA
 
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
-@test StochasticDiffEq.alg_interpretation(sol.alg) == :Stratonovich
+@test SciMLBase.alg_interpretation(sol.alg) ==
+      SciMLBase.AlgorithmInterpretation.Stratonovich
 @test sol.alg isa RKMil
 
 f = (du, u, p, t) -> du .= 1.01u
