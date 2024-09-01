@@ -13,7 +13,7 @@ function default_algorithm(
     end
 
     is_stiff = :stiff ∈ alg_hints
-    is_stratonovich = :Stratonovich ∈ alg_hints
+    is_stratonovich = :stratonovich ∈ alg_hints
     if is_stiff || prob.f.mass_matrix !== I
         alg = ImplicitRKMil(autodiff = false)
     end

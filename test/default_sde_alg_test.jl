@@ -18,7 +18,7 @@ sol = solve(prob, dt = 1 / 2^(3))
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
 @test sol.alg isa SOSRA
 
-sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
+sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stratonovich])
 @test SciMLBase.alg_interpretation(sol.alg) ==
       SciMLBase.AlgorithmInterpretation.Stratonovich
 @test sol.alg isa RKMil
@@ -45,5 +45,5 @@ sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stiff])
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
 @test sol.alg isa SOSRA
 
-sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
+sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stratonovich])
 @test sol.alg isa LambaEulerHeun
