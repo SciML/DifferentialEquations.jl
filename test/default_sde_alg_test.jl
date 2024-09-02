@@ -1,4 +1,5 @@
 using DifferentialEquations, Test
+import SciMLBase
 
 f_additive(u, p, t) = @. p[2] / sqrt(1 + t) - u / (2 * (1 + t))
 σ_additive(u, p, t) = @. p[1] * p[2] / sqrt(1 + t)
@@ -17,8 +18,9 @@ sol = solve(prob, dt = 1 / 2^(3))
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
 @test sol.alg isa SOSRA
 
-sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
-@test StochasticDiffEq.alg_interpretation(sol.alg) == :Stratonovich
+sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stratonovich])
+@test SciMLBase.alg_interpretation(sol.alg) ==
+      SciMLBase.AlgorithmInterpretation.Stratonovich
 @test sol.alg isa RKMil
 
 f = (du, u, p, t) -> du .= 1.01u
@@ -43,5 +45,5 @@ sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stiff])
 sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:additive])
 @test sol.alg isa SOSRA
 
-sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:Stratonovich])
+sol = solve(prob, dt = 1 / 2^(3), alg_hints = [:stratonovich])
 @test sol.alg isa LambaEulerHeun
