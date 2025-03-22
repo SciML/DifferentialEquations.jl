@@ -1,7 +1,7 @@
 name = "DifferentialEquations"
 uuid = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "7.16.0"
+version = "7.16.1"
 
 [deps]
 BoundaryValueDiffEq = "764a87c0-6b3e-53db-9096-fe964310641d"
