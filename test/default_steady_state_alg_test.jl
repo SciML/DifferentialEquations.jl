@@ -9,4 +9,4 @@ prob = SteadyStateProblem(f, u0)
 
 sol = solve(prob)
 
-@test DifferentialEquations.NonlinearSolve.get_name(sol.alg) === :NewtonRaphson
+@test nameof(typeof(sol.alg)) == :GeneralizedFirstOrderAlgorithm
