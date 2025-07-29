@@ -1,0 +1,109 @@
+# Typos configuration for SciML repositories
+
+[files]
+extend-exclude = [
+    "*.png",
+    "*.jpg", 
+    "*.jpeg",
+    "*.gif",
+    "*.svg",
+    "*.pdf",
+    "*.woff",
+    "*.woff2",
+    "*.ttf",
+    "*.eot",
+    "*/build/*",
+    "*/node_modules/*",
+    "*/.git/*",
+    "*.lock",
+    "Manifest.toml"
+]
+
+[default.extend-words]
+# Julia-specific functions
+indexin = "indexin"
+findfirst = "findfirst"
+findlast = "findlast"
+eachindex = "eachindex"
+setp = "setp"
+getp = "getp"
+setu = "setu"
+getu = "getu"
+
+# Mathematical/scientific terms
+jacobian = "jacobian"
+hessian = "hessian"
+eigenvalue = "eigenvalue"
+eigenvector = "eigenvector"
+discretization = "discretization"
+linearization = "linearization"
+parameterized = "parameterized"
+discretized = "discretized"
+vectorized = "vectorized"
+
+# Common variable patterns in Julia/SciML
+ists = "ists"
+ispcs = "ispcs"
+osys = "osys"
+rsys = "rsys"
+usys = "usys"
+fsys = "fsys"
+eqs = "eqs"
+rhs = "rhs"
+lhs = "lhs"
+ode = "ode"
+pde = "pde"
+sde = "sde"
+dde = "dde"
+bvp = "bvp"
+ivp = "ivp"
+
+# Common abbreviations
+tol = "tol"
+rtol = "rtol"
+atol = "atol"
+idx = "idx"
+jdx = "jdx"
+prev = "prev"
+curr = "curr"
+init = "init"
+tmp = "tmp"
+vec = "vec"
+arr = "arr"
+dt = "dt"
+du = "du"
+dx = "dx"
+dy = "dy"
+dz = "dz"
+
+# Algorithm/type suffixes
+alg = "alg"
+prob = "prob"
+sol = "sol"
+cb = "cb"
+opts = "opts"
+args = "args"
+kwargs = "kwargs"
+
+# Biological/chemical terms (from Catalyst.jl context)
+Pase = "Pase"
+KKPase = "KKPase"
+KKPKKPase = "KKPKKPase"
+KKPPKKPase = "KKPPKKPase"
+
+# Common scientific abbreviations
+ND = "ND"
+nd = "nd"
+
+# SVG/auto-generated identifiers (common patterns)
+daa = "daa"
+myu = "myu"
+
+# Units and dimensions
+nd = "nd"
+
+# Common Julia package/module abbreviations  
+MT = "MT"
+ODE = "ODE"
+PDE = "PDE"
+SDE = "SDE"
