@@ -37,8 +37,8 @@ Reexport = "1.0"
 SciMLBase = "2.51"
 SteadyStateDiffEq = "2"
 StochasticDiffEq = "6.69"
-Sundials = "4.19"
-julia = "1.9"
+Sundials = "4.19, 5"
+julia = "1.10"
 
 [extras]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
