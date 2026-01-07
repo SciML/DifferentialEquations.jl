@@ -118,3 +118,4 @@ could cite our work.
 ## Example Images
 
 <img src="https://raw.githubusercontent.com/SciML/DifferentialEquations.jl/master/assets/DifferentialEquations_Example.png" align="middle"  />
+
