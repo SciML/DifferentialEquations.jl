@@ -11,7 +11,7 @@ SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 [compat]
 OrdinaryDiffEq = "6.53"
 Reexport = "1.0"
-SciMLBase = "2.51"
+SciMLBase = "2.51, 3.3"
 julia = "1.10"
 
 [extras]
