@@ -1,3 +1,6 @@
+[files]
+extend-exclude = ["assets/*.svg"]
+
 [default.extend-words]
 # Julia-specific functions
 indexin = "indexin"
