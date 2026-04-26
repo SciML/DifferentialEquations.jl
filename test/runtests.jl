@@ -46,7 +46,7 @@ using DifferentialEquations, Test, SafeTestsets
                 du[3] = k₂ * y₂^2
             end
             prob = ODEProblem(rober!, [1.0, 0.0, 0.0], (0.0, 1e5), (0.04, 3e7, 1e4))
-            sol = solve(prob, Rodas5())
+            sol = solve(prob, Rodas5P())
             @test sol.retcode == ReturnCode.Success
         end
 
