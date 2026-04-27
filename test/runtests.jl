@@ -13,7 +13,7 @@ using DifferentialEquations, Test, SafeTestsets
             u0 = 0.5
             tspan = (0.0, 1.0)
             prob = ODEProblem(f, u0, tspan)
-            sol = solve(prob, Tsit5(), reltol = 1e-8, abstol = 1e-8)
+            sol = solve(prob, Tsit5(), reltol = 1.0e-8, abstol = 1.0e-8)
             @test sol.retcode == ReturnCode.Success
             @test length(sol.t) > 0
             @test length(sol.u) > 0
@@ -45,8 +45,8 @@ using DifferentialEquations, Test, SafeTestsets
                 du[2] = k₁ * y₁ - k₂ * y₂^2 - k₃ * y₂ * y₃
                 du[3] = k₂ * y₂^2
             end
-            prob = ODEProblem(rober!, [1.0, 0.0, 0.0], (0.0, 1e5), (0.04, 3e7, 1e4))
-            sol = solve(prob, Rodas5())
+            prob = ODEProblem(rober!, [1.0, 0.0, 0.0], (0.0, 1.0e5), (0.04, 3.0e7, 1.0e4))
+            sol = solve(prob, Rodas5P())
             @test sol.retcode == ReturnCode.Success
         end
 
