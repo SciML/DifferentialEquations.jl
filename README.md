@@ -11,6 +11,12 @@
 
 [![DOI](https://zenodo.org/badge/58516043.svg)](https://zenodo.org/badge/latestdoi/58516043)
 
+## v8 Update Notice
+
+DifferentialEquations.jl v8 had many breaking changes! The complete migration story is detailed in https://github.com/SciML/OrdinaryDiffEq.jl/blob/master/NEWS.md
+
+## Introduction
+
 This is a suite for numerically solving differential equations written in Julia
 and available for use in Julia, Python, and R. The
 purpose of this package is to supply efficient Julia implementations of solvers
