@@ -12,20 +12,9 @@ on:
       - 'docs/**'
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        downgrade_mode: ['alldeps']
-        julia-version: ['1.10']
-    steps:
-      - uses: actions/checkout@v6
-      - uses: julia-actions/setup-julia@v3
-        with:
-          version: ${{ matrix.julia-version }}
-      - uses: julia-actions/julia-downgrade-compat@v2
-        with:
-          skip: Pkg,TOML
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-        with:
-          ALLOW_RERESOLVE: false
+    uses: "SciML/.github/.github/workflows/downgrade.yml@v1"
+    with:
+      julia-version: "1.10"
+      skip: "Pkg,TOML"
+      allow-reresolve: false
+    secrets: "inherit"

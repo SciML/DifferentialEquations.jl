@@ -4,10 +4,5 @@ on: [pull_request]
 
 jobs:
   typos-check:
-    name: Spell Check with Typos
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Actions Repository
-        uses: actions/checkout@v6
-      - name: Check spelling
-        uses: crate-ci/typos@v1.18.0
+    uses: "SciML/.github/.github/workflows/spellcheck.yml@v1"
+    secrets: "inherit"
