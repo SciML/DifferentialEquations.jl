@@ -1,0 +1,9 @@
+name: "Dependabot Auto-merge"
+on: pull_request
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  automerge:
+    uses: "SciML/.github/.github/workflows/dependabot-automerge.yml@v1"
+    secrets: "inherit"
