@@ -1,0 +1,9 @@
+name: "Runic Suggestions"
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  runic-suggestions:
+    uses: "SciML/.github/.github/workflows/runic-suggestions-on-pr.yml@v1"
+    secrets: "inherit"
