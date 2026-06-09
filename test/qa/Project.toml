@@ -1,0 +1,16 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+DifferentialEquations = {path = "../.."}
+
+[compat]
+Aqua = "0.8"
+JET = "0.9, 0.10, 0.11"
+Pkg = "1"
+Test = "1"
+julia = "1.10"

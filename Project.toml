@@ -10,8 +10,11 @@ SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 
 [compat]
 OrdinaryDiffEq = "6.53, 7"
+Random = "1"
 Reexport = "1.0"
+SafeTestsets = "0.1"
 SciMLBase = "2.51, 3"
+Test = "1"
 julia = "1.10"
 
 [extras]
