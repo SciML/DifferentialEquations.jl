@@ -4,11 +4,13 @@ using DifferentialEquations, Test, SafeTestsets
 
 @time begin
     @testset "DifferentialEquations" begin
-        @testset "Re-exports available" begin
+        @safetestset "Re-exports available" begin
+            using DifferentialEquations, Test
             @test true
         end
 
-        @testset "Basic ODE solve" begin
+        @safetestset "Basic ODE solve" begin
+            using DifferentialEquations, Test
             f(u, p, t) = 1.01 * u
             u0 = 0.5
             tspan = (0.0, 1.0)
@@ -20,7 +22,8 @@ using DifferentialEquations, Test, SafeTestsets
             @test sol.u[1] ≈ u0
         end
 
-        @testset "In-place ODE solve" begin
+        @safetestset "In-place ODE solve" begin
+            using DifferentialEquations, Test
             function lorenz!(du, u, p, t)
                 σ, ρ, β = p
                 du[1] = σ * (u[2] - u[1])
@@ -37,7 +40,8 @@ using DifferentialEquations, Test, SafeTestsets
             @test length(sol.u[end]) == 3
         end
 
-        @testset "Stiff ODE solve" begin
+        @safetestset "Stiff ODE solve" begin
+            using DifferentialEquations, Test
             function rober!(du, u, p, t)
                 y₁, y₂, y₃ = u
                 k₁, k₂, k₃ = p
@@ -50,7 +54,8 @@ using DifferentialEquations, Test, SafeTestsets
             @test sol.retcode == ReturnCode.Success
         end
 
-        @testset "Solution interpolation" begin
+        @safetestset "Solution interpolation" begin
+            using DifferentialEquations, Test
             f(u, p, t) = 1.01 * u
             prob = ODEProblem(f, 0.5, (0.0, 1.0))
             sol = solve(prob, Tsit5(), dense = true)
@@ -59,7 +64,8 @@ using DifferentialEquations, Test, SafeTestsets
             @test u_interp > 0.5
         end
 
-        @testset "Callbacks" begin
+        @safetestset "Callbacks" begin
+            using DifferentialEquations, Test
             function lorenz!(du, u, p, t)
                 du[1] = 10.0 * (u[2] - u[1])
                 du[2] = u[1] * (28.0 - u[3]) - u[2]
@@ -80,7 +86,8 @@ using DifferentialEquations, Test, SafeTestsets
             @test sol2.retcode == ReturnCode.Success
         end
 
-        @testset "Remake" begin
+        @safetestset "Remake" begin
+            using DifferentialEquations, Test
             f(u, p, t) = p * u
             prob = ODEProblem(f, 0.5, (0.0, 1.0), 1.01)
             prob2 = remake(prob; u0 = 1.0)
@@ -89,7 +96,8 @@ using DifferentialEquations, Test, SafeTestsets
             @test sol.u[1] ≈ 1.0
         end
 
-        @testset "saveat" begin
+        @safetestset "saveat" begin
+            using DifferentialEquations, Test
             f(u, p, t) = 1.01 * u
             prob = ODEProblem(f, 0.5, (0.0, 1.0))
             sol = solve(prob, Tsit5(); saveat = 0.1)
