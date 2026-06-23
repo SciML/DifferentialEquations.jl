@@ -1,7 +1,7 @@
 name = "DifferentialEquations"
 uuid = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "8.0.0"
+version = "8.0.1"
 
 [deps]
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
