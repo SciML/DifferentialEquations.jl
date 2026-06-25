@@ -1,12 +1,7 @@
-using DifferentialEquations
-using Aqua: Aqua
-using JET: JET
-using Test
+using SciMLTesting, DifferentialEquations, JET, Test
 
-@testset "Aqua.jl" begin
-    Aqua.test_all(DifferentialEquations)
-end
-
-@testset "JET.jl" begin
-    JET.test_package(DifferentialEquations, target_defined_modules = true)
-end
+run_qa(
+    DifferentialEquations;
+    explicit_imports = true,
+    jet_kwargs = (; target_defined_modules = true),
+)
