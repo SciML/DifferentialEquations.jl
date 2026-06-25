@@ -1,6 +1,8 @@
 module DifferentialEquations
 
-using Reexport
+using Reexport: Reexport, @reexport
+import SciMLBase
+import OrdinaryDiffEq
 
 @reexport using SciMLBase
 @reexport using OrdinaryDiffEq

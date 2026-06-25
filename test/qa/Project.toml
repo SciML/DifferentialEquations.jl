@@ -13,6 +13,6 @@ DifferentialEquations = {path = "../.."}
 Aqua = "0.8"
 JET = "0.9, 0.10, 0.11"
 SafeTestsets = "1, 0.1"
-SciMLTesting = "1"
+SciMLTesting = "1.6"
 Test = "1"
 julia = "1.10"
