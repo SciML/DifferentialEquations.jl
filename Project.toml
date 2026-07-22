@@ -14,7 +14,7 @@ Random = "1"
 Reexport = "1.0"
 SafeTestsets = "0.1"
 SciMLBase = "2.51, 3"
-SciMLTesting = "2.1"
+SciMLTesting = "2.4"
 Test = "1"
 julia = "1.10"
 
