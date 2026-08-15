@@ -202,7 +202,11 @@ const NONMODULE_REEXPORTS = (
 
 const INTENTIONAL_REEXPORTS = (
     NONMODULE_REEXPORTS...,
+    :AutoDePSpecialize,
+    :AutoDespecialize,
+    :AutoRespecialize,
     :Clocks,
+    :DEVerbosity,
     :EigenvalueTarget,
     :EnsembleAnalysis,
     :OrdinaryDiffEq,
@@ -215,6 +219,5 @@ const INTENTIONAL_REEXPORTS = (
 run_qa(
     DifferentialEquations;
     api_docs_kwargs = (; rendered_ignore = NONMODULE_REEXPORTS),
-    jet_kwargs = (; target_defined_modules = true),
     reexports_allow = INTENTIONAL_REEXPORTS,
 )
