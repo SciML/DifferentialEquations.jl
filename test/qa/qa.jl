@@ -6,8 +6,11 @@ const NONMODULE_REEXPORTS = (
     :AffineOperator,
     :AllObserved,
     :AnalyticalProblem,
+    :AutoDePSpecialize,
+    :AutoDespecialize,
     :AutoFiniteDiff,
     :AutoForwardDiff,
+    :AutoRespecialize,
     :AutoSparse,
     :AutoTsit5,
     :AutoVern6,
@@ -27,6 +30,7 @@ const NONMODULE_REEXPORTS = (
     :DAESolution,
     :DDEFunction,
     :DDEProblem,
+    :DEVerbosity,
     :DefaultODEAlgorithm,
     :DiagonalOperator,
     :DiscreteCallback,
@@ -202,11 +206,7 @@ const NONMODULE_REEXPORTS = (
 
 const INTENTIONAL_REEXPORTS = (
     NONMODULE_REEXPORTS...,
-    :AutoDePSpecialize,
-    :AutoDespecialize,
-    :AutoRespecialize,
     :Clocks,
-    :DEVerbosity,
     :EigenvalueTarget,
     :EnsembleAnalysis,
     :OrdinaryDiffEq,
@@ -216,6 +216,9 @@ const INTENTIONAL_REEXPORTS = (
     :SciMLOperators,
 )
 
+# The facade's manual lives in DiffEqDocs, not this repository. SciMLTesting 2.4
+# requires local rendering for reexported functions and types, so retain this
+# compatibility exception while the package keeps its 2.4 minimum.
 run_qa(
     DifferentialEquations;
     api_docs_kwargs = (; rendered_ignore = NONMODULE_REEXPORTS),
