@@ -216,11 +216,7 @@ const INTENTIONAL_REEXPORTS = (
     :SciMLOperators,
 )
 
-# The facade's manual lives in DiffEqDocs, not this repository. SciMLTesting 2.4
-# requires local rendering for reexported functions and types, so retain this
-# compatibility exception while the package keeps its 2.4 minimum.
 run_qa(
     DifferentialEquations;
-    api_docs_kwargs = (; rendered_ignore = NONMODULE_REEXPORTS),
     reexports_allow = INTENTIONAL_REEXPORTS,
 )
