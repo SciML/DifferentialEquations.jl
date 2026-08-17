@@ -6,8 +6,11 @@ const NONMODULE_REEXPORTS = (
     :AffineOperator,
     :AllObserved,
     :AnalyticalProblem,
+    :AutoDePSpecialize,
+    :AutoDespecialize,
     :AutoFiniteDiff,
     :AutoForwardDiff,
+    :AutoRespecialize,
     :AutoSparse,
     :AutoTsit5,
     :AutoVern6,
@@ -27,6 +30,7 @@ const NONMODULE_REEXPORTS = (
     :DAESolution,
     :DDEFunction,
     :DDEProblem,
+    :DEVerbosity,
     :DefaultODEAlgorithm,
     :DiagonalOperator,
     :DiscreteCallback,
@@ -214,7 +218,5 @@ const INTENTIONAL_REEXPORTS = (
 
 run_qa(
     DifferentialEquations;
-    api_docs_kwargs = (; rendered_ignore = NONMODULE_REEXPORTS),
-    jet_kwargs = (; target_defined_modules = true),
     reexports_allow = INTENTIONAL_REEXPORTS,
 )
