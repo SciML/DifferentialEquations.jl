@@ -5,11 +5,13 @@ version = "8.0.3"
 
 [deps]
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 
 [compat]
 OrdinaryDiffEq = "7"
+PrecompileTools = "1"
 Random = "1"
 Reexport = "1.0"
 SafeTestsets = "0.1"
