@@ -2,8 +2,8 @@ module DifferentialEquations
 
 using Reexport: Reexport, @reexport
 using PrecompileTools: @compile_workload, @setup_workload
-import SciMLBase
-import OrdinaryDiffEq
+import SciMLBase: ODEProblem, solve
+import OrdinaryDiffEq: Rodas5P, Tsit5
 
 @reexport using SciMLBase
 @reexport using OrdinaryDiffEq
