@@ -2,14 +2,15 @@ module DifferentialEquations
 
 using Reexport: Reexport, @reexport
 using PrecompileTools: @compile_workload, @setup_workload
+import SciMLBase
+import SciMLBase: ODEProblem, solve
+import OrdinaryDiffEq
+import OrdinaryDiffEq: Rodas5P, Tsit5
 
 @reexport using SciMLBase
 @reexport using OrdinaryDiffEq
 
 @setup_workload begin
-    using SciMLBase: ODEProblem, solve
-    using OrdinaryDiffEq: Rodas5P, Tsit5
-
     scalar_problem = ODEProblem((u, p, t) -> p * u, 0.5, (0.0, 1.0), 1.01)
     stiff_problem = ODEProblem(
         (du, u, p, t) -> begin
