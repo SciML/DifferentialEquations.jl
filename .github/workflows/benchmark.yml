@@ -1,0 +1,29 @@
+name: Benchmark this PR
+
+on:
+  pull_request:
+    branches: [master]
+    paths-ignore: ['docs/**']
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["1", "lts"]
+    env:
+      # Force consistent Julia depot path for self-hosted runners
+      JULIA_DEPOT_PATH: ~/.julia
+    steps:
+      - uses: MilesCranmer/AirspeedVelocity.jl@action-v1
+        with:
+          julia-version: ${{ matrix.version }}
+          script: "benchmark/benchmarks.jl"
+          extra-pkgs: ""
+          job-summary: true
