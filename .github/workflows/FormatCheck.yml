@@ -9,6 +9,9 @@ on:
     tags: '*'
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   runic:
     uses: "SciML/.github/.github/workflows/runic.yml@v1"
