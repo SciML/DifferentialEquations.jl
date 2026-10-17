@@ -10,6 +10,9 @@ on:
       - master
     paths-ignore:
       - 'docs/**'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   test:
     uses: "SciML/.github/.github/workflows/downgrade.yml@v1"
